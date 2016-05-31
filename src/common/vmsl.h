@@ -17,10 +17,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+#include "msgctxt.h"
 
-typedef void(*msg_init)(void *data); 
-typedef void(*msg_send)(void *data);
-typedef void(*msg_commit)(void *data);
+typedef msg_ctxt_t *(*msg_init)(void *data); 
+typedef void(*msg_send)(msg_ctxt_t *ctxt, void *data);
+typedef void(*msg_commit)(msg_ctxt_t *ctxt, void *data);
 
 typedef struct vmsl_t_ {
 	msg_init init;

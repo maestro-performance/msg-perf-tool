@@ -18,7 +18,13 @@
 extern "C" {
 #endif
 
-
+#include <stdio.h>
+#include <stdarg.h>
+#include <getopt.h>
+    
+#include "contrib/options.h"
+#include "contrib/messenger.h"
+#include "contrib/log.h"
 
 
 #ifdef __cplusplus
