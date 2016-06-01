@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 
         switch (c) {
         case 'b':
-            options->pid = strtol(optarg, NULL, 10);
+            strncpy(options->url, optarg, sizeof (options->url) - 1);
             break;
         case 'd':
             options->debug = true;
@@ -125,14 +125,15 @@ int main(int argc, char **argv)
     }
 
     if (strlen(options->logdir) > 0) {
-        remap_log(options->logdir, "mpt-sender", options->pid, stderr);
+        // remap_log(options->logdir, "mpt-sender", getpid(), stderr);
     }
 
 
     vmsl_t *vmsl = vmsl_init();
     vmsl->init = proton_init;
+    vmsl->send = proton_send;
     
-    sender_start(vmsl);
+    sender_start(vmsl, options);
 
     return EXIT_SUCCESS;
 }

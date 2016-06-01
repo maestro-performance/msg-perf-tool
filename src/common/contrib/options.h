@@ -30,7 +30,7 @@ extern "C" {
 
 
 typedef struct options_t_ {
-    pid_t pid;
+    char url[OPT_MAX_STR_SIZE];
     char command[OPT_MAX_STR_SIZE];
     char logdir[OPT_MAX_STR_SIZE];
     bool daemon;

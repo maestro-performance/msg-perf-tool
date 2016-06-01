@@ -85,7 +85,7 @@ int main(int argc, char **argv)
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "p:dDc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:dDc:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -96,8 +96,8 @@ int main(int argc, char **argv)
         }
 
         switch (c) {
-        case 'p':
-            options->pid = strtol(optarg, NULL, 10);
+        case 'b':
+            strncpy(options->url, optarg, sizeof (options->url) - 1);
             break;
         case 'd':
             options->debug = true;
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     }
 
     if (strlen(options->logdir) > 0) {
-        remap_log(options->logdir, "mpt-receiver", options->pid, stderr);
+        // remap_log(options->logdir, "mpt-receiver", options->pid, stderr);
     }
 
     

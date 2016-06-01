@@ -22,11 +22,14 @@ extern "C" {
     
 #include "msgctxt.h"
 #include "proton-context.h"
+#include "contrib/options.h"
 
 #include <proton/messenger.h>
+#include <proton/message.h>
 
-   
+
 msg_ctxt_t *proton_init(void *data);
+void proton_send(msg_ctxt_t *ctxt, void *data);
 
 #ifdef __cplusplus
 }

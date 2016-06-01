@@ -20,8 +20,9 @@ extern "C" {
 	
 #include "vmsl.h"
 #include "msgctxt.h"
+#include "contrib/options.h"
 
-void sender_start(vmsl_t *vmsl);
+void sender_start(const vmsl_t *vmsl, const options_t *options);
 
 
 #ifdef __cplusplus
