@@ -12,7 +12,8 @@ static void messenger_function(log_level_t level, const char *msg, ...)
 
     va_start(ap, msg);
     vasprintf(&ret, msg, ap);
-
+    va_end(ap);
+    
     const options_t *options = get_options_object();
 
     switch (level) {
@@ -43,7 +44,7 @@ static void messenger_function(log_level_t level, const char *msg, ...)
         break;
     }
 
-    va_end(ap);
+    
     free(ret);
     fflush(NULL);
 }
@@ -128,6 +129,11 @@ int main(int argc, char **argv)
         // remap_log(options->logdir, "mpt-receiver", options->pid, stderr);
     }
 
+    vmsl_t *vmsl = vmsl_init();
+    vmsl->init = proton_init;
+    vmsl->receive = proton_receive;
+    
+    receiver_start(vmsl, options);
     
     return EXIT_SUCCESS;
 }

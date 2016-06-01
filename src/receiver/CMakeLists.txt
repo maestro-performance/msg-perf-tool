@@ -9,11 +9,13 @@ set(RUNTIME_DIR "bin")
 add_executable(
 	mpt-receiver
 	receiver.c
+        message_receiver.c
 )
 
 target_link_libraries(
 	mpt-receiver
 	mpt-common
+        mpt-proton
 )
 
 install(TARGETS

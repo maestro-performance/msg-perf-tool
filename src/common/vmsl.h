@@ -12,11 +12,13 @@ extern "C" {
 
 typedef msg_ctxt_t *(*msg_init)(void *data);
 typedef void(*msg_send)(msg_ctxt_t *ctxt, void *data);
+typedef void(*msg_receive)(msg_ctxt_t *ctxt);
 typedef void(*msg_commit)(msg_ctxt_t *ctxt, void *data);
 
 typedef struct vmsl_t_ {
     msg_init init;
     msg_send send;
+    msg_receive receive;
     msg_commit commit;
 } vmsl_t;
 

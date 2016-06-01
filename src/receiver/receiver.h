@@ -21,10 +21,14 @@ extern "C" {
 #include <stdio.h>
 #include <stdarg.h>
 #include <getopt.h>
-    
+
 #include "contrib/options.h"
 #include "contrib/logger.h"
 #include "contrib/log.h"
+
+#include "vmsl.h"
+#include "message_receiver.h"
+#include "proton-wrapper.h"
 
 
 #ifdef __cplusplus
