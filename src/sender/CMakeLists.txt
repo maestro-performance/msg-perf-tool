@@ -6,7 +6,7 @@ endif (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
 
 add_executable(
 	mpt-sender
-	sender.c
+	sender_main.c
 )
 
 target_link_libraries(

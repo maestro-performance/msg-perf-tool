@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-#include "sender.h"
+#include "sender_main.h"
 
 static void messenger_function(log_level_t level, const char *msg, ...)
 {
