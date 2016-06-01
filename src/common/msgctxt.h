@@ -23,7 +23,7 @@ extern "C" {
 #include "contrib/logger.h"
 
 typedef struct msg_ctxt_t_ {
-    void *payload;
+    void *api_context;
 } msg_ctxt_t;
 
 msg_ctxt_t *msg_ctxt_init();

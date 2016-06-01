@@ -18,19 +18,15 @@
 extern "C" {
 #endif
 
-#include "msgctxt.h"
+
     
+#include "msgctxt.h"
+#include "proton-context.h"
+
 #include <proton/messenger.h>
+
    
 msg_ctxt_t *proton_init(void *data);
-        
-        
-/*
- typedef msg_ctxt_t *(*msg_init)(void *data); 
-typedef void(*msg_send)(msg_ctxt_t *ctxt, void *data);
-typedef void(*msg_commit)(msg_ctxt_t *ctxt, void *data);
- */
-
 
 #ifdef __cplusplus
 }

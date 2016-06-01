@@ -10,6 +10,8 @@ add_library(
         contrib/logger.c
         contrib/log.c
         vmsl.c
+        msgctxt.c
+        
 )
 
 

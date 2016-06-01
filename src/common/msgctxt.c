@@ -9,12 +9,12 @@
 msg_ctxt_t *msg_ctxt_init() {
     msg_ctxt_t *ret = malloc(sizeof(msg_ctxt_t));
     
-    logger_t msg 
+    logger_t logger = get_logger();
     
     if (ret == NULL) {
-        // error out
+        logger(FATAL, "Unable to initialize messaging context object");
         
-        return NULL;
+        exit(1);
     }
 
     return ret;

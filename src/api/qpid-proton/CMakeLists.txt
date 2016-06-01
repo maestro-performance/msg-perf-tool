@@ -13,6 +13,7 @@ include_directories(
 
 add_library(
 	mpt-proton SHARED
+        proton-context.c
         proton-wrapper.c
 )
 
