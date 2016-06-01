@@ -7,11 +7,13 @@ endif (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
 add_executable(
 	mpt-sender
 	sender_main.c
+        message_sender.c
 )
 
 target_link_libraries(
 	mpt-sender
 	mpt-common
+        mpt-proton
 )
 
 install(TARGETS

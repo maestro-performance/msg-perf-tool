@@ -26,6 +26,10 @@ extern "C" {
 #include "contrib/logger.h"
 #include "contrib/log.h"
 
+#include "vmsl.h"
+#include "message_sender.h"
+#include "proton-wrapper.h"
+
 
 #ifdef __cplusplus
 }

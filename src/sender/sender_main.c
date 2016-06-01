@@ -85,7 +85,7 @@ int main(int argc, char **argv)
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "p:dDc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:dDc:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
         }
 
         switch (c) {
-        case 'p':
+        case 'b':
             options->pid = strtol(optarg, NULL, 10);
             break;
         case 'd':
@@ -128,6 +128,11 @@ int main(int argc, char **argv)
         remap_log(options->logdir, "mpt-sender", options->pid, stderr);
     }
 
+
+    vmsl_t *vmsl = vmsl_init();
+    vmsl->init = proton_init;
     
+    sender_start(vmsl);
+
     return EXIT_SUCCESS;
 }

@@ -11,6 +11,8 @@
 msg_ctxt_t *proton_init(void *data) {
     logger_t logger = get_logger();
     
+    logger(DEBUG, "Initializing proton wrapper");
+    
     msg_ctxt_t *msg_ctxt = msg_ctxt_init();
     if (!msg_ctxt) {
         logger(FATAL, "Unable to initialize the messaging context");
@@ -27,6 +29,15 @@ msg_ctxt_t *proton_init(void *data) {
     }
     
     pn_messenger_t *messenger = pn_messenger(NULL);
+    
+    logger(DEBUG, "Initializing the proton messenger");
+    int err = pn_messenger_start(messenger);
+    if (err) {
+        logger(FATAL, "Unable to start the proton messenger");
+        
+        exit(1);
+    }
+    
     proton_ctxt->messenger = messenger;
     msg_ctxt->api_context = proton_ctxt;
     
