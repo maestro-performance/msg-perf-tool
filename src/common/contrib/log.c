@@ -45,23 +45,23 @@ static bool can_read_write(const char *filename)
 
 	ret = access(filename, R_OK | W_OK);
 	if (ret < 0) {
-		messenger msg = get_messenger();
+		logger_t logger = get_logger();
 		switch (errno) {
 		case ENOENT:
 		{
-			msg(ERROR, "No such file or directory %s: %s",
+			logger(ERROR, "No such file or directory %s: %s",
 				filename, strerror(errno));
 			return false;
 		}
 		case EACCES:
 		{
-			msg(ERROR, "Access denied (no read/write permission) %s: %s",
+			logger(ERROR, "Access denied (no read/write permission) %s: %s",
 				filename, strerror(errno));
 			return false;
 		}
 		default:
 		{
-			msg(ERROR, "Unhandled IO error trying to access %s: %s",
+			logger(ERROR, "Unhandled IO error trying to access %s: %s",
 				filename, strerror(errno));
 			return false;
 		}
@@ -73,7 +73,7 @@ static bool can_read_write(const char *filename)
 
 static bool rename_if_exists(const char *filename)
 {
-	messenger msg = get_messenger();
+	logger_t logger = get_logger();
 
 	if (!exists(filename)) {
 		return true;
@@ -87,7 +87,7 @@ static bool rename_if_exists(const char *filename)
 	char *new_file = (char *) malloc(size);
 
 	if (!new_file) {
-		msg(ERROR,
+		logger(ERROR,
 			"Not enough memory to allocate for renaming the existing log file");
 		return false;
 	}
@@ -102,7 +102,7 @@ static bool rename_if_exists(const char *filename)
 
 			ret = rename(filename, new_file);
 			if (ret != 0) {
-				msg(ERROR, "Unable to rename log file: %s",
+				logger(ERROR, "Unable to rename log file: %s",
 					strerror(errno));
 
 				free(new_file);
@@ -122,11 +122,11 @@ static bool remap_io(const char *dir, const char *name, FILE *fd)
 {
 	char *fullpath;
 	size_t size = strlen(dir) + APPEND_SIZE_REMAP;
-	messenger msg = get_messenger();
+	logger_t logger = get_logger();
 
 	fullpath = (char *) malloc(size);
 	if (fullpath == NULL) {
-		msg(ERROR, "Unable to remap IO: not enough free memory");
+		logger(ERROR, "Unable to remap IO: not enough free memory");
 
 		return false;
 	}
@@ -140,13 +140,13 @@ static bool remap_io(const char *dir, const char *name, FILE *fd)
 
 	FILE *f = freopen(fullpath, "a", fd);
 	if (f == NULL) {
-		msg(ERROR, "Unable to remap error IO: %s (%s)", strerror(errno),
+		logger(ERROR, "Unable to remap error IO: %s (%s)", strerror(errno),
 			fullpath);
 
 		return false;
 	}
 
-	msg(INFO, "Log file successfully opened");
+	logger(INFO, "Log file successfully opened");
 
 	free(fullpath);
 	return true;

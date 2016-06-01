@@ -14,15 +14,15 @@
  limitations under the License.
  */
 
-#include "messenger.h"
+#include "logger.h"
 
-static messenger msg = NULL;
+static logger_t msg = NULL;
 
-void set_messenger(messenger new_msg) {
+void set_logger(logger_t new_msg) {
 	msg = new_msg;
 }
 
 
-messenger get_messenger(void) {
+logger_t get_logger(void) {
 	return msg;
 }

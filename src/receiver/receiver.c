@@ -5,7 +5,7 @@
  */
 #include "receiver.h"
 
-static void messenger_function(message_level_t level, const char *msg, ...)
+static void messenger_function(log_level_t level, const char *msg, ...)
 {
     va_list ap;
     char *ret = NULL;
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     }
 
     set_options_object(options);
-    set_messenger(messenger_function);
+    set_logger(messenger_function);
     while (1) {
 
         static struct option long_options[] = {

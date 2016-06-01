@@ -14,24 +14,24 @@
  limitations under the License.
  */
 
-#ifndef MESSENGER_H_
-#define MESSENGER_H_
+#ifndef CONTRIB_LOGGER_H_
+#define CONTRIB_LOGGER_H_
 
 #include <stdlib.h>
 
-typedef enum message_level_t_ {
+typedef enum log_level_t_ {
 	TRACE,
 	DEBUG,
 	INFO,
 	WARNING,
 	ERROR,
 	FATAL,
-} message_level_t;
+} log_level_t;
 
-typedef void(*messenger)(message_level_t level, const char *message, ...);
+typedef void(*logger_t)(log_level_t level, const char *message, ...);
 
-void set_messenger(messenger new_msg);
-messenger get_messenger(void);
+void set_logger(logger_t new_msg);
+logger_t get_logger(void);
 
-//MESSENGER_H
+//CONTRIB_LOGGER_H_
 #endif

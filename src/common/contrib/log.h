@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "messenger.h"
+#include "logger.h"
 
 #define APPEND_SIZE_REMAP 64
 

@@ -20,7 +20,7 @@ extern "C" {
     
 #include <stdlib.h>
     
-#include "contrib/messenger.h"
+#include "contrib/logger.h"
 
 typedef struct msg_ctxt_t_ {
     void *payload;

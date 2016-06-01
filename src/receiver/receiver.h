@@ -23,7 +23,7 @@ extern "C" {
 #include <getopt.h>
     
 #include "contrib/options.h"
-#include "contrib/messenger.h"
+#include "contrib/logger.h"
 #include "contrib/log.h"
 
 

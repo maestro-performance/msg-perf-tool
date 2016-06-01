@@ -9,7 +9,7 @@
 msg_ctxt_t *msg_ctxt_init() {
     msg_ctxt_t *ret = malloc(sizeof(msg_ctxt_t));
     
-    messenger msg 
+    logger_t msg 
     
     if (ret == NULL) {
         // error out
