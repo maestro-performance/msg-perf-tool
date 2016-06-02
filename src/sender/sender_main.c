@@ -4,7 +4,8 @@
  * and open the template in the editor.
  */
 #include "sender_main.h"
-
+#include <unistd.h>
+#include <sys/wait.h>
 
 static void messenger_function(log_level_t level, const char *msg, ...)
 {
@@ -132,7 +133,35 @@ int main(int argc, char **argv)
     vmsl->init = proton_init;
     vmsl->send = proton_send;
 
-    sender_start(vmsl, options);
+    int childs[5];
+    int child = 0; 
+    for (int i = 0; i < 5; i++) { 
+            child = fork(); 
+ 
+
+	    if (child == 0) {
+		 sender_start(vmsl, options);
+   		 return 0; 
+	    }
+	    else {
+	    	if (child > 0) {
+			childs[i] = child;
+		
+		}
+		else {
+			printf("Error\n");
+		}
+	    }
+    }
+
+    if (child > 0) { 
+	 int status = 0;
+	    for (int i = 0; i < 5; i++) {
+    		waitpid(childs[i], &status, 0);
+
+		printf("PID %d terminated with status %d\n", childs[i], status);
+    	}
+    }
 
     return EXIT_SUCCESS;
 }
