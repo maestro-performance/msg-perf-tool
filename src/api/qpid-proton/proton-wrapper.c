@@ -147,7 +147,7 @@ static void proton_set_message_data(pn_message_t *message) {
     logger(DEBUG, "Formatting message body");
     
     pn_data_t *body = pn_message_body(message);
-    pn_data_put_string(body, pn_bytes(5, "1234"));
+    pn_data_put_string(body, pn_bytes(4, "1234"));
 }
 
 static void proton_set_outgoing_messenger_properties(proton_ctxt_t *proton_ctxt) {
@@ -219,19 +219,22 @@ static void proton_accept(pn_messenger_t *messenger) {
     proton_check_status(messenger, tracker);
 }
 
-static void proton_subscribe(pn_messenger_t *messenger) {
+void proton_subscribe(msg_ctxt_t *ctxt, void *data) {
     logger_t logger = get_logger();
     const options_t *options = get_options_object();
+    proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
     
     logger(DEBUG, "Subscribing to endpoint address at %s", options->url);
-    pn_messenger_subscribe(messenger, options->url);
-    if (failed(messenger)) {
-        pn_error_t *error = pn_messenger_error(messenger);
+    pn_messenger_subscribe(proton_ctxt->messenger, options->url);
+    if (failed(proton_ctxt->messenger)) {
+        pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
 
         const char *protonErrorText = pn_error_text(error);
         logger(ERROR, protonErrorText);
     }
 }
+
+
 
 static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) {
     
@@ -302,11 +305,8 @@ static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message) 
 
 void proton_receive(msg_ctxt_t *ctxt)
 {
-    logger_t logger = get_logger();
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-    
-    proton_subscribe(proton_ctxt->messenger);
     proton_set_incoming_messenger_properties(proton_ctxt->messenger);
     
     pn_message_t *message = pn_message();

@@ -132,6 +132,7 @@ int main(int argc, char **argv)
     vmsl_t *vmsl = vmsl_init();
     vmsl->init = proton_init;
     vmsl->receive = proton_receive;
+    vmsl->subscribe = proton_subscribe;
     
     receiver_start(vmsl, options);
     

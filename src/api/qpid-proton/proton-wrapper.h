@@ -30,6 +30,7 @@ extern "C" {
 
 msg_ctxt_t *proton_init(void *data);
 void proton_send(msg_ctxt_t *ctxt, void *data);
+void proton_subscribe(msg_ctxt_t *ctxt, void *data);
 void proton_receive(msg_ctxt_t *ctxt);
 
 #ifdef __cplusplus
