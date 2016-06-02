@@ -78,15 +78,14 @@ int main(int argc, char **argv)
 
         static struct option long_options[] = {
             { "broker-url", true, 0, 'b'},
-            { "debug", false, 0, 'd'},
             { "daemon", false, 0, 'D'},
-            { "trace", false, 0, 't'},
+            { "log-level", true, 0, 'l'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:dDc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:l:dDc:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
