@@ -27,7 +27,7 @@ typedef struct msg_content_data_t_ {
     void *data;
 } msg_content_data_t;
 
-typedef const msg_content_data_t *(*msg_content_loader)();
+typedef void(*msg_content_loader)(msg_content_data_t *content_data);
 
 typedef struct msg_ctxt_t_ {
     void *api_context;

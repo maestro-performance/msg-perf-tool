@@ -7,13 +7,9 @@
 #include "message_sender.h"
 
 
-static const msg_content_data_t *content_loader() {
-    msg_content_data_t *ret = malloc(sizeof(msg_content_data_t));
-    
-    ret->size = 10;
-    ret->data = "0123456789";
-    
-    return ret;
+static void content_loader(msg_content_data_t *content_data) {
+    content_data->size = 10;
+    content_data->data = "0123456789";
 }
 
 void sender_start(const vmsl_t *vmsl, const options_t *options) {

@@ -161,9 +161,11 @@ static void proton_set_message_data(pn_message_t *message, msg_content_loader co
     logger(DEBUG, "Formatting message body");
 
     pn_data_t *body = pn_message_body(message);
-    msg_content_data_t *msg_content = content_loader();
+    msg_content_data_t msg_content;
     
-    pn_data_put_string(body, pn_bytes(msg_content->size, msg_content->data));
+    content_loader(&msg_content);
+    
+    pn_data_put_string(body, pn_bytes(msg_content.size, msg_content.data));
 }
 
 static void proton_set_outgoing_messenger_properties(proton_ctxt_t *proton_ctxt)
