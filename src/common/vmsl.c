@@ -19,4 +19,5 @@ vmsl_t *vmsl_init() {
 
 void vmsl_destroy(vmsl_t **vmsl) {
     free(*vmsl);
+    *vmsl = NULL;
 }

@@ -166,5 +166,6 @@ int main(int argc, char **argv)
     	}
     }
 
+    vmsl_destroy(&vmsl);
     return EXIT_SUCCESS;
 }
