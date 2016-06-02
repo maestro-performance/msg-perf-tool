@@ -26,7 +26,7 @@ endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 #### GNU Compiler flags
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_C_FLAGS "-Wall -Wshadow -fdiagnostics-color=auto -g" CACHE STRING
+	set(CMAKE_C_FLAGS "-Wall -Wshadow -fdiagnostics-color=auto -g -std=c99" CACHE STRING
 		"Flags used by the compiler during all build types." FORCE
 	)
 endif (CMAKE_COMPILER_IS_GNUCXX)
