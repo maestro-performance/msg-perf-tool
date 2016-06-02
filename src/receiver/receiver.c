@@ -7,6 +7,12 @@
 
 static void messenger_function(log_level_t level, const char *msg, ...)
 {
+    const options_t *options = get_options_object();
+    
+    if (!can_log(level, options->log_level)) {
+        return;
+    }
+    
     va_list ap;
     char *ret = NULL;
 
@@ -14,18 +20,13 @@ static void messenger_function(log_level_t level, const char *msg, ...)
     vasprintf(&ret, msg, ap);
     va_end(ap);
     
-    const options_t *options = get_options_object();
 
     switch (level) {
     case TRACE:
-        if (options && options->trace) {
-            fprintf(stderr, "[TRACE]: %s\n", ret);
-        }
+        fprintf(stderr, "[TRACE]: %s\n", ret);
         break;
     case DEBUG:
-        if (options && options->debug) {
-            fprintf(stderr, "[DEBUG]: %s\n", ret);
-        }
+        fprintf(stderr, "[DEBUG]: %s\n", ret);
         break;
     case INFO:
         fprintf(stderr, "[INFO]: %s\n", ret);
@@ -80,7 +81,6 @@ int main(int argc, char **argv)
             { "debug", false, 0, 'd'},
             { "daemon", false, 0, 'D'},
             { "trace", false, 0, 't'},
-            { "command", true, 0, 'c'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
@@ -100,20 +100,14 @@ int main(int argc, char **argv)
         case 'b':
             strncpy(options->url, optarg, sizeof (options->url) - 1);
             break;
-        case 'd':
-            options->debug = true;
-            break;
         case 'D':
             options->daemon = true;
             break;
-        case 'c':
-            strncpy(options->command, optarg, sizeof (options->command) - 1);
+        case 'l':
+            options->log_level = get_log_level(optarg);
             break;
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);
-            break;
-        case 't':
-            options->trace = true;
             break;
         case 'h':
             show_help();

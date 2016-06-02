@@ -18,6 +18,10 @@
 #define CONTRIB_LOGGER_H_
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <strings.h>
+#include <stdbool.h>
 
 typedef enum log_level_t_ {
 	TRACE,
@@ -29,6 +33,9 @@ typedef enum log_level_t_ {
 } log_level_t;
 
 typedef void(*logger_t)(log_level_t level, const char *message, ...);
+
+log_level_t get_log_level(const char *str);
+bool can_log(log_level_t l1, log_level_t l2);
 
 void set_logger(logger_t new_msg);
 logger_t get_logger(void);

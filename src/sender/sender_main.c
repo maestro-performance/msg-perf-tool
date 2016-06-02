@@ -5,26 +5,29 @@
  */
 #include "sender_main.h"
 
+
 static void messenger_function(log_level_t level, const char *msg, ...)
 {
+    const options_t *options = get_options_object();
+
+    if (!can_log(level, options->log_level)) {
+        return;
+    }
+    
     va_list ap;
     char *ret = NULL;
 
     va_start(ap, msg);
     vasprintf(&ret, msg, ap);
-
-    const options_t *options = get_options_object();
+    va_end(ap);
+    
 
     switch (level) {
     case TRACE:
-        if (options && options->trace) {
-            fprintf(stderr, "[TRACE]: %s\n", ret);
-        }
+        fprintf(stderr, "[TRACE]: %s\n", ret);
         break;
     case DEBUG:
-        if (options && options->debug) {
-            fprintf(stderr, "[DEBUG]: %s\n", ret);
-        }
+        fprintf(stderr, "[DEBUG]: %s\n", ret);
         break;
     case INFO:
         fprintf(stderr, "[INFO]: %s\n", ret);
@@ -43,7 +46,7 @@ static void messenger_function(log_level_t level, const char *msg, ...)
         break;
     }
 
-    va_end(ap);
+
     free(ret);
     fflush(NULL);
 }
@@ -77,15 +80,14 @@ int main(int argc, char **argv)
         static struct option long_options[] = {
             { "broker-url", true, 0, 'b'},
             { "count", true, 0, 'c'},
-            { "debug", false, 0, 'd'},
+            { "log-level", true, 0, 'l'},
             { "daemon", false, 0, 'D'},
-            { "trace", false, 0, 't'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:dDc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:l:Dc:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -102,17 +104,14 @@ int main(int argc, char **argv)
         case 'c':
             options->count = strtol(optarg, NULL, 10);
             break;
-        case 'd':
-            options->debug = true;
+        case 'l':
+            options->log_level = get_log_level(optarg);
             break;
         case 'D':
             options->daemon = true;
             break;
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);
-            break;
-        case 't':
-            options->trace = true;
             break;
         case 'h':
             show_help();
@@ -132,7 +131,7 @@ int main(int argc, char **argv)
     vmsl_t *vmsl = vmsl_init();
     vmsl->init = proton_init;
     vmsl->send = proton_send;
-    
+
     sender_start(vmsl, options);
 
     return EXIT_SUCCESS;

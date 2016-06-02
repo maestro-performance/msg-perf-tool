@@ -20,12 +20,10 @@ static options_t *options = NULL;
 static void options_new_with_defaults(options_t *ret)
 {
 	bzero(ret->url, sizeof(ret->url));
-        bzero(ret->command, sizeof(ret->command));
 	bzero(ret->logdir, sizeof(ret->logdir));
 	ret->count = 10;
         ret->daemon = false;
-	ret->debug = false;
-	ret->trace = false;
+        ret->log_level = INFO;
 }
 
 options_t *options_new()

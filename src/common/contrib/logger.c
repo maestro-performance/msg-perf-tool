@@ -18,6 +18,46 @@
 
 static logger_t msg = NULL;
 
+bool can_log(log_level_t current, log_level_t minimum)
+{
+    if (current >= minimum) {
+        return true;
+    }
+
+    return false;
+}
+
+
+
+log_level_t get_log_level(const char *str) {
+    if (strncasecmp("TRACE", str, strlen(str)) == 0) {
+        return TRACE;
+    }
+    
+    if (strncasecmp("DEBUG", str, strlen(str)) == 0) {
+        return DEBUG;
+    }
+    
+    if (strncasecmp("INFO", str, strlen(str)) == 0) {
+        return INFO;
+    }
+        
+    if (strncasecmp("WARNING", str, strlen(str)) == 0) {
+        return WARNING;
+    }
+    
+    if (strncasecmp("ERROR", str, strlen(str)) == 0) {
+        return ERROR;
+    }
+    
+    if (strncasecmp("FATAL", str, strlen(str)) == 0) {
+        return FATAL;
+    }
+    
+    fprintf(stderr, "Invalid log level %s\n. Using INFO as default", str);
+    return INFO;
+}
+
 void set_logger(logger_t new_msg) {
 	msg = new_msg;
 }

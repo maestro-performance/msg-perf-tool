@@ -17,6 +17,7 @@
 #define OPTIONS_H
 
 #include "defaults.h"
+#include "logger.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -32,11 +33,9 @@ extern "C" {
 typedef struct options_t_ {
     char url[OPT_MAX_STR_SIZE];
     unsigned long long int count;
-    char command[OPT_MAX_STR_SIZE];
     char logdir[OPT_MAX_STR_SIZE];
     bool daemon;
-    bool debug;
-    bool trace;
+    log_level_t log_level;
 } options_t;
 
 
