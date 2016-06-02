@@ -64,7 +64,7 @@ static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker)
 
     pn_status_t status = pn_messenger_status(messenger, tracker);
 
-    logger(DEBUG, "Checking message status");
+    logger(TRACE, "Checking message status");
     switch (status) {
     case PN_STATUS_UNKNOWN:
     {
@@ -127,6 +127,67 @@ static void proton_commit(pn_messenger_t *messenger)
     proton_check_status(messenger, tracker);
 }
 
+
+static void proton_set_message_properties(pn_message_t *message) {
+    logger_t logger = get_logger();
+    const options_t *options = get_options_object();
+    
+    logger(DEBUG, "Setting message address to %s", options->url);
+    pn_message_set_address(message, options->url);
+    pn_message_set_durable(message, false);
+    pn_message_set_ttl(message, 50000);
+
+    pn_message_set_first_acquirer(message, true);
+}
+
+
+static void proton_set_message_data(pn_message_t *message) {
+    logger_t logger = get_logger();
+    
+    logger(DEBUG, "Formatting message body");
+    
+    pn_data_t *body = pn_message_body(message);
+    pn_data_put_string(body, pn_bytes(5, "1234"));
+}
+
+static void proton_set_messenger_properties(proton_ctxt_t *proton_ctxt) {
+    logger_t logger = get_logger();
+    
+    logger(DEBUG, "Setting outgoing window");
+    pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
+}
+
+
+static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message) {
+    logger_t logger = get_logger();
+    
+    logger(DEBUG, "Putting message");
+    pn_messenger_put(messenger, message);
+    if (failed(messenger)) {
+        pn_error_t *error = pn_messenger_error(messenger);
+
+        const char *protonErrorText = pn_error_text(error);
+        logger(ERROR, protonErrorText);
+    }
+
+
+    if (failed(messenger)) {
+        pn_error_t *error = pn_messenger_error(messenger);
+
+        const char *protonErrorText = pn_error_text(error);
+        logger(ERROR, protonErrorText);
+    }
+
+    pn_messenger_send(messenger, -1);
+    if (failed(messenger)) {
+        pn_error_t *error = pn_messenger_error(messenger);
+
+        const char *protonErrorText = pn_error_text(error);
+        logger(ERROR, protonErrorText);
+    }
+
+}
+
 void proton_send(msg_ctxt_t *ctxt, void *data)
 {
     logger_t logger = get_logger();
@@ -135,51 +196,13 @@ void proton_send(msg_ctxt_t *ctxt, void *data)
     pn_message_t *message = pn_message();
 
 
-    const options_t *options = get_options_object();
-    logger(DEBUG, "Setting message address to %s", options->url);
-    pn_message_set_address(message, options->url);
-    pn_message_set_durable(message, false);
-    pn_message_set_ttl(message, 50000);
-    
-    
-    
-    pn_message_set_first_acquirer(message, true);
-
-    logger(DEBUG, "Formatting message body");
-    pn_data_t *body = pn_message_body(message);
-    pn_data_put_string(body, pn_bytes(5, "1234"));
-    
+    proton_set_message_properties(message);
+    proton_set_message_data(message);
     
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
+    proton_set_messenger_properties(proton_ctxt);
     
-    logger(DEBUG, "Setting outgoing window");
-    pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
-    
-    logger(DEBUG, "Putting message");
-    pn_messenger_put(proton_ctxt->messenger, message);
-    if (failed(proton_ctxt->messenger)) {
-        pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
-
-        const char *protonErrorText = pn_error_text(error);
-        logger(ERROR, protonErrorText);
-    }
-
-
-    if (failed(proton_ctxt->messenger)) {
-        pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
-
-        const char *protonErrorText = pn_error_text(error);
-        logger(ERROR, protonErrorText);
-    }
-
-    pn_messenger_send(proton_ctxt->messenger, -1);
-    if (failed(proton_ctxt->messenger)) {
-        pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
-
-        const char *protonErrorText = pn_error_text(error);
-        logger(ERROR, protonErrorText);
-    }
-
+    proton_do_send(proton_ctxt->messenger, message);
 
     proton_commit(proton_ctxt->messenger);
 }
