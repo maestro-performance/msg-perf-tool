@@ -13,7 +13,6 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
 
     while (true) {
         vmsl->receive(msg_ctxt);
-        sleep(1);
     }
 
 }
