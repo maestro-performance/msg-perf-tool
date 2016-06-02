@@ -21,7 +21,8 @@ static void options_new_with_defaults(options_t *ret)
 {
 	bzero(ret->url, sizeof(ret->url));
 	bzero(ret->logdir, sizeof(ret->logdir));
-	ret->count = 10;
+	ret->parallel_count = 2;
+        ret->count = 10;
         ret->daemon = false;
         ret->log_level = INFO;
 }

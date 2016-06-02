@@ -34,6 +34,7 @@ typedef struct options_t_ {
     char url[OPT_MAX_STR_SIZE];
     unsigned long long int count;
     char logdir[OPT_MAX_STR_SIZE];
+    int parallel_count;
     bool daemon;
     log_level_t log_level;
 } options_t;

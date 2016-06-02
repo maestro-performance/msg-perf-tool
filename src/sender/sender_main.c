@@ -82,13 +82,14 @@ int main(int argc, char **argv)
             { "broker-url", true, 0, 'b'},
             { "count", true, 0, 'c'},
             { "log-level", true, 0, 'l'},
+            { "parallel-count", true, 0, 'p'},
             { "daemon", false, 0, 'D'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:l:Dc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:l:p:Dc:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -107,6 +108,9 @@ int main(int argc, char **argv)
             break;
         case 'l':
             options->log_level = get_log_level(optarg);
+            break;
+        case 'p':
+            options->parallel_count = atoi(optarg);
             break;
         case 'D':
             options->daemon = true;
@@ -135,10 +139,12 @@ int main(int argc, char **argv)
 
     int childs[5];
     int child = 0; 
-    for (int i = 0; i < 5; i++) { 
+    logger_t logger = get_logger(); 
+    
+    logger(INFO, "Creating %d concurrent operations", options->parallel_count);
+    for (int i = 0; i < options->parallel_count; i++) { 
             child = fork(); 
  
-
 	    if (child == 0) {
 		 sender_start(vmsl, options);
    		 return 0; 
@@ -156,7 +162,7 @@ int main(int argc, char **argv)
 
     if (child > 0) { 
 	 int status = 0;
-	    for (int i = 0; i < 5; i++) {
+	    for (int i = 0; i < options->parallel_count; i++) {
     		waitpid(childs[i], &status, 0);
 
 		printf("PID %d terminated with status %d\n", childs[i], status);
