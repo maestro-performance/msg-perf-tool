@@ -74,18 +74,21 @@ int main(int argc, char **argv)
 
     set_options_object(options);
     set_logger(messenger_function);
+    
+    options->parallel_count = 1;
     while (1) {
 
         static struct option long_options[] = {
             { "broker-url", true, 0, 'b'},
             { "daemon", false, 0, 'D'},
             { "log-level", true, 0, 'l'},
+            { "parallel-count", true, 0, 'p'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:l:dDc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:l:p:dDc:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -104,6 +107,9 @@ int main(int argc, char **argv)
             break;
         case 'l':
             options->log_level = get_log_level(optarg);
+            break;
+        case 'p':
+            options->parallel_count = atoi(optarg);
             break;
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);
@@ -127,7 +133,38 @@ int main(int argc, char **argv)
     vmsl->receive = proton_receive;
     vmsl->subscribe = proton_subscribe;
     
-    receiver_start(vmsl, options);
     
+    int childs[5];
+    int child = 0; 
+    logger_t logger = get_logger(); 
+    
+    logger(INFO, "Creating %d concurrent operations", options->parallel_count);
+    for (int i = 0; i < options->parallel_count; i++) { 
+            child = fork(); 
+ 
+	    if (child == 0) {
+		 receiver_start(vmsl, options);
+   		 return 0; 
+	    }
+	    else {
+	    	if (child > 0) {
+			childs[i] = child;
+		
+		}
+		else {
+			printf("Error\n");
+		}
+	    }
+    }
+    
+    if (child > 0) { 
+	 int status = 0;
+	    for (int i = 0; i < options->parallel_count; i++) {
+    		waitpid(childs[i], &status, 0);
+
+		printf("PID %d terminated with status %d\n", childs[i], status);
+    	}
+    }
+
     return EXIT_SUCCESS;
 }
