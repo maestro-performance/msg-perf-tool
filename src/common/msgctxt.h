@@ -21,6 +21,13 @@ extern "C" {
 #include <stdlib.h>
     
 #include "contrib/logger.h"
+    
+typedef struct msg_content_data_t_ {
+    size_t size;
+    void *data;
+} msg_content_data_t;
+
+typedef const msg_content_data_t *(*msg_content_loader)();
 
 typedef struct msg_ctxt_t_ {
     void *api_context;

@@ -6,6 +6,7 @@
 
 #include "proton-wrapper.h"
 #include "proton-context.h"
+#include "vmsl.h"
 
 static bool failed(pn_messenger_t *messenger)
 {
@@ -153,14 +154,16 @@ static void proton_set_message_properties(pn_message_t *message)
     pn_message_set_first_acquirer(message, true);
 }
 
-static void proton_set_message_data(pn_message_t *message)
+static void proton_set_message_data(pn_message_t *message, msg_content_loader content_loader)
 {
     logger_t logger = get_logger();
 
     logger(DEBUG, "Formatting message body");
 
     pn_data_t *body = pn_message_body(message);
-    pn_data_put_string(body, pn_bytes(4, "1234"));
+    msg_content_data_t *msg_content = content_loader();
+    
+    pn_data_put_string(body, pn_bytes(msg_content->size, msg_content->data));
 }
 
 static void proton_set_outgoing_messenger_properties(proton_ctxt_t *proton_ctxt)
@@ -184,14 +187,6 @@ static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message)
         logger(ERROR, protonErrorText);
     }
 
-
-    if (failed(messenger)) {
-        pn_error_t *error = pn_messenger_error(messenger);
-
-        const char *protonErrorText = pn_error_text(error);
-        logger(ERROR, protonErrorText);
-    }
-
     pn_messenger_send(messenger, -1);
     if (failed(messenger)) {
         pn_error_t *error = pn_messenger_error(messenger);
@@ -202,7 +197,7 @@ static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message)
 
 }
 
-void proton_send(msg_ctxt_t *ctxt, void *data)
+void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader)
 {
     logger_t logger = get_logger();
 
@@ -211,7 +206,7 @@ void proton_send(msg_ctxt_t *ctxt, void *data)
 
 
     proton_set_message_properties(message);
-    proton_set_message_data(message);
+    proton_set_message_data(message, content_loader);
 
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
     proton_set_outgoing_messenger_properties(proton_ctxt);

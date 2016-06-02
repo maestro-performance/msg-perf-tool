@@ -9,10 +9,9 @@ extern "C" {
 
 #include "msgctxt.h"
 
-
+  
 typedef msg_ctxt_t *(*msg_init)(void *data);
-typedef void(*msg_send)(msg_ctxt_t *ctxt, void *data);
-
+typedef void(*msg_send)(msg_ctxt_t *ctxt, msg_content_loader content_loader);
 typedef void(*msg_subscribe)(msg_ctxt_t *ctxt, void *data);
 typedef void(*msg_receive)(msg_ctxt_t *ctxt);
 typedef void(*msg_commit)(msg_ctxt_t *ctxt, void *data);
