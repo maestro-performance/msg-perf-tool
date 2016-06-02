@@ -19,5 +19,9 @@ static const msg_content_data_t *content_loader() {
 void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	msg_ctxt_t *msg_ctxt = vmsl->init(NULL);
 	
-	vmsl->send(msg_ctxt, content_loader);
+        for (unsigned long long int i = 0; i < options->count; i++) {
+            vmsl->send(msg_ctxt, content_loader);
+        }
+        
+	
 }

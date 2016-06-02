@@ -31,6 +31,7 @@ extern "C" {
 
 typedef struct options_t_ {
     char url[OPT_MAX_STR_SIZE];
+    unsigned long long int count;
     char command[OPT_MAX_STR_SIZE];
     char logdir[OPT_MAX_STR_SIZE];
     bool daemon;

@@ -76,10 +76,10 @@ int main(int argc, char **argv)
 
         static struct option long_options[] = {
             { "broker-url", true, 0, 'b'},
+            { "count", true, 0, 'c'},
             { "debug", false, 0, 'd'},
             { "daemon", false, 0, 'D'},
             { "trace", false, 0, 't'},
-            { "command", true, 0, 'c'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
@@ -99,14 +99,14 @@ int main(int argc, char **argv)
         case 'b':
             strncpy(options->url, optarg, sizeof (options->url) - 1);
             break;
+        case 'c':
+            options->count = strtol(optarg, NULL, 10);
+            break;
         case 'd':
             options->debug = true;
             break;
         case 'D':
             options->daemon = true;
-            break;
-        case 'c':
-            strncpy(options->command, optarg, sizeof (options->command) - 1);
             break;
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);
