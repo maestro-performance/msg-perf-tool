@@ -150,7 +150,7 @@ static void proton_set_message_data(pn_message_t *message) {
     pn_data_put_string(body, pn_bytes(5, "1234"));
 }
 
-static void proton_set_messenger_properties(proton_ctxt_t *proton_ctxt) {
+static void proton_set_outgoing_messenger_properties(proton_ctxt_t *proton_ctxt) {
     logger_t logger = get_logger();
     
     logger(DEBUG, "Setting outgoing window");
@@ -200,7 +200,7 @@ void proton_send(msg_ctxt_t *ctxt, void *data)
     proton_set_message_data(message);
     
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
-    proton_set_messenger_properties(proton_ctxt);
+    proton_set_outgoing_messenger_properties(proton_ctxt);
     
     proton_do_send(proton_ctxt->messenger, message);
 
@@ -219,46 +219,54 @@ static void proton_accept(pn_messenger_t *messenger) {
     proton_check_status(messenger, tracker);
 }
 
-void proton_receive(msg_ctxt_t *ctxt)
-{
+static void proton_subscribe(pn_messenger_t *messenger) {
     logger_t logger = get_logger();
-    proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
-
     const options_t *options = get_options_object();
+    
     logger(DEBUG, "Subscribing to endpoint address at %s", options->url);
-    pn_messenger_subscribe(proton_ctxt->messenger, options->url);
-    if (failed(proton_ctxt->messenger)) {
-        pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
+    pn_messenger_subscribe(messenger, options->url);
+    if (failed(messenger)) {
+        pn_error_t *error = pn_messenger_error(messenger);
 
         const char *protonErrorText = pn_error_text(error);
         logger(ERROR, protonErrorText);
     }
+}
 
+static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) {
     
-    pn_messenger_set_incoming_window(proton_ctxt->messenger, 1);
+    /*
+     * By setting the incoming window to 1 it, basically, behaves as if 
+     * it was working in an auto-accept mode
+     */
+    pn_messenger_set_incoming_window(messenger, 1);
+}
+
+static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message) {
+    logger_t logger = get_logger();
     
     int limit = -1;
 
     logger(DEBUG, "Receiving at most %i messages", limit);
-    pn_messenger_recv(proton_ctxt->messenger, limit);
-    if (failed(proton_ctxt->messenger)) {
-        pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
+    pn_messenger_recv(messenger, limit);
+    if (failed(messenger)) {
+        pn_error_t *error = pn_messenger_error(messenger);
 
         const char *protonErrorText = pn_error_text(error);
         logger(ERROR, protonErrorText);
     }
 
-    int incoming = pn_messenger_incoming(proton_ctxt->messenger);
+    int incoming = pn_messenger_incoming(messenger);
     if (incoming == 0) {
         logger(WARNING, "There are 0 incoming messages");
         return 0;
     }
 
     logger(DEBUG, "Getting %i messages from proton buffer", incoming);
-    pn_message_t *message = pn_message();
-    pn_messenger_get(proton_ctxt->messenger, message);
-    if (failed(proton_ctxt->messenger)) {
-        pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
+    
+    pn_messenger_get(messenger, message);
+    if (failed(messenger)) {
+        pn_error_t *error = pn_messenger_error(messenger);
 
         const char *protonErrorText = pn_error_text(error);
         logger(ERROR, protonErrorText);
@@ -271,23 +279,42 @@ void proton_receive(msg_ctxt_t *ctxt)
     if (!str) {
         logger(DEBUG, "Unable to allocate memory for the buffer");
 
+        
         exit(1);
     }
     bzero(str, buff_size);
 
     pn_data_format(body, str, &buff_size);
-    if (failed(proton_ctxt->messenger)) {
-        pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
+    if (failed(messenger)) {
+        pn_error_t *error = pn_messenger_error(messenger);
 
         const char *protonErrorText = pn_error_text(error);
         logger(ERROR, protonErrorText);
 
+        free(str);
         exit(1);
     }
     
+    logger(DEBUG, "Received data (%d bytes): %s", buff_size, str);
+    
+    free(str);
+}
+
+void proton_receive(msg_ctxt_t *ctxt)
+{
+    logger_t logger = get_logger();
+    proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
+
+    
+    proton_subscribe(proton_ctxt->messenger);
+    proton_set_incoming_messenger_properties(proton_ctxt->messenger);
+    
+    pn_message_t *message = pn_message();
+    proton_do_receive(proton_ctxt->messenger, message);
+        
     proton_accept(proton_ctxt->messenger);
 
-    logger(DEBUG, "Received data (%d bytes): %s", buff_size, str);
-    free(str);
+    
+    
 
 }
