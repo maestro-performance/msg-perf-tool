@@ -11,6 +11,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
 {
     msg_ctxt_t *msg_ctxt = vmsl->init(NULL);
 
+    
     vmsl->subscribe(msg_ctxt, NULL);
     while (true) {
         vmsl->receive(msg_ctxt);

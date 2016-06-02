@@ -24,6 +24,8 @@ extern "C" {
 #include "proton-context.h"
 #include "contrib/options.h"
 
+#include <sys/time.h>
+    
 #include <proton/messenger.h>
 #include <proton/message.h>
 
