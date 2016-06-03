@@ -22,6 +22,8 @@ extern "C" {
 #include "msgctxt.h"
 #include "contrib/options.h"
 
+#include <signal.h>
+    
 void receiver_start(const vmsl_t *vmsl, const options_t *options);
 
 #ifdef __cplusplus

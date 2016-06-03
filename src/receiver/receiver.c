@@ -21,7 +21,7 @@ static struct timeval get_duration(int count) {
     
     gettimeofday(&ret, NULL);
     
-    ret.tv_sec = ret.tv_sec + (count * 2);
+    ret.tv_sec = ret.tv_sec + (count * 60);
     
     return ret;
 }

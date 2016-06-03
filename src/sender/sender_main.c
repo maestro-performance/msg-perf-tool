@@ -18,6 +18,17 @@ static void show_help()
     printf("\t-h\t--help show this help\n");
 }
 
+
+static struct timeval get_duration(int count) {
+    struct timeval ret; 
+    
+    gettimeofday(&ret, NULL);
+    
+    ret.tv_sec = ret.tv_sec + (count * 60);
+    
+    return ret;
+}
+
 int main(int argc, char **argv)
 {
     int c;
@@ -38,6 +49,7 @@ int main(int argc, char **argv)
             { "count", true, 0, 'c'},
             { "log-level", true, 0, 'l'},
             { "parallel-count", true, 0, 'p'},
+            { "duration", true, 0, 'd'},
             { "daemon", false, 0, 'D'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
@@ -66,6 +78,9 @@ int main(int argc, char **argv)
             break;
         case 'p':
             options->parallel_count = atoi(optarg);
+            break;
+        case 'd':
+            options->duration = get_duration(atoi(optarg));
             break;
         case 'D':
             options->daemon = true;
