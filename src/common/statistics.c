@@ -34,9 +34,12 @@ mpt_timestamp_t statistics_now() {
 }
 
 unsigned long long statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end) {
-    unsigned long long t1 = ( start.tv_sec) * 1000 + (start.tv_usec / 1000);
-    unsigned long long t2 = ( end.tv_sec) * 1000 + (end.tv_usec / 1000);
+    unsigned long long t1 = (start.tv_sec) * 1000 + (start.tv_usec);
+    unsigned long long t2 = (end.tv_sec) * 1000 + (end.tv_usec);
 
+    logger_t logger = get_logger();
+    logger(INFO, "t1: %lu / t2: %lu", t1, t2);
+    
     return t2 - t1;
 }
 
@@ -44,6 +47,7 @@ void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end) {
     logger_t logger = get_logger();
     
     logger(INFO, "Creation time: %d.%d", start.tv_sec, start.tv_usec);
-    logger(INFO, "End time: %d.%d", end.tv_sec, end.tv_usec);
-    logger(INFO, "Latency: %d (secs)", (end.tv_sec - start.tv_sec));
+    logger(INFO, "Received time: %d.%d", end.tv_sec, end.tv_usec);
+    logger(INFO, "Latency: %lu milliseconds", statistics_diff(start, end));
+    
 }

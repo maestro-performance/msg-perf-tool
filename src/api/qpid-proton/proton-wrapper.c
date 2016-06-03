@@ -280,8 +280,6 @@ static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message,
 {
     logger_t logger = get_logger();
 
-
-
     if (!pn_messenger_is_blocking(messenger)) {
         logger(WARNING, "The messenger is not in blocking mode");
     }

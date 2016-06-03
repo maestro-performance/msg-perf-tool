@@ -19,6 +19,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     content_storage.capacity = options->message_size;
     while (true) {
         vmsl->receive(msg_ctxt, &content_storage);
+        
     }
 
     free(content_storage.data);
