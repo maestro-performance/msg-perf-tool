@@ -23,7 +23,6 @@ extern "C" {
 #include <sys/time.h>
     
 typedef struct timeval mpt_timestamp_t;
-// typedef void(*msg_subscribe)(msg_ctxt_t *ctxt, void *data);
 
 void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end);
 unsigned long long statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end);

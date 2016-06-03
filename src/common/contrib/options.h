@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/types.h>
+#include <sys/time.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,6 +39,7 @@ typedef struct options_t_ {
     long long message_size;
     bool daemon;
     log_level_t log_level;
+    struct timeval duration;
 } options_t;
 
 

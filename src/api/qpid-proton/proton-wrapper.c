@@ -339,9 +339,9 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
     ret.tv_sec = abs(ts);
     
     double err;
-    ret.tv_usec = modf(ts, &err) * 1000;
+    ret.tv_usec = modf(ts, &err) * 1000000;
     
-    logger(DEBUG, "Returning: %lu / %lu / %f", ret.tv_sec, ret.tv_usec, err);
+    logger(TRACE, "Returning: %lu / %lu / %f", ret.tv_sec, ret.tv_usec, err);
     
     return ret;
 }

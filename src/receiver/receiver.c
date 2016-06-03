@@ -16,6 +16,16 @@ static void show_help()
     printf("\t-h\t--help show this help\n");
 }
 
+static struct timeval get_duration(int count) {
+    struct timeval ret; 
+    
+    gettimeofday(&ret, NULL);
+    
+    ret.tv_sec = ret.tv_sec + (count * 2);
+    
+    return ret;
+}
+
 int main(int argc, char **argv)
 {
     int c;
@@ -35,6 +45,7 @@ int main(int argc, char **argv)
 
         static struct option long_options[] = {
             { "broker-url", true, 0, 'b'},
+            { "duration", true, 0, 'd'},
             { "daemon", false, 0, 'D'},
             { "log-level", true, 0, 'l'},
             { "parallel-count", true, 0, 'p'},
@@ -44,7 +55,7 @@ int main(int argc, char **argv)
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:l:p:s:Dc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:d:l:p:s:Dc:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -57,6 +68,9 @@ int main(int argc, char **argv)
         switch (c) {
         case 'b':
             strncpy(options->url, optarg, sizeof (options->url) - 1);
+            break;
+        case 'd':
+            options->duration = get_duration(atoi(optarg));
             break;
         case 'D':
             options->daemon = true;
@@ -97,32 +111,37 @@ int main(int argc, char **argv)
     int child = 0; 
     logger_t logger = get_logger(); 
     
-    logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-    for (int i = 0; i < options->parallel_count; i++) { 
-            child = fork(); 
- 
-	    if (child == 0) {
-		 receiver_start(vmsl, options);
-   		 return 0; 
-	    }
-	    else {
-	    	if (child > 0) {
-			childs[i] = child;
-		
-		}
-		else {
-			printf("Error\n");
-		}
-	    }
-    }
-    
-    if (child > 0) { 
-	 int status = 0;
-	    for (int i = 0; i < options->parallel_count; i++) {
-    		waitpid(childs[i], &status, 0);
+    if (options->parallel_count > 1) { 
+        logger(INFO, "Creating %d concurrent operations", options->parallel_count);
+        for (int i = 0; i < options->parallel_count; i++) { 
+                child = fork(); 
 
-		printf("PID %d terminated with status %d\n", childs[i], status);
-    	}
+                if (child == 0) {
+                     receiver_start(vmsl, options);
+                     return 0; 
+                }
+                else {
+                    if (child > 0) {
+                            childs[i] = child;
+
+                    }
+                    else {
+                            printf("Error\n");
+                    }
+                }
+        }
+
+        if (child > 0) { 
+             int status = 0;
+                for (int i = 0; i < options->parallel_count; i++) {
+                    waitpid(childs[i], &status, 0);
+
+                    printf("PID %d terminated with status %d\n", childs[i], status);
+            }
+        }
+    }
+    else {
+        receiver_start(vmsl, options);
     }
 
     vmsl_destroy(&vmsl);

@@ -26,6 +26,7 @@ extern "C" {
 #include "contrib/log.h"
 
 #include "vmsl.h"
+#include "statistics.h"
 #include "message_receiver.h"
 #include "proton-wrapper.h"
 
