@@ -23,8 +23,10 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     for (unsigned long long int i = 0; i < options->count; i++) {
         vmsl->send(msg_ctxt, content_loader);
     }
-
     mpt_timestamp_t end  = statistics_now();
+    
+    vmsl->stop(msg_ctxt);
+    vmsl->destroy(msg_ctxt);
 
     logger(INFO, "Sent %lu messages in %lu milliseconds", options->count, 
            statistics_diff(start, end));

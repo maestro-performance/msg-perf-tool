@@ -136,6 +136,8 @@ int main(int argc, char **argv)
     vmsl_t *vmsl = vmsl_init();
     vmsl->init = proton_init;
     vmsl->send = proton_send;
+    vmsl->stop = proton_stop;
+    vmsl->destroy = proton_destroy;
 
     int childs[5];
     int child = 0; 

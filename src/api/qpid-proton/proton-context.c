@@ -22,5 +22,6 @@ proton_ctxt_t *proton_context_init() {
 
 void proton_context_destroy(proton_ctxt_t **ctxt) {
     free(*ctxt);
+    *ctxt = NULL;
 }
 

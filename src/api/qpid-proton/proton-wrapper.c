@@ -59,6 +59,19 @@ msg_ctxt_t *proton_init(void *data)
     return msg_ctxt;
 }
 
+void proton_stop(msg_ctxt_t *ctxt) {
+    proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
+    
+    pn_messenger_stop(proton_ctxt->messenger);
+}
+
+void proton_destroy(msg_ctxt_t *ctxt) {
+    proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
+    
+    pn_messenger_free(proton_ctxt->messenger);
+    proton_context_destroy(&proton_ctxt);
+}
+
 static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker)
 {
     logger_t logger = get_logger();
