@@ -69,47 +69,47 @@ static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker)
     switch (status) {
     case PN_STATUS_UNKNOWN:
     {
-        logger(DEBUG, "Message status unknown");
+        logger(TRACE, "Message status unknown");
         break;
     }
     case PN_STATUS_PENDING:
     {
-        logger(DEBUG, "Message status pending");
+        logger(TRACE, "Message status pending");
         break;
     }
     case PN_STATUS_ACCEPTED:
     {
-        logger(DEBUG, "Message status accepted");
+        logger(TRACE, "Message status accepted");
         break;
     }
     case PN_STATUS_REJECTED:
     {
-        logger(DEBUG, "Message status rejected");
+        logger(TRACE, "Message status rejected");
         break;
     }
     case PN_STATUS_RELEASED:
     {
-        logger(DEBUG, "Message status released");
+        logger(TRACE, "Message status released");
         break;
     }
     case PN_STATUS_MODIFIED:
     {
-        logger(DEBUG, "Message status modified");
+        logger(TRACE, "Message status modified");
         break;
     }
     case PN_STATUS_ABORTED:
     {
-        logger(DEBUG, "Message status aborted");
+        logger(TRACE, "Message status aborted");
         break;
     }
     case PN_STATUS_SETTLED:
     {
-        logger(DEBUG, "Message status settled");
+        logger(TRACE, "Message status settled");
         break;
     }
     default:
     {
-        logger(DEBUG, "Message status invalid");
+        logger(TRACE, "Message status invalid");
         break;
     }
     }
@@ -121,7 +121,7 @@ static void proton_commit(pn_messenger_t *messenger)
 
     logger_t logger = get_logger();
 
-    logger(DEBUG, "Committing the message delivery");
+    logger(TRACE, "Committing the message delivery");
 
     proton_check_status(messenger, tracker);
     pn_messenger_settle(messenger, tracker, 0);
@@ -135,6 +135,10 @@ static pn_timestamp_t proton_now()
     if (gettimeofday(&now, NULL)) {
         // TODO: error handling
     }
+    /*
+     tv_sec 
+     * 
+     */
     
     return ((pn_timestamp_t) now.tv_sec) * 1000 + (now.tv_usec / 1000);
 }
@@ -158,7 +162,7 @@ static void proton_set_message_data(pn_message_t *message, msg_content_loader co
 {
     logger_t logger = get_logger();
 
-    logger(DEBUG, "Formatting message body");
+    logger(TRACE, "Formatting message body");
 
     pn_data_t *body = pn_message_body(message);
     msg_content_data_t msg_content;
@@ -172,7 +176,7 @@ static void proton_set_outgoing_messenger_properties(proton_ctxt_t *proton_ctxt)
 {
     logger_t logger = get_logger();
 
-    logger(DEBUG, "Setting outgoing window");
+    logger(TRACE, "Setting outgoing window");
     pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
 }
 
@@ -203,7 +207,7 @@ void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader)
 {
     logger_t logger = get_logger();
 
-    logger(DEBUG, "Creating message object");
+    logger(TRACE, "Creating message object");
     pn_message_t *message = pn_message();
 
 
@@ -224,7 +228,7 @@ static void proton_accept(pn_messenger_t *messenger)
 
     logger_t logger = get_logger();
 
-    logger(DEBUG, "Accepting the message delivery");
+    logger(TRACE, "Accepting the message delivery");
 
     proton_check_status(messenger, tracker);
     pn_messenger_accept(messenger, tracker, 0);
@@ -237,7 +241,7 @@ void proton_subscribe(msg_ctxt_t *ctxt, void *data)
     const options_t *options = get_options_object();
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-    logger(DEBUG, "Subscribing to endpoint address at %s", options->url);
+    logger(INFO, "Subscribing to endpoint address at %s", options->url);
     pn_messenger_subscribe(proton_ctxt->messenger, options->url);
     if (failed(proton_ctxt->messenger)) {
         pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
@@ -269,7 +273,7 @@ static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message)
     }
 
     int limit = -1;
-    logger(DEBUG, "Receiving at most %i messages", limit);
+    logger(TRACE, "Receiving at most %i messages", limit);
     pn_messenger_recv(messenger, limit);
     if (failed(messenger)) {
         pn_error_t *error = pn_messenger_error(messenger);
@@ -286,7 +290,7 @@ static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message)
         return;
     }
 
-    logger(DEBUG, "Getting %i messages from proton buffer", incoming);
+    logger(TRACE, "Getting %i messages from proton buffer", incoming);
 
     pn_messenger_get(messenger, message);
     if (failed(messenger)) {
@@ -301,7 +305,7 @@ static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message)
     int buff_size = 1024;
     char *str = malloc(buff_size + 1);
     if (!str) {
-        logger(DEBUG, "Unable to allocate memory for the buffer");
+        logger(ERROR, "Unable to allocate memory for the buffer");
 
 
         exit(1);
@@ -324,6 +328,24 @@ static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message)
     free(str);
 }
 
+static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timestamp) {
+    mpt_timestamp_t ret = {0};
+    
+    double ts =  ((double) timestamp / 1000);
+    logger_t logger = get_logger(); 
+    
+    logger(DEBUG, "Timestamp: %lu / %f", timestamp, ts);
+    
+    ret.tv_sec = abs(ts);
+    
+    double err;
+    ret.tv_usec = modf(ts, &err) * 1000;
+    
+    logger(DEBUG, "Returning: %lu / %lu / %f", ret.tv_sec, ret.tv_usec, err);
+    
+    return ret;
+}
+
 void proton_receive(msg_ctxt_t *ctxt)
 {
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
@@ -332,6 +354,11 @@ void proton_receive(msg_ctxt_t *ctxt)
 
     pn_message_t *message = pn_message();
     proton_do_receive(proton_ctxt->messenger, message);
+    mpt_timestamp_t created = 
+            proton_timestamp_to_mpt_timestamp_t(pn_message_get_creation_time(message));
+    mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
+    
+    statistics_latency(created, now);
 
     proton_accept(proton_ctxt->messenger);
 

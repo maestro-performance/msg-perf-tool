@@ -11,7 +11,7 @@ add_library(
         contrib/log.c
         vmsl.c
         msgctxt.c
-        
+        statistics.c
 )
 
 

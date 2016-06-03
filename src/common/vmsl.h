@@ -8,6 +8,7 @@ extern "C" {
 #include "contrib/logger.h"
 
 #include "msgctxt.h"
+#include "statistics.h"
 
   
 typedef msg_ctxt_t *(*msg_init)(void *data);
