@@ -27,6 +27,7 @@ typedef enum log_level_t_ {
 	TRACE,
 	DEBUG,
 	INFO,
+      	STAT,
 	WARNING,
 	ERROR,
 	FATAL,

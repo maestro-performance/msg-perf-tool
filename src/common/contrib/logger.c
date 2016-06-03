@@ -54,6 +54,11 @@ log_level_t get_log_level(const char *str) {
         return FATAL;
     }
     
+    if (strncasecmp("STAT", str, strlen(str)) == 0) {
+        return STAT;
+    }
+    
+    
     fprintf(stderr, "Invalid log level %s\n. Using INFO as default", str);
     return INFO;
 }
