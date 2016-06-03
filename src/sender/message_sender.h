@@ -20,6 +20,7 @@ extern "C" {
 	
 #include "vmsl.h"
 #include "msgctxt.h"
+#include "statistics.h"
 #include "contrib/options.h"
 
 void sender_start(const vmsl_t *vmsl, const options_t *options);

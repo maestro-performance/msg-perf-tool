@@ -26,6 +26,8 @@ typedef struct timeval mpt_timestamp_t;
 // typedef void(*msg_subscribe)(msg_ctxt_t *ctxt, void *data);
 
 void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end);
+unsigned long long statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end);
+mpt_timestamp_t statistics_now();
 
 
 #ifdef __cplusplus
