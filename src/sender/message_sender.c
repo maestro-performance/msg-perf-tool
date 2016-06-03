@@ -66,7 +66,7 @@ static bool can_continue(const options_t *options, unsigned long long int sent)
     
     gettimeofday(&now, NULL);
 
-    if (sent < options->count) {
+    if ((sent < options->count) || options->count == 0) {
         if (now.tv_sec <= options->duration.tv_sec || options->duration.tv_sec == 0) {
             return true;
         }
@@ -106,6 +106,6 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     unsigned long long elapsed = statistics_diff(start, last);
     double rate = ((double) sent / elapsed) * 1000;
 
-    logger(STAT, "Sent %lu messages in %lu milliseconds: %f msgs/sec", sent,
+    logger(STAT, "Sent %lu messages in %lu milliseconds: %.2f msgs/sec", sent,
            elapsed, rate);
 }

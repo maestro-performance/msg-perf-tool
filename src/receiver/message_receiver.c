@@ -105,7 +105,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
 
     unsigned long long elapsed = statistics_diff(start, last);
     double rate = ((double) content_storage.count / elapsed) * 1000;
-    logger(STAT, "Received %lu messages in %llu milliseconds: %f msgs/sec",
+    logger(STAT, "Received %lu messages in %llu milliseconds: %.2f msgs/sec",
            content_storage.count,
            elapsed, rate);
 
