@@ -19,3 +19,9 @@ msg_ctxt_t *msg_ctxt_init() {
 
     return ret;
 }
+
+
+void msg_ctxt_destroy(msg_ctxt_t **ctxt) {
+    free(*ctxt);
+    *ctxt = NULL;
+}

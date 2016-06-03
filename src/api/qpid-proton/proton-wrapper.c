@@ -70,6 +70,8 @@ void proton_destroy(msg_ctxt_t *ctxt) {
     
     pn_messenger_free(proton_ctxt->messenger);
     proton_context_destroy(&proton_ctxt);
+    
+    msg_ctxt_destroy(&ctxt);
 }
 
 static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker)
@@ -233,6 +235,7 @@ void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader)
     proton_do_send(proton_ctxt->messenger, message);
 
     proton_commit(proton_ctxt->messenger);
+    pn_message_free(message);
 }
 
 static void proton_accept(pn_messenger_t *messenger)
@@ -368,4 +371,5 @@ void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content)
         proton_accept(proton_ctxt->messenger);
         content->count++;
     }
+    pn_message_free(message);
 }

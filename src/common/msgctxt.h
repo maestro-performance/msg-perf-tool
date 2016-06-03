@@ -36,6 +36,7 @@ typedef struct msg_ctxt_t_ {
 } msg_ctxt_t;
 
 msg_ctxt_t *msg_ctxt_init();
+void msg_ctxt_destroy(msg_ctxt_t **ctxt);
 
 
 #ifdef __cplusplus
