@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     }
 
     if (strlen(options->logdir) > 0) {
-        // remap_log(options->logdir, "mpt-sender", getpid(), stderr);
+        remap_log(options->logdir, "mpt-sender", getpid(), stderr);
     }
 
 
@@ -148,6 +148,8 @@ int main(int argc, char **argv)
             child = fork(); 
  
 	    if (child == 0) {
+                
+                
 		 sender_start(vmsl, options);
    		 return 0; 
 	    }

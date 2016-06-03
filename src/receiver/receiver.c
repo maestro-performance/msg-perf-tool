@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     }
 
     if (strlen(options->logdir) > 0) {
-        // remap_log(options->logdir, "mpt-receiver", options->pid, stderr);
+        remap_log(options->logdir, "mpt-receiver", getpid(), stderr);
     }
 
     vmsl_t *vmsl = vmsl_init();
