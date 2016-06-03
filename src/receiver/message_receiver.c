@@ -91,6 +91,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     msg_content_data_t content_storage;
 
     content_storage.data = malloc(options->message_size);
+    bzero(content_storage.data, options->message_size);
     content_storage.capacity = options->message_size;
     content_storage.count = 0;
 
