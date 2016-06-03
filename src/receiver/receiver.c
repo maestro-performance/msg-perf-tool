@@ -83,12 +83,13 @@ int main(int argc, char **argv)
             { "daemon", false, 0, 'D'},
             { "log-level", true, 0, 'l'},
             { "parallel-count", true, 0, 'p'},
+            { "message-size", true, 0, 's'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:l:p:dDc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:l:p:s:Dc:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -110,6 +111,9 @@ int main(int argc, char **argv)
             break;
         case 'p':
             options->parallel_count = atoi(optarg);
+            break;
+        case 's':
+            options->message_size = atoll(optarg);
             break;
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);

@@ -8,7 +8,7 @@
 
 static void content_loader(msg_content_data_t *content_data)
 {
-    content_data->size = 10;
+    content_data->capacity = 10;
     content_data->data = "0123456789";
 }
 

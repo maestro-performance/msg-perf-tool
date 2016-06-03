@@ -25,6 +25,7 @@ static void options_new_with_defaults(options_t *ret)
         ret->count = 10;
         ret->daemon = false;
         ret->log_level = INFO;
+        ret->message_size = 32;
 }
 
 options_t *options_new()

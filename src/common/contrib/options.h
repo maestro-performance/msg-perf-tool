@@ -35,6 +35,7 @@ typedef struct options_t_ {
     unsigned long long int count;
     char logdir[OPT_MAX_STR_SIZE];
     int parallel_count;
+    long long message_size;
     bool daemon;
     log_level_t log_level;
 } options_t;

@@ -23,6 +23,7 @@ extern "C" {
 #include "contrib/logger.h"
     
 typedef struct msg_content_data_t_ {
+    size_t capacity;
     size_t size;
     void *data;
 } msg_content_data_t;

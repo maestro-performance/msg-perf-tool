@@ -39,7 +39,7 @@ void proton_destroy(msg_ctxt_t *ctxt);
 
 void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader);
 void proton_subscribe(msg_ctxt_t *ctxt, void *data);
-void proton_receive(msg_ctxt_t *ctxt);
+void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content);
 
 #ifdef __cplusplus
 }

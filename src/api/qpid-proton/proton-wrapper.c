@@ -182,7 +182,7 @@ static void proton_set_message_data(pn_message_t *message, msg_content_loader co
     
     content_loader(&msg_content);
     
-    pn_data_put_string(body, pn_bytes(msg_content.size, msg_content.data));
+    pn_data_put_string(body, pn_bytes(msg_content.capacity, msg_content.data));
 }
 
 static void proton_set_outgoing_messenger_properties(proton_ctxt_t *proton_ctxt)
@@ -275,7 +275,8 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger)
     pn_messenger_set_blocking(messenger, true);
 }
 
-static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message)
+static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message, 
+                              msg_content_data_t *content)
 {
     logger_t logger = get_logger();
 
@@ -315,30 +316,18 @@ static void proton_do_receive(pn_messenger_t *messenger, pn_message_t *message)
 
     pn_data_t *body = pn_message_body(message);
 
-    int buff_size = 1024;
-    char *str = malloc(buff_size + 1);
-    if (!str) {
-        logger(ERROR, "Unable to allocate memory for the buffer");
-
-
-        exit(1);
-    }
-    bzero(str, buff_size);
-
-    pn_data_format(body, str, &buff_size);
+    content->size = content->capacity;
+    pn_data_format(body, content->data, &content->size);
     if (failed(messenger)) {
         pn_error_t *error = pn_messenger_error(messenger);
 
         const char *protonErrorText = pn_error_text(error);
         logger(ERROR, protonErrorText);
 
-        free(str);
         exit(1);
     }
 
-    logger(DEBUG, "Received data (%d bytes): %s", buff_size, str);
-
-    free(str);
+    logger(DEBUG, "Received data (%d bytes): %s", content->size, content->data);
 }
 
 static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timestamp) {
@@ -359,14 +348,14 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
     return ret;
 }
 
-void proton_receive(msg_ctxt_t *ctxt)
+void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content)
 {
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
     proton_set_incoming_messenger_properties(proton_ctxt->messenger);
 
     pn_message_t *message = pn_message();
-    proton_do_receive(proton_ctxt->messenger, message);
+    proton_do_receive(proton_ctxt->messenger, message, content);
     mpt_timestamp_t created = 
             proton_timestamp_to_mpt_timestamp_t(pn_message_get_creation_time(message));
     mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
