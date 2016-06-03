@@ -24,13 +24,13 @@
 #include <stdbool.h>
 
 typedef enum log_level_t_ {
-	TRACE,
-	DEBUG,
-	INFO,
-      	STAT,
-	WARNING,
-	ERROR,
-	FATAL,
+	TRACE = 0,
+	DEBUG = 1,
+	INFO = 2,
+        STAT = 3,
+	WARNING = 4,
+	ERROR = 5,
+	FATAL = 6,
 } log_level_t;
 
 typedef void(*logger_t)(log_level_t level, const char *message, ...);

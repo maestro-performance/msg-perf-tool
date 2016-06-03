@@ -22,11 +22,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include "logger.h"
+#include "options.h"
 
 #define APPEND_SIZE_REMAP 64
 
@@ -35,7 +37,7 @@ extern "C" {
 #endif
 
 bool remap_log(const char *dir, const char *base_name, pid_t pid, FILE *fd);
-
+void default_logger(log_level_t level, const char *msg, ...);
 
 #ifdef	__cplusplus
 }

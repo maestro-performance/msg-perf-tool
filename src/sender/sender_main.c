@@ -7,51 +7,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-static void messenger_function(log_level_t level, const char *msg, ...)
-{
-    const options_t *options = get_options_object();
-
-    if (!can_log(level, options->log_level)) {
-        return;
-    }
-    
-    va_list ap;
-    char *ret = NULL;
-
-    va_start(ap, msg);
-    vasprintf(&ret, msg, ap);
-    va_end(ap);
-    
-
-    switch (level) {
-    case TRACE:
-        fprintf(stderr, "[TRACE]: %s\n", ret);
-        break;
-    case DEBUG:
-        fprintf(stderr, "[DEBUG]: %s\n", ret);
-        break;
-    case INFO:
-        fprintf(stderr, "[INFO]: %s\n", ret);
-        break;
-    case WARNING:
-        fprintf(stderr, "[WARNING]: %s\n", ret);
-        break;
-    case ERROR:
-        fprintf(stderr, "[ERROR]: %s\n", ret);
-        break;
-    case FATAL:
-        fprintf(stderr, "[FATAL]: %s\n", ret);
-        break;
-    default:
-        fprintf(stderr, "[MSG]: %s\n", ret);
-        break;
-    }
-
-
-    free(ret);
-    fflush(NULL);
-}
-
 static void show_help()
 {
     printf("Usage: ");
@@ -75,7 +30,7 @@ int main(int argc, char **argv)
     }
 
     set_options_object(options);
-    set_logger(messenger_function);
+    set_logger(default_logger);
     while (1) {
 
         static struct option long_options[] = {

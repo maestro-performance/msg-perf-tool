@@ -161,3 +161,50 @@ bool remap_log(const char *dir, const char *base_name, pid_t pid, FILE *fd)
 
 	return remap_io(dir, name, fd);
 }
+
+
+void default_logger(log_level_t level, const char *msg, ...)
+{
+    const options_t *options = get_options_object();
+    
+    if (!can_log(level, options->log_level)) {
+        return;
+    }
+    
+    va_list ap;
+    char *ret = NULL;
+
+    va_start(ap, msg);
+    vasprintf(&ret, msg, ap);
+    va_end(ap);
+    
+
+    switch (level) {
+    case TRACE:
+        fprintf(stderr, "[TRACE]: %s\n", ret);
+        break;
+    case DEBUG:
+        fprintf(stderr, "[DEBUG]: %s\n", ret);
+        break;
+    case INFO:
+        fprintf(stderr, "[INFO]: %s\n", ret);
+        break;
+    case STAT:
+        fprintf(stderr, "[STAT]: %s\n", ret);
+        break;
+    case WARNING:
+        fprintf(stderr, "[WARNING]: %s\n", ret);
+        break;
+    case ERROR:
+        fprintf(stderr, "[ERROR]: %s\n", ret);
+        break;
+    case FATAL:
+        fprintf(stderr, "[FATAL]: %s\n", ret);
+        break;
+    default:
+        fprintf(stderr, "[MSG]: %s\n", ret);
+        break;
+    }
+
+    free(ret);
+}

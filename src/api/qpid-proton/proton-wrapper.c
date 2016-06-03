@@ -361,7 +361,7 @@ void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content)
     statistics_latency(created, now);
 
     proton_accept(proton_ctxt->messenger);
-
+    content->count++;
 
 
 

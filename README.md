@@ -1,6 +1,15 @@
 MPT: messaging performance tool
 ============
 
+
+Dependencies:
+----
+cmake qpid-proton-c-devel gcc gcc-c++ 
+
+
+Recommended:
+valgrind perf
+
 Broker Settings: ActiveMQ
 ----
 
