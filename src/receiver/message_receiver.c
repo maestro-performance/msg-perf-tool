@@ -97,10 +97,20 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
 
     mpt_timestamp_t last;
     mpt_timestamp_t start = statistics_now();
-    
+    time_t last_calc = 0;
     while (can_continue(options)) {
         vmsl->receive(msg_ctxt, &content_storage);
         last = statistics_now();
+        
+        if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
+            unsigned long long partial = statistics_diff(start, last);
+            double rate = ((double) content_storage.count / partial) * 1000;
+    
+            logger(STAT, "count:%lu|duration:%lu|rate:%.2f msgs/sec", 
+                   content_storage.count, partial, rate);
+            
+            last_calc = last.tv_sec;
+        }
     }   
 
     unsigned long long elapsed = statistics_diff(start, last);

@@ -72,7 +72,6 @@ static bool can_continue(const options_t *options, unsigned long long int sent)
         }
     }
     
-    
     return false;
 }
 
@@ -94,10 +93,20 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     mpt_timestamp_t start = statistics_now();
 
     register unsigned long long int sent = 0;
+    time_t last_calc = 0;
     while (can_continue(options, sent)) {
         vmsl->send(msg_ctxt, content_loader);
         sent++;
         last = statistics_now();
+        
+        if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
+            unsigned long long partial = statistics_diff(start, last);
+            double rate = ((double) sent / partial) * 1000;
+    
+            logger(STAT, "count:%lu|duration:%lu|rate:%.2f msgs/sec", sent,
+                partial, rate);
+            last_calc = last.tv_sec;
+        }
     }
     
     vmsl->stop(msg_ctxt);
