@@ -34,6 +34,7 @@ void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
 
     logger(DEBUG, "Creation time: %d.%d", start.tv_sec, start.tv_usec);
     logger(DEBUG, "Received time: %d.%d", end.tv_sec, end.tv_usec);
-    logger(STAT, "latency,%llu,milliseconds", statistics_diff(start, end));
+    logger(STAT, "latency:%llu|creation:%llu|received:%llu", 
+           statistics_diff(start, end), start.tv_sec, end.tv_sec);
 
 }

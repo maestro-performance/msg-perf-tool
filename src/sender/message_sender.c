@@ -6,12 +6,23 @@
 
 #include "message_sender.h"
 
+static bool interrupted = false;
+
 static void timer_handler(int signum)
 {
     logger_t logger = get_logger();
     
     logger(TRACE, "Activity timer expired");
 }
+
+static void interrupt_handler(int signum)
+{
+    logger_t logger = get_logger();
+    
+    logger(TRACE, "Interrupted");
+    interrupted = true;
+}
+
 
 static void install_timer()
 {
@@ -24,23 +35,34 @@ static void install_timer()
     sa.sa_flags = SA_SIGINFO;
     sigaction(SIGALRM, &sa, NULL);
 
-    /* Configure the timer to expire after 250 msec... */
     timer.it_value.tv_sec = 1;
     timer.it_value.tv_usec = 0;
 
-    /* ... and every 250 msec after that. */
     timer.it_interval.tv_sec = 1;
     timer.it_interval.tv_usec = 0;
 
-    /* Start a virtual timer. It counts down whenever this process is
-      executing. */
     setitimer(ITIMER_REAL, &timer, NULL);
+}
 
+static void install_interrupt_handler()
+{
+    struct sigaction sa;
+    struct itimerval timer;
+
+    memset(&sa, 0, sizeof (sa));
+
+    sa.sa_handler = &interrupt_handler;
+    sa.sa_flags = SA_SIGINFO;
+    sigaction(SIGINT, &sa, NULL);
 }
 
 static bool can_continue(const options_t *options, unsigned long long int sent)
 {
     struct timeval now;
+    
+    if (interrupted) {
+        return false;
+    }
     
     gettimeofday(&now, NULL);
 
@@ -66,22 +88,24 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
    
     msg_ctxt_t *msg_ctxt = vmsl->init(NULL);
     install_timer();
+    install_interrupt_handler();
 
+    mpt_timestamp_t last;
     mpt_timestamp_t start = statistics_now();
 
     register unsigned long long int sent = 0;
     while (can_continue(options, sent)) {
         vmsl->send(msg_ctxt, content_loader);
         sent++;
+        last = statistics_now();
     }
-    mpt_timestamp_t end = statistics_now();
-
+    
     vmsl->stop(msg_ctxt);
     vmsl->destroy(msg_ctxt);
 
-    unsigned long long elapsed = statistics_diff(start, end);
+    unsigned long long elapsed = statistics_diff(start, last);
     double rate = ((double) sent / elapsed) * 1000;
 
-    logger(INFO, "Sent %lu messages in %lu milliseconds: %f msgs/sec", sent,
+    logger(STAT, "Sent %lu messages in %lu milliseconds: %f msgs/sec", sent,
            elapsed, rate);
 }

@@ -248,6 +248,17 @@ static void proton_accept(pn_messenger_t *messenger)
     proton_check_status(messenger, tracker);
 }
 
+static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger)
+{
+
+    /*
+     * By setting the incoming window to 1 it, basically, behaves as if 
+     * it was working in an auto-accept mode
+     */
+    pn_messenger_set_incoming_window(messenger, 1);
+    pn_messenger_set_blocking(messenger, true);
+}
+
 void proton_subscribe(msg_ctxt_t *ctxt, void *data)
 {
     logger_t logger = get_logger();
@@ -262,17 +273,8 @@ void proton_subscribe(msg_ctxt_t *ctxt, void *data)
         const char *protonErrorText = pn_error_text(error);
         logger(ERROR, protonErrorText);
     }
-}
-
-static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger)
-{
-
-    /*
-     * By setting the incoming window to 1 it, basically, behaves as if 
-     * it was working in an auto-accept mode
-     */
-    pn_messenger_set_incoming_window(messenger, 1);
-    pn_messenger_set_blocking(messenger, true);
+    
+    proton_set_incoming_messenger_properties(proton_ctxt->messenger);
 }
 
 static int proton_do_receive(pn_messenger_t *messenger, pn_message_t *message, 
@@ -352,8 +354,6 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
 void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content)
 {
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
-
-    proton_set_incoming_messenger_properties(proton_ctxt->messenger);
 
     pn_message_t *message = pn_message();
     int ret = proton_do_receive(proton_ctxt->messenger, message, content);
