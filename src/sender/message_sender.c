@@ -7,6 +7,8 @@
 #include "message_sender.h"
 
 static bool interrupted = false;
+static char *data = NULL;
+static size_t capacity;
 
 static void timer_handler(int signum)
 {
@@ -75,10 +77,36 @@ static bool can_continue(const options_t *options, unsigned long long int sent)
     return false;
 }
 
+static const char *load_message_data(const options_t *options) {
+    data = malloc(options->message_size + 1);
+    
+    logger_t logger = get_logger();
+    if (data == NULL) {
+        
+        
+        logger(FATAL, "Unable to allocate memory for the message data");
+        
+        return NULL;
+    }
+    
+    logger(INFO, "Loading %d bytes for message data", options->message_size);
+    
+    bzero(data, options->message_size);
+    
+    for (int i = 0; i < options->message_size; i++) {
+        data[i] = 'c';
+    }
+
+    data[options->message_size] = 0;
+    capacity = options->message_size;
+    return data;
+
+}
+
 static void content_loader(msg_content_data_t *content_data)
 {
-    content_data->capacity = 10;
-    content_data->data = "0123456789";
+    content_data->capacity = capacity;
+    content_data->data =  data;
 }
 
 void sender_start(const vmsl_t *vmsl, const options_t *options)
@@ -88,6 +116,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     msg_ctxt_t *msg_ctxt = vmsl->init(NULL);
     install_timer();
     install_interrupt_handler();
+    load_message_data(options);
 
     mpt_timestamp_t last;
     mpt_timestamp_t start = statistics_now();

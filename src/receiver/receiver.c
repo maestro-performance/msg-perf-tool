@@ -72,9 +72,6 @@ int main(int argc, char **argv)
         case 'd':
             options->duration = get_duration(atoi(optarg));
             break;
-        case 'D':
-            options->daemon = true;
-            break;
         case 'l':
             options->log_level = get_log_level(optarg);
             break;

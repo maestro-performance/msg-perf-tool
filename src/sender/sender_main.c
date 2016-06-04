@@ -50,13 +50,13 @@ int main(int argc, char **argv)
             { "log-level", true, 0, 'l'},
             { "parallel-count", true, 0, 'p'},
             { "duration", true, 0, 'd'},
-            { "daemon", false, 0, 'D'},
+            { "size", true, 0, 's'},
             { "logdir", true, 0, 'L'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:l:p:Dc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:c:l:p:d:s:L:h", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -82,8 +82,8 @@ int main(int argc, char **argv)
         case 'd':
             options->duration = get_duration(atoi(optarg));
             break;
-        case 'D':
-            options->daemon = true;
+        case 's':
+            options->message_size = atoi(optarg);
             break;
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);

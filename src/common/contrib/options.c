@@ -23,7 +23,6 @@ static void options_new_with_defaults(options_t *ret)
 	bzero(ret->logdir, sizeof(ret->logdir));
 	ret->parallel_count = 2;
         ret->count = 0;
-        ret->daemon = false;
         ret->log_level = INFO;
         ret->message_size = 32;
         ret->duration.tv_sec = 0;
