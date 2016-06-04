@@ -340,16 +340,14 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
     mpt_timestamp_t ret = {0};
     
     double ts =  ((double) timestamp / 1000);
-    logger_t logger = get_logger(); 
+    double integral;
     
-    logger(DEBUG, "Timestamp: %lu / %f", timestamp, ts);
+    ret.tv_usec = modf(ts, &integral) * 1000000;
+    ret.tv_sec = integral;
     
-    ret.tv_sec = abs(ts);
+    logger_t logger = get_logger();
     
-    double err;
-    ret.tv_usec = modf(ts, &err) * 1000000;
-    
-    logger(TRACE, "Returning: %lu / %lu / %f", ret.tv_sec, ret.tv_usec, err);
+    logger(TRACE, "Returning: %lu / %lu / %f", ret.tv_sec, ret.tv_usec, integral);
     
     return ret;
 }
