@@ -20,6 +20,7 @@ extern "C" {
 
 #include <stdio.h>
 #include <getopt.h>
+#include <sys/wait.h>
 
 #include "contrib/options.h"
 #include "contrib/logger.h"
