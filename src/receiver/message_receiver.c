@@ -47,7 +47,6 @@ static void install_timer()
 static void install_interrupt_handler()
 {
     struct sigaction sa;
-    struct itimerval timer;
 
     memset(&sa, 0, sizeof (sa));
 
