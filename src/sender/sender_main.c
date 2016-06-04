@@ -98,11 +98,6 @@ int main(int argc, char **argv)
         }
     }
 
-    if (strlen(options->logdir) > 0) {
-        remap_log(options->logdir, "mpt-sender", getpid(), stderr);
-    }
-
-
     vmsl_t *vmsl = vmsl_init();
     vmsl->init = proton_init;
     vmsl->send = proton_send;
@@ -118,7 +113,10 @@ int main(int argc, char **argv)
             child = fork(); 
  
 	    if (child == 0) {
-                
+                if (strlen(options->logdir) > 0) {
+                    remap_log(options->logdir, "mpt-sender", getppid(), 
+                              getpid(), stderr);
+                }
                 
 		 sender_start(vmsl, options);
    		 return 0; 

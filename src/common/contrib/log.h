@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-bool remap_log(const char *dir, const char *base_name, pid_t pid, FILE *fd);
+bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, FILE *fd);
 void default_logger(log_level_t level, const char *msg, ...);
 
 #ifdef	__cplusplus

@@ -152,12 +152,12 @@ static bool remap_io(const char *dir, const char *name, FILE *fd)
 	return true;
 }
 
-bool remap_log(const char *dir, const char *base_name, pid_t pid, FILE *fd)
+bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, FILE *fd)
 {
 	char name[32];
 
 	bzero(name, sizeof(name));
-	snprintf(name, sizeof(name) - 1, "%s-%d.log", base_name, pid);
+	snprintf(name, sizeof(name) - 1, "%s-%d-%d.log", base_name, parent, pid);
 
 	return remap_io(dir, name, fd);
 }

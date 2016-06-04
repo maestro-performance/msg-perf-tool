@@ -94,9 +94,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if (strlen(options->logdir) > 0) {
-        remap_log(options->logdir, "mpt-receiver", getpid(), stderr);
-    }
+    
 
     vmsl_t *vmsl = vmsl_init();
     vmsl->init = proton_init;
@@ -114,6 +112,11 @@ int main(int argc, char **argv)
                 child = fork(); 
 
                 if (child == 0) {
+                    if (strlen(options->logdir) > 0) {
+                        remap_log(options->logdir, "mpt-receiver", getppid(), 
+                                  getpid(), stderr);
+                     }
+                     
                      receiver_start(vmsl, options);
                      return 0; 
                 }
@@ -138,6 +141,9 @@ int main(int argc, char **argv)
         }
     }
     else {
+        remap_log(options->logdir, "mpt-receiver", getpid(), 
+                                  getpid(), stderr);
+        
         receiver_start(vmsl, options);
     }
 
