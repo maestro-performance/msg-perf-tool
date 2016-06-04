@@ -8,7 +8,7 @@
 #include "proton-context.h"
 #include "vmsl.h"
 
-static bool failed(pn_messenger_t *messenger)
+static inline bool failed(pn_messenger_t *messenger)
 {
     if (pn_messenger_errno(messenger)) {
         return true;
