@@ -106,7 +106,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
             unsigned long long partial = statistics_diff(start, last);
             double rate = ((double) content_storage.count / partial) * 1000;
     
-            logger(STAT, "count:%lu|duration:%lu|rate:%.2f msgs/sec", 
+            logger(STAT, "count:%lu|duration:%llu|rate:%.2f msgs/sec", 
                    content_storage.count, partial, rate);
             
             last_calc = last.tv_sec;
