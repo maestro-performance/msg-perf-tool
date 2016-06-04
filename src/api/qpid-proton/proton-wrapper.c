@@ -280,35 +280,42 @@ void proton_subscribe(msg_ctxt_t *ctxt, void *data)
     proton_set_incoming_messenger_properties(proton_ctxt->messenger);
 }
 
-static int proton_do_receive(pn_messenger_t *messenger, pn_message_t *message, 
-                              msg_content_data_t *content)
-{
+static int proton_receive_local(pn_messenger_t *messenger) {
     logger_t logger = get_logger();
-
+    
     if (!pn_messenger_is_blocking(messenger)) {
         logger(WARNING, "The messenger is not in blocking mode");
     }
-
+    
     int limit = -1;
     logger(TRACE, "Receiving at most %i messages", limit);
     pn_messenger_recv(messenger, limit);
     if (failed(messenger)) {
         pn_error_t *error = pn_messenger_error(messenger);
-
+        
         const char *protonErrorText = pn_error_text(error);
         logger(ERROR, protonErrorText);
-
+        
         return 1;
     }
-
+    
     int incoming = pn_messenger_incoming(messenger);
     if (incoming == 0) {
         logger(DEBUG, "There are 0 incoming messages");
         return 1;
     }
-
+    
     logger(TRACE, "Getting %i messages from proton buffer", incoming);
+    return incoming;
 
+}
+
+
+static int proton_do_receive(pn_messenger_t *messenger, pn_message_t *message, 
+                              msg_content_data_t *content)
+{
+    logger_t logger = get_logger();
+    
     pn_messenger_get(messenger, message);
     if (failed(messenger)) {
         pn_error_t *error = pn_messenger_error(messenger);
@@ -355,19 +362,24 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
 void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content)
 {
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
-
-    pn_message_t *message = pn_message();
-    int ret = proton_do_receive(proton_ctxt->messenger, message, content);
     
-    if (ret == 0) { 
-        mpt_timestamp_t created = 
+    int count = proton_receive_local(proton_ctxt->messenger);
+    
+    if (count > 0) {
+    
+        pn_message_t *message = pn_message();
+        int ret = proton_do_receive(proton_ctxt->messenger, message, content);
+    
+        if (ret == 0) {
+            mpt_timestamp_t created =
                 proton_timestamp_to_mpt_timestamp_t(pn_message_get_creation_time(message));
-        mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
+            mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
 
-        statistics_latency(created, now);
+            statistics_latency(created, now);
 
-        proton_accept(proton_ctxt->messenger);
-        content->count++;
+            proton_accept(proton_ctxt->messenger);
+            content->count++;
+        }
+        pn_message_free(message);
     }
-    pn_message_free(message);
 }
