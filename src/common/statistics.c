@@ -6,6 +6,37 @@
 
 #include "statistics.h"
 
+#ifndef __linux__
+
+/*
+ * Timer subtraction, highly inspired on the code show at: 
+ * http://www.gnu.org/software/libc/manual/html_node/Elapsed-Time.html
+ */
+
+static int timersub(struct timeval *start, struct timeval *end, struct timeval *result)
+{
+    if (start->tv_usec < end->tv_usec) {
+        int nsec = (end->tv_usec - start->tv_usec) / 1000000 + 1;
+        end->tv_usec -= 1000000 * nsec;
+        end->tv_sec += nsec;
+    }
+    if (start->tv_usec - end->tv_usec > 1000000) {
+        int nsec = (start->tv_usec - end->tv_usec) / 1000000;
+        end->tv_usec += 1000000 * nsec;
+        end->tv_sec -= nsec;
+    }
+    
+    result->tv_sec = start->tv_sec - end->tv_sec;
+    result->tv_usec = start->tv_usec - end->tv_usec;
+    
+    return start->tv_sec < end->tv_sec;
+}
+
+#endif // __linux__
+
+
+
+
 mpt_timestamp_t statistics_now()
 {
     struct timeval ret = {.tv_sec = 0, .tv_usec = 0};
