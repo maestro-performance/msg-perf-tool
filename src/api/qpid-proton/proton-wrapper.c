@@ -187,14 +187,6 @@ static void proton_set_message_data(pn_message_t *message, msg_content_loader co
     pn_data_put_string(body, pn_bytes(msg_content.capacity, msg_content.data));
 }
 
-static void proton_set_outgoing_messenger_properties(proton_ctxt_t *proton_ctxt)
-{
-    logger_t logger = get_logger();
-
-    logger(TRACE, "Setting outgoing window");
-    pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
-}
-
 static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message)
 {
     logger_t logger = get_logger();
@@ -230,7 +222,6 @@ void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader)
     proton_set_message_data(message, content_loader);
 
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
-    proton_set_outgoing_messenger_properties(proton_ctxt);
 
     proton_do_send(proton_ctxt->messenger, message);
 
