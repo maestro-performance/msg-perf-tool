@@ -1,0 +1,8 @@
+## cat mpt-receiver-1850-1851.log| grep latency | sed 's/\[STAT\]: //'  | sed 's/|/:/g' |  awk -F ':' ' { printf "%s;%s;%s\n", $2, $4, $6 } ' > ~/tmp/latency.csv
+
+set datafile separator ";"
+set term png
+set output "latency.png"
+set xdata time
+plot "latency.csv" using ($2/1000):1 title "Creation time" with linespoints
+
