@@ -19,7 +19,7 @@ extern "C" {
 #endif
     
 #include "contrib/logger.h"
-    
+#include <time.h>
 #include <sys/time.h>
     
 typedef struct timeval mpt_timestamp_t;

@@ -45,6 +45,11 @@ mpt_timestamp_t statistics_now()
     return ret;
 }
 
+static unsigned long long statistics_convert_to_milli(mpt_timestamp_t ts) {
+    return (((ts.tv_sec) * 1000) + (ts.tv_usec / 1000));
+    
+}
+
 
 unsigned long long statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end)
 {
@@ -53,10 +58,9 @@ unsigned long long statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end)
     
     logger_t logger = get_logger();
     
-    // logger(DEBUG, "Start time: %d.%d", start.tv_sec, start.tv_usec);
-    // logger(DEBUG, "End time: %d.%d", end.tv_sec, end.tv_usec);
     logger(DEBUG, "Calculated diff : %ld.%ld", ret.tv_sec, ret.tv_usec);
-    return (((ret.tv_sec) * 1000) + (ret.tv_usec / 1000));
+    
+    return statistics_convert_to_milli(ret);
 }
 
 void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
@@ -65,7 +69,19 @@ void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
 
     logger(DEBUG, "Creation time: %d.%d", start.tv_sec, start.tv_usec);
     logger(DEBUG, "Received time: %d.%d", end.tv_sec, end.tv_usec);
-    logger(STAT, "latency:%llu|creation:%llu|received:%llu", 
-           statistics_diff(start, end), start.tv_sec, end.tv_sec);
-
+    
+    
+    char tm_creation_buff[64] = {0};
+    char tm_received_buff[64] = {0};
+    
+    struct tm *creation_tm = localtime(&start.tv_sec);
+    strftime(tm_creation_buff, sizeof(tm_creation_buff), "%Y-%m-%d %H:%M:%S", creation_tm);
+    
+    struct tm *received_tm = localtime(&end.tv_sec);
+    strftime(tm_received_buff, sizeof(tm_received_buff), "%Y-%m-%d %H:%M:%S", received_tm);
+    
+    
+    logger(STAT, "latency;%llu;creation;%s.%d;received;%s.%d",
+           statistics_diff(start, end), tm_creation_buff, (start.tv_usec/1000),
+                tm_received_buff, (end.tv_usec/1000));
 }

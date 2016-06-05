@@ -1,0 +1,28 @@
+## cat mpt-receiver-1850-1851.log| grep latency | sed 's/\[STAT\]: //'  | sed 's/|/:/g' |  awk -F ':' ' { printf "%s;%s;%s\n", $2, $4, $6 } ' > ~/tmp/latency.csv
+## cat mpt-receiver-4197-4198.log | grep latency | sed 's/\[STAT\]: //' | sed 's/received:/received;/g' > ~/tmp/latency.csv
+
+
+## Sets separator for CSV file
+set datafile separator ";"
+
+## Write the data in PNG format
+set term png size 1280,1024
+
+## Filename
+set output output_filename
+
+## The timestamp format used in the stats
+set timefmt "%Y-%m-%d %H:%M:%S"
+
+## Report specific: we want the x axis to be the time
+set xdata time
+
+## ... and rotated, for easier reading
+set xtics out rotate by -80
+
+## .. By hour, minute and seconds up to milliseconds
+set format x "%H:%M:%.3S"
+
+## Do the plotting
+plot filename using 4:2 title "Latency" with lines
+
