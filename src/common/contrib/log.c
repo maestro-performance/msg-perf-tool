@@ -190,7 +190,7 @@ void default_logger(log_level_t level, const char *msg, ...)
         fprintf(stderr, "[INFO]: %s\n", ret);
         break;
     case STAT:
-        fprintf(stderr, "[STAT]: pid:%d|%s\n", getpid(), ret);
+        fprintf(stderr, "[STAT]: %s\n", ret);
         break;
     case WARNING:
         fprintf(stderr, "[WARNING]: %s\n", ret);
