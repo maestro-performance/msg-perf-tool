@@ -104,8 +104,13 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
         if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
             unsigned long long partial = statistics_diff(start, last);
             double rate = ((double) content_storage.count / partial) * 1000;
+            
+            char last_buff[64] = {0};
+            
+            struct tm *last_tm = localtime(&last.tv_sec);
+            strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
     
-            logger(STAT, "count:%lu|duration:%llu|rate:%.2f msgs/sec", 
+            logger(STAT, "ts;%s;count;%lu;duration;%llu;rate;%.2f", last_buff,
                    content_storage.count, partial, rate);
             
             last_calc = last.tv_sec;
@@ -114,7 +119,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
 
     unsigned long long elapsed = statistics_diff(start, last);
     double rate = ((double) content_storage.count / elapsed) * 1000;
-    logger(STAT, "Received %lu messages in %llu milliseconds: %.2f msgs/sec",
+    logger(INFO, "Summary: received %lu messages in %llu milliseconds (rate: %.2f msgs/sec)",
            (content_storage.count - 1),
            elapsed, rate);
 

@@ -137,10 +137,11 @@ int main(int argc, char **argv)
 	    for (int i = 0; i < options->parallel_count; i++) {
     		waitpid(childs[i], &status, 0);
 
-		printf("PID %d terminated with status %d\n", childs[i], status);
+            logger(INFO, "Child process %d terminated with status %d", childs[i], status);
     	}
     }
-
+    
     vmsl_destroy(&vmsl);
+    logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
     return EXIT_SUCCESS;
 }
