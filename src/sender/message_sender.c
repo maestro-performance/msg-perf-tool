@@ -101,6 +101,11 @@ static const char *load_message_data(const options_t *options) {
     return data;
 }
 
+static void unload_message_data() {
+    free(data);
+    capacity = 0;
+}
+
 static void content_loader(msg_content_data_t *content_data)
 {
     content_data->capacity = capacity;
@@ -144,10 +149,14 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     
     vmsl->stop(msg_ctxt);
     vmsl->destroy(msg_ctxt);
+    
+    unload_message_data();
 
     unsigned long long elapsed = statistics_diff(start, last);
     double rate = ((double) sent / elapsed) * 1000;
 
     logger(INFO, "Summary: sent %lu messages in %lu milliseconds (rate: %.2f msgs/sec)", sent,
            elapsed, rate);
+    
+    
 }
