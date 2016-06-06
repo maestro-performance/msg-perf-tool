@@ -30,6 +30,8 @@ extern "C" {
 #include "statistics.h"
 #include "message_receiver.h"
 #include "proton-wrapper.h"
+    
+#include "process_utils.h"
 
 
 #ifdef __cplusplus

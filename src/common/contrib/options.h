@@ -39,6 +39,7 @@ typedef struct options_t_ {
     size_t message_size;
     log_level_t log_level;
     struct timeval duration;
+    bool daemon;
 } options_t;
 
 

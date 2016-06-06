@@ -52,11 +52,12 @@ int main(int argc, char **argv)
             { "duration", true, 0, 'd'},
             { "size", true, 0, 's'},
             { "logdir", true, 0, 'L'},
+            { "daemon", false, 0, 'D'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:c:l:p:d:s:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:c:l:p:d:s:L:Dh", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -88,6 +89,9 @@ int main(int argc, char **argv)
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);
             break;
+        case 'D':
+            options->daemon = true;
+            break;
         case 'h':
             show_help();
             return EXIT_SUCCESS;
@@ -98,6 +102,8 @@ int main(int argc, char **argv)
         }
     }
 
+    init_controller(options->daemon, options->logdir, "mpt-sender-controller");
+    
     vmsl_t *vmsl = vmsl_init();
     vmsl->init = proton_init;
     vmsl->send = proton_send;
@@ -106,39 +112,50 @@ int main(int argc, char **argv)
 
     int childs[5];
     int child = 0; 
-    logger_t logger = get_logger(); 
     
-    logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-    for (int i = 0; i < options->parallel_count; i++) { 
-            child = fork(); 
- 
-	    if (child == 0) {
-                if (strlen(options->logdir) > 0) {
-                    remap_log(options->logdir, "mpt-sender", getppid(), 
-                              getpid(), stderr);
+    logger_t logger = get_logger();
+    
+    if (options->parallel_count > 1) { 
+        logger(INFO, "Creating %d concurrent operations", options->parallel_count);
+        for (int i = 0; i < options->parallel_count; i++) { 
+                child = fork(); 
+
+                if (child == 0) {
+                    if (strlen(options->logdir) > 0) {
+                        remap_log(options->logdir, "mpt-sender", getppid(), 
+                                  getpid(), stderr);
+                    }
+
+                     sender_start(vmsl, options);
+                     return 0; 
                 }
-                
-		 sender_start(vmsl, options);
-   		 return 0; 
-	    }
-	    else {
-	    	if (child > 0) {
-			childs[i] = child;
-		
-		}
-		else {
-			printf("Error\n");
-		}
-	    }
+                else {
+                    if (child > 0) {
+                            childs[i] = child;
+
+                    }
+                    else {
+                            printf("Error\n");
+                    }
+                }
+        }
+
+        if (child > 0) { 
+             int status = 0;
+                for (int i = 0; i < options->parallel_count; i++) {
+                    waitpid(childs[i], &status, 0);
+
+                logger(INFO, "Child process %d terminated with status %d", childs[i], status);
+            }
+        }
     }
-
-    if (child > 0) { 
-	 int status = 0;
-	    for (int i = 0; i < options->parallel_count; i++) {
-    		waitpid(childs[i], &status, 0);
-
-            logger(INFO, "Child process %d terminated with status %d", childs[i], status);
-    	}
+    else {
+        if (strlen(options->logdir) > 0) {
+            remap_log(options->logdir, "mpt-sender", 0, 
+                                  getpid(), stderr);
+        }
+        
+        sender_start(vmsl, options);
     }
     
     vmsl_destroy(&vmsl);

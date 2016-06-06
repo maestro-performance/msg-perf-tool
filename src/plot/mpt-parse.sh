@@ -2,13 +2,13 @@
 
 if [[ -z $1 ]] ; then
 	echo "You must inform either 'receiver' or 'sender'"
-	
+
 	exit 1
 fi
 
 if [[ -z $2 ]] ; then
 	echo "You must inform the PID"
-	
+
 	exit 1
 fi
 
@@ -20,9 +20,9 @@ if [[ "$1" == "receiver" ]] ; then
 	receiver_throughput_report=$2/$1-throughput-report.csv
 
 
-	echo /dev/null > $receiver_latency_report
-	echo /dev/null > $receiver_throughput_report
-	for file in mpt-$1-$2 ; do 
+	cat /dev/null > $receiver_latency_report
+	cat /dev/null > $receiver_throughput_report
+	for file in mpt-$1-$2 ; do
 		cat mpt-$1-$2* | grep latency | sed 's/\[STAT\]: //' | sed 's/received:/received;/g' >> $receiver_latency_report
 		cat mpt-$1-$2*.log  | grep STAT | grep rate | sed 's/\[STAT\]: //' >> $receiver_throughput_report
 	done
@@ -36,15 +36,15 @@ if [[ "$1" == "receiver" ]] ; then
 
 	gnuplot -e "filename='$receiver_latency_report_in';output_filename='$receiver_latency_report_out'" `dirname $0`/latency.ps
 	gnuplot -e "filename='$receiver_throughput_report_in';output_filename='$receiver_throughput_report_out'" `dirname $0`/throughput.ps
-	
+
 	cp `dirname $0`/receiver-report.html `pwd`/$2/index.html
 else
 	if [[ $1 == "sender" ]] ; then
 		sender_throughput_report=$2/$1-throughput-report.csv
 
 
-		echo /dev/null > $sender_throughput_report
-		for file in mpt-$1-$2 ; do 
+		cat /dev/null > $sender_throughput_report
+		for file in mpt-$1-$2 ; do
 			cat mpt-$1-$2*.log  | grep STAT | grep rate | sed 's/\[STAT\]: //' >> $sender_throughput_report
 		done
 
@@ -53,7 +53,7 @@ else
 
 		gnuplot -e "filename='$sender_throughput_report_in';output_filename='$sender_throughput_report_out'" `dirname $0`/throughput.ps
 		cp `dirname $0`/sender-report.html `pwd`/$2/index.html
-			
+
 	else
 		echo "Invalid option $1"
 	fi

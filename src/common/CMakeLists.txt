@@ -12,6 +12,7 @@ add_library(
         vmsl.c
         msgctxt.c
         statistics.c
+        process_utils.c
 )
 
 

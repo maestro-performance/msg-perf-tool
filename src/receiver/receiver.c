@@ -46,16 +46,16 @@ int main(int argc, char **argv)
         static struct option long_options[] = {
             { "broker-url", true, 0, 'b'},
             { "duration", true, 0, 'd'},
-            { "daemon", false, 0, 'D'},
             { "log-level", true, 0, 'l'},
             { "parallel-count", true, 0, 'p'},
             { "message-size", true, 0, 's'},
             { "logdir", true, 0, 'L'},
+            { "daemon", false, 0, 'D'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:d:l:p:s:Dc:L:h", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:d:l:p:s:c:L:Dh", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -84,6 +84,9 @@ int main(int argc, char **argv)
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);
             break;
+        case 'D':
+            options->daemon = true;
+            break;
         case 'h':
             show_help();
             return EXIT_SUCCESS;
@@ -94,7 +97,7 @@ int main(int argc, char **argv)
         }
     }
 
-    
+    init_controller(options->daemon, options->logdir, "mpt-receiver-controller");
 
     vmsl_t *vmsl = vmsl_init();
     vmsl->init = proton_init;
@@ -141,8 +144,9 @@ int main(int argc, char **argv)
         }
     }
     else {
-        remap_log(options->logdir, "mpt-receiver", getpid(), 
-                                  getpid(), stderr);
+        if (strlen(options->logdir) > 0) {
+            remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr);
+        }
         
         receiver_start(vmsl, options);
     }

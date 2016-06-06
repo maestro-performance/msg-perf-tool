@@ -27,6 +27,7 @@ static void options_new_with_defaults(options_t *ret)
         ret->message_size = 32;
         ret->duration.tv_sec = 0;
         ret->duration.tv_usec = 0;
+        ret->daemon = false;
 }
 
 options_t *options_new()
