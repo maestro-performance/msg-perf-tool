@@ -111,7 +111,7 @@ int main(int argc, char **argv)
     init_controller(options->daemon, options->logdir, "mpt-sender-controller");
     
     vmsl_t *vmsl = vmsl_init();
-    init_vmsl_proton(vmsl);   
+    init_vmsl_proton(vmsl);
 
     int childs[5];
     int child = 0; 
@@ -163,5 +163,7 @@ int main(int argc, char **argv)
     
     vmsl_destroy(&vmsl);
     logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
+    
+    options_destroy(&options);
     return EXIT_SUCCESS;
 }

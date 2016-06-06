@@ -99,7 +99,6 @@ static const char *load_message_data(const options_t *options) {
     data[options->message_size] = 0;
     capacity = options->message_size;
     return data;
-
 }
 
 static void content_loader(msg_content_data_t *content_data)

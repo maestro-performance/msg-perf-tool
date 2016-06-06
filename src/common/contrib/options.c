@@ -47,6 +47,11 @@ options_t *options_new()
 	return ret;
 }
 
+void options_destroy(options_t **obj) {
+    free(*obj);
+    *obj = NULL;
+}
+
 void set_options_object(options_t *obj)
 {
 	if (options == NULL) {

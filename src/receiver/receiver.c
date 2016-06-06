@@ -161,5 +161,7 @@ int main(int argc, char **argv)
     vmsl_destroy(&vmsl);
     
     logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
+    
+    options_destroy(&options);
     return EXIT_SUCCESS;
 }

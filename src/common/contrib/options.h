@@ -44,6 +44,9 @@ typedef struct options_t_ {
 
 
 options_t *options_new();
+void options_destroy(options_t **obj);
+
+
 void set_options_object(options_t *ojb);
 const options_t *get_options_object(void);
 
