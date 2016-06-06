@@ -24,6 +24,7 @@ extern "C" {
 #include "contrib/options.h"
     
 #include <signal.h>
+#include <unistd.h>
 
 void sender_start(const vmsl_t *vmsl, const options_t *options);
 

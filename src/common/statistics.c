@@ -80,8 +80,16 @@ void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
     struct tm *received_tm = localtime(&end.tv_sec);
     strftime(tm_received_buff, sizeof(tm_received_buff), "%Y-%m-%d %H:%M:%S", received_tm);
     
-    
-    logger(STAT, "latency;%llu;creation;%s.%d;received;%s.%d",
+    if (start.tv_sec == 0) {
+        logger(STAT, "error;%llu;creation;%s.%d;received;%s.%d;pid;%d",
            statistics_diff(start, end), tm_creation_buff, (start.tv_usec/1000),
-                tm_received_buff, (end.tv_usec/1000));
+                tm_received_buff, (end.tv_usec/1000), getpid());
+    }
+    else {
+        logger(STAT, "latency;%llu;creation;%s.%d;received;%s.%d;pid;%d",
+           statistics_diff(start, end), tm_creation_buff, (start.tv_usec/1000),
+                tm_received_buff, (end.tv_usec/1000), getpid());
+    }
+    
+    
 }
