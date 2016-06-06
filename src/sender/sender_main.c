@@ -18,7 +18,6 @@ static void show_help()
     printf("\t-h\t--help show this help\n");
 }
 
-
 static struct timeval get_duration(int count) {
     struct timeval ret; 
     
@@ -27,6 +26,13 @@ static struct timeval get_duration(int count) {
     ret.tv_sec = ret.tv_sec + (count * 60);
     
     return ret;
+}
+
+static void init_vmsl_proton(vmsl_t *vmsl) {
+    vmsl->init = proton_init;
+    vmsl->send = proton_send;
+    vmsl->stop = proton_stop;
+    vmsl->destroy = proton_destroy;
 }
 
 int main(int argc, char **argv)
@@ -105,10 +111,7 @@ int main(int argc, char **argv)
     init_controller(options->daemon, options->logdir, "mpt-sender-controller");
     
     vmsl_t *vmsl = vmsl_init();
-    vmsl->init = proton_init;
-    vmsl->send = proton_send;
-    vmsl->stop = proton_stop;
-    vmsl->destroy = proton_destroy;
+    init_vmsl_proton(vmsl);   
 
     int childs[5];
     int child = 0; 

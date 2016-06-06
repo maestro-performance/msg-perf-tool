@@ -116,6 +116,9 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
             last_calc = last.tv_sec;
         }
     }   
+    
+    vmsl->stop(msg_ctxt);
+    vmsl->destroy(msg_ctxt);
 
     unsigned long long elapsed = statistics_diff(start, last);
     double rate = ((double) content_storage.count / elapsed) * 1000;
