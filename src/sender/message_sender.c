@@ -156,6 +156,8 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     unsigned long long elapsed = statistics_diff(start, last);
     double rate = ((double) sent / elapsed) * 1000;
 
+    logger(STAT, "summary;sent;%lu;elapsed;%lu;rate;%.2f", sent, elapsed, rate);
+    
     logger(INFO, "Summary: sent %lu messages in %lu milliseconds (rate: %.2f msgs/sec)", sent,
            elapsed, rate);
     
