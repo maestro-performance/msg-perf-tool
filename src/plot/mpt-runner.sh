@@ -38,4 +38,3 @@ if [[ ! -z "${UPLOAD_URL}" ]] ; then
     echo "Copying the files"
     scp -r ${report_path}/* ${UPLOAD_URL}
 fi
-
