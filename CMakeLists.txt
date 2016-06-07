@@ -60,3 +60,4 @@ add_subdirectory(src/api/qpid-proton objs/api/qpid-proton)
 
 add_subdirectory(src/receiver objs/receiver)
 add_subdirectory(src/sender objs/sender)
+add_subdirectory(src/plot objs/plot)
