@@ -143,8 +143,9 @@ int main(int argc, char **argv)
                 }
         }
 
-        if (child > 0) { 
-             int status = 0;
+        if (child > 0) {
+            setsid();
+            int status = 0;
                 for (int i = 0; i < options->parallel_count; i++) {
                     waitpid(childs[i], &status, 0);
 

@@ -16,22 +16,24 @@ static void show_help()
     printf("\t-h\t--help show this help\n");
 }
 
-static struct timeval get_duration(int count) {
-    struct timeval ret; 
-    
+static struct timeval get_duration(int count)
+{
+    struct timeval ret;
+
     gettimeofday(&ret, NULL);
-    
+
     ret.tv_sec = ret.tv_sec + (count * 60);
-    
+
     return ret;
 }
 
-static void init_vmsl_proton(vmsl_t *vmsl) {
+static void init_vmsl_proton(vmsl_t *vmsl)
+{
     vmsl->init = proton_init;
-    
+
     vmsl->receive = proton_receive;
     vmsl->subscribe = proton_subscribe;
-    
+
     vmsl->stop = proton_stop;
     vmsl->destroy = proton_destroy;
 }
@@ -49,7 +51,7 @@ int main(int argc, char **argv)
 
     set_options_object(options);
     set_logger(default_logger);
-    
+
     options->parallel_count = 1;
     while (1) {
 
@@ -111,42 +113,42 @@ int main(int argc, char **argv)
 
     vmsl_t *vmsl = vmsl_init();
     init_vmsl_proton(vmsl);
-    
-    int childs[5];
-    int child = 0; 
-    logger_t logger = get_logger(); 
-    
-    if (options->parallel_count > 1) { 
-        logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-        for (int i = 0; i < options->parallel_count; i++) { 
-                child = fork(); 
 
-                if (child == 0) {
-                    if (strlen(options->logdir) > 0) {
-                        remap_log(options->logdir, "mpt-receiver", getppid(), 
-                                  getpid(), stderr);
-                     }
-                     
-                     receiver_start(vmsl, options);
-                     return 0; 
+    int childs[5];
+    int child = 0;
+    logger_t logger = get_logger();
+
+    if (options->parallel_count > 1) {
+        logger(INFO, "Creating %d concurrent operations", options->parallel_count);
+        for (int i = 0; i < options->parallel_count; i++) {
+            child = fork();
+
+            if (child == 0) {
+                if (strlen(options->logdir) > 0) {
+                    remap_log(options->logdir, "mpt-receiver", getppid(),
+                              getpid(), stderr);
+                }
+
+                receiver_start(vmsl, options);
+                return 0;
+            }
+            else {
+                if (child > 0) {
+                    childs[i] = child;
+
                 }
                 else {
-                    if (child > 0) {
-                            childs[i] = child;
-
-                    }
-                    else {
-                            printf("Error\n");
-                    }
+                    printf("Error\n");
                 }
+            }
         }
 
-        if (child > 0) { 
-             int status = 0;
-                for (int i = 0; i < options->parallel_count; i++) {
-                    waitpid(childs[i], &status, 0);
+        if (child > 0) {
+            int status = 0;
+            for (int i = 0; i < options->parallel_count; i++) {
+                waitpid(childs[i], &status, 0);
 
-                    logger(INFO, "Child process %d terminated with status %d", childs[i], status);
+                logger(INFO, "Child process %d terminated with status %d", childs[i], status);
             }
         }
     }
@@ -154,14 +156,14 @@ int main(int argc, char **argv)
         if (strlen(options->logdir) > 0) {
             remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr);
         }
-        
+
         receiver_start(vmsl, options);
     }
 
     vmsl_destroy(&vmsl);
-    
+
     logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
-    
+
     options_destroy(&options);
     return EXIT_SUCCESS;
 }

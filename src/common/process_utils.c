@@ -11,16 +11,38 @@
  * @param logdir
  * @param controller_name
  */
-void init_controller(bool daemon, const char *logdir, const char *controller_name) {
+void init_controller(bool daemon, const char *logdir, const char *controller_name)
+{
     if (daemon) {
         int controller = fork();
-        
+
         if (controller == 0) {
+            setsid();
+
+            int fd = open("/dev/null", O_RDWR, 0);
+
+            if (fd != -1) {
+                dup2(fd, STDIN_FILENO);
+                dup2(fd, STDOUT_FILENO);
+                dup2(fd, STDERR_FILENO);
+
+                if (fd > 2) {
+                    close(fd);
+                }
+            }
+
             remap_log(logdir, controller_name, 0, getpid(), stderr);
         }
         else {
-            printf("%d\n", controller);
-            exit(0);
+            if (controller > 0) {
+                printf("%d\n", controller);
+                exit(0);
+            }
+            else {
+                fprintf(stderr, "Unable to create child process");
+                exit(1);
+            }
+
         }
     }
 }
