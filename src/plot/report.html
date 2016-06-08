@@ -45,6 +45,12 @@ span.count {
     color: blue;
 }
 
+img.displayed {
+    display: block;
+    margin-left: auto;
+    margin-right: auto 
+}
+
 </style>
 </head>
 <body>
@@ -63,9 +69,8 @@ span.count {
 
 <h2>Test Summary</h2>
 
-<b>Received messages</b>: <span class="count">{{ total_count }}</span><br>
-
-
+<b>Sent messages</b>: <span class="count">{{ total_count_sent }}</span><br>
+<b>Received messages</b>: <span class="count">{{ total_count_receive }}</span><br>
 
 <h1>Receiver</h1>
 
@@ -73,13 +78,21 @@ span.count {
 
 <b>Download throughput report</b>: <a href="receiver-throughput-report.csv">here</a><br>
 
-<img src="receiver-throughput-report.png" alt="receiver throughput report" width="1280" height="1024">
+<img class="displayed" src="receiver-throughput-report.png" alt="receiver throughput report" width="1280" height="1024">
 
 <h2>Latency</h2>
 
 <b>Download latency report</b>: <a href="receiver-throughput-report.csv">here</a><br>
 
-<img src="receiver-latency-report.png" alt="receiver latency report" width="1280" height="1024">
+<img class="displayed" src="receiver-latency-report.png" alt="receiver latency report" width="1280" height="1024">
+
+<h1>Sender</h1>
+
+<h2>Throughput</h2>
+
+<b>Download throughput report</b>: <a href="sender-throughput-report.csv">here</a><br>
+
+<img class="displayed" src="sender-throughput-report.png" alt="receiver throughput report" width="1280" height="1024">
 
 </body>
 </html>

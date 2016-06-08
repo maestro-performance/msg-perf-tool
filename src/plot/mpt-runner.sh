@@ -9,7 +9,7 @@ export MESSAGE_SIZE=1024
 
 app_path=`dirname $0`
 
-ARGS=$(getopt -o l:b:d:s:p:u:h -n "$0" -- "$@");
+ARGS=$(getopt -o l:b:d:s:p:u:o:n:h -n "$0" -- "$@");
 eval set -- "$ARGS";
 
 HELP="USAGE: ./$0 [options]\n
@@ -19,6 +19,8 @@ HELP="USAGE: ./$0 [options]\n
 -s 'size'  -- message size (in bytes [default = 1024])\n
 -p 'parallel count'  -- the number of parallel senders and consumers\n
 -u 'upload url'  -- (optional) a SCP URL for uploading the test data\n
+-o 'output directory'  -- output directory for the test report\n
+-n 'test name'  -- test name\n
 -h                  -- this help"
 
 while true; do
@@ -51,6 +53,16 @@ while true; do
     -u)
       shift
       export UPLOAD_URL="$1"
+      shift
+    ;;
+    -o)
+      shift
+      export OUTPUT_DIR="$1"
+      shift
+    ;;
+    -n)
+      shift
+      export TEST_NAME="$1"
       shift
     ;;
     -h)
@@ -95,16 +107,16 @@ export pid_sender=`${app_path}/mpt-sender -b $BROKER_URL --log-level=STAT --dura
 echo "Sleeping for ${DURATION}m15s"
 sleep 15s "${DURATION}m"
 
-report_path=`mktemp --tmpdir -d mpt.XXXXXXX`
+if [[ -z $OUTPUT_DIR ]] ; then
+  OUTPUT_DIR=`mktemp --tmpdir -d mpt.XXXXXXX`
+fi
 
+
+report_dir=${LOG_DIR}/report/`date +%Y%m%d%H%M`
 echo "Parsing the receiver data"
-${app_path}/mpt-parse.sh receiver $pid_receiver $report_path
-
-echo "Parsing the sender data"
-${app_path}/mpt-parse.sh sender $pid_sender $report_path
-
+${app_path}/mpt-parse.sh -l /tmp/log -s $pid_sender -r $pid_receiver -n "${TEST_NAME}" -o ${report_dir}
 
 if [[ ! -z "${UPLOAD_URL}" ]] ; then
     echo "Copying the files"
-    scp -r ${report_path}/* ${UPLOAD_URL}
+    scp -r ${report_dir} ${UPLOAD_URL}
 fi

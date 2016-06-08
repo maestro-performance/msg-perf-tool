@@ -11,7 +11,7 @@ endforeach(tool)
 
 
 # In all project subdirectories
-set(plot_scripts latency.ps throughput.ps receiver-report.html sender-report.html)
+set(plot_scripts latency.ps throughput.ps report.html)
 
 set(SHARED_DATA_OUTPUT_PATH ${CMAKE_BINARY_DIR}/../../build/target/share/mpt)
 
