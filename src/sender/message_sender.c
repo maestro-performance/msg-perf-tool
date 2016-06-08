@@ -126,7 +126,6 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
 
     register unsigned long long int sent = 0;
     time_t last_calc = 0;
-    pid_t pid = getpid();
     while (can_continue(options, sent)) {
         vmsl->send(msg_ctxt, content_loader);
         sent++;
@@ -142,8 +141,8 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
             strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
 
     
-            logger(STAT, "ts;%s;count;%lu;duration;%llu;rate;%.2f;pid;%d", 
-                   last_buff, sent, partial, rate, pid);
+            logger(STAT, "ts;%s;count;%lu;duration;%llu;rate;%.2f", 
+                   last_buff, sent, partial, rate);
             last_calc = last.tv_sec;
         }
     }

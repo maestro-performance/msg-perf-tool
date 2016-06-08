@@ -97,7 +97,6 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     mpt_timestamp_t last;
     mpt_timestamp_t start = statistics_now();
     time_t last_calc = 0;
-    pid_t pid = getpid();
     while (can_continue(options)) {
         vmsl->receive(msg_ctxt, &content_storage);
         last = statistics_now();
@@ -111,8 +110,8 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
             struct tm *last_tm = localtime(&last.tv_sec);
             strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
     
-            logger(STAT, "ts;%s;count;%lu;duration;%llu;rate;%.2f;pid;%d", last_buff,
-                   content_storage.count, partial, rate, pid);
+            logger(STAT, "ts;%s;count;%lu;duration;%llu;rate;%.2f", last_buff,
+                   content_storage.count, partial, rate);
             
             last_calc = last.tv_sec;
         }

@@ -70,21 +70,20 @@ function process_receiver_data() {
 	receiver_throughput_report=${OUTPUT_DIR}/${test_name_dir}/receiver-throughput-report.csv
 	receiver_summary_report=${OUTPUT_DIR}/${test_name_dir}/receiver-summary-report.csv
 
-	cat /dev/null > $receiver_latency_report
-	cat /dev/null > $receiver_throughput_report
-
 	total_count_receive=0
 	num_receivers=0
+	file_list=""
 	for file in $LOG_DIR/mpt-receiver-${RECEIVER_PID}*.log ; do
-		cat ${file} | grep latency | sed 's/\[STAT\]: //' | sed 's/received:/received;/g' >> $receiver_latency_report
-		cat ${file}	| grep STAT | grep -v "summary" | grep rate | sed 's/\[STAT\]: //' >> $receiver_throughput_report
+		let num_receivers=num_receivers+1
+		cat ${file} | grep latency | sed 's/\[STAT\]: //' >> ${receiver_latency_report}_${num_receivers}
+		cat ${file}	| grep STAT | grep -v "summary" | grep rate | sed 's/\[STAT\]: //' >> ${receiver_throughput_report}_${num_receivers}
 		summary_line=`cat $LOG_DIR/mpt-receiver-${RECEIVER_PID}* | grep summary`
     echo "Processing file ${file}"
 
     msg_count=`echo $summary_line | awk -F ';' ' { print $3 }'`
 
 		let total_count_receive=total_count_receive+msg_count
-		let num_receivers=num_receivers+1
+
 	done
 
  	echo "Processing the summary"
@@ -95,15 +94,15 @@ function process_receiver_data() {
 	receiver_throughput_report_in=$receiver_throughput_report
 	receiver_throughput_report_out=${OUTPUT_DIR}/${test_name_dir}/receiver-throughput-report.png
 
-	gnuplot -e "filename='$receiver_latency_report_in';output_filename='$receiver_latency_report_out'" ${share_dir}/latency.ps
-	gnuplot -e "filename='$receiver_throughput_report_in';output_filename='$receiver_throughput_report_out';num_connections='$num_receivers'" ${share_dir}/throughput.ps
+	gnuplot -e "basename='$receiver_latency_report_in';output_filename='$receiver_latency_report_out';count='$num_receivers'" ${share_dir}/latency.ps
+	gnuplot -e "basename='$receiver_throughput_report_in';output_filename='$receiver_throughput_report_out';num_connections='$num_receivers'" ${share_dir}/throughput.ps
 
 	export total_count_receive
 	export num_receivers
 
 	echo "Compressing receiver reports"
-	gzip $receiver_latency_report
-	gzip $receiver_throughput_report
+	tar --gzip -cf ${receiver_latency_report}.tar.gz ${receiver_latency_report}_*
+	tar --gzip -cf ${receiver_throughput_report}.tar.gz ${receiver_throughput_report}_*
 }
 
 
@@ -113,28 +112,29 @@ function process_sender_data() {
 
 	total_count_sent=0
 	num_senders=0
-	cat /dev/null > $sender_throughput_report
+
 	for file in $LOG_DIR/mpt-sender-${SENDER_PID}*.log ; do
-		cat ${file}	| grep STAT | grep rate | sed 's/\[STAT\]: //' >> $sender_throughput_report
+		let num_senders=num_senders+1
+		cat ${file}	| grep STAT | grep rate | sed 's/\[STAT\]: //' >> ${sender_throughput_report}_${num_senders}
 
 		summary_line=`cat $LOG_DIR/mpt-sender-${SENDER_PID}* | grep summary`
 		msg_count=`echo $summary_line | awk -F ';' ' { print $3 }'`
 
 		let total_count_sent=total_count_sent+msg_count
-		let num_senders=num_senders+1
+
 	done
 
 	test_date=`date`
 	sender_throughput_report_in=$sender_throughput_report
 	sender_throughput_report_out=${OUTPUT_DIR}/${test_name_dir}//sender-throughput-report.png
 
-	gnuplot -e "filename='$sender_throughput_report_in';output_filename='$sender_throughput_report_out';num_connections='$num_senders'" ${share_dir}/throughput.ps
+	gnuplot -e "basename='$sender_throughput_report_in';output_filename='$sender_throughput_report_out';num_connections='$num_senders'" ${share_dir}/throughput.ps
 
 	export total_count_sent
 	export num_senders
 
 	echo "Compressing sender reports"
-	gzip $sender_throughput_report
+	tar --gzip -cf ${sender_throughput_report}.tar.gz ${sender_throughput_report}_*
 }
 
 function process_template() {

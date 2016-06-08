@@ -1,7 +1,3 @@
-## cat mpt-receiver-1850-1851.log| grep latency | sed 's/\[STAT\]: //'  | sed 's/|/:/g' |  awk -F ':' ' { printf "%s;%s;%s\n", $2, $4, $6 } ' > ~/tmp/latency.csv
-## cat mpt-receiver-4197-4198.log | grep latency | sed 's/\[STAT\]: //' | sed 's/received:/received;/g' > ~/tmp/latency.csv
-
-
 ## Sets separator for CSV file
 set datafile separator ";"
 
@@ -27,6 +23,9 @@ set xtics out rotate by -80
 ## .. By hour, minute and seconds up to milliseconds
 set format x "%H:%M:%.3S"
 
-## Do the plotting
-plot filename using 4:2 title "Latency" with points
+# set data style points
 
+## Do the plotting
+# plot filename using 4:2 title "Latency" with points
+file(in, n) = sprintf("%s_%d",in, n)
+plot for [i=1:count] file(basename, i) using 4:2 title sprintf("Connection %d",i) with points
