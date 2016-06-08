@@ -1,12 +1,24 @@
 project(mpt)
 cmake_minimum_required(VERSION 2.8)
 
+set (CPACK_RPM_PACKAGE_SUMMARY "Messaging Performance Tool")
+set (CPACK_RPM_PACKAGE_NAME "msg-perf-tool")
+set (CPACK_RPM_PACKAGE_VERSION "0.0.1")
+set (CPACK_RPM_PACKAGE_RELEASE "1")
+set (CPACK_RPM_PACKAGE_LICENSE "Apache v2")
+set (CPACK_RPM_PACKAGE_GROUP "Development/Tools")
+set (CPACK_RPM_PACKAGE_VENDOR "none")
+set (CPACK_RPM_PACKAGE_DESCRIPTION "A tool to measure messaging system performance")
+
+INCLUDE(CPack)
+
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/lib)
 
 set(RUNTIME_DIR "bin")
-set(CPP_LIBRARY_DIR "lib")
 set(CPP_INCLUDE_DIR "include")
+set(SHARED_DIR "share")
+set(MPT_SHARED_DIR ${SHARED_DIR}/mpt)
 
 
 if (${CMAKE_SYSTEM_NAME} EQUAL "Linux") 
@@ -22,6 +34,8 @@ else(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(APP_BUILD_PLATFORM 32)
     set(APP_BUILD_PLATFORM_NAME "x84")
 endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+
+set(CPP_LIBRARY_DIR "lib")
 
 #### GNU Compiler flags
 
