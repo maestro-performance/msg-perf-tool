@@ -116,7 +116,7 @@ report_dir=${LOG_DIR}/report/
 
 echo "Parsing the receiver data"
 test_name_dir=${TEST_NAME//[[:space:]]/-}/
-${app_path}/mpt-parse.sh -l /tmp/log -s $pid_sender -r $pid_receiver -n "${TEST_NAME}" -o ${report_dir}
+${app_path}/mpt-parse.sh -l ${LOG_DIR} -s $pid_sender -r $pid_receiver -n "${TEST_NAME}" -o ${report_dir}
 
 if [[ ! -z "${UPLOAD_URL}" ]] ; then
     echo "Copying the files to ${UPLOAD_URL}"
