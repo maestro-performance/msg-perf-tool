@@ -19,7 +19,7 @@ set xdata time
 
 # Set graphics labels
 set xlabel "Time"
-set ylabel "Messages per second"
+set ylabel "Messages per second (".num_connections." connections)
 
 ## ... and rotated, for easier reading
 set xtics out rotate by -80
@@ -28,5 +28,4 @@ set xtics out rotate by -80
 set format x "%H:%M:%S"
 
 ## Do the plotting
-plot filename using 2:8 title "Throughput (msgs/sec)" with points
-
+plot filename using 2:8 title "Throughput (per connection)" with points

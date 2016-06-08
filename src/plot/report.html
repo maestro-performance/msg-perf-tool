@@ -32,7 +32,7 @@ a {
 }
 pre {
     font-family: "Courier New";
-    font-size: 14px;   
+    font-size: 14px;
     color: #383838;
 }
 b {
@@ -48,7 +48,7 @@ span.count {
 img.displayed {
     display: block;
     margin-left: auto;
-    margin-right: auto 
+    margin-right: auto
 }
 
 </style>
@@ -62,7 +62,7 @@ img.displayed {
 <br>
 
 <pre>
-    {{ environment }} 
+    {{ environment }}
 </pre>
 
 <br>
@@ -72,6 +72,9 @@ img.displayed {
 <b>Sent messages</b>: <span class="count">{{ total_count_sent }}</span><br>
 <b>Received messages</b>: <span class="count">{{ total_count_receive }}</span><br>
 <b>Difference</b>: <span class="count">{{ count_diff }}</span><br>
+<b>Number of senders</b>: <span class="count">{{ num_senders }}</span><br>
+<b>Number of receivers</b>: <span class="count">{{ num_receivers }}</span><br>
+<b>Message size</b>: <span class="count">{{ message_size }}</span><br>
 
 <h1>Receiver</h1>
 
