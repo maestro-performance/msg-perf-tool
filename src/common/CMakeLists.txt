@@ -16,6 +16,10 @@ add_library(
 )
 
 
+install(TARGETS mpt-common
+	LIBRARY DESTINATION ${CPP_LIBRARY_DIR}
+)
+
 
 
 
