@@ -103,6 +103,7 @@ function process_receiver_data() {
 	echo "Compressing receiver reports"
 	tar --gzip -cf ${receiver_latency_report}.tar.gz ${receiver_latency_report}_*
 	tar --gzip -cf ${receiver_throughput_report}.tar.gz ${receiver_throughput_report}_*
+	rm -f ${receiver_latency_report}_* ${receiver_throughput_report}_*
 }
 
 
@@ -135,6 +136,7 @@ function process_sender_data() {
 
 	echo "Compressing sender reports"
 	tar --gzip -cf ${sender_throughput_report}.tar.gz ${sender_throughput_report}_*
+	rm -f ${sender_throughput_report}_*
 }
 
 function process_template() {
