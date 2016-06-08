@@ -1,6 +1,17 @@
 project(mpt)
 cmake_minimum_required(VERSION 2.8)
 
+if( CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(STATUS "64 bits compiler detected")
+    set(APP_BUILD_PLATFORM 64)
+    set(APP_BUILD_PLATFORM_NAME "x64")
+else(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message(STATUS "32 bits compiler detected")
+    set(APP_BUILD_PLATFORM 32)
+    set(APP_BUILD_PLATFORM_NAME "i686")
+endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+
+
 set (CPACK_RPM_PACKAGE_SUMMARY "Messaging Performance Tool")
 set (CPACK_RPM_PACKAGE_NAME "msg-perf-tool")
 set (CPACK_RPM_PACKAGE_VERSION "0.0.1")
@@ -8,7 +19,8 @@ set (CPACK_RPM_PACKAGE_RELEASE "1")
 set (CPACK_RPM_PACKAGE_LICENSE "Apache v2")
 set (CPACK_RPM_PACKAGE_GROUP "Development/Tools")
 set (CPACK_RPM_PACKAGE_VENDOR "none")
-set (CPACK_RPM_PACKAGE_DESCRIPTION "A tool to measure messaging system performance")
+set (CPACK_RPM_PACKAGE_DESCRIPTION "A tool for measuring messaging system performance")
+set (CPACK_RPM_PACKAGE_ARCHITECTURE ${APP_BUILD_PLATFORM_NAME})
 
 INCLUDE(CPack)
 
@@ -17,25 +29,14 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/lib)
 
 set(RUNTIME_DIR "bin")
 set(CPP_INCLUDE_DIR "include")
+set(CPP_LIBRARY_DIR "lib")
 set(SHARED_DIR "share")
 set(MPT_SHARED_DIR ${SHARED_DIR}/mpt)
 
 
-if (${CMAKE_SYSTEM_NAME} EQUAL "Linux") 
- add_definitions(-DLINUX_BUILD) 
+if (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
+ add_definitions(-DLINUX_BUILD)
 endif (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
-
-if( CMAKE_SIZEOF_VOID_P EQUAL 8)
-    message(STATUS "64 bits compiler detected")
-    set(APP_BUILD_PLATFORM 64)
-    set(APP_BUILD_PLATFORM_NAME "x64")
-else(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    message(STATUS "32 bits compiler detected")
-    set(APP_BUILD_PLATFORM 32)
-    set(APP_BUILD_PLATFORM_NAME "x84")
-endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-
-set(CPP_LIBRARY_DIR "lib")
 
 #### GNU Compiler flags
 
