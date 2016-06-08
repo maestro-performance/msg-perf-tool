@@ -112,11 +112,13 @@ if [[ -z $OUTPUT_DIR ]] ; then
 fi
 
 
-report_dir=${LOG_DIR}/report/`date +%Y%m%d%H%M`
+report_dir=${LOG_DIR}/report/
+
 echo "Parsing the receiver data"
+test_name_dir=${TEST_NAME//[[:space:]]/-}/
 ${app_path}/mpt-parse.sh -l /tmp/log -s $pid_sender -r $pid_receiver -n "${TEST_NAME}" -o ${report_dir}
 
 if [[ ! -z "${UPLOAD_URL}" ]] ; then
-    echo "Copying the files"
-    scp -r ${report_dir} ${UPLOAD_URL}
+    echo "Copying the files to ${UPLOAD_URL}"
+    scp -q -r ${report_dir}/${test_name_dir} ${UPLOAD_URL}/
 fi

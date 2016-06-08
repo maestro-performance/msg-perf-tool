@@ -53,10 +53,10 @@ while true; do
   esac
 done
 
-export test_name_dir=${TEST_NAME//[[:space:]]/-}
+export test_name_dir=${TEST_NAME//[[:space:]]/-}/`date +%Y%m%d%H%M`
 
 echo "Creating the report directory at ${OUTPUT_DIR}/${test_name_dir}"
-mkdir -p ${OUTPUT_DIR}/${test_name_dir}
+mkdir -p ${OUTPUT_DIR}/${test_name_dir}/
 
 function process_receiver_data() {
 	echo "Processing the receiver data"
@@ -118,10 +118,13 @@ function process_sender_data() {
 }
 
 function process_template() {
+	let count_diff=total_count_sent-total_count_receive
+
 	env_data=`screenfetch -N`
 	echo "{}" | jinja2 -D test_date="$test_date" -D environment="$env_data" \
 			-D total_count_sent="$total_count_sent" \
 			-D total_count_receive="$total_count_receive" \
+			-D count_diff="$count_diff" \
 			${share_dir}/report.html > ${OUTPUT_DIR}/${test_name_dir}/index.html
 }
 
