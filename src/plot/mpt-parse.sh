@@ -100,6 +100,10 @@ function process_receiver_data() {
 
 	export total_count_receive
 	export num_receivers
+
+	echo "Compressing receiver reports"
+	gzip $receiver_latency_report
+	gzip $receiver_throughput_report
 }
 
 
@@ -128,6 +132,9 @@ function process_sender_data() {
 
 	export total_count_sent
 	export num_senders
+
+	echo "Compressing sender reports"
+	gzip $sender_throughput_report
 }
 
 function process_template() {
