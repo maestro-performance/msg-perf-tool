@@ -9,7 +9,7 @@ export MESSAGE_SIZE=1024
 
 app_path=`dirname $0`
 
-ARGS=$(getopt -o l:b:d:s:p:u:o:n:h -n "$0" -- "$@");
+ARGS=$(getopt -o l:b:d:s:p:u:o:n:t:h -n "$0" -- "$@");
 eval set -- "$ARGS";
 
 HELP="USAGE: ./$0 [options]\n
@@ -21,6 +21,7 @@ HELP="USAGE: ./$0 [options]\n
 -u 'upload url'  -- (optional) a SCP URL for uploading the test data\n
 -o 'output directory'  -- output directory for the test report\n
 -n 'test name'  -- test name\n
+-t 'throttle'  -- throttle (sends messages in a fixed rate [ msgs per second per connection])\n
 -h                  -- this help"
 
 while true; do
@@ -65,6 +66,11 @@ while true; do
       export TEST_NAME="$1"
       shift
     ;;
+    -t)
+      shift
+      export THROTTLE="$1"
+      shift
+    ;;
     -h)
       shift
       echo -e ${HELP}
@@ -94,12 +100,17 @@ trap stop_test SIGINT SIGTERM
 [[ ! -d $LOG_DIR ]] && mkdir -p $LOG_DIR
 
 echo "Broker URL: $BROKER_URL"
+if [[ -z THROTTLE="$1" ]] ; then
+  export THROTTLE="0"
+else
+  echo "Throttling the sender"
+fi
 
 echo "Lauching the receiver"
 export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT --duration=$DURATION -p $PARALLEL_COUNT --logdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
 
 echo "Lauching the sender"
-export pid_sender=`${app_path}/mpt-sender -b $BROKER_URL --log-level=STAT --duration $DURATION -p $PARALLEL_COUNT --logdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
+export pid_sender=`${app_path}/mpt-sender -b $BROKER_URL -t $THROTTLE --log-level=STAT --duration $DURATION -p $PARALLEL_COUNT --logdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
 
 # Sleeps for a little longer than the test duration so that it gives some time
 # for the program to finish and flush data

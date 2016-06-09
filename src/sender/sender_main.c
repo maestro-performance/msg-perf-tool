@@ -11,10 +11,14 @@ static void show_help()
 {
     printf("Usage: ");
     printf("\t-b\t--broker-url=<url> broker-url\n");
-    printf("\t-d\t--debug runs in debug verbose mode\n");
-    printf("\t-t\t--trace runs in trace verbose mode\n");
-
+    printf("\t-c\t--count=<value> sends a fixed number of messages\n");
+    printf("\t-l\t--log-level=<level> runs in the given verbose (info, stat, debug, etc) level mode\n");
+    printf("\t-p\t--parallel-count=<value> number of parallel connections to the server\n");
+    printf("\t-d\t--duration=<value> runs for a fixed amount of time (in minutes)\n");
+    printf("\t-s\t--size=<value> message size (in bytes)\n");
     printf("\t-L\t--logdir=<logdir> a directory to save the logs (mandatory for --daemon)\n");
+    printf("\t-t\t--throttle=<value> sets a fixed rate of messages (in messages per second per connection)\n");
+    printf("\t-D\t--daemon run as a daemon in the background\n");
     printf("\t-h\t--help show this help\n");
 }
 
@@ -58,12 +62,13 @@ int main(int argc, char **argv)
             { "duration", true, 0, 'd'},
             { "size", true, 0, 's'},
             { "logdir", true, 0, 'L'},
+            { "throttle", true, 0, 't'},
             { "daemon", false, 0, 'D'},
             { "help", false, 0, 'h'},
             { 0, 0, 0, 0}
         };
 
-        c = getopt_long(argc, argv, "b:c:l:p:d:s:L:Dh", long_options, &option_index);
+        c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:Dh", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
                 fprintf(stderr, "Not enough options\n");
@@ -94,6 +99,9 @@ int main(int argc, char **argv)
             break;
         case 'L':
             strncpy(options->logdir, optarg, sizeof (options->logdir) - 1);
+            break;
+        case 't':
+            options->throttle = atoi(optarg);
             break;
         case 'D':
             options->daemon = true;

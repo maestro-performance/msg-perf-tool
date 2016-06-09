@@ -28,6 +28,7 @@ static void options_new_with_defaults(options_t *ret)
         ret->duration.tv_sec = 0;
         ret->duration.tv_usec = 0;
         ret->daemon = false;
+        ret->throttle = 0;
 }
 
 options_t *options_new()

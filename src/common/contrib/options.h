@@ -40,6 +40,7 @@ typedef struct options_t_ {
     log_level_t log_level;
     struct timeval duration;
     bool daemon;
+    int throttle;
 } options_t;
 
 

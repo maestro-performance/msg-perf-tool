@@ -145,6 +145,14 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
                    last_buff, sent, partial, rate);
             last_calc = last.tv_sec;
         }
+        
+        
+        if (options->throttle > 0) {
+            if (((sent % options->throttle) == 0)) {
+                usleep(1000000 - last.tv_usec);
+            }
+        }
+
     }
     
     vmsl->stop(msg_ctxt);
