@@ -1,7 +1,7 @@
 #!/bin/bash
 
-share_dir=`dirname $0`/../share/mpt
-
+share_dir_tmp=`dirname $0`/../share/mpt
+share_dir=`readlink -f $share_dir_tmp`
 
 ARGS=$(getopt -o l:s:r:o:n:s:h -n "$0" -- "$@");
 eval set -- "$ARGS";

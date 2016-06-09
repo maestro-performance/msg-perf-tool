@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# #####
-# LOG_DIR=/tmp/log
-# BROKER_URL="amqp://<hostname>:5672/test.performance.queue"
-# PARALLEL_COUNT=4
-# DURATION=1
 export MESSAGE_SIZE=1024
 
 app_path=`dirname $0`
