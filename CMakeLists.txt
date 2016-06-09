@@ -5,10 +5,12 @@ if( CMAKE_SIZEOF_VOID_P EQUAL 8)
     message(STATUS "64 bits compiler detected")
     set(APP_BUILD_PLATFORM 64)
     set(APP_BUILD_PLATFORM_NAME "x86_64")
+    set(CPP_LIBRARY_DIR "lib64")
 else(CMAKE_SIZEOF_VOID_P EQUAL 8)
     message(STATUS "32 bits compiler detected")
     set(APP_BUILD_PLATFORM 32)
     set(APP_BUILD_PLATFORM_NAME "i686")
+    set(CPP_LIBRARY_DIR "lib")
 endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 
@@ -29,7 +31,6 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/lib)
 
 set(RUNTIME_DIR "bin")
 set(CPP_INCLUDE_DIR "include")
-set(CPP_LIBRARY_DIR "lib")
 set(SHARED_DIR "share")
 set(MPT_SHARED_DIR ${SHARED_DIR}/mpt)
 
