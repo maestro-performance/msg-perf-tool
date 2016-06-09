@@ -96,7 +96,7 @@ trap stop_test SIGINT SIGTERM
 echo "Broker URL: $BROKER_URL"
 
 echo "Lauching the receiver"
-export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT --duration=$DURATION -p $PARALLEL_COUNT --logdir=$LOG_DIR --daemon`
+export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT --duration=$DURATION -p $PARALLEL_COUNT --logdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
 
 echo "Lauching the sender"
 export pid_sender=`${app_path}/mpt-sender -b $BROKER_URL --log-level=STAT --duration $DURATION -p $PARALLEL_COUNT --logdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
