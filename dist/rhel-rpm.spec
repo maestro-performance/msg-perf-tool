@@ -27,7 +27,7 @@ A tool for measuring messaging system performance
 
 %build
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr ..
+cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr ..
 make
 
 %install
