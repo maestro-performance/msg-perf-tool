@@ -9,11 +9,14 @@ static void show_help()
 {
     printf("Usage: ");
     printf("\t-b\t--broker-url=<url> broker-url\n");
-    printf("\t-d\t--debug runs in debug verbose mode\n");
-    printf("\t-t\t--trace runs in trace verbose mode\n");
-
+    printf("\t-d\t--duration=<value> runs for a fixed amount of time (in minutes)\n");
+    printf("\t-l\t--log-level=<level> runs in the given verbose (info, stat, debug, etc) level mode\n");
+    printf("\t-p\t--parallel-count=<value> number of parallel connections to the server\n");
+    printf("\t-s\t--size=<value> message size (in bytes) used as a hint for allocating proper capacity in the buffer\n");
     printf("\t-L\t--logdir=<logdir> a directory to save the logs (mandatory for --daemon)\n");
+    printf("\t-D\t--daemon run as a daemon in the background\n");
     printf("\t-h\t--help show this help\n");
+    
 }
 
 static struct timeval get_duration(int count)
