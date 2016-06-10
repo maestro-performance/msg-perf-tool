@@ -126,5 +126,5 @@ ${app_path}/mpt-parse.sh -l ${LOG_DIR} -s $pid_sender -r $pid_receiver -n "${TES
 
 if [[ ! -z "${UPLOAD_URL}" ]] ; then
     echo "Copying the files to ${UPLOAD_URL}"
-    scp -q -r ${report_dir}/${test_name_dir} ${UPLOAD_URL}/
+    scp -q  -o "HostbasedAuthentication no" -o "StrictHostKeyChecking no" -r ${report_dir}/${test_name_dir} ${UPLOAD_URL}/
 fi
