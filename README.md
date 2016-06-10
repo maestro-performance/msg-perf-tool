@@ -48,8 +48,13 @@ mpt-receiver -b amqp://<amqp server>:5672/<queue name> --log-level=stat -d 10 -p
 Run the sender (the controller will print the PID, please take note of that):
 mpt-sender -b amqp://<amqp server>:5672/<queue name> --log-level=stat -d 10 -p 4 --logdir=/tmp/log --daemon
 
-
 After the test is complete:
 mpt-parse.sh -l /tmp/log -s <sender PID> -r <receiver PID> -n "<sample test>" -o /tmp/log/report
 
 At the moment, the data for both sender and receiver must be on the same path. If you are running it distributed, please copy the logs before running the parse.
+
+
+License
+----
+
+The code is licensed under Apache License v2
