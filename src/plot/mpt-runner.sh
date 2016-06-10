@@ -1,10 +1,11 @@
 #!/bin/bash
 
 export MESSAGE_SIZE=1024
+export SSH_OPTS=""
 
 app_path=`dirname $0`
 
-ARGS=$(getopt -o l:b:d:s:p:u:o:n:t:h -n "$0" -- "$@");
+ARGS=$(getopt -o l:b:d:s:p:u:r:o:n:t:h -n "$0" -- "$@");
 eval set -- "$ARGS";
 
 HELP="USAGE: ./$0 [options]\n
@@ -14,6 +15,7 @@ HELP="USAGE: ./$0 [options]\n
 -s 'size'  -- message size (in bytes [default = 1024])\n
 -p 'parallel count'  -- the number of parallel senders and consumers\n
 -u 'upload url'  -- (optional) a SCP URL for uploading the test data\n
+-r 'remote plot server'  -- (optional) a SSH/SCP URL for plotting the test data in a remote server \n
 -o 'output directory'  -- output directory for the test report\n
 -n 'test name'  -- test name\n
 -t 'throttle'  -- throttle (sends messages in a fixed rate [ msgs per second per connection])\n
@@ -49,6 +51,11 @@ while true; do
     -u)
       shift
       export UPLOAD_URL="$1"
+      shift
+    ;;
+    -r)
+      shift
+      export REMOTE_PLOT_SERVER="$1"
       shift
     ;;
     -o)
@@ -119,12 +126,37 @@ fi
 
 
 report_dir=${LOG_DIR}/report/
-
-echo "Parsing the receiver data"
 test_name_dir=${TEST_NAME//[[:space:]]/-}/
-${app_path}/mpt-parse.sh -l ${LOG_DIR} -s $pid_sender -r $pid_receiver -n "${TEST_NAME}" -o ${report_dir}
+if [[ ! -z "${REMOTE_PLOT_SERVER}" ]] ; then
+  remote_data=/tmp/mpt
+  remote_log_dir=${remote_data}/log
+  remote_report_dir=${remote_data}/report
+
+  echo "Creating remote directory ${remote_log_dir}"
+  echo ssh ${SSH_OPTS} ${REMOTE_PLOT_SERVER} mkdir -p ${remote_log_dir}
+  ssh ${REMOTE_PLOT_SERVER} mkdir -p ${remote_log_dir}
+
+  echo "Copying sender files to ${REMOTE_PLOT_SERVER}:${remote_log_dir}"
+  scp -r ${LOG_DIR}/mpt-sender-${pid_sender}* ${REMOTE_PLOT_SERVER}:${remote_log_dir}
+
+  echo "Copying receiver files to ${REMOTE_PLOT_SERVER}:${remote_log_dir}"
+  scp -r ${LOG_DIR}/mpt-receiver-${pid_receiver}* ${REMOTE_PLOT_SERVER}:${remote_log_dir}
+
+  echo "Plotting the data remotely"
+  ssh ${REMOTE_PLOT_SERVER} "mpt-parse.sh -l ${remote_log_dir} -s $pid_sender -r $pid_receiver -n \"${TEST_NAME}\" -o ${remote_report_dir}"
+
+  echo "Copying generated data"
+  mkdir -p ${report_dir}
+  scp -r ${REMOTE_PLOT_SERVER}:${remote_report_dir}/${test_name_dir} ${report_dir}
+else
+  echo "Parsing the receiver data"
+
+  ${app_path}/mpt-parse.sh -l ${LOG_DIR} -s $pid_sender -r $pid_receiver -n "${TEST_NAME}" -o ${report_dir}
+
+fi
+
 
 if [[ ! -z "${UPLOAD_URL}" ]] ; then
     echo "Copying the files to ${UPLOAD_URL}"
-    scp -q  -o "HostbasedAuthentication no" -o "StrictHostKeyChecking no" -r ${report_dir}/${test_name_dir} ${UPLOAD_URL}/
+    scp ${SSH_OPTS} -r ${report_dir}/${test_name_dir} ${UPLOAD_URL}/
 fi
