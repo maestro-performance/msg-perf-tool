@@ -35,7 +35,7 @@ cd build
 make install
 
 %files
-%doc README.md
+%doc README.md LICENSE
 %{_bindir}/*
 %{_libdir}/*
 %{_datadir}/*
