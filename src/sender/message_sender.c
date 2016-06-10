@@ -66,7 +66,7 @@ static void install_interrupt_handler()
     sigaction(SIGINT, &sa, NULL);
 }
 
-static bool can_continue(const options_t *options, unsigned long long int sent)
+static bool can_continue(const options_t *options, uint64_t sent)
 {
     struct timeval now;
     
@@ -101,7 +101,7 @@ static const char *load_message_data(const options_t *options) {
     
     bzero(data, options->message_size);
     
-    for (int i = 0; i < options->message_size; i++) {
+    for (size_t i = 0; i < options->message_size; i++) {
         data[i] = 'c';
     }
 
@@ -133,7 +133,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     mpt_timestamp_t last;
     mpt_timestamp_t start = statistics_now();
 
-    register unsigned long long int sent = 0;
+    register uint64_t sent = 0;
     time_t last_calc = 0;
     while (can_continue(options, sent)) {
         vmsl->send(msg_ctxt, content_loader);
@@ -141,7 +141,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
         last = statistics_now();
         
         if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
-            unsigned long long partial = statistics_diff(start, last);
+            uint64_t partial = statistics_diff(start, last);
             double rate = ((double) sent / partial) * 1000;
             
             char last_buff[64] = {0};
@@ -150,7 +150,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
             strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
 
     
-            logger(STAT, "ts;%s;count;%lu;duration;%llu;rate;%.2f", 
+            logger(STAT, "ts;%s;count;%"PRIu64";duration;%"PRIu64";rate;%.2f", 
                    last_buff, sent, partial, rate);
             last_calc = last.tv_sec;
         }
@@ -169,13 +169,14 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     
     unload_message_data();
 
-    unsigned long long elapsed = statistics_diff(start, last);
+    uint64_t elapsed = statistics_diff(start, last);
     double rate = ((double) sent / elapsed) * 1000;
 
-    logger(STAT, "summary;sent;%lu;elapsed;%lu;rate;%.2f", sent, elapsed, rate);
-    
-    logger(INFO, "Summary: sent %lu messages in %lu milliseconds (rate: %.2f msgs/sec)", sent,
+    logger(STAT, "summary;sent;%"PRIu64";elapsed;%"PRIu64";rate;%.2f", sent, 
            elapsed, rate);
+    
+    logger(INFO, "Summary: sent %"PRIu64" messages in %"PRIu64" milliseconds (rate: %.2f msgs/sec)", 
+           sent, elapsed, rate);
     
     
 }

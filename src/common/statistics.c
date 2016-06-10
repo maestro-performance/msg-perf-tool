@@ -54,20 +54,26 @@ mpt_timestamp_t statistics_now()
     return ret;
 }
 
-static unsigned long long statistics_convert_to_milli(mpt_timestamp_t ts) {
+static uint64_t statistics_convert_to_milli(mpt_timestamp_t ts) {
     return (((ts.tv_sec) * 1000) + (ts.tv_usec / 1000));
     
 }
 
 
-unsigned long long statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end)
+uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end)
 {
     mpt_timestamp_t ret = {.tv_sec = 0, .tv_usec = 0};
     timersub(&end, &start, &ret);
     
     logger_t logger = get_logger();
     
-    logger(DEBUG, "Calculated diff : %ld.%ld", ret.tv_sec, ret.tv_usec);
+    /*
+     * At least until I have time to dig further into this, this may be entirely
+     * wishful thinking on 32 bits platforms, since I am not sure that this will
+     * work in all the cases or whether this is safe at all.
+     */
+    logger(DEBUG, "Calculated diff : %"PRIi64".%"PRIi64"", 
+           (int64_t) ret.tv_sec, (int64_t) ret.tv_usec);
     
     return statistics_convert_to_milli(ret);
 }
@@ -76,26 +82,30 @@ void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
 {
     logger_t logger = get_logger();
 
-    logger(DEBUG, "Creation time: %d.%d", start.tv_sec, start.tv_usec);
-    logger(DEBUG, "Received time: %d.%d", end.tv_sec, end.tv_usec);
+    logger(DEBUG, "Creation time: %"PRIi64".%"PRIi64"", 
+           (int64_t) start.tv_sec, (int64_t) start.tv_usec);
+    logger(DEBUG, "Received time: %"PRIi64".%"PRIi64"", 
+           (int64_t) end.tv_sec, (int64_t) end.tv_usec);
     
     char tm_creation_buff[64] = {0};
     
     struct tm *creation_tm = localtime(&start.tv_sec);
-    strftime(tm_creation_buff, sizeof(tm_creation_buff), "%Y-%m-%d %H:%M:%S", creation_tm);
+    strftime(tm_creation_buff, sizeof(tm_creation_buff), "%Y-%m-%d %H:%M:%S", 
+             creation_tm);
     
     if (start.tv_sec == 0) {
         char tm_received_buff[64] = {0};
         
         struct tm *received_tm = localtime(&end.tv_sec);
-        strftime(tm_received_buff, sizeof(tm_received_buff), "%Y-%m-%d %H:%M:%S", received_tm);
+        strftime(tm_received_buff, sizeof(tm_received_buff), 
+                 "%Y-%m-%d %H:%M:%S", received_tm);
     
-        logger(STAT, "error;%llu;creation;%s.%d;received;%s.%d",
+        logger(STAT, "error;%"PRIu64";creation;%s.%"PRId32";received;%s.%"PRId32"",
            statistics_diff(start, end), tm_creation_buff, (start.tv_usec/1000),
                 tm_received_buff, (end.tv_usec/1000));
     }
     else {
-        logger(STAT, "latency;%llu;creation;%s.%d",
+        logger(STAT, "latency;%"PRIu64";creation;%s.%"PRId32"",
            statistics_diff(start, end), tm_creation_buff, (start.tv_usec/1000));
     }
     

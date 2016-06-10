@@ -90,7 +90,6 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     logger_t logger = get_logger();
     msg_ctxt_t *msg_ctxt = vmsl->init(NULL);
  
-
     install_timer();
     install_interrupt_handler();
             
@@ -111,16 +110,15 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
         last = statistics_now();
         
         if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
-            unsigned long long partial = statistics_diff(start, last);
+            uint64_t partial = statistics_diff(start, last);
             double rate = ((double) content_storage.count / partial) * 1000;
-            
             char last_buff[64] = {0};
             
             struct tm *last_tm = localtime(&last.tv_sec);
             strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
     
-            logger(STAT, "ts;%s;count;%lu;duration;%llu;rate;%.2f", last_buff,
-                   content_storage.count, partial, rate);
+            logger(STAT, "ts;%s;count;%"PRIu64";duration;%"PRIu64";rate;%.2f", 
+                   last_buff, content_storage.count, partial, rate);
             
             last_calc = last.tv_sec;
         }
@@ -129,13 +127,13 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     vmsl->stop(msg_ctxt);
     vmsl->destroy(msg_ctxt);
 
-    unsigned long long elapsed = statistics_diff(start, last);
+    uint64_t elapsed = statistics_diff(start, last);
     double rate = ((double) content_storage.count / elapsed) * 1000;
     
-    logger(STAT, "summary;received;%lu;elapsed;%llu;rate;%.2f", 
+    logger(STAT, "summary;received;%"PRIu64";elapsed;%"PRIu64";rate;%.2f", 
            (content_storage.count - 1), elapsed, rate);
     
-    logger(INFO, "Summary: received %lu messages in %llu milliseconds (rate: %.2f msgs/sec)",
+    logger(INFO, "Summary: received %"PRIu64" messages in %"PRIu64" milliseconds (rate: %.2f msgs/sec)",
            (content_storage.count - 1),
            elapsed, rate);
 

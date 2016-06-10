@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 
     if (options->parallel_count > 1) {
         logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-        for (int i = 0; i < options->parallel_count; i++) {
+        for (uint16_t i = 0; i < options->parallel_count; i++) {
             child = fork();
 
             if (child == 0) {
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 
         if (child > 0) {
             int status = 0;
-            for (int i = 0; i < options->parallel_count; i++) {
+            for (uint16_t i = 0; i < options->parallel_count; i++) {
                 waitpid(childs[i], &status, 0);
 
                 logger(INFO, "Child process %d terminated with status %d", childs[i], status);

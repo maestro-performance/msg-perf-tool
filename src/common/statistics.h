@@ -25,11 +25,12 @@ extern "C" {
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
+#include <inttypes.h>
     
 typedef struct timeval mpt_timestamp_t;
 
 void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end);
-unsigned long long statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end);
+uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end);
 mpt_timestamp_t statistics_now();
 
 

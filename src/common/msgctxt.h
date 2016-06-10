@@ -21,11 +21,12 @@ extern "C" {
 #endif
     
 #include <stdlib.h>
+#include <stdint.h>
     
 #include "contrib/logger.h"
     
 typedef struct msg_content_data_t_ {
-    unsigned long long int count;
+    uint64_t count;
     size_t capacity;
     size_t size;
     void *data;

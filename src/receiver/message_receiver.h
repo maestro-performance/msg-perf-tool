@@ -26,6 +26,7 @@ extern "C" {
 
 #include <signal.h>
 #include <unistd.h>
+#include <inttypes.h>
     
 void receiver_start(const vmsl_t *vmsl, const options_t *options);
 

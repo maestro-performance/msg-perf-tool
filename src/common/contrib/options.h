@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/time.h>
 
@@ -33,14 +34,14 @@ extern "C" {
 
 typedef struct options_t_ {
     char url[OPT_MAX_STR_SIZE];
-    unsigned long long int count;
+    uint64_t count;
     char logdir[OPT_MAX_STR_SIZE];
-    int parallel_count;
+    uint16_t parallel_count;
     size_t message_size;
     log_level_t log_level;
     struct timeval duration;
     bool daemon;
-    int throttle;
+    uint32_t throttle;
 } options_t;
 
 
