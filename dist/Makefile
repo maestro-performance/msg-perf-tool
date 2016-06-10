@@ -1,10 +1,4 @@
-PREFIX?=/opt
-BASEDIR=$(PREFIX)/msg-perf-tool
-BINDIR=$(BASEDIR)
-COMMONDIR=$(BASEDIR)/common
-CONFDIR=$(BASEDIR)/etc
 VERSION=0.0.1
-BUILD_NUMBER=2
 
 rpm-prep:
 	mkdir -p ${HOME}/rpmbuild/SOURCES/
