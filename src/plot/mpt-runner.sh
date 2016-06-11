@@ -99,6 +99,30 @@ function stop_test() {
 trap stop_test SIGINT SIGTERM
 
 
+if [[ -z "$BROKER_URL" ]] ; then
+  echo -e "Broker is a required option (-b)\n"
+  echo -e ${HELP}
+  exit 1
+fi
+
+if [[ -z "$DURATION" ]] ; then
+  echo -e "Duration is a required option (-d)\n"
+  echo -e ${HELP}
+  exit 1
+fi
+
+if [[ -z "$PARALLEL_COUNT" ]] ; then
+  echo -e "Parallel count is a required option (-p)\n"
+  echo -e ${HELP}
+  exit 1
+fi
+
+if [[ -z "$LOG_DIR" ]] ; then
+  echo -e "Log dir is a required option (-l)\n"
+  echo -e ${HELP}
+  exit 1
+fi
+
 [[ ! -d $LOG_DIR ]] && mkdir -p $LOG_DIR
 
 echo "Broker URL: $BROKER_URL"
