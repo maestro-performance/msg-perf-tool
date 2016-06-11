@@ -1,9 +1,17 @@
 MPT: messaging performance tool
 ============
 
+Introduction:
+----
+
+MPT is a tool for running performance tests on AMQP-based messaging systems
+(support for other protocols is in progress). After the test has been executed,
+it creates a report of the system performance. You can see an example of such
+report [here](http://orpiske.net/files/msg-perf-tool/sample-report-v0.0.1/).
 
 Dependencies:
 ----
+
 Runtime/Compilation: cmake qpid-proton-c-devel gcc gcc-c++
 Parsing and plotting: gnuplot (>= 4.6), screenfetch and jinja2-cli
 
@@ -13,15 +21,19 @@ valgrind perf
 
 Requirements
 ----
-
-The clients may generate a lot of data depending on how much messages are sent 
+Disk Space:
+The clients may generate a lot of data depending on how much messages are sent
 per second. On my baseline system (two servers with Quad-Core AMD Opteron 2376 @ 8x 2.3GHz)
-on a gigabit network, it generates around 1Gb of data per hour.
+on a gigabit network, it generates around 1Gb of data per hour, transferring
+around 66.000 messages per second.
+
+Operating Systems:
+* Linux: x86 and x86_64
+* OS X: x86
 
 
 Broker Settings: ActiveMQ
 ----
-
 
 ActiveMQ may need to have the inactivity monitor disabled. It can be done by
 adding the following setting in the conf/activemq.xml, in the transport connector
@@ -69,7 +81,7 @@ mpt-parse.sh -l /tmp/log -s <sender PID> -r <receiver PID> -n "<sample test>" -o
 ```
 
 
-For some systems combinations, it may be necessary to generate the performance reports in another host (i.e: the system running client 
+For some systems combinations, it may be necessary to generate the performance reports in another host (i.e: the system running client
 does not have a newer [>= 4.6] version of gnuplot). In this case, it is possible to request the plotting data to be generated in a different system:
 
 ```
@@ -88,7 +100,7 @@ Tips
 * Make sure that the time is properly set on both servers
 * Run on an dedicated network (or, at least, avoid hours of peak usage)
 * Measure the network performance before running (ie.: use iperf)
-* Ideally, you should run at a fixed rate instead of flooding the brokers. 
+* Ideally, you should run at a fixed rate instead of flooding the brokers.
 Brokers tend to get slower as the queue size increase.
 
 
