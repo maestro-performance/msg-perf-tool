@@ -12,12 +12,21 @@ report [here](http://orpiske.net/files/msg-perf-tool/sample-report-v0.0.1/).
 Dependencies:
 ----
 
-Runtime/Compilation: cmake qpid-proton-c-devel gcc gcc-c++
-Parsing and plotting: gnuplot (>= 4.6), screenfetch and jinja2-cli
+Runtime/Compilation:
+* cmake
+* gcc or clang
+* qpid-proton-c-devel
+
+
+Parsing and plotting:
+* gnuplot (>= 4.6)
+* screenfetch
+* jinja2-cli
 
 
 Recommended:
-valgrind perf
+* iperf
+
 
 Requirements
 ----
