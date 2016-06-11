@@ -17,6 +17,8 @@ BuildRequires:      qpid-proton-c-devel
 Requires:           qpid-proton-c
 Requires:           gnuplot
 Requires:           python
+Requires:           python3-jinja2-cli
+Requires:           screenfetch
 
 
 %description
