@@ -8,4 +8,4 @@ fedora-rpm: rpm-prep
 	rpmbuild -ba dist/fc-rpm.spec
 
 rhel-rpm: rpm-prep
-	rpmbuild -ba dist/fc-rpm.spec
+	rpmbuild -ba dist/rhel-rpm.spec
