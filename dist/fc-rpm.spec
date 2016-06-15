@@ -3,8 +3,8 @@
 
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
-Version:            0.0.1
-Release:            4%{?dist}
+Version:            0.0.2
+Release:            1%{?dist}
 License:            Apache v2
 Group:              Development/Tools
 Source:             msg-perf-tool-%{version}.tar.gz
@@ -44,5 +44,9 @@ make install
 
 
 %changelog
+* Thu Jun 15 2016 Otavio R. Piske <angusyoung@gmail.com> - 20160615
+- Improved the runner script with additional information about the test execution
+- Small fixes for validating input parameters
+
 * Thu Jun 09 2016 Otavio R. Piske <angusyoung@gmail.com> - 20160609
 - Initial release
