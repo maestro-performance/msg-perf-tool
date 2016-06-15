@@ -159,7 +159,7 @@ function run_by_duration() {
 
 
 function run_by_count() {
-  echo "Lauching the receiver"
+  echo "Lauching the receiver "
   export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT -p $PARALLEL_COUNT --logdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
   if [[ -z "${pid_receiver}" ]] ; then
     echo "Invalid PID for the receiver: ${pid_receiver}"
@@ -174,12 +174,15 @@ function run_by_count() {
   fi
 
   local is_sender_running=`pgrep -c mpt-sender`
+  local elapsed=0
   while [[ "${is_sender_running}" -ne 0 ]] ; do
-      echo "Waiting for the sender process to finish"
+      echo -en "\rWaiting for the sender process to finish: ${elapsed}s elapsed"
       sleep 1s
       is_sender_running=`pgrep -c mpt-sender`
+      let elapsed=elapsed+1
   done
-  echo "The sender has finished sending the messages."
+  echo -e "\nThe sender has finished sending the messages."
+
   echo "Waiting 30s for the receiver to catch up"
   sleep 30s
 
@@ -190,20 +193,22 @@ function run_by_count() {
   local is_receiver_running=`pgrep -c mpt-receiver`
   wait_count=0
   while [[ "${is_receiver_running}" -ne 0 ]] ; do
-      echo "Waiting for the receiver process to finish"
+      echo -en "\rWaiting for the receiver process to finish"
       sleep 10s
       is_receiver_running=`pgrep -c mpt-receiver`
       let wait_count=wait_count+1
 
       if [[ wait_count -eq 10 ]] ; then
-        echo "Test error: the receiver is taking too long to flush its data"
+        echo -e "\nTest error: the receiver is taking too long to flush its data"
         killall -TERM mpt-receiver
       fi
   done
-
+  echo ""
 }
 
 
+start_time=$(date '+%Y%-m-%d %H-%M:%S')
+echo "Test start time: ${start_time}"
 if [[ ! -z "$DURATION" ]] ; then
   run_by_duration
 else
@@ -215,7 +220,8 @@ else
     exit 1
   fi
 fi
-
+end_time=$(date '+%Y%-m-%d %H-%M:%S')
+echo "Test end time: ${end_time}"
 
 if [[ -z $OUTPUT_DIR ]] ; then
   OUTPUT_DIR=`mktemp --tmpdir -d mpt.XXXXXXX`
