@@ -4,7 +4,7 @@
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.0.2
-Release:            1%{?dist}
+Release:            2%{?dist}
 License:            Apache v2
 Group:              Development/Tools
 Source:             msg-perf-tool-%{version}.tar.gz
