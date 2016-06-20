@@ -173,12 +173,12 @@ function run_by_count() {
     exit 1
   fi
 
-  local is_sender_running=`pgrep -c mpt-sender`
+  local is_sender_running=$(ps -ef | grep mpt-sender | grep -v grep | wc -l)
   local elapsed=0
   while [[ "${is_sender_running}" -ne 0 ]] ; do
       echo -en "\rWaiting for the sender process to finish: ${elapsed}s elapsed"
       sleep 1s
-      is_sender_running=`pgrep -c mpt-sender`
+      is_sender_running=$(ps -ef | grep mpt-sender | grep -v grep | wc -l)
       let elapsed=elapsed+1
   done
   echo -e "\nThe sender has finished sending the messages."
@@ -190,12 +190,12 @@ function run_by_count() {
   killall -INT mpt-receiver
 
 
-  local is_receiver_running=`pgrep -c mpt-receiver`
+  local is_receiver_running=$(ps -ef | grep mpt-receiver | grep -v grep | wc -l)
   wait_count=0
   while [[ "${is_receiver_running}" -ne 0 ]] ; do
       echo -en "\rWaiting for the receiver process to finish"
       sleep 10s
-      is_receiver_running=`pgrep -c mpt-receiver`
+      is_receiver_running=$(ps -ef | grep mpt-receiver | grep -v grep | wc -l)
       let wait_count=wait_count+1
 
       if [[ wait_count -eq 10 ]] ; then
@@ -207,7 +207,7 @@ function run_by_count() {
 }
 
 
-start_time=$(date '+%Y%-m-%d %H-%M:%S')
+start_time=$(date '+%Y%-m-%d %H:%M:%S')
 echo "Test start time: ${start_time}"
 if [[ ! -z "$DURATION" ]] ; then
   run_by_duration
@@ -220,7 +220,7 @@ else
     exit 1
   fi
 fi
-end_time=$(date '+%Y%-m-%d %H-%M:%S')
+end_time=$(date '+%Y%-m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
 
 if [[ -z $OUTPUT_DIR ]] ; then
