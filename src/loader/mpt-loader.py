@@ -16,7 +16,7 @@ datefmt_iso = '%Y-%m-%d %H:%M:%S,'
 console_formatter = logging.Formatter(fmt_console, datefmt=datefmt_iso)
 
 console_handler = logging.StreamHandler()  # Python 2.6
-console_handler.setLevel(logging.DEBUG)  # setting console level
+console_handler.setLevel(logging.ERROR)  # setting console level
 console_handler.setFormatter(console_formatter)
 
 logging.getLogger().addHandler(console_handler)
@@ -240,6 +240,9 @@ def load_receiver_throughput(in_opts):
     i = 0;
     for row in csv_data:
         i += 1
+
+        if row[0] == "summary":
+            continue
 
         ts = row[1]
         count = int(row[3])
