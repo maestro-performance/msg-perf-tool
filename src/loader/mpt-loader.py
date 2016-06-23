@@ -38,7 +38,14 @@ def call_service(in_opts, req_url, request_json):
     username = in_opts["username"]
     password = in_opts["password"]
 
-    answer = requests.post(req_url, headers=headers, data = request_json, verify=False, auth=HTTPBasicAuth(username, password))
+    is_update = in_opts["update"]
+
+    if is_update:
+        answer = requests.put(req_url, headers=headers, data=request_json, verify=False,
+                               auth=HTTPBasicAuth(username, password))
+    else:
+        answer = requests.post(req_url, headers=headers, data = request_json, verify=False,
+                               auth=HTTPBasicAuth(username, password))
 
     if answer.status_code < 200 or answer.status_code >= 205:
         print_errors(answer)
@@ -292,7 +299,7 @@ def load_test_info(in_opts):
 
         return 1
 
-    req_url = "%s/testinfo/" % (base_url)
+    req_url = "%s/test/info/%s" % (base_url, in_testid)
 
     request_data = {
         "type": in_type,
@@ -372,6 +379,9 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     op.add_option("--url", dest="url", type="string",
                   action="store", help="Database server URL", metavar="URL");
+
+    op.add_option("--update", dest="update", action="store_true", default=False,
+                  help="Update the record instead of creating a new one");
 
     op.add_option("--register", dest="register", action="store_true", default=False,
                   help="Register SUTs");
