@@ -44,16 +44,6 @@ static int timersub(struct timeval *start, struct timeval *end, struct timeval *
 #endif // __linux__
 
 
-
-
-mpt_timestamp_t statistics_now()
-{
-    struct timeval ret = {.tv_sec = 0, .tv_usec = 0};
-
-    gettimeofday(&ret, NULL);
-    return ret;
-}
-
 static uint64_t statistics_convert_to_milli(mpt_timestamp_t ts) {
     return (((ts.tv_sec) * 1000) + (ts.tv_usec / 1000));
     

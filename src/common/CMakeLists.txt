@@ -11,6 +11,7 @@ add_library(
         contrib/log.c
         vmsl.c
         msgctxt.c
+        timestamp.c
         statistics.c
         process_utils.c
 )

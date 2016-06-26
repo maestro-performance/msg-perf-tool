@@ -21,6 +21,7 @@ extern "C" {
 #endif
     
 #include "msgctxt.h"
+#include "timestamp.h"
 #include "statistics.h"
 #include "proton-context.h"
 #include "contrib/options.h"

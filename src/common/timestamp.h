@@ -13,26 +13,30 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef STATISTICS_H
-#define STATISTICS_H
+#ifndef TIMESTAMP_H
+#define TIMESTAMP_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
     
-#include "timestamp.h"
-#include "contrib/logger.h"
-    
 #include <unistd.h>
 #include <inttypes.h>
+#include <math.h>
+#include <sys/time.h>
+#include <sys/time.h>
     
-void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end);
-uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end);
+typedef struct timeval mpt_timestamp_t;
+
+mpt_timestamp_t statistics_now();
+mpt_timestamp_t ts_from_milli_char(const char *ts);
+mpt_timestamp_t ts_from_milli(int64_t timestamp);
+
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* STATISTICS_H */
+#endif /* TIMESTAMP_H */
 

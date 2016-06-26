@@ -153,6 +153,31 @@ void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
 }
 
 
-void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
 
+
+void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
+    stomp_message_t *message = stomp_message_create(NULL);
+    stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
+    stomp_receive_header_t receive_header;
+    
+    stomp_status_code_t stat = stomp_receive(stomp_ctxt->messenger, 
+                                             &receive_header, message);
+    if (stat != STOMP_SUCCESS) {
+        fprintf(stderr, "%s\n", stomp_ctxt->messenger->status.message);
+        
+        // TODO: handle error
+    }
+    else {
+        mpt_timestamp_t now = statistics_now();
+        
+        fprintf(stdout, "%s\n", message->body);
+
+        const char *ctime = stomp_exchange_get(stomp_ctxt->messenger->exchange_properties, 
+                                                   STOMP_CREATION_TIME);
+        fprintf(stdout, "Creation time: %s\n", ctime);
+        
+        mpt_timestamp_t created = ts_from_milli_char(ctime);
+
+        statistics_latency(created, now);
+    }
 }
