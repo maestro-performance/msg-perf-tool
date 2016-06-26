@@ -19,8 +19,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+#include "msgctxt.h"
+#include "statistics.h"
+#include "proton-context.h"
+#include "contrib/options.h"
+#include "contrib/logger.h"
+    
+#include <litestomp/stomp_messenger.h>
 
+    
+msg_ctxt_t *stomp_init(void *data);
+void stomp_stop(msg_ctxt_t *ctxt);
+void stomp_destroy(msg_ctxt_t *ctxt);
 
+void stomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader);
+void stomp_subscribe(msg_ctxt_t *ctxt, void *data);
+void stomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content);
 
 
 #ifdef __cplusplus
