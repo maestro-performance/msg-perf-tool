@@ -34,6 +34,9 @@ set(CPP_INCLUDE_DIR "include")
 set(SHARED_DIR "share")
 set(MPT_SHARED_DIR ${SHARED_DIR}/mpt)
 
+SET(AMQP_SUPPORT ON)
+SET(STOMP_SUPPORT ON)
+
 
 if (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
  add_definitions(-DLINUX_BUILD)
@@ -59,26 +62,50 @@ add_subdirectory(src/common objs/common)
 
 #### PROTON STUFF
 
-set(PROTON_DIR /usr CACHE String "QPID Proton base directory")
+if (${AMQP_SUPPORT}) 
+    set(PROTON_DIR /usr CACHE String "QPID Proton base directory")
 
-include_directories(
-	${PROTON_DIR}/include
-        .
+    include_directories(
+            ${PROTON_DIR}/include
+            .
 
-)
+    )
 
-if (${APP_BUILD_PLATFORM} EQUAL "64")
-	link_directories(
-		${PROTON_DIR}/lib64
-	)
-else(${APP_BUILD_PLATFORM} EQUAL "64")
-	link_directories(
-		${PROTON_DIR}/lib
-	)
-endif(${APP_BUILD_PLATFORM} EQUAL "64")
+    if (${APP_BUILD_PLATFORM} EQUAL "64")
+            link_directories(
+                    ${PROTON_DIR}/lib64
+            )
+    else(${APP_BUILD_PLATFORM} EQUAL "64")
+            link_directories(
+                    ${PROTON_DIR}/lib
+            )
+    endif(${APP_BUILD_PLATFORM} EQUAL "64")
 
-include_directories(src/api/qpid-proton)
-add_subdirectory(src/api/qpid-proton objs/api/qpid-proton)
+    include_directories(src/api/qpid-proton)
+    add_subdirectory(src/api/qpid-proton objs/api/qpid-proton)
+endif(${AMQP_SUPPORT})
+
+if (${STOMP_SUPPORT}) 
+    set(STOMP_DIR /usr CACHE String "Litestomp base directory")
+
+    include_directories(
+            ${STOMP_DIR}/include
+            .
+    )
+
+    if (${APP_BUILD_PLATFORM} EQUAL "64")
+            link_directories(
+                    ${STOMP_DIR}/lib64
+            )
+    else(${APP_BUILD_PLATFORM} EQUAL "64")
+            link_directories(
+                    ${STOMP_DIR}/lib
+            )
+    endif(${APP_BUILD_PLATFORM} EQUAL "64")
+
+    include_directories(src/api/litestomp)
+    add_subdirectory(src/api/litestomp objs/api/litestomp)
+endif(${STOMP_SUPPORT})
 
 add_subdirectory(src/receiver objs/receiver)
 add_subdirectory(src/sender objs/sender)
