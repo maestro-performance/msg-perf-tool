@@ -118,6 +118,7 @@ static void unload_message_data() {
 static void content_loader(msg_content_data_t *content_data)
 {
     content_data->capacity = capacity;
+    content_data->size = capacity;
     content_data->data =  data;
 }
 
