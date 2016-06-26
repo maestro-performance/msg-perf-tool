@@ -16,13 +16,13 @@
 #include "stomp-wrapper.h"
 
 
-static inline stomp_ctxt_t *stomp_ctxt_cast(msg_ctxt_t *ctxt)
+static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt)
 {
     return (stomp_ctxt_t *) ctxt->api_context;
 }
 
 
-msg_ctxt_t *stomp_init(void *data) {
+msg_ctxt_t *litestomp_init(void *data) {
     logger_t logger = get_logger();
 
     logger(DEBUG, "Initializing proton wrapper");
@@ -34,9 +34,9 @@ msg_ctxt_t *stomp_init(void *data) {
         exit(1);
     }
 
-    stomp_ctxt_t *stomp_ctxt = stomp_context_init();
+    stomp_ctxt_t *stomp_ctxt = litestomp_context_init();
 
-    if (!stomp_ctxt_t) {
+    if (!stomp_ctxt) {
         logger(FATAL, "Unable to initialize the stomp context");
 
         exit(1);
@@ -65,27 +65,27 @@ msg_ctxt_t *stomp_init(void *data) {
     }
     
 
-    stomp_ctxt_t->messenger = messenger;
-    msg_ctxt->api_context = stomp_ctxt_t;
+    stomp_ctxt->messenger = messenger;
+    msg_ctxt->api_context = stomp_ctxt;
 
     return msg_ctxt;
 }
 
 
-void stomp_stop(msg_ctxt_t *ctxt) {
+void litestomp_stop(msg_ctxt_t *ctxt) {
     // NO-OP
 }
 
 
-void stomp_destroy(msg_ctxt_t *ctxt) {
-    stomp_ctxt_t *stomp_ctxt = stomp_ctxt_cast(ctxt);
+void litestomp_destroy(msg_ctxt_t *ctxt) {
+    stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
     
     stomp_messenger_destroy(&stomp_ctxt->messenger);
     msg_ctxt_destroy(&ctxt);
 }
 
-void stomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
-    stomp_ctxt_t *stomp_ctxt = stomp_ctxt_cast(ctxt);
+void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
+    stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
     logger_t logger = get_logger();
 
     logger(TRACE, "Creating message object");
@@ -135,8 +135,8 @@ void stomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
 }
 
 
-void stomp_subscribe(msg_ctxt_t *ctxt, void *data) {
-    stomp_ctxt_t *stomp_ctxt = stomp_ctxt_cast(ctxt);
+void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
+    stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
     /*
      * Subscribes to the endpoint. Uses a fake ID and receipt just for the sake
      * of the example
@@ -153,6 +153,6 @@ void stomp_subscribe(msg_ctxt_t *ctxt, void *data) {
 }
 
 
-void stomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
+void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
 
 }

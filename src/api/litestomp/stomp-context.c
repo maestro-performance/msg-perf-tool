@@ -15,7 +15,7 @@
  */
 #include "stomp-context.h"
 
-stomp_ctxt_t *stomp_context_init() {
+stomp_ctxt_t *litestomp_context_init() {
     stomp_ctxt_t *ret = malloc(sizeof(stomp_ctxt_t));
     
     if (!ret) {
@@ -29,7 +29,7 @@ stomp_ctxt_t *stomp_context_init() {
 }
 
 
-void stomp_context_destroy(stomp_ctxt_t **ctxt) {
+void litestomp_context_destroy(stomp_ctxt_t **ctxt) {
     free(*ctxt);
     *ctxt = NULL;
 }

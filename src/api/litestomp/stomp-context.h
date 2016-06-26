@@ -28,8 +28,8 @@ typedef struct stomp_ctxt_t_ {
     stomp_messenger_t *messenger;
 } stomp_ctxt_t;
 
-stomp_ctxt_t *stomp_context_init();
-void stomp_context_destroy(stomp_ctxt_t **ctxt);
+stomp_ctxt_t *litestomp_context_init();
+void litestomp_context_destroy(stomp_ctxt_t **ctxt);
 
 
 
