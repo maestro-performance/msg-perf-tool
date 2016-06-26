@@ -36,13 +36,13 @@ mpt_timestamp_t ts_from_milli(int64_t timestamp) {
     ret.tv_usec = modf(ts, &integral) * 1000000;
     ret.tv_sec = integral;
 
-
-
     return ret;           
 }
 
 mpt_timestamp_t ts_from_milli_char(const char *ts) {
-    return ts_from_milli(atoll(ts));
+    uint64_t ms = strtoul(ts, NULL, 10);
+    
+    return ts_from_milli(ms);
     
     
 }

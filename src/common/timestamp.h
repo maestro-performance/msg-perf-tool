@@ -21,6 +21,7 @@ extern "C" {
 #endif
     
 #include <unistd.h>
+#include <stdlib.h>
 #include <inttypes.h>
 #include <math.h>
 #include <sys/time.h>

@@ -49,6 +49,13 @@ static void init_vmsl_proton(vmsl_t *vmsl) {
     vmsl->destroy = proton_destroy;
 }
 
+static void init_vmsl_stomp(vmsl_t *vmsl) {
+    vmsl->init = litestomp_init;
+    vmsl->send = litestomp_send;
+    vmsl->stop = litestomp_stop;
+    vmsl->destroy = litestomp_destroy;
+}
+
 int main(int argc, char **argv)
 {
     int c;
@@ -129,7 +136,8 @@ int main(int argc, char **argv)
     init_controller(options->daemon, options->logdir, "mpt-sender-controller");
     
     vmsl_t *vmsl = vmsl_init();
-    init_vmsl_proton(vmsl);
+    // init_vmsl_proton(vmsl);
+    init_vmsl_stomp(vmsl);
 
     /**
      * TODO: fix this

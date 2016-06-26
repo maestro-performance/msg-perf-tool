@@ -80,6 +80,12 @@ void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
     char tm_creation_buff[64] = {0};
     
     struct tm *creation_tm = localtime(&start.tv_sec);
+    if (!creation_tm) {
+        logger(ERROR, "Unable to calculate current localtime");
+        
+        return;
+    }
+    
     strftime(tm_creation_buff, sizeof(tm_creation_buff), "%Y-%m-%d %H:%M:%S", 
              creation_tm);
     

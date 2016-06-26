@@ -43,12 +43,19 @@ static struct timeval get_duration(int count)
 static void init_vmsl_proton(vmsl_t *vmsl)
 {
     vmsl->init = proton_init;
-
     vmsl->receive = proton_receive;
     vmsl->subscribe = proton_subscribe;
-
     vmsl->stop = proton_stop;
     vmsl->destroy = proton_destroy;
+}
+
+static void init_vmsl_stomp(vmsl_t *vmsl)
+{
+    vmsl->init = litestomp_init;
+    vmsl->receive = litestomp_receive;
+    vmsl->subscribe = litestomp_subscribe;
+    vmsl->stop = litestomp_stop;
+    vmsl->destroy = litestomp_destroy;
 }
 
 int main(int argc, char **argv)
@@ -125,7 +132,8 @@ int main(int argc, char **argv)
     init_controller(options->daemon, options->logdir, "mpt-receiver-controller");
 
     vmsl_t *vmsl = vmsl_init();
-    init_vmsl_proton(vmsl);
+    // init_vmsl_proton(vmsl);
+    init_vmsl_stomp(vmsl);
 
     int childs[5];
     int child = 0;

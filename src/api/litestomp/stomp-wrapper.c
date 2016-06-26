@@ -25,7 +25,7 @@ static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt)
 msg_ctxt_t *litestomp_init(void *data) {
     logger_t logger = get_logger();
 
-    logger(DEBUG, "Initializing proton wrapper");
+    logger(DEBUG, "Initializing stomp wrapper");
 
     msg_ctxt_t *msg_ctxt = msg_ctxt_init();
     if (!msg_ctxt) {
@@ -64,6 +64,16 @@ msg_ctxt_t *litestomp_init(void *data) {
         exit(1);
     }
     
+    /*
+     * Connects to the endpoint
+     */
+    stat = stomp_connect(messenger, NULL);
+    if (stat != STOMP_SUCCESS) {
+        fprintf(stderr, "%s\n", messenger->status.message);
+        
+        exit(1);
+    }
+    
 
     stomp_ctxt->messenger = messenger;
     msg_ctxt->api_context = stomp_ctxt;
@@ -98,6 +108,7 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
         fprintf(stderr, "%s\n", stomp_ctxt->messenger->status.message);
 
         // TODO: handle error
+        exit(1);
     }
 
 
@@ -108,13 +119,6 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
     /*
      * Formats the message
      */
-    
-    stomp_message_format(message, msg_content.data, msg_content.size);
-
-    stomp_send_header_t send_header;
-
-    send_header.transaction_id = -1;
-    
     stomp_status_code_t stat = stomp_exchange_util_ctime(stomp_ctxt->messenger->exchange_properties,
                                      &stomp_ctxt->messenger->status);
     if (stat != STOMP_SUCCESS) {
@@ -122,7 +126,14 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
 
         // TODO: handle error
     }
+    
+    
+    stomp_message_format(message, msg_content.data, msg_content.size);
 
+    stomp_send_header_t send_header;
+
+    send_header.transaction_id = -1;
+    
     /*
      * Sends the message
      */

@@ -16,6 +16,7 @@ target_link_libraries(
 	mpt-receiver
 	mpt-common
         mpt-proton
+        mpt-stomp
 )
 
 install(TARGETS

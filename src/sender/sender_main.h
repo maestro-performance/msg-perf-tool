@@ -32,6 +32,7 @@ extern "C" {
 #include "vmsl.h"
 #include "message_sender.h"
 #include "proton-wrapper.h"
+#include "stomp-wrapper.h"
 #include "process_utils.h"
 
 
