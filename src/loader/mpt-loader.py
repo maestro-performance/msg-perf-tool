@@ -53,6 +53,19 @@ def call_service(in_opts, req_url, request_json):
 
     return 0
 
+def call_service_for_check(in_opts, req_url):
+    logger.debug("Connecting to %s" % (req_url))
+
+
+    headers = {'Content-type': 'application/json'}
+
+    username = in_opts["username"]
+    password = in_opts["password"]
+
+    answer = requests.get(req_url, headers=headers, verify=False, auth=HTTPBasicAuth(username, password))
+    return answer
+
+
 
 def register(in_opts):
     base_url = in_opts["url"]
@@ -96,7 +109,7 @@ def configure_throughput_mapping(in_opts):
     in_key = in_opts["key"]
 
 
-    request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } } } }'
+    request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
 
     req_url = "%s/%s" % (base_url, in_key)
     call_service(in_opts, req_url, request_json)
@@ -176,6 +189,12 @@ def load_receiver_latencies(in_opts):
     if param_check != 0:
         return param_check
 
+    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, in_testid))
+    if ret.status_code < 200 or ret.status_code >= 205:
+        logger.error("There's no test with the ID %s. Please record that test info before loading data"
+                     % in_testid)
+
+        return 1
 
     file = open(in_file_name, 'rb')
     num_lines = count_lines(file)
@@ -231,7 +250,12 @@ def load_receiver_throughput(in_opts):
     file = open(in_file_name, 'rb')
     num_lines = count_lines(file)
 
-    configure_latency_mapping(in_opts)
+    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, in_testid))
+    if ret.status_code < 200 or ret.status_code >= 205:
+        logger.error("There's no test with the ID %s. Please record that test info before loading data"
+                     % in_testid)
+
+    configure_throughput_mapping(in_opts)
 
     req_url = "%s/%s/throughput" % (base_url, in_key)
 
@@ -279,6 +303,7 @@ def load_receiver_throughput(in_opts):
 def load_test_info(in_opts):
     base_url = in_opts["url"]
     in_type = in_opts["type"]
+    in_key = in_opts["key"]
     in_testid = in_opts["testid"]
     in_os_name = in_opts["os_name"]
     in_os_type = in_opts["os_type"]
@@ -288,6 +313,7 @@ def load_test_info(in_opts):
     in_prod_sysinfo = in_opts["prodsysinfo"]
     in_con_sysinfo = in_opts["consysinfo"]
     in_brk_sysinfo = in_opts["brksysinfo"]
+    in_start_time = in_opts["start_time"]
 
     in_comment = in_opts["comment"]
     in_res_comment = in_opts["rescomment"]
@@ -302,11 +328,28 @@ def load_test_info(in_opts):
 
         return 1
 
+    if in_start_time is None:
+        logger.error("Test start time is required")
+
+        return 1
+
+    if in_key is None:
+        logger.error("SUT key is required")
+
+        return 1
+
+    ret = call_service_for_check(in_opts, "%s/sut/messaging/_search?q=key:%s" % (base_url, in_key))
+    if ret.status_code < 200 or ret.status_code >= 205:
+        logger.error("There's no SUT with the ID %s. Please load that key before recording a test info"
+                     % in_testid)
+
     req_url = "%s/test/info/%s" % (base_url, in_testid)
 
     request_data = {
         "type": in_type,
         "test_id": in_testid,
+        "key": in_key,
+        "start_time": in_start_time,
         "os_name": in_os_name,
         "os_type": in_os_type,
         "os_version": in_os_version,
@@ -458,6 +501,10 @@ if __name__ == "__main__":
     op.add_option("--consumer-sys-info", dest="consysinfo", type="string",
                   action="store", default=None, metavar="CON_SYS_INFO",
                   help="The consumer system information (def: %default)");
+
+    op.add_option("--start-time", dest="start_time", type="string",
+                  action="store", default=None, metavar="YYY-MM-DD HH:mm:ss",
+                  help="The start time for the test (def: %default)");
 
     op.add_option("--broker-sys-info", dest="brksysinfo", type="string",
                   action="store", default=None, metavar="BROKER_SYS_INFO",
