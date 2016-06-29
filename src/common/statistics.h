@@ -24,6 +24,7 @@ extern "C" {
 #include "contrib/logger.h"
     
 #include <unistd.h>
+#include <time.h>
 #include <inttypes.h>
     
 void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end);
