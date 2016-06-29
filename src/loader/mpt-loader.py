@@ -29,7 +29,7 @@ def print_errors(http_response):
     logger.error("Error: %s" % http_response.status_code)
     logger.error("Text: %s" % http_response.content)
 
-def call_service(in_opts, req_url, request_json):
+def call_service(in_opts, req_url, request_json, force_update=False):
     logger.debug("Connecting to %s" % (req_url))
 
 
@@ -40,7 +40,7 @@ def call_service(in_opts, req_url, request_json):
 
     is_update = in_opts["update"]
 
-    if is_update:
+    if is_update and not force_update:
         answer = requests.put(req_url, headers=headers, data=request_json, verify=False,
                                auth=HTTPBasicAuth(username, password))
     else:
@@ -98,21 +98,36 @@ def configure_latency_mapping(in_opts):
     base_url = in_opts["url"]
     in_key = in_opts["key"]
 
+    answer = call_service_for_check(in_opts, ("%s/%s/_mapping" % (base_url, in_key)))
+    if answer.status_code == 404:
+        req_url = "%s/%s" % (base_url, in_key)
+        request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } } } }'
+    else:
+        req_url = "%s/%s/_mapping/latency" % (base_url, in_key)
+        request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } }'
 
-    request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } } } }'
 
-    req_url = "%s/%s" % (base_url, in_key)
-    call_service(in_opts, req_url, request_json)
+    ret = call_service(in_opts, req_url, request_json, force_update=True)
+    if ret != 0:
+        logger.error("Unable to configure the mappings for latency")
 
 def configure_throughput_mapping(in_opts):
     base_url = in_opts["url"]
     in_key = in_opts["key"]
 
+    answer = call_service_for_check(in_opts, ( "%s/%s/_mapping" % (base_url, in_key)))
+    if answer.status_code == 404:
+        req_url = "%s/%s" % (base_url, in_key)
+        request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
+    else:
+        req_url = "%s/%s/_mapping/througput" % (base_url, in_key)
+        request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
 
-    request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
 
-    req_url = "%s/%s" % (base_url, in_key)
-    call_service(in_opts, req_url, request_json)
+
+    ret = call_service(in_opts, req_url, request_json, force_update=True)
+    if ret != 0:
+        logger.error("Unable to configure the mappings for throughput")
 
 
 
@@ -130,7 +145,7 @@ def validate_parameters(in_opts):
     in_sut = in_opts["sut"]
     in_key = in_opts["key"]
     in_version = in_opts["version"]
-    in_testid = in_opts["testid"]
+    in_testrun = in_opts["testrun"]
     in_direction = in_opts["direction"]
 
     if base_url is None:
@@ -163,8 +178,8 @@ def validate_parameters(in_opts):
 
         return 1
 
-    if in_testid is None:
-        logger.error("Test ID is required")
+    if in_testrun is None:
+        logger.error("Test run is required")
 
         return 1
 
@@ -182,17 +197,19 @@ def load_receiver_latencies(in_opts):
     in_sut = in_opts["sut"]
     in_key = in_opts["key"]
     in_version = in_opts["version"]
-    in_testid = in_opts["testid"]
+    in_testrun = in_opts["testrun"]
     in_direction = in_opts["direction"]
 
     param_check = validate_parameters(in_opts)
     if param_check != 0:
         return param_check
 
-    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, in_testid))
+    test_id = ("%s_%s" % (in_key, in_testrun))
+
+    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id))
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
-                     % in_testid)
+                     % test_id)
 
         return 1
 
@@ -217,7 +234,7 @@ def load_receiver_latencies(in_opts):
             "version": in_version,
             "latency": latency,
             "creation": creation,
-            "test_id": in_testid,
+            "test_id": test_id,
             "direction": in_direction
         }
 
@@ -240,7 +257,7 @@ def load_receiver_throughput(in_opts):
     in_sut = in_opts["sut"]
     in_key = in_opts["key"]
     in_version = in_opts["version"]
-    in_testid = in_opts["testid"]
+    in_testrun = in_opts["testrun"]
     in_direction = in_opts["direction"]
 
     param_check = validate_parameters(in_opts)
@@ -250,10 +267,12 @@ def load_receiver_throughput(in_opts):
     file = open(in_file_name, 'rb')
     num_lines = count_lines(file)
 
-    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, in_testid))
+    test_id = ("%s_%s" % (in_key, in_testrun))
+
+    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id))
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
-                     % in_testid)
+                     % test_id)
 
     configure_throughput_mapping(in_opts)
 
@@ -281,7 +300,7 @@ def load_receiver_throughput(in_opts):
             "count": count,
             "duration": duration,
             "rate": rate,
-            "test_id": in_testid,
+            "test_id": test_id,
             "direction": in_direction
         }
 
@@ -304,7 +323,7 @@ def load_test_info(in_opts):
     base_url = in_opts["url"]
     in_type = in_opts["type"]
     in_key = in_opts["key"]
-    in_testid = in_opts["testid"]
+    in_testrun = in_opts["testrun"]
     in_os_name = in_opts["os_name"]
     in_os_type = in_opts["os_type"]
     in_os_version = in_opts["os_version"]
@@ -323,8 +342,8 @@ def load_test_info(in_opts):
 
         return 1
 
-    if in_testid is None:
-        logger.error("Test ID is required")
+    if in_testrun is None:
+        logger.error("Test run is required")
 
         return 1
 
@@ -338,16 +357,18 @@ def load_test_info(in_opts):
 
         return 1
 
+    test_id = ("%s_%s" % (in_key, in_testrun))
+
     ret = call_service_for_check(in_opts, "%s/sut/messaging/_search?q=key:%s" % (base_url, in_key))
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no SUT with the ID %s. Please load that key before recording a test info"
-                     % in_testid)
+                     % test_id)
 
-    req_url = "%s/test/info/%s" % (base_url, in_testid)
+    req_url = "%s/test/info/%s" % (base_url, test_id)
 
     request_data = {
         "type": in_type,
-        "test_id": in_testid,
+        "test_id": test_id,
         "key": in_key,
         "start_time": in_start_time,
         "os_name": in_os_name,
@@ -458,9 +479,9 @@ if __name__ == "__main__":
                   action="store", default=None, metavar="TYPE  ",
                   help="Message direction where it was flowing from/to/through (ie: receiver, sender, router)");
 
-    op.add_option("--testid", dest="testid", type="string",
-                  action="store", default=None, metavar="TEST_ID",
-                  help="The test ID (def: %default)");
+    op.add_option("--testrun", dest="testrun", type="string",
+                  action="store", default=None, metavar="TEST_RUN",
+                  help="The test execution number (def: %default)");
 
     op.add_option("--filename", dest="filename", type="string",
                   action="store", default=None, metavar="FILENAME",
