@@ -79,7 +79,9 @@ void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
     
     char tm_creation_buff[64] = {0};
     
-    struct tm *creation_tm = localtime(&start.tv_sec);
+    struct tm result;
+    struct tm *creation_tm = localtime_r(&start.tv_sec, &result);
+    
     if (!creation_tm) {
         logger(ERROR, "Unable to calculate current localtime");
         
