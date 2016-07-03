@@ -181,8 +181,6 @@ void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
     else {
         mpt_timestamp_t now = statistics_now();
         
-        fprintf(stdout, "%s\n", message->body);
-
         const char *ctime = stomp_exchange_get(stomp_ctxt->messenger->exchange_properties, 
                                                    STOMP_CREATION_TIME);
         fprintf(stdout, "Creation time: %s\n", ctime);
