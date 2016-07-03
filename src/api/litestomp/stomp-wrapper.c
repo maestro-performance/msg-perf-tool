@@ -67,7 +67,7 @@ msg_ctxt_t *litestomp_init(void *data) {
     /*
      * Connects to the endpoint
      */
-    stat = stomp_connect(messenger, NULL);
+    stat = stomp_connect(messenger, NULL, 5000);
     if (stat != STOMP_SUCCESS) {
         fprintf(stderr, "%s\n", messenger->status.message);
         
