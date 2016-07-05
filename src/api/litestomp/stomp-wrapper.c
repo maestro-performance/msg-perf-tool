@@ -203,6 +203,7 @@ void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
         
         mpt_timestamp_t created = ts_from_milli_char(ctime);
 
+	content->count++;
         statistics_latency(ctxt->stat_io, created, now);
     }
     
