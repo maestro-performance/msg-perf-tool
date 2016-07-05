@@ -131,12 +131,13 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     uint64_t elapsed = statistics_diff(start, last);
     double rate = ((double) content_storage.count / elapsed) * 1000;
     
+    uint64_t total_received = content_storage.count - 1;
+
     logger(STAT, "summary;received;%"PRIu64";elapsed;%"PRIu64";rate;%.2f", 
-           (content_storage.count - 1), elapsed, rate);
+           total_received, elapsed, rate);
     
     logger(INFO, "Summary: received %"PRIu64" messages in %"PRIu64" milliseconds (rate: %.2f msgs/sec)",
-           (content_storage.count - 1),
-           elapsed, rate);
+           total_received, elapsed, rate);
 
     free(content_storage.data);
 }
