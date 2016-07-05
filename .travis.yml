@@ -1,0 +1,13 @@
+os:
+- linux
+sudo: true
+language:
+- c
+before_install:
+  - sudo apt-get install -y cmake libapr1-dev libaprutil1-dev doxygen libqpid-proton2-dev
+before_script:
+- mkdir build
+- cd build
+- cmake -DCMAKE_BUILD_TYPE=RELEASE -DSTOMP_SUPPORT=OFF ..
+script:
+- make all
