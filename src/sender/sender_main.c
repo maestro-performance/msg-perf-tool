@@ -159,6 +159,8 @@ int main(int argc, char **argv)
                     }
 
                      sender_start(vmsl, options);
+                     vmsl_destroy(&vmsl);
+                     options_destroy(&options);
                      return 0; 
                 }
                 else {
