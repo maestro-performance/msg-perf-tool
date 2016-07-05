@@ -171,5 +171,6 @@ FILE *open_file(const char *dir, const char *name) {
         return false;
     }
     
+    free(fullpath);
     return f;
 }
