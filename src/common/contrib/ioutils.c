@@ -78,7 +78,7 @@ bool rename_if_exists(const char *filename)
 
     if (!new_file) {
         logger(ERROR,
-               "Not enough memory to allocate for renaming the existing log file");
+               "Not enough memory to allocate for renaming the existing file");
         return false;
     }
 
@@ -139,7 +139,7 @@ bool remap_io(const char *dir, const char *name, FILE *fd)
         return false;
     }
 
-    logger(INFO, "Log file successfully opened");
+    logger(INFO, "File successfully opened");
 
     free(fullpath);
     return true;
