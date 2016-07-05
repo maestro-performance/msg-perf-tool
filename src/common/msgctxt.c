@@ -15,7 +15,7 @@
  */
 #include "msgctxt.h"
 
-msg_ctxt_t *msg_ctxt_init() {
+msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io) {
     msg_ctxt_t *ret = malloc(sizeof(msg_ctxt_t));
     
     logger_t logger = get_logger();
@@ -25,6 +25,8 @@ msg_ctxt_t *msg_ctxt_init() {
         
         exit(1);
     }
+    
+    ret->stat_io = stat_io;
 
     return ret;
 }

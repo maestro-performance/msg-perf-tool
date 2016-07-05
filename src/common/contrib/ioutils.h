@@ -37,6 +37,7 @@ bool can_read_write(const char *filename);
 bool rename_if_exists(const char *filename);
 bool remap_io(const char *dir, const char *name, FILE *fd);
 
+FILE *open_file(const char *dir, const char *name);
 
 #ifdef __cplusplus
 }

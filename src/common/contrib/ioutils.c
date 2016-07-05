@@ -109,8 +109,7 @@ bool rename_if_exists(const char *filename)
     return true;
 }
 
-bool remap_io(const char *dir, const char *name, FILE *fd)
-{
+static char *mk_fullpath(const char *dir, const char *name) {
     char *fullpath;
     size_t size = strlen(dir) + APPEND_SIZE_REMAP;
     logger_t logger = get_logger();
@@ -124,6 +123,13 @@ bool remap_io(const char *dir, const char *name, FILE *fd)
 
     bzero(fullpath, size);
     snprintf(fullpath, size - 1, "%s/%s", dir, name);
+    
+    return fullpath;
+}
+
+bool remap_io(const char *dir, const char *name, FILE *fd)
+{  
+    char *fullpath = mk_fullpath(dir, name);
 
     if (!rename_if_exists(fullpath)) {
         free(fullpath);
@@ -132,6 +138,8 @@ bool remap_io(const char *dir, const char *name, FILE *fd)
 
     FILE *f = freopen(fullpath, "a", fd);
     if (f == NULL) {
+        logger_t logger = get_logger();
+        
         logger(ERROR, "Unable to remap error IO: %s (%s)", strerror(errno),
                fullpath);
 
@@ -139,8 +147,29 @@ bool remap_io(const char *dir, const char *name, FILE *fd)
         return false;
     }
 
-    logger(INFO, "File successfully opened");
-
     free(fullpath);
     return true;
+}
+
+FILE *open_file(const char *dir, const char *name) {
+    
+    char *fullpath = mk_fullpath(dir, name);
+    
+     if (!rename_if_exists(fullpath)) {
+        free(fullpath);
+        return NULL;
+    }
+
+    
+    FILE *f = fopen(fullpath, "w+");
+    if (f == NULL) {
+        logger_t logger = get_logger();
+        logger(ERROR, "Unable to open file for IO: %s (%s)", strerror(errno),
+               fullpath);
+
+        free(fullpath);
+        return false;
+    }
+    
+    return f;
 }

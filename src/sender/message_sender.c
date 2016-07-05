@@ -126,7 +126,10 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
 {
     logger_t logger = get_logger();
    
-    msg_ctxt_t *msg_ctxt = vmsl->init(NULL);
+    stat_io_t *stat_io = statistics_init(SENDER);
+    msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
+    
+    
     install_timer();
     install_interrupt_handler();
     load_message_data(options);
@@ -136,23 +139,16 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
 
     register uint64_t sent = 0;
     time_t last_calc = 0;
+    
+    statistics_throughput_header(stat_io);
     while (can_continue(options, sent)) {
         vmsl->send(msg_ctxt, content_loader);
         sent++;
         last = statistics_now();
         
         if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
-            uint64_t partial = statistics_diff(start, last);
-            double rate = ((double) sent / partial) * 1000;
+            statistics_throughput_partial(stat_io, start, last, sent);
             
-            char last_buff[64] = {0};
-            
-            struct tm *last_tm = localtime(&last.tv_sec);
-            strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
-
-    
-            logger(STAT, "ts;%s;count;%"PRIu64";duration;%"PRIu64";rate;%.2f", 
-                   last_buff, sent, partial, rate);
             last_calc = last.tv_sec;
         }
         
@@ -169,6 +165,8 @@ void sender_start(const vmsl_t *vmsl, const options_t *options)
     vmsl->destroy(msg_ctxt);
     
     unload_message_data();
+    
+    statistics_destroy(&stat_io);
 
     uint64_t elapsed = statistics_diff(start, last);
     double rate = ((double) sent / elapsed) * 1000;

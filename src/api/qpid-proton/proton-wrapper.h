@@ -33,7 +33,7 @@ extern "C" {
 #include <proton/message.h>
 
 
-msg_ctxt_t *proton_init(void *data);
+msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data);
 void proton_stop(msg_ctxt_t *ctxt);
 void proton_destroy(msg_ctxt_t *ctxt);
 

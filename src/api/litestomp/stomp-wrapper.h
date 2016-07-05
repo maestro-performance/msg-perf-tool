@@ -32,7 +32,7 @@ extern "C" {
 #include <litestomp/stomp_messenger.h>
 
     
-msg_ctxt_t *litestomp_init(void *data);
+msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data);
 void litestomp_stop(msg_ctxt_t *ctxt);
 void litestomp_destroy(msg_ctxt_t *ctxt);
 

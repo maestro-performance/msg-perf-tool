@@ -22,12 +22,12 @@ static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt)
 }
 
 
-msg_ctxt_t *litestomp_init(void *data) {
+msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data) {
     logger_t logger = get_logger();
 
     logger(DEBUG, "Initializing stomp wrapper");
 
-    msg_ctxt_t *msg_ctxt = msg_ctxt_init();
+    msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io);
     if (!msg_ctxt) {
         logger(FATAL, "Unable to initialize the messaging context");
 
@@ -187,6 +187,6 @@ void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
         
         mpt_timestamp_t created = ts_from_milli_char(ctime);
 
-        statistics_latency(created, now);
+        statistics_latency(ctxt->stat_io, created, now);
     }
 }

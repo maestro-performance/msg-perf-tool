@@ -17,18 +17,46 @@
 #define STATISTICS_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-    
+
 #include "timestamp.h"
+#include "contrib/ioutils.h"
 #include "contrib/logger.h"
-    
+
+
 #include <unistd.h>
 #include <time.h>
 #include <inttypes.h>
-    
-void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end);
+
+typedef enum stat_direction_t_ {
+    SENDER,
+    RECEIVER,
+} stat_direction_t;
+
+typedef struct stat_io_t_ {
+    FILE *latency;
+    FILE *throughput;
+    stat_direction_t direction;
+} stat_io_t;
+
+stat_io_t *statistics_init(stat_direction_t direction);
+void statistics_destroy(stat_io_t **stat_io);
+
+void statistics_latency_header(stat_io_t *stat_io);
+void statistics_throughput_header(stat_io_t *stat_io);
+
+void statistics_latency_data(stat_io_t *stat_io, uint64_t creation, 
+                             const char *time, int32_t milli);
+void statistics_throughput_data(stat_io_t *stat_io, const char *last_buff, 
+                                uint64_t count, uint64_t partial, double rate);
+
+void statistics_latency(stat_io_t *stat_io, mpt_timestamp_t start, mpt_timestamp_t end);
 uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end);
+void statistics_throughput_partial(stat_io_t *stat_io, mpt_timestamp_t start, 
+                                   mpt_timestamp_t last, 
+                                   uint64_t count);
 
 
 #ifdef __cplusplus

@@ -31,13 +31,13 @@ static inline proton_ctxt_t *proton_ctxt_cast(msg_ctxt_t *ctxt)
     return (proton_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *proton_init(void *data)
+msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data)
 {
     logger_t logger = get_logger();
 
     logger(DEBUG, "Initializing proton wrapper");
 
-    msg_ctxt_t *msg_ctxt = msg_ctxt_init();
+    msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io);
     if (!msg_ctxt) {
         logger(FATAL, "Unable to initialize the messaging context");
 
@@ -375,7 +375,7 @@ void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content)
                 proton_timestamp_to_mpt_timestamp_t(pn_message_get_creation_time(message));
             mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
 
-            statistics_latency(created, now);
+            statistics_latency(ctxt->stat_io, created, now);
 
             proton_accept(proton_ctxt->messenger);
             content->count++;

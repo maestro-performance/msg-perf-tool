@@ -88,7 +88,9 @@ static bool can_continue(const options_t *options)
 void receiver_start(const vmsl_t *vmsl, const options_t *options)
 {
     logger_t logger = get_logger();
-    msg_ctxt_t *msg_ctxt = vmsl->init(NULL);
+    
+    stat_io_t *stat_io = statistics_init(RECEIVER);
+    msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
  
     install_timer();
     install_interrupt_handler();
@@ -105,20 +107,17 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     mpt_timestamp_t last;
     mpt_timestamp_t start = statistics_now();
     time_t last_calc = 0;
+    
+    statistics_latency_header(stat_io);
+    statistics_throughput_header(stat_io);
+    
     while (can_continue(options)) {
         vmsl->receive(msg_ctxt, &content_storage);
         last = statistics_now();
         
         if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
-            uint64_t partial = statistics_diff(start, last);
-            double rate = ((double) content_storage.count / partial) * 1000;
-            char last_buff[64] = {0};
-            
-            struct tm *last_tm = localtime(&last.tv_sec);
-            strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
-    
-            logger(STAT, "ts;%s;count;%"PRIu64";duration;%"PRIu64";rate;%.2f", 
-                   last_buff, content_storage.count, partial, rate);
+            statistics_throughput_partial(stat_io, start, last, 
+                                          content_storage.count);
             
             last_calc = last.tv_sec;
         }
@@ -126,6 +125,8 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     
     vmsl->stop(msg_ctxt);
     vmsl->destroy(msg_ctxt);
+    
+    statistics_destroy(&stat_io);
 
     uint64_t elapsed = statistics_diff(start, last);
     double rate = ((double) content_storage.count / elapsed) * 1000;

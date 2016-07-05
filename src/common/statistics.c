@@ -14,6 +14,7 @@
  limitations under the License.
  */
 #include "statistics.h"
+#include "contrib/options.h"
 
 #ifndef __linux__
 
@@ -43,6 +44,98 @@ static int timersub(struct timeval *start, struct timeval *end, struct timeval *
 
 #endif // __linux__
 
+static FILE *open_stats_file(const char *prefix, const char *suffix) {
+    const options_t *options = get_options_object();
+    char name[64] = {0};
+
+    snprintf(name, sizeof (name) - 1, "%s-%s-%d.csv", prefix, suffix, getpid());
+    return open_file(options->logdir, name);
+}
+
+static FILE *open_receiver_latency_file() {
+    return open_stats_file("receiver", "latency");
+}
+
+static FILE *open_receiver_throughput_file() {
+    return open_stats_file("receiver", "throughput");
+}
+static FILE *open_sender_throughput_file() {
+    return open_stats_file("sender", "throughput");
+}
+
+stat_io_t *statistics_init(stat_direction_t direction) {
+    logger_t logger = get_logger();
+    stat_io_t *ret = malloc(sizeof(stat_io_t));
+    
+    if (direction == SENDER) {
+        ret->latency = NULL;
+        ret->throughput = open_sender_throughput_file();
+    }
+    else {
+        ret->latency = open_receiver_latency_file();
+        ret->throughput = open_receiver_throughput_file();
+    }
+    
+    if (!ret->throughput) {
+        logger(ERROR, "Unable to initialize the statistics IO engine");
+
+        goto err_exit;
+    }
+    
+    if (direction == RECEIVER) {
+        if (!ret->latency) {
+            logger(ERROR, "Unable to initialize the statistics IO engine");
+
+            goto err_exit;
+        }
+    }
+    
+    ret->direction = direction;
+    return ret;
+    
+    err_exit:
+    statistics_destroy(&ret);
+    return NULL;
+}
+
+
+void statistics_destroy(stat_io_t **stat_io) {
+    if ((*stat_io)->latency) {
+        fclose((*stat_io)->latency);
+    }
+    
+    if ((*stat_io)->throughput) {
+        fclose((*stat_io)->throughput);
+    }
+    
+    free(*stat_io);
+    *stat_io = NULL;
+}
+
+/*
+    logger(STAT, "ts;%s;count;%"PRIu64";duration;%"PRIu64";rate;%.2f", 
+           last_buff, count, partial, rate);
+ */
+
+void statistics_latency_header(stat_io_t *stat_io) {
+    fprintf(stat_io->latency, "creation;latency\n");
+}
+
+void statistics_throughput_header(stat_io_t *stat_io) {
+    fprintf(stat_io->throughput, "timestamp;count;duration;rate\n");
+}
+
+void statistics_latency_data(stat_io_t *stat_io, uint64_t latency, 
+                             const char *time, int32_t milli) 
+{
+    fprintf(stat_io->latency, "%s.%03"PRId32";%"PRIu64"\n", time, milli, latency);
+}
+
+
+void statistics_throughput_data(stat_io_t *stat_io, const char *last_buff, 
+                                uint64_t count, uint64_t partial, double rate) {
+    fprintf(stat_io->throughput, "%s;%"PRIu64";%"PRIu64";%.2f\n", last_buff, count, partial, rate);
+}
 
 static uint64_t statistics_convert_to_milli(mpt_timestamp_t ts) {
     return (((ts.tv_sec) * 1000) + (ts.tv_usec / 1000));
@@ -68,7 +161,7 @@ uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end)
     return statistics_convert_to_milli(ret);
 }
 
-void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
+void statistics_latency(stat_io_t *stat_io, mpt_timestamp_t start, mpt_timestamp_t end)
 {
     logger_t logger = get_logger();
 
@@ -103,9 +196,20 @@ void statistics_latency(mpt_timestamp_t start, mpt_timestamp_t end)
                 tm_received_buff, (end.tv_usec/1000));
     }
     else {
-        logger(STAT, "latency;%"PRIu64";creation;%s.%"PRId32"",
-           statistics_diff(start, end), tm_creation_buff, (start.tv_usec/1000));
+        statistics_latency_data(stat_io, statistics_diff(start, end), 
+                                tm_creation_buff, (start.tv_usec/1000));
     }
-    
-    
+}
+
+void statistics_throughput_partial(stat_io_t *stat_io, mpt_timestamp_t start, 
+                                   mpt_timestamp_t last, uint64_t count) {
+    uint64_t partial = statistics_diff(start, last);
+    double rate = ((double) count / partial) * 1000;
+            
+    char last_buff[64] = {0};
+
+    struct tm *last_tm = localtime(&last.tv_sec);
+    strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
+
+    statistics_throughput_data(stat_io, last_buff, count, partial, rate);
 }
