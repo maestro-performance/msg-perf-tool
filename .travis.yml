@@ -8,6 +8,6 @@ before_install:
 before_script:
 - mkdir build
 - cd build
-- cmake -DCMAKE_BUILD_TYPE=RELEASE -DSTOMP_SUPPORT=OFF ..
+- cmake -DCMAKE_BUILD_TYPE=RELEASE -DSTOMP_SUPPORT=OFF -DAMQP_SUPPORT=OFF ..
 script:
 - make all
