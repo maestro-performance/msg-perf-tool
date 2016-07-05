@@ -4,7 +4,7 @@ sudo: true
 language:
 - c
 before_install:
-  - sudo apt-get install -y cmake libapr1-dev libaprutil1-dev doxygen libqpid-proton2-dev
+  - sudo apt-get install -y cmake libapr1-dev libaprutil1-dev doxygen
 before_script:
 - mkdir build
 - cd build
