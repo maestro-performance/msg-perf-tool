@@ -6,6 +6,7 @@ endif (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
 
 add_library(
 	mpt-common SHARED
+        contrib/ioutils.c
         contrib/options.c
         contrib/logger.c
         contrib/log.c

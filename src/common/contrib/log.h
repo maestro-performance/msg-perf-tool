@@ -29,8 +29,7 @@
 
 #include "logger.h"
 #include "options.h"
-
-#define APPEND_SIZE_REMAP 64
+#include "ioutils.h"
 
 #ifdef	__cplusplus
 extern "C" {
