@@ -1,6 +1,10 @@
 MPT: messaging performance tool
 ============
 
+Build Status
+----
+Linux Build Status: [![Linux Build Status](https://travis-ci.org/orpiske/msg-perf-tool.svg?branch=master)](https://travis-ci.org/orpiske/msg-perf-tool) 
+
 Introduction:
 ----
 
