@@ -105,10 +105,10 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
      */
     stomp_message_t *message = stomp_message_create(&stomp_ctxt->messenger->status);
     if (!message) {
-        fprintf(stderr, "%s\n", stomp_ctxt->messenger->status.message);
+        logger(ERROR, "Unable to create a stomp message: %s", 
+               stomp_ctxt->messenger->status.message);
 
-        // TODO: handle error
-        exit(1);
+        return;
     }
 
 
@@ -122,11 +122,12 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
     stomp_status_code_t stat = stomp_exchange_util_ctime(stomp_ctxt->messenger->exchange_properties,
                                      &stomp_ctxt->messenger->status);
     if (stat != STOMP_SUCCESS) {
-        fprintf(stderr, stomp_ctxt->messenger->status.message);
-
-        // TODO: handle error
+        logger(ERROR, "Unable to set the message creation time: %s", 
+               stomp_ctxt->messenger->status.message);
+        
+        stomp_message_destroy(&message);
+        return;
     }
-    
     
     stomp_message_format(message, msg_content.data, msg_content.size);
 
@@ -139,10 +140,14 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
      */
     stat = stomp_send(stomp_ctxt->messenger, &send_header, message);
     if (stat != STOMP_SUCCESS) {
-        fprintf(stderr, "%s\n", stomp_ctxt->messenger->status.message);
-
-        // TODO: handle error
+        logger(ERROR, "Unable to send the message: %s", 
+               stomp_ctxt->messenger->status.message);
+        
+        stomp_message_destroy(&message);
+        return;
     }
+    
+    stomp_message_destroy(&message);    
 }
 
 
@@ -157,9 +162,11 @@ void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
     
     stomp_status_code_t stat = stomp_subscribe(stomp_ctxt->messenger, &sub_header);
     if (stat != STOMP_SUCCESS) {
-        fprintf(stderr, "%s\n", stomp_ctxt->messenger->status.message);
+        logger_t logger = get_logger();
         
-        // TODO: handle error
+        logger(ERROR, "Unable to subscribe to the endpoint: %s", 
+               stomp_ctxt->messenger->status.message);
+        return;
     }
 }
 
@@ -174,16 +181,17 @@ void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
     stomp_status_code_t stat = stomp_receive(stomp_ctxt->messenger, 
                                              &receive_header, message);
     if (stat != STOMP_SUCCESS) {
-        fprintf(stderr, "%s\n", stomp_ctxt->messenger->status.message);
+        logger_t logger = get_logger();
         
-        // TODO: handle error
+        logger(ERROR, "Unable to receive messages from the endpoint: %s", 
+               stomp_ctxt->messenger->status.message);
+        return;
     }
     else {
         mpt_timestamp_t now = statistics_now();
         
         const char *ctime = stomp_exchange_get(stomp_ctxt->messenger->exchange_properties, 
                                                    STOMP_CREATION_TIME);
-        fprintf(stdout, "Creation time: %s\n", ctime);
         
         mpt_timestamp_t created = ts_from_milli_char(ctime);
 
