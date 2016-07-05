@@ -91,6 +91,8 @@ void litestomp_destroy(msg_ctxt_t *ctxt) {
     stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
     
     stomp_messenger_destroy(&stomp_ctxt->messenger);
+    
+    litestomp_context_destroy(&stomp_ctxt);
     msg_ctxt_destroy(&ctxt);
 }
 
@@ -131,7 +133,7 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
     
     stomp_message_format(message, msg_content.data, msg_content.size);
 
-    stomp_send_header_t send_header;
+    stomp_send_header_t send_header = {0};
 
     send_header.transaction_id = -1;
     
@@ -147,7 +149,7 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
         return;
     }
     
-    stomp_message_destroy(&message);    
+    stomp_message_destroy(&message);
 }
 
 
@@ -157,7 +159,7 @@ void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
      * Subscribes to the endpoint. Uses a fake ID and receipt just for the sake
      * of the example
      */
-    stomp_subscription_header_t sub_header;
+    stomp_subscription_header_t sub_header = {0};
     
     
     stomp_status_code_t stat = stomp_subscribe(stomp_ctxt->messenger, &sub_header);
@@ -174,18 +176,24 @@ void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
 
 
 void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
-    stomp_message_t *message = stomp_message_create(NULL);
+    logger_t logger = get_logger();
     stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
-    stomp_receive_header_t receive_header;
     
+    stomp_message_t *message = stomp_message_create(NULL);
+    
+    if (!message) {
+        logger(ERROR, "Unable to create a stomp message: %s", 
+               stomp_ctxt->messenger->status.message);
+
+        return;
+    }
+    
+    stomp_receive_header_t receive_header = {0};
     stomp_status_code_t stat = stomp_receive(stomp_ctxt->messenger, 
                                              &receive_header, message);
     if (stat != STOMP_SUCCESS) {
-        logger_t logger = get_logger();
-        
         logger(ERROR, "Unable to receive messages from the endpoint: %s", 
                stomp_ctxt->messenger->status.message);
-        return;
     }
     else {
         mpt_timestamp_t now = statistics_now();
@@ -197,4 +205,6 @@ void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
 
         statistics_latency(ctxt->stat_io, created, now);
     }
+    
+    stomp_message_destroy(&message);
 }
