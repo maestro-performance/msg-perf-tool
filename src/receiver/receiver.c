@@ -1,12 +1,12 @@
 /**
  Copyright 2016 Otavio Rodolfo Piske
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
  http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ static void show_help()
     printf("\t-L\t--logdir=<logdir> a directory to save the logs (mandatory for --daemon)\n");
     printf("\t-D\t--daemon run as a daemon in the background\n");
     printf("\t-h\t--help show this help\n");
-    
+
 }
 
 static struct timeval get_duration(int count)
@@ -40,23 +40,41 @@ static struct timeval get_duration(int count)
     return ret;
 }
 
-static void init_vmsl_proton(vmsl_t *vmsl)
+
+
+static bool init_vmsl_proton(vmsl_t *vmsl)
 {
+  #ifdef __AMQP_SUPPORT__
     vmsl->init = proton_init;
     vmsl->receive = proton_receive;
     vmsl->subscribe = proton_subscribe;
     vmsl->stop = proton_stop;
     vmsl->destroy = proton_destroy;
+
+    return true;
+  #else
+    printf("AMQP protocol support was is not enabled");
+    return false;
+  #endif // __AMQP_SUPPORT__
 }
 
-static void init_vmsl_stomp(vmsl_t *vmsl)
+static bool init_vmsl_stomp(vmsl_t *vmsl)
 {
+  #ifdef __STOMP_SUPPORT__
     vmsl->init = litestomp_init;
     vmsl->receive = litestomp_receive;
     vmsl->subscribe = litestomp_subscribe;
     vmsl->stop = litestomp_stop;
     vmsl->destroy = litestomp_destroy;
+
+    return true;
+  #else
+    printf("STOMP protocol support was is not enabled");
+    return false;
+  #endif // __STOMP_SUPPORT__
 }
+
+
 
 int main(int argc, char **argv)
 {
@@ -132,8 +150,18 @@ int main(int argc, char **argv)
     init_controller(options->daemon, options->logdir, "mpt-receiver-controller");
 
     vmsl_t *vmsl = vmsl_init();
-    // init_vmsl_proton(vmsl);
-    init_vmsl_stomp(vmsl);
+    if (strncmp(options->url, "amqp://", 7)) {
+        if (!init_vmsl_proton(vmsl)) {
+          goto err_exit;
+        }
+    }
+    else {
+      if (strncmp(options->url, "stomp://", 8)) {
+        if (!init_vmsl_stomp(vmsl)) {
+          goto err_exit;
+        }
+      }
+    }
 
     int childs[5];
     int child = 0;
@@ -151,9 +179,7 @@ int main(int argc, char **argv)
                 }
 
                 receiver_start(vmsl, options);
-                vmsl_destroy(&vmsl);
-                options_destroy(&options);
-                return 0;
+                goto success_exit;
             }
             else {
                 if (child > 0) {
@@ -183,10 +209,16 @@ int main(int argc, char **argv)
         receiver_start(vmsl, options);
     }
 
-    vmsl_destroy(&vmsl);
 
     logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
 
+    success_exit:
+    vmsl_destroy(&vmsl);
     options_destroy(&options);
     return EXIT_SUCCESS;
+
+    err_exit:
+    vmsl_destroy(&vmsl);
+    options_destroy(&options);
+    return EXIT_FAILURE;
 }

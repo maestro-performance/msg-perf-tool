@@ -1,12 +1,12 @@
 /**
  Copyright 2016 Otavio Rodolfo Piske
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
  http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,28 +33,45 @@ static void show_help()
 }
 
 static struct timeval get_duration(int count) {
-    struct timeval ret; 
-    
+    struct timeval ret;
+
     gettimeofday(&ret, NULL);
-    
+
     ret.tv_sec = ret.tv_sec + (count * 60);
-    
+
     return ret;
 }
 
-static void init_vmsl_proton(vmsl_t *vmsl) {
+
+static bool init_vmsl_proton(vmsl_t *vmsl) {
+  #ifdef __AMQP_SUPPORT__
     vmsl->init = proton_init;
     vmsl->send = proton_send;
     vmsl->stop = proton_stop;
     vmsl->destroy = proton_destroy;
+
+    return true;
+  #else
+    printf("AMQP protocol support was is not enabled");
+    return false;
+  #endif // __AMQP_SUPPORT__
 }
 
-static void init_vmsl_stomp(vmsl_t *vmsl) {
+
+static bool init_vmsl_stomp(vmsl_t *vmsl) {
+  #ifdef __STOMP_SUPPORT__
     vmsl->init = litestomp_init;
     vmsl->send = litestomp_send;
     vmsl->stop = litestomp_stop;
     vmsl->destroy = litestomp_destroy;
+
+    return true;
+  #else
+    printf("STOMP protocol support was is not enabled");
+    return false;
+  #endif // __STOMP_SUPPORT__
 }
+
 
 int main(int argc, char **argv)
 {
@@ -134,34 +151,44 @@ int main(int argc, char **argv)
     }
 
     init_controller(options->daemon, options->logdir, "mpt-sender-controller");
-    
+
     vmsl_t *vmsl = vmsl_init();
-    // init_vmsl_proton(vmsl);
-    init_vmsl_stomp(vmsl);
+
+    if (strncmp(options->url, "amqp://", 7)) {
+        if (!init_vmsl_proton(vmsl)) {
+          goto err_exit;
+        }
+    }
+    else {
+      if (strncmp(options->url, "stomp://", 8)) {
+        if (!init_vmsl_stomp(vmsl)) {
+          goto err_exit;
+        }
+      }
+    }
+
 
     /**
      * TODO: fix this
      */
     int childs[32];
-    int child = 0; 
-    
+    int child = 0;
+
     logger_t logger = get_logger();
-    
-    if (options->parallel_count > 1) { 
+
+    if (options->parallel_count > 1) {
         logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-        for (uint16_t i = 0; i < options->parallel_count; i++) { 
-                child = fork(); 
+        for (uint16_t i = 0; i < options->parallel_count; i++) {
+                child = fork();
 
                 if (child == 0) {
                     if (strlen(options->logdir) > 0) {
-                        remap_log(options->logdir, "mpt-sender", getppid(), 
+                        remap_log(options->logdir, "mpt-sender", getppid(),
                                   getpid(), stderr);
                     }
 
                      sender_start(vmsl, options);
-                     vmsl_destroy(&vmsl);
-                     options_destroy(&options);
-                     return 0; 
+                     goto success_exit;
                 }
                 else {
                     if (child > 0) {
@@ -186,16 +213,22 @@ int main(int argc, char **argv)
     }
     else {
         if (strlen(options->logdir) > 0) {
-            remap_log(options->logdir, "mpt-sender", 0, 
+            remap_log(options->logdir, "mpt-sender", 0,
                                   getpid(), stderr);
         }
-        
+
         sender_start(vmsl, options);
     }
-    
-    vmsl_destroy(&vmsl);
+
     logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
-    
+
+    success_exit:
+    vmsl_destroy(&vmsl);
     options_destroy(&options);
     return EXIT_SUCCESS;
+
+    err_exit:
+    vmsl_destroy(&vmsl);
+    options_destroy(&options);
+    return EXIT_FAILURE;
 }

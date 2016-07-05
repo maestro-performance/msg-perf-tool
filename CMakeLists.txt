@@ -34,8 +34,8 @@ set(CPP_INCLUDE_DIR "include")
 set(SHARED_DIR "share")
 set(MPT_SHARED_DIR ${SHARED_DIR}/mpt)
 
-SET(AMQP_SUPPORT ON)
-SET(STOMP_SUPPORT ON)
+SET(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
+SET(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
 
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -74,13 +74,14 @@ add_subdirectory(src/common objs/common)
 
 #### PROTON STUFF
 
-if (${AMQP_SUPPORT}) 
+if (${AMQP_SUPPORT})
+    message(STATUS "AMQP support is enabled")
+    add_definitions(-D__AMQP_SUPPORT__)
     set(PROTON_DIR /usr CACHE String "QPID Proton base directory")
 
     include_directories(
             ${PROTON_DIR}/include
             .
-
     )
 
     if (${APP_BUILD_PLATFORM} EQUAL "64")
@@ -97,7 +98,9 @@ if (${AMQP_SUPPORT})
     add_subdirectory(src/api/qpid-proton objs/api/qpid-proton)
 endif(${AMQP_SUPPORT})
 
-if (${STOMP_SUPPORT}) 
+if (${STOMP_SUPPORT})
+    message(STATUS "Stomp support is enabled")
+    add_definitions(-D__STOMP_SUPPORT__)
     set(STOMP_DIR /usr CACHE String "Litestomp base directory")
 
     include_directories(
