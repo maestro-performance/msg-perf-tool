@@ -17,38 +17,35 @@
 
 bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, FILE *fd)
 {
-	char name[64];
+    char name[64];
 
-	bzero(name, sizeof(name));
-        
-        if (parent == 0) {
-            snprintf(name, sizeof(name) - 1, "%s-%d.log", base_name, pid);
-        }
-        else {
-            snprintf(name, sizeof(name) - 1, "%s-%d-%d.log", base_name, parent, pid);
-        }
-	
-            
+    bzero(name, sizeof (name));
 
-	return remap_io(dir, name, fd);
+    if (parent == 0) {
+        snprintf(name, sizeof (name) - 1, "%s-%d.log", base_name, pid);
+    }
+    else {
+        snprintf(name, sizeof (name) - 1, "%s-%d-%d.log", base_name, parent, pid);
+    }
+
+    return remap_io(dir, name, fd);
 }
-
 
 void default_logger(log_level_t level, const char *msg, ...)
 {
     const options_t *options = get_options_object();
-    
+
     if (!can_log(level, options->log_level)) {
         return;
     }
-    
+
     va_list ap;
     char *ret = NULL;
 
     va_start(ap, msg);
     vasprintf(&ret, msg, ap);
     va_end(ap);
-    
+
 
     switch (level) {
     case TRACE:
