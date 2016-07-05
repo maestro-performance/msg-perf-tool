@@ -16,7 +16,7 @@
 #include <stdint.h>
 
 #include "timestamp.h"
-
+#include "contrib/logger.h"
 
 mpt_timestamp_t statistics_now()
 {
@@ -40,11 +40,9 @@ mpt_timestamp_t ts_from_milli(int64_t timestamp) {
 }
 
 mpt_timestamp_t ts_from_milli_char(const char *ts) {
-    uint64_t ms = strtoul(ts, NULL, 10);
-    
+    uint64_t ms = strtoull(ts, NULL, 10);
+ 
     return ts_from_milli(ms);
-    
-    
 }
 
 
