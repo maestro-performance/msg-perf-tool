@@ -126,6 +126,7 @@ bool remap_io(const char *dir, const char *name, FILE *fd)
     snprintf(fullpath, size - 1, "%s/%s", dir, name);
 
     if (!rename_if_exists(fullpath)) {
+        free(fullpath);
         return false;
     }
 
@@ -134,6 +135,7 @@ bool remap_io(const char *dir, const char *name, FILE *fd)
         logger(ERROR, "Unable to remap error IO: %s (%s)", strerror(errno),
                fullpath);
 
+        free(fullpath);
         return false;
     }
 
