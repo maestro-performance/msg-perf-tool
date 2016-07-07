@@ -154,13 +154,13 @@ int main(int argc, char **argv)
 
     vmsl_t *vmsl = vmsl_init();
 
-    if (strncmp(options->url, "amqp://", 7)) {
+    if (strncmp(options->url, "amqp://", 7) == 0) {
         if (!init_vmsl_proton(vmsl)) {
           goto err_exit;
         }
     }
     else {
-      if (strncmp(options->url, "stomp://", 8)) {
+      if (strncmp(options->url, "stomp://", 8) == 0) {
         if (!init_vmsl_stomp(vmsl)) {
           goto err_exit;
         }
