@@ -29,6 +29,7 @@ def print_errors(http_response):
     logger.error("Error: %s" % http_response.status_code)
     logger.error("Text: %s" % http_response.content)
 
+
 def call_service(in_opts, req_url, request_json, force_update=False):
     logger.debug("Connecting to %s" % (req_url))
 
@@ -53,6 +54,7 @@ def call_service(in_opts, req_url, request_json, force_update=False):
 
     return 0
 
+
 def call_service_for_check(in_opts, req_url):
     logger.debug("Connecting to %s" % (req_url))
 
@@ -66,12 +68,11 @@ def call_service_for_check(in_opts, req_url):
     return answer
 
 
-
 def register(in_opts):
     base_url = in_opts["url"]
     sut = in_opts["sut"]
-    key = in_opts["key"]
-    version = in_opts["version"]
+    key = in_opts["sut_key"]
+    version = in_opts["sut_version"]
 
     if base_url is None:
         logger.error("Base URL is required")
@@ -96,7 +97,7 @@ def register(in_opts):
 
 def configure_latency_mapping(in_opts):
     base_url = in_opts["url"]
-    in_key = in_opts["key"]
+    in_key = in_opts["sut_key"]
 
     answer = call_service_for_check(in_opts, ("%s/%s/_mapping" % (base_url, in_key)))
     if answer.status_code == 404:
@@ -113,7 +114,7 @@ def configure_latency_mapping(in_opts):
 
 def configure_throughput_mapping(in_opts):
     base_url = in_opts["url"]
-    in_key = in_opts["key"]
+    in_key = in_opts["sut_key"]
 
     answer = call_service_for_check(in_opts, ( "%s/%s/_mapping" % (base_url, in_key)))
     if answer.status_code == 404:
@@ -122,8 +123,6 @@ def configure_throughput_mapping(in_opts):
     else:
         req_url = "%s/%s/_mapping/througput" % (base_url, in_key)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
-
-
 
     ret = call_service(in_opts, req_url, request_json, force_update=True)
     if ret != 0:
@@ -141,12 +140,12 @@ def count_lines(file):
 def validate_parameters(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
-    in_type = in_opts["type"]
+    in_type = in_opts["test_type"]
     in_sut = in_opts["sut"]
-    in_key = in_opts["key"]
-    in_version = in_opts["version"]
-    in_testrun = in_opts["testrun"]
-    in_direction = in_opts["direction"]
+    in_key = in_opts["sut_key"]
+    in_version = in_opts["sut_version"]
+    in_testrun = in_opts["test_run"]
+    in_direction = in_opts["msg_direction"]
 
     if base_url is None:
         logger.error("Base URL is required")
@@ -193,18 +192,18 @@ def validate_parameters(in_opts):
 def load_receiver_latencies(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
-    in_type = in_opts["type"]
+    in_type = in_opts["test_type"]
     in_sut = in_opts["sut"]
-    in_key = in_opts["key"]
-    in_version = in_opts["version"]
-    in_testrun = in_opts["testrun"]
-    in_direction = in_opts["direction"]
+    in_key = in_opts["sut_key"]
+    in_version = in_opts["sut_version"]
+    in_test_run = in_opts["test_run"]
+    in_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters(in_opts)
     if param_check != 0:
         return param_check
 
-    test_id = ("%s_%s" % (in_key, in_testrun))
+    test_id = ("%s_%s" % (in_key, in_test_run))
 
     ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id))
     if ret.status_code < 200 or ret.status_code >= 205:
@@ -253,12 +252,12 @@ def load_receiver_latencies(in_opts):
 def load_receiver_throughput(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
-    in_type = in_opts["type"]
+    in_type = in_opts["test_type"]
     in_sut = in_opts["sut"]
-    in_key = in_opts["key"]
-    in_version = in_opts["version"]
-    in_testrun = in_opts["testrun"]
-    in_direction = in_opts["direction"]
+    in_key = in_opts["sut_key"]
+    in_version = in_opts["sut_version"]
+    in_test_run = in_opts["test_run"]
+    in_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters(in_opts)
     if param_check != 0:
@@ -267,7 +266,7 @@ def load_receiver_throughput(in_opts):
     file = open(in_file_name, 'rb')
     num_lines = count_lines(file)
 
-    test_id = ("%s_%s" % (in_key, in_testrun))
+    test_id = ("%s_%s" % (in_key, in_test_run))
 
     ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id))
     if ret.status_code < 200 or ret.status_code >= 205:
@@ -317,32 +316,45 @@ def load_receiver_throughput(in_opts):
     return 0
 
 
-
-
 def load_test_info(in_opts):
+    """
+    Loads test information into the database
+    :param in_opts: input options from command line
+    :return:
+    """
     base_url = in_opts["url"]
-    in_type = in_opts["type"]
-    in_key = in_opts["key"]
-    in_testrun = in_opts["testrun"]
-    in_os_name = in_opts["os_name"]
-    in_os_type = in_opts["os_type"]
-    in_os_version = in_opts["os_version"]
-    in_hw_type = in_opts["hw_type"]
-    in_protocol = in_opts["protocol"]
-    in_prod_sysinfo = in_opts["prodsysinfo"]
-    in_con_sysinfo = in_opts["consysinfo"]
-    in_brk_sysinfo = in_opts["brksysinfo"]
-    in_start_time = in_opts["start_time"]
+    in_sut_key = in_opts["sut_key"]
 
-    in_comment = in_opts["comment"]
-    in_res_comment = in_opts["rescomment"]
+    in_test_type = in_opts["test_type"]
+    in_test_run = in_opts["test_run"]
+    in_start_time = in_opts["test_start_time"]
+    in_test_duration = in_opts["test_duration"]
+    in_test_comment = in_opts["test_comment"]
+    in_test_result_comment = in_opts["test_result_comment"]
+
+    in_broker_os_name = in_opts["broker_os_name"]
+    in_broker_os_type = in_opts["broker_os_type"]
+    in_broker_os_version = in_opts["broker_os_version"]
+    in_broker_hw_type = in_opts["broker_hw_type"]
+    in_brk_sys_info = in_opts["broker_sys_info"]
+
+    in_msg_protocol = in_opts["msg_protocol"]
+    in_msg_size = in_opts["msg_size"]
+    in_msg_direction = in_opts["msg_direction"]
+
+    in_prod_count = in_opts["producer_count"]
+    in_prod_sys_info = in_opts["producer_sys_info"]
+
+    in_con_count = in_opts["consumer_count"]
+    in_con_sysinfo = in_opts["consumer_sys_info"]
+
 
     if base_url is None:
         logger.error("Base URL is required")
 
         return 1
 
-    if in_testrun is None:
+    if in_test_run is None:
         logger.error("Test run is required")
 
         return 1
@@ -352,14 +364,14 @@ def load_test_info(in_opts):
 
         return 1
 
-    if in_key is None:
+    if in_sut_key is None:
         logger.error("SUT key is required")
 
         return 1
 
-    test_id = ("%s_%s" % (in_key, in_testrun))
+    test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
-    ret = call_service_for_check(in_opts, "%s/sut/messaging/_search?q=key:%s" % (base_url, in_key))
+    ret = call_service_for_check(in_opts, "%s/sut/messaging/_search?q=key:%s" % (base_url, in_sut_key))
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no SUT with the ID %s. Please load that key before recording a test info"
                      % test_id)
@@ -367,20 +379,26 @@ def load_test_info(in_opts):
     req_url = "%s/test/info/%s" % (base_url, test_id)
 
     request_data = {
-        "type": in_type,
+        "type": in_test_type,
         "test_id": test_id,
-        "key": in_key,
+        "test_run": in_test_run,
+        "key": in_sut_key,
         "start_time": in_start_time,
-        "os_name": in_os_name,
-        "os_type": in_os_type,
-        "os_version": in_os_version,
-        "hw_type": in_hw_type,
-        "protocol": in_protocol,
-        "producer_sysinfo": in_prod_sysinfo,
+        "test_duration": in_test_duration,
+        "protocol": in_msg_protocol,
+        "msg_size": in_msg_size,
+        "msg_direction": in_msg_direction,
+        "os_name": in_broker_os_name,
+        "os_type": in_broker_os_type,
+        "os_version": in_broker_os_version,
+        "hw_type": in_broker_hw_type,
+        "broker_sysinfo": in_brk_sys_info,
+        "producer_count": in_prod_count,
+        "producer_sysinfo": in_prod_sys_info,
+        "consumer_count": in_con_count,
         "consumer_sysinfo": in_con_sysinfo,
-        "broker_sysinfo": in_brk_sysinfo,
-        "comment": in_comment,
-        "result_comment": in_res_comment,
+        "comment": in_test_comment,
+        "result_comment": in_test_result_comment,
     }
 
     request_json = StringIO()
@@ -442,14 +460,26 @@ if __name__ == "__main__":
     usage_msg = "usage: %prog [options]";
     op = optparse.OptionParser(usage=usage_msg);
 
-    # define parameters
-    # -------------------------------------------------------------------------
+    # General options
     op.add_option("--url", dest="url", type="string",
                   action="store", help="Database server URL", metavar="URL");
+
+    op.add_option("--filename", dest="filename", type="string",
+                  action="store", default=None, metavar="FILENAME",
+                  help="The input filename (def: %default)");
+
+    op.add_option("--username", dest="username", type="string",
+              action="store", default="admin", metavar="USERNAME",
+              help="Database user name (def: %default)");
+
+    op.add_option("--password", dest="password", type="string",
+              action="store", default=None, metavar="PASSWORD",
+              help="Database user password (def: %default)");
 
     op.add_option("--update", dest="update", action="store_true", default=False,
                   help="Update the record instead of creating a new one");
 
+    # Actions
     op.add_option("--register", dest="register", action="store_true", default=False,
                   help="Register SUTs");
 
@@ -459,85 +489,106 @@ if __name__ == "__main__":
     op.add_option("--testinfo", dest="testinfo", action="store_true", default=False,
                   help="Load test information data into the DB");
 
+
+    # SUT stuff
     op.add_option("--sut", dest="sut", type="string",
                   action="store", default=None, metavar="SUT_NAME",
                   help="Software under test (SUT) name (def: %default)");
 
-    op.add_option("--key", dest="key", type="string",
+    op.add_option("--sut-key", dest="sut_key", type="string",
                   action="store", default=None, metavar="KEY",
                   help="Unique key identifier (ie: amq6, artemis, etc) for the SUT (def: %default)");
 
-    op.add_option("--version", dest="version", type="string",
+    op.add_option("--sut-version", dest="sut_version", type="string",
                   action="store", default=None, metavar="VERSION",
                   help="Version of the SUT");
 
-    op.add_option("--type", dest="type", type="string",
+    # Test specific stuff
+    op.add_option("--test-type", dest="test_type", type="string",
                   action="store", default=None, metavar="TYPE  ",
                   help="Test handler type (latency, throughput, etc)");
 
-    op.add_option("--direction", dest="direction", type="string",
-                  action="store", default=None, metavar="TYPE  ",
-                  help="Message direction where it was flowing from/to/through (ie: receiver, sender, router)");
-
-    op.add_option("--testrun", dest="testrun", type="string",
+    op.add_option("--test-run", dest="test_run", type="string",
                   action="store", default=None, metavar="TEST_RUN",
                   help="The test execution number (def: %default)");
 
-    op.add_option("--filename", dest="filename", type="string",
-                  action="store", default=None, metavar="FILENAME",
-                  help="The input filename (def: %default)");
+    op.add_option("--test-duration", dest="test_duration", type="string",
+                  action="store", default="0", metavar="DURATION",
+                  help="The test duration in number of messages or time in the format " \
+                       "<value><t> (ie: 1 day = 1d, 2 hours = 2h, etc)");
 
-    op.add_option("--username", dest="username", type="string",
-                  action="store", default="admin", metavar="USERNAME",
-                  help="Database user name (def: %default)");
-
-    op.add_option("--password", dest="password", type="string",
-              action="store", default=None, metavar="PASSWORD",
-              help="Database user password (def: %default)");
-
-    op.add_option("--ostype", dest="os_type", type="string",
-                  action="store", default=None, metavar="OS_TYPE",
-                  help="The host OS type [linux, windows, etc] (def: %default)");
-
-    op.add_option("--osname", dest="os_name", type="string",
-              action="store", default=None, metavar="OS_NAME",
-              help="The host OS name [rhel, fedora, windows, etc] (def: %default)");
-
-    op.add_option("--osversion", dest="os_version", type="string",
-              action="store", default=None, metavar="OS_VERSION",
-              help="The host OS version [6.6, 6.7, 2012, etc] (def: %default)");
-
-    op.add_option("--hwtype", dest="hw_type", type="string",
-                  action="store", default="bare", metavar="HW_TYPE",
-                  help="The hardware type [kvm, bare, vmware] (def: %default)");
-
-    op.add_option("--protocol", dest="protocol", type="string",
-                  action="store", default="amqp", metavar="PROTOCOL",
-                  help="The messaging protocol used on the test [stomp, amqp, mqtt, etc] (def: %default)");
-
-    op.add_option("--producer-sys-info", dest="prodsysinfo", type="string",
-                  action="store", default=None, metavar="PROD_SYS_INFO",
-                  help="The producer system information (def: %default)");
-
-    op.add_option("--consumer-sys-info", dest="consysinfo", type="string",
-                  action="store", default=None, metavar="CON_SYS_INFO",
-                  help="The consumer system information (def: %default)");
-
-    op.add_option("--start-time", dest="start_time", type="string",
+    op.add_option("--test-start-time", dest="test_start_time", type="string",
                   action="store", default=None, metavar="YYY-MM-DD HH:mm:ss",
                   help="The start time for the test (def: %default)");
 
-    op.add_option("--broker-sys-info", dest="brksysinfo", type="string",
-                  action="store", default=None, metavar="BROKER_SYS_INFO",
-                  help="The broker system information (def: %default)");
-
-    op.add_option("--comment", dest="comment", type="string",
+    op.add_option("--test-comment", dest="test_comment", type="string",
                   action="store", default=None, metavar="COMMENT",
                   help="Test comment (def: %default)");
 
-    op.add_option("--result-comment", dest="rescomment", type="string",
-                  action="store", default=None, metavar="RESULT_COMMENT",
-                  help="Test result comment (def: %default)");
+    op.add_option("--test-result-comment", dest="test_result_comment", type="string",
+              action="store", default=None, metavar="RESULT_COMMENT",
+              help="Test result comment (def: %default)");
+
+
+    # Message stuff
+    op.add_option("--msg-protocol", dest="msg_protocol", type="string",
+                  action="store", default="amqp", metavar="PROTOCOL",
+                  help="The messaging protocol used on the test [stomp, amqp, mqtt, etc] "\
+                          "(def: %default)");
+
+    op.add_option("--msg-size", dest="msg_size", type="string",
+                  action="store", default="0", metavar="SIZE",
+                  help="The message size used in the tests (def: %default / 0 for random)");
+
+    op.add_option("--msg-direction", dest="msg_direction", type="string",
+                  action="store", default=None, metavar="TYPE  ",
+                  help="Message direction where it was flowing from/to/through (ie: receiver, sender, router)");
+
+    op.add_option("--msg-endpoint-type", dest="msg_endpoint_type", type="string",
+                  action="store", default="queue", metavar="TYPE",
+                  help="The endpoint type (queue or topic)");
+
+    # Consumer stuff
+    op.add_option("--consumers-count", dest="consumer_count", type="string",
+                  action="store", default="1", metavar="NUMBER",
+                  help="The number of concurrent consumers (def: %default)");
+
+    op.add_option("--consumer-sys-info", dest="consumer_sys_info", type="string",
+                  action="store", default=None, metavar="CON_SYS_INFO",
+                  help="The consumer system information (def: %default)");
+
+    # Producer stuff
+
+    op.add_option("--producers-count", dest="producer_count", type="string",
+                  action="store", default="1", metavar="NUMBER",
+                  help="The number of concurrent producers (def: %default)");
+
+
+    op.add_option("--producer-sys-info", dest="producer_sys_info", type="string",
+                  action="store", default=None, metavar="PROD_SYS_INFO",
+                  help="The producer system information (def: %default)");
+
+    # Broker system stuff
+    op.add_option("--broker-sys-ostype", dest="broker_os_type", type="string",
+                  action="store", default=None, metavar="OS_TYPE",
+                  help="The host OS type [linux, windows, etc] (def: %default)");
+
+    op.add_option("--broker-sys-osname", dest="broker_os_name", type="string",
+                  action="store", default=None, metavar="OS_NAME",
+                  help="The host OS name [rhel, fedora, windows, etc] (def: %default)");
+
+    op.add_option("--broker-sys-osversion", dest="broker_os_version", type="string",
+                  action="store", default=None, metavar="OS_VERSION",
+                  help="The host OS version [6.6, 6.7, 2012, etc] (def: %default)");
+
+    op.add_option("--broker-sys-hwtype", dest="broker_hw_type", type="string",
+                  action="store", default="bare", metavar="HW_TYPE",
+                  help="The hardware type [kvm, bare, vmware] (def: %default)");
+
+    op.add_option("--broker-sys-info", dest="broker_sys_info", type="string",
+                  action="store", default=None, metavar="BROKER_SYS_INFO",
+                  help="The broker system information (def: %default)");
+
 
 
     (opts, args) = op.parse_args();
