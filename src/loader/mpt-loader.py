@@ -70,9 +70,9 @@ def call_service_for_check(in_opts, req_url):
 
 def register(in_opts):
     base_url = in_opts["url"]
-    sut = in_opts["sut"]
-    key = in_opts["sut_key"]
-    version = in_opts["sut_version"]
+    in_sut_name = in_opts["sut_name"]
+    in_sut_key = in_opts["sut_key"]
+    in_sut_version = in_opts["sut_version"]
 
     if base_url is None:
         logger.error("Base URL is required")
@@ -80,10 +80,11 @@ def register(in_opts):
         return 1
 
     request_data = {
-        "sut": sut,
-        "key": key,
-        "version": version,
+        "sut_name": in_sut_name,
+        "sut_key": in_sut_key,
+        "sut_version": in_sut_version,
     }
+
     logger.info("Request: %s" % (request_data))
 
     request_json = StringIO()
