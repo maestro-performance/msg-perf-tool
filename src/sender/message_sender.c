@@ -21,16 +21,11 @@ static size_t capacity;
 
 static void timer_handler(int signum)
 {
-    logger_t logger = get_logger();
-    
-    logger(TRACE, "Activity timer expired");
+    // NO-OP for now
 }
 
 static void interrupt_handler(int signum)
 {
-    logger_t logger = get_logger();
-    
-    logger(TRACE, "Interrupted");
     interrupted = true;
 }
 
