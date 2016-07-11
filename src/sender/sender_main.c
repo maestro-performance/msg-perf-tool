@@ -44,7 +44,11 @@ static struct timeval get_duration(int count) {
 
 
 static bool init_vmsl_proton(vmsl_t *vmsl) {
+    logger_t logger = get_logger();
+    
   #ifdef __AMQP_SUPPORT__
+    logger(INFO, "Initializing AMQP protocol");
+    
     vmsl->init = proton_init;
     vmsl->send = proton_send;
     vmsl->stop = proton_stop;
@@ -52,14 +56,18 @@ static bool init_vmsl_proton(vmsl_t *vmsl) {
 
     return true;
   #else
-    printf("AMQP protocol support was is not enabled");
+    logger(ERROR, "AMQP protocol support was is not enabled");
     return false;
   #endif // __AMQP_SUPPORT__
 }
 
 
 static bool init_vmsl_stomp(vmsl_t *vmsl) {
+    logger_t logger = get_logger();
+    
   #ifdef __STOMP_SUPPORT__
+    logger(INFO, "Initializing STOMP protocol");
+
     vmsl->init = litestomp_init;
     vmsl->send = litestomp_send;
     vmsl->stop = litestomp_stop;
@@ -67,7 +75,7 @@ static bool init_vmsl_stomp(vmsl_t *vmsl) {
 
     return true;
   #else
-    printf("STOMP protocol support was is not enabled");
+    logger(ERROR, "STOMP protocol support was is not enabled");
     return false;
   #endif // __STOMP_SUPPORT__
 }
@@ -176,49 +184,41 @@ int main(int argc, char **argv)
 
     logger_t logger = get_logger();
 
-    if (options->parallel_count > 1) {
-        logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-        for (uint16_t i = 0; i < options->parallel_count; i++) {
-                child = fork();
+    
+    logger(INFO, "Creating %d concurrent operations", options->parallel_count);
+    for (uint16_t i = 0; i < options->parallel_count; i++) {
+            child = fork();
 
-                if (child == 0) {
-                    if (strlen(options->logdir) > 0) {
-                        remap_log(options->logdir, "mpt-sender", getppid(),
-                                  getpid(), stderr);
-                    }
+            if (child == 0) {
+                if (strlen(options->logdir) > 0) {
+                    remap_log(options->logdir, "mpt-sender", getppid(),
+                              getpid(), stderr);
+                }
 
-                     sender_start(vmsl, options);
-                     goto success_exit;
+                 sender_start(vmsl, options);
+                 goto success_exit;
+            }
+            else {
+                if (child > 0) {
+                        childs[i] = child;
+
                 }
                 else {
-                    if (child > 0) {
-                            childs[i] = child;
-
-                    }
-                    else {
-                            printf("Error\n");
-                    }
+                        printf("Error\n");
                 }
-        }
-
-        if (child > 0) {
-            setsid();
-            int status = 0;
-                for (uint16_t i = 0; i < options->parallel_count; i++) {
-                    waitpid(childs[i], &status, 0);
-
-                logger(INFO, "Child process %d terminated with status %d", childs[i], status);
             }
-        }
     }
-    else {
-        if (strlen(options->logdir) > 0) {
-            remap_log(options->logdir, "mpt-sender", 0,
-                                  getpid(), stderr);
-        }
 
-        sender_start(vmsl, options);
+    if (child > 0) {
+        setsid();
+        int status = 0;
+            for (uint16_t i = 0; i < options->parallel_count; i++) {
+                waitpid(childs[i], &status, 0);
+
+            logger(INFO, "Child process %d terminated with status %d", childs[i], status);
+        }
     }
+    
 
     logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
 
