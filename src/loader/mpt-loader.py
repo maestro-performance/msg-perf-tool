@@ -33,7 +33,6 @@ def print_errors(http_response):
 def call_service(in_opts, req_url, request_json, force_update=False):
     logger.debug("Connecting to %s" % (req_url))
 
-
     headers = {'Content-type': 'application/json'}
 
     username = in_opts["username"]
@@ -57,7 +56,6 @@ def call_service(in_opts, req_url, request_json, force_update=False):
 
 def call_service_for_check(in_opts, req_url):
     logger.debug("Connecting to %s" % (req_url))
-
 
     headers = {'Content-type': 'application/json'}
 
@@ -154,7 +152,7 @@ def validate_parameters(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
     in_type = in_opts["test_type"]
-    in_sut = in_opts["sut"]
+    in_sut = in_opts["sut_name"]
     in_key = in_opts["sut_key"]
     in_version = in_opts["sut_version"]
     in_testrun = in_opts["test_run"]
@@ -206,7 +204,7 @@ def load_receiver_latencies(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
     in_type = in_opts["test_type"]
-    in_sut = in_opts["sut"]
+    in_sut = in_opts["sut_name"]
     in_key = in_opts["sut_key"]
     in_version = in_opts["sut_version"]
     in_test_run = in_opts["test_run"]
@@ -241,13 +239,13 @@ def load_receiver_latencies(in_opts):
         creation = row[3]
 
         request_data = {
-            "type": in_type,
-            "sut": in_sut,
-            "version": in_version,
+            "test_type": in_type,
+            "sut_name": in_sut,
+            "sut_version": in_version,
             "latency": latency,
             "creation": creation,
             "test_id": test_id,
-            "direction": in_direction
+            "test_direction": in_direction
         }
 
         request_json = StringIO()
@@ -266,11 +264,11 @@ def load_receiver_throughput(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
     in_type = in_opts["test_type"]
-    in_sut = in_opts["sut"]
-    in_key = in_opts["sut_key"]
-    in_version = in_opts["sut_version"]
+    in_sut_name = in_opts["sut_name"]
+    in_sut_key = in_opts["sut_key"]
+    in_sut_version = in_opts["sut_version"]
     in_test_run = in_opts["test_run"]
-    in_direction = in_opts["msg_direction"]
+    in_msg_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters(in_opts)
     if param_check != 0:
@@ -279,7 +277,7 @@ def load_receiver_throughput(in_opts):
     file = open(in_file_name, 'rb')
     num_lines = count_lines(file)
 
-    test_id = ("%s_%s" % (in_key, in_test_run))
+    test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
     ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id))
     if ret.status_code < 200 or ret.status_code >= 205:
@@ -288,7 +286,7 @@ def load_receiver_throughput(in_opts):
 
     configure_throughput_mapping(in_opts)
 
-    req_url = "%s/%s/throughput" % (base_url, in_key)
+    req_url = "%s/%s/throughput" % (base_url, in_sut_key)
 
     logger.info("There are %d lines to read" % (num_lines))
     csv_data = csv.reader(file, delimiter=';', quotechar='|')
@@ -305,15 +303,15 @@ def load_receiver_throughput(in_opts):
         rate = float(row[7])
 
         request_data = {
-            "type": in_type,
-            "sut": in_sut,
-            "version": in_version,
+            "test_type": in_type,
+            "sut_name": in_sut_name,
+            "sut_version": in_sut_version,
             "ts": ts,
             "count": count,
             "duration": duration,
             "rate": rate,
             "test_id": test_id,
-            "direction": in_direction
+            "test_direction": in_msg_direction
         }
 
         request_json = StringIO()
@@ -392,26 +390,26 @@ def load_test_info(in_opts):
     req_url = "%s/test/info/%s" % (base_url, test_id)
 
     request_data = {
-        "type": in_test_type,
+        "test_type": in_test_type,
         "test_id": test_id,
         "test_run": in_test_run,
-        "key": in_sut_key,
-        "start_time": in_start_time,
+        "sut_key": in_sut_key,
+        "test_start_time": in_start_time,
         "test_duration": in_test_duration,
-        "protocol": in_msg_protocol,
+        "msg_protocol": in_msg_protocol,
         "msg_size": in_msg_size,
         "msg_direction": in_msg_direction,
-        "os_name": in_broker_os_name,
-        "os_type": in_broker_os_type,
-        "os_version": in_broker_os_version,
-        "hw_type": in_broker_hw_type,
+        "broker_os_name": in_broker_os_name,
+        "broker_os_type": in_broker_os_type,
+        "broker_os_version": in_broker_os_version,
+        "broker_hw_type": in_broker_hw_type,
         "broker_sysinfo": in_brk_sys_info,
         "producer_count": in_prod_count,
         "producer_sysinfo": in_prod_sys_info,
         "consumer_count": in_con_count,
         "consumer_sysinfo": in_con_sysinfo,
-        "comment": in_test_comment,
-        "result_comment": in_test_result_comment,
+        "test_comment": in_test_comment,
+        "test_result_comment": in_test_result_comment,
     }
 
     request_json = StringIO()
@@ -504,7 +502,7 @@ if __name__ == "__main__":
 
 
     # SUT stuff
-    op.add_option("--sut", dest="sut", type="string",
+    op.add_option("--sut-name", dest="sut_name", type="string",
                   action="store", default=None, metavar="SUT_NAME",
                   help="Software under test (SUT) name (def: %default)");
 
