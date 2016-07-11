@@ -207,7 +207,7 @@ function run_by_count() {
 }
 
 
-start_time=$(date '+%Y%-m-%d %H:%M:%S')
+start_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test start time: ${start_time}"
 if [[ ! -z "$DURATION" ]] ; then
   run_by_duration
@@ -220,5 +220,5 @@ else
     exit 1
   fi
 fi
-end_time=$(date '+%Y%-m-%d %H:%M:%S')
+end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
