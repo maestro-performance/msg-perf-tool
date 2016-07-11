@@ -20,17 +20,12 @@ static bool interrupted = false;
 
 static void timer_handler(int signum)
 {
-    logger_t logger = get_logger();
-    
-    logger(TRACE, "Activity timer expired");
+    // NO-OP
 }
 
 
 static void interrupt_handler(int signum)
 {
-    logger_t logger = get_logger();
-    
-    logger(TRACE, "Interrupted");
     interrupted = true;
 }
 
