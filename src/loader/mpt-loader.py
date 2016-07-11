@@ -285,13 +285,14 @@ def load_receiver_throughput(in_opts):
     for row in csv_data:
         i += 1
 
-        if row[0] == "summary":
+        # Skip the headers
+        if row[0] == "timestamp":
             continue
 
-        ts = row[1]
-        count = int(row[3])
-        duration = int(row[5])
-        rate = float(row[7])
+        ts = row[0]
+        count = int(row[1])
+        duration = int(row[2])
+        rate = float(row[3])
 
         request_data = {
             "sut_name": in_sut_name,
@@ -425,7 +426,7 @@ def main(in_opts):
             return load_test_info(in_opts)
 
         else:
-            in_direction = in_opts["direction"]
+            in_direction = in_opts["msg_direction"]
             in_load = in_opts["load"]
 
             if in_direction is None:
