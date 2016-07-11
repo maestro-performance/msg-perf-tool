@@ -40,6 +40,7 @@ def call_service(in_opts, req_url, request_json, force_update=False):
 
     is_update = in_opts["update"]
 
+
     if is_update and not force_update:
         answer = requests.put(req_url, headers=headers, data=request_json, verify=False,
                                auth=HTTPBasicAuth(username, password))
@@ -228,8 +229,14 @@ def load_receiver_latencies(in_opts):
     i = 0;
     for row in csv_data:
         i += 1
+
+        # Skip the headers
+        if row[0] == "creation":
+            continue
+
+        creation = row[0]
         latency = int(row[1])
-        creation = row[3]
+
 
         request_data = {
             "sut_name": in_sut,
