@@ -30,7 +30,7 @@ def print_errors(http_response):
     logger.error("Text: %s" % http_response.content)
 
 
-def call_service(in_opts, req_url, request_json, force_update=False):
+def call_service(in_opts, req_url, request_json, force_update=False, session=None):
     logger.debug("Connecting to %s" % (req_url))
 
     headers = {'Content-type': 'application/json'}
@@ -40,12 +40,14 @@ def call_service(in_opts, req_url, request_json, force_update=False):
 
     is_update = in_opts["update"]
 
+    if session is None:
+        session = requests.session()
 
     if is_update and not force_update:
-        answer = requests.put(req_url, headers=headers, data=request_json, verify=False,
+        answer = session.put(req_url, headers=headers, data=request_json, verify=False,
                                auth=HTTPBasicAuth(username, password))
     else:
-        answer = requests.post(req_url, headers=headers, data = request_json, verify=False,
+        answer = session.post(req_url, headers=headers, data = request_json, verify=False,
                                auth=HTTPBasicAuth(username, password))
 
     if answer.status_code < 200 or answer.status_code >= 205:
@@ -55,7 +57,7 @@ def call_service(in_opts, req_url, request_json, force_update=False):
     return 0
 
 
-def call_service_for_check(in_opts, req_url):
+def call_service_for_check(in_opts, req_url, session=None):
     logger.debug("Connecting to %s" % (req_url))
 
     headers = {'Content-type': 'application/json'}
@@ -63,7 +65,10 @@ def call_service_for_check(in_opts, req_url):
     username = in_opts["username"]
     password = in_opts["password"]
 
-    answer = requests.get(req_url, headers=headers, verify=False, auth=HTTPBasicAuth(username, password))
+    if session is None:
+        session = requests.session()
+
+    answer = session.get(req_url, headers=headers, verify=False, auth=HTTPBasicAuth(username, password))
     return answer
 
 
@@ -107,11 +112,11 @@ def register(in_opts):
 
     return 0
 
-def configure_latency_mapping(in_opts):
+def configure_latency_mapping(in_opts, session=None):
     base_url = in_opts["url"]
     in_key = in_opts["sut_key"]
 
-    answer = call_service_for_check(in_opts, ("%s/%s/_mapping" % (base_url, in_key)))
+    answer = call_service_for_check(in_opts, ("%s/%s/_mapping" % (base_url, in_key)), session=session)
     if answer.status_code == 404:
         req_url = "%s/%s" % (base_url, in_key)
         request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } } } }'
@@ -120,15 +125,15 @@ def configure_latency_mapping(in_opts):
         request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } }'
 
 
-    ret = call_service(in_opts, req_url, request_json, force_update=True)
+    ret = call_service(in_opts, req_url, request_json, force_update=True, session=session)
     if ret != 0:
         logger.error("Unable to configure the mappings for latency")
 
-def configure_throughput_mapping(in_opts):
+def configure_throughput_mapping(in_opts, session=None):
     base_url = in_opts["url"]
     in_key = in_opts["sut_key"]
 
-    answer = call_service_for_check(in_opts, ( "%s/%s/_mapping" % (base_url, in_key)))
+    answer = call_service_for_check(in_opts, ( "%s/%s/_mapping" % (base_url, in_key)), session=session)
     if answer.status_code == 404:
         req_url = "%s/%s" % (base_url, in_key)
         request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
@@ -136,7 +141,7 @@ def configure_throughput_mapping(in_opts):
         req_url = "%s/%s/_mapping/througput" % (base_url, in_key)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
 
-    ret = call_service(in_opts, req_url, request_json, force_update=True)
+    ret = call_service(in_opts, req_url, request_json, force_update=True, session=session)
     if ret != 0:
         logger.error("Unable to configure the mappings for throughput")
 
@@ -210,7 +215,9 @@ def load_receiver_latencies(in_opts):
 
     test_id = ("%s_%s" % (in_key, in_test_run))
 
-    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id))
+    session = requests.session();
+
+    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
                      % test_id)
@@ -220,7 +227,7 @@ def load_receiver_latencies(in_opts):
     file = open(in_file_name, 'rb')
     num_lines = count_lines(file)
 
-    configure_latency_mapping(in_opts)
+    configure_latency_mapping(in_opts, session=session)
 
     req_url = "%s/%s/latency" % (base_url, in_key)
 
@@ -253,7 +260,7 @@ def load_receiver_latencies(in_opts):
         sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
         # TODO: check if the key exists before calling the service
-        call_service(in_opts, req_url, request_json.getvalue())
+        call_service(in_opts, req_url, request_json.getvalue(), session=session)
 
     print ""
 
@@ -277,12 +284,14 @@ def load_receiver_throughput(in_opts):
 
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
-    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id))
+    session = requests.session();
+
+    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
                      % test_id)
 
-    configure_throughput_mapping(in_opts)
+    configure_throughput_mapping(in_opts, session=session)
 
     req_url = "%s/%s/throughput" % (base_url, in_sut_key)
 
@@ -318,7 +327,7 @@ def load_receiver_throughput(in_opts):
         sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
         # TODO: check if the key exists before calling the service
-        call_service(in_opts, req_url, request_json.getvalue())
+        call_service(in_opts, req_url, request_json.getvalue(), session=session)
 
     print ""
 
