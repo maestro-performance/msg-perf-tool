@@ -151,7 +151,6 @@ def count_lines(file):
 def validate_parameters(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
-    in_type = in_opts["test_type"]
     in_sut = in_opts["sut_name"]
     in_key = in_opts["sut_key"]
     in_version = in_opts["sut_version"]
@@ -165,11 +164,6 @@ def validate_parameters(in_opts):
 
     if in_file_name is None:
         logger.error("Input filename is required")
-
-        return 1
-
-    if in_type is None:
-        logger.error("Type is required")
 
         return 1
 
@@ -203,7 +197,6 @@ def validate_parameters(in_opts):
 def load_receiver_latencies(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
-    in_type = in_opts["test_type"]
     in_sut = in_opts["sut_name"]
     in_key = in_opts["sut_key"]
     in_version = in_opts["sut_version"]
@@ -239,7 +232,6 @@ def load_receiver_latencies(in_opts):
         creation = row[3]
 
         request_data = {
-            "test_type": in_type,
             "sut_name": in_sut,
             "sut_version": in_version,
             "latency": latency,
@@ -263,7 +255,6 @@ def load_receiver_latencies(in_opts):
 def load_receiver_throughput(in_opts):
     base_url = in_opts["url"]
     in_file_name = in_opts["filename"]
-    in_type = in_opts["test_type"]
     in_sut_name = in_opts["sut_name"]
     in_sut_key = in_opts["sut_key"]
     in_sut_version = in_opts["sut_version"]
@@ -303,7 +294,6 @@ def load_receiver_throughput(in_opts):
         rate = float(row[7])
 
         request_data = {
-            "test_type": in_type,
             "sut_name": in_sut_name,
             "sut_version": in_sut_version,
             "ts": ts,
@@ -336,7 +326,6 @@ def load_test_info(in_opts):
     base_url = in_opts["url"]
     in_sut_key = in_opts["sut_key"]
 
-    in_test_type = in_opts["test_type"]
     in_test_run = in_opts["test_run"]
     in_start_time = in_opts["test_start_time"]
     in_test_duration = in_opts["test_duration"]
@@ -351,7 +340,7 @@ def load_test_info(in_opts):
 
     in_msg_protocol = in_opts["msg_protocol"]
     in_msg_size = in_opts["msg_size"]
-    in_msg_direction = in_opts["msg_direction"]
+    in_msg_endpoint_type = in_opts["msg_endpoint_type"]
 
     in_prod_count = in_opts["producer_count"]
     in_prod_sys_info = in_opts["producer_sys_info"]
@@ -390,7 +379,6 @@ def load_test_info(in_opts):
     req_url = "%s/test/info/%s" % (base_url, test_id)
 
     request_data = {
-        "test_type": in_test_type,
         "test_id": test_id,
         "test_run": in_test_run,
         "sut_key": in_sut_key,
@@ -398,7 +386,7 @@ def load_test_info(in_opts):
         "test_duration": in_test_duration,
         "msg_protocol": in_msg_protocol,
         "msg_size": in_msg_size,
-        "msg_direction": in_msg_direction,
+        "msg_endpoint_type": in_msg_endpoint_type,
         "broker_os_name": in_broker_os_name,
         "broker_os_type": in_broker_os_type,
         "broker_os_version": in_broker_os_version,
@@ -431,32 +419,32 @@ def main(in_opts):
     if is_register:
         return register(in_opts)
     else:
-        is_testinfo = in_opts["testinfo"]
+        is_test_info = in_opts["testinfo"]
 
-        if is_testinfo:
+        if is_test_info:
             return load_test_info(in_opts)
 
         else:
             in_direction = in_opts["direction"]
-            in_type = in_opts["type"]
+            in_load = in_opts["load"]
 
             if in_direction is None:
                 logger.error("Direction is required")
 
                 return 1
 
-            if in_type is None:
-                logger.error("Type is required")
+            if in_load is None:
+                logger.error("Load data type is required (either latency or throughput)")
 
                 return 1
 
-            if in_direction == "receiver" and in_type == "latency":
+            if in_direction == "receiver" and in_load == "latency":
                 return load_receiver_latencies(in_opts)
 
-            if in_direction == "receiver" and in_type == "throughput":
+            if in_direction == "receiver" and in_load == "throughput":
                 return load_receiver_throughput(in_opts)
 
-            if in_direction == "sender" and in_type == "throughput":
+            if in_direction == "sender" and in_load == "throughput":
                 return load_receiver_throughput(in_opts)
 
 
@@ -494,8 +482,9 @@ if __name__ == "__main__":
     op.add_option("--register", dest="register", action="store_true", default=False,
                   help="Register SUTs");
 
-    op.add_option("--load", dest="load", action="store_true", default=False,
-                  help="Load test data into the DB");
+    op.add_option("--load", dest="load", type="string",
+                  action="store", default=None, metavar="DATA_TYPE",
+                  help="Load or latency throughput test data into the DB (def: %default)");
 
     op.add_option("--testinfo", dest="testinfo", action="store_true", default=False,
                   help="Load test information data into the DB");
@@ -515,10 +504,6 @@ if __name__ == "__main__":
                   help="Version of the SUT");
 
     # Test specific stuff
-    op.add_option("--test-type", dest="test_type", type="string",
-                  action="store", default=None, metavar="TYPE  ",
-                  help="Test handler type (latency, throughput, etc)");
-
     op.add_option("--test-run", dest="test_run", type="string",
                   action="store", default=None, metavar="TEST_RUN",
                   help="The test execution number (def: %default)");
@@ -580,19 +565,19 @@ if __name__ == "__main__":
                   help="The producer system information (def: %default)");
 
     # Broker system stuff
-    op.add_option("--broker-sys-ostype", dest="broker_os_type", type="string",
+    op.add_option("--broker-sys-os-type", dest="broker_os_type", type="string",
                   action="store", default=None, metavar="OS_TYPE",
                   help="The host OS type [linux, windows, etc] (def: %default)");
 
-    op.add_option("--broker-sys-osname", dest="broker_os_name", type="string",
+    op.add_option("--broker-sys-os-name", dest="broker_os_name", type="string",
                   action="store", default=None, metavar="OS_NAME",
                   help="The host OS name [rhel, fedora, windows, etc] (def: %default)");
 
-    op.add_option("--broker-sys-osversion", dest="broker_os_version", type="string",
+    op.add_option("--broker-sys-os-version", dest="broker_os_version", type="string",
                   action="store", default=None, metavar="OS_VERSION",
                   help="The host OS version [6.6, 6.7, 2012, etc] (def: %default)");
 
-    op.add_option("--broker-sys-hwtype", dest="broker_hw_type", type="string",
+    op.add_option("--broker-sys-hw-type", dest="broker_hw_type", type="string",
                   action="store", default="bare", metavar="HW_TYPE",
                   help="The hardware type [kvm, bare, vmware] (def: %default)");
 
