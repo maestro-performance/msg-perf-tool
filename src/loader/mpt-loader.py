@@ -79,6 +79,18 @@ def register(in_opts):
 
         return 1
 
+    if in_sut_name is None or in_sut_name == "":
+        logger.error("The SUT name is required")
+        return 1
+
+    if in_sut_key is None or in_sut_key == "":
+        logger.error("The SUT key is required")
+        return 1
+
+    if in_sut_version is None or in_sut_version == "":
+        logger.error("The SUT version is required")
+        return 1
+
     request_data = {
         "sut_name": in_sut_name,
         "sut_key": in_sut_key,
