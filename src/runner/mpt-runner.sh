@@ -154,7 +154,7 @@ if [[ -z "$CONFIG_TEST" ]] ; then
 fi
 
 if [[ -z "$TEST_RUN" ]] ; then
-  echo -e "Test run is a required option (-T)\n"
+  echo -e "Test run is a required option (-R)\n"
   echo -e ${HELP}
   exit 1
 fi
@@ -209,7 +209,7 @@ function run_by_count() {
   echo -e "\nThe sender has finished sending the messages."
 
   echo "Waiting 30s for the receiver to catch up"
-  sleep 30s
+  sleep 5s
 
   echo "Stopping the receiver with PID ${pid_receiver}"
   killall -INT mpt-receiver
@@ -236,10 +236,12 @@ start_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test start time: ${start_time}"
 if [[ ! -z "$DURATION" ]] ; then
   run_by_duration
+  echo ""
 else
 
   if [[ ! -z "$COUNT" ]] ; then
     run_by_count
+    echo ""
   else
     echo "Either the test duration or the message count should be informed (-d or -c)"
     exit 1
@@ -249,49 +251,51 @@ end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
 
 
-echo "Registering the SUT on the DB"
-./mpt-loader.py --register --config ${LOADER_CONFIG}
+echo "Registering the SUT on the DB using ${LOADER_CONFIG}"
+${app_path}/mpt-loader.py --register \
+  --config "${LOADER_CONFIG}" \
+  --config-test "${CONFIG_TEST}" \
 
 echo "Registering the test case on the DB"
-./mpt-loader.py --testinfo \
+${app_path}/mpt-loader.py --testinfo \
   --config "${LOADER_CONFIG}" \
   --config-test "${CONFIG_TEST}" \
 	--test-run "${TEST_RUN}" \
 	--test-start-time "${start_time}" \
-	--test-duration "${DURATION}" \
-	--test-comment "${TEST_NAME}: small automated test case" \
-	--test-result-comment "Run ok, no comments" \
+	--test-duration "${DURATION} / ${COUNT}" \
+	--test-comment "${TEST_NAME} small automated test case" \
+	--test-result-comment "Run ok, no comments"
 
-for file in $LOG_DIR/sender-throughput-${pid_sender}*.csv ; do
+for file in $LOG_DIR/sender-throughput-*.csv ; do
   echo "Loading file: ${file}"
-  ${app_path}/mpt-loader.py --load throughput
+  ${app_path}/mpt-loader.py --load throughput \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
     --test-run "${TEST_RUN}" \
   	--test-run "001" \
   	--msg-direction sender \
-  	--filename "${file}"
+  	--filename ${file}
 done
 
-for file in $LOG_DIR/receiver-throughput-${pid_sender}*.csv ; do
+for file in $LOG_DIR/receiver-throughput-*.csv ; do
   echo "Loading file: ${file}"
-  ${app_path}/mpt-loader.py --load throughput
+  ${app_path}/mpt-loader.py --load throughput \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
     --test-run "${TEST_RUN}" \
   	--test-run "001" \
   	--msg-direction receiver \
-  	--filename "${file}"
+  	--filename ${file}
 done
 
-for file in $LOG_DIR/receiver-latency-${RECEIVER_PID}*.log ; do
+for file in $LOG_DIR/receiver-latency-*.csv ; do
   echo "Loading file: ${file}"
-  ${app_path}/mpt-loader.py --load latency
+  ${app_path}/mpt-loader.py --load latency \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
     --test-run "${TEST_RUN}" \
   	--test-run "001" \
   	--msg-direction receiver \
-  	--filename "${file}"
+  	--filename ${file}
 
 done

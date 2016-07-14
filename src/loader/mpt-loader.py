@@ -35,14 +35,17 @@ def print_errors(http_response):
 def read_param(section, name, default=None):
     ret = in_opts[name]
     if ret is None:
-        ret = config.get(section, name)
-        if ret is None and default is not None:
-            ret = default
+        try:
+            ret = config.get(section, name)
+            if ret is None and default is not None:
+                ret = default
+        except:
+            ret = None
 
     return ret;
 
 
-def call_service(in_opts, req_url, request_json, force_update=False, session=None):
+def call_service(req_url, request_json, force_update=False, session=None):
     logger.debug("Connecting to %s" % (req_url))
 
     headers = {'Content-type': 'application/json'}
@@ -69,7 +72,7 @@ def call_service(in_opts, req_url, request_json, force_update=False, session=Non
     return 0
 
 
-def call_service_for_check(in_opts, req_url, session=None):
+def call_service_for_check(req_url, session=None):
     logger.debug("Connecting to %s" % (req_url))
 
     headers = {'Content-type': 'application/json'}
@@ -120,40 +123,40 @@ def register():
     logger.info("JSON: %s" % (request_json.getvalue(),))
 
     req_url = "%s/sut/messaging" % (base_url)
-    call_service(in_opts, req_url, request_json.getvalue())
+    call_service(req_url, request_json.getvalue())
 
     return 0
 
-def configure_latency_mapping(in_opts, session=None):
-    base_url = in_opts["url"]
-    in_key = in_opts["sut_key"]
+def configure_latency_mapping(session=None):
+    base_url = read_param("database", "url")
+    in_sut_key = read_param("sut", "sut_key")
 
-    answer = call_service_for_check(in_opts, ("%s/%s/_mapping" % (base_url, in_key)), session=session)
+    answer = call_service_for_check(("%s/%s/_mapping" % (base_url, in_sut_key)), session=session)
     if answer.status_code == 404:
-        req_url = "%s/%s" % (base_url, in_key)
+        req_url = "%s/%s" % (base_url, in_sut_key)
         request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } } } }'
     else:
-        req_url = "%s/%s/_mapping/latency" % (base_url, in_key)
+        req_url = "%s/%s/_mapping/latency" % (base_url, in_sut_key)
         request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } }'
 
 
-    ret = call_service(in_opts, req_url, request_json, force_update=True, session=session)
+    ret = call_service(req_url, request_json, force_update=True, session=session)
     if ret != 0:
         logger.error("Unable to configure the mappings for latency")
 
-def configure_throughput_mapping(in_opts, session=None):
-    base_url = in_opts["url"]
-    in_key = in_opts["sut_key"]
+def configure_throughput_mapping(session=None):
+    base_url = read_param("database", "url")
+    in_sut_key = read_param("sut", "sut_key")
 
-    answer = call_service_for_check(in_opts, ( "%s/%s/_mapping" % (base_url, in_key)), session=session)
+    answer = call_service_for_check(( "%s/%s/_mapping" % (base_url, in_sut_key)), session=session)
     if answer.status_code == 404:
-        req_url = "%s/%s" % (base_url, in_key)
+        req_url = "%s/%s" % (base_url, in_sut_key)
         request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
     else:
-        req_url = "%s/%s/_mapping/througput" % (base_url, in_key)
+        req_url = "%s/%s/_mapping/througput" % (base_url, in_sut_key)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
 
-    ret = call_service(in_opts, req_url, request_json, force_update=True, session=session)
+    ret = call_service(req_url, request_json, force_update=True, session=session)
     if ret != 0:
         logger.error("Unable to configure the mappings for throughput")
 
@@ -166,7 +169,7 @@ def count_lines(file):
     file.seek(0)
     return i + 1
 
-def validate_parameters(in_opts):
+def validate_parameters():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
     in_sut_name = read_param("sut", "sut_name")
@@ -221,7 +224,7 @@ def load_receiver_latencies():
     in_test_run = read_param("test", "test_run")
     in_direction = in_opts["msg_direction"]
 
-    param_check = validate_parameters(in_opts)
+    param_check = validate_parameters()
     if param_check != 0:
         return param_check
 
@@ -229,7 +232,7 @@ def load_receiver_latencies():
 
     session = requests.session();
 
-    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id), session=session)
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
                      % test_id)
@@ -239,7 +242,7 @@ def load_receiver_latencies():
     file = open(in_file_name, 'rb')
     num_lines = count_lines(file)
 
-    configure_latency_mapping(in_opts, session=session)
+    configure_latency_mapping(session=session)
 
     req_url = "%s/%s/latency" % (base_url, in_sut_key)
 
@@ -272,7 +275,7 @@ def load_receiver_latencies():
         sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
         # TODO: check if the key exists before calling the service
-        call_service(in_opts, req_url, request_json.getvalue(), session=session)
+        call_service(req_url, request_json.getvalue(), session=session)
 
     print ""
 
@@ -287,7 +290,7 @@ def load_receiver_throughput():
     in_test_run = read_param("test", "test_run")
     in_msg_direction = in_opts["msg_direction"]
 
-    param_check = validate_parameters(in_opts)
+    param_check = validate_parameters()
     if param_check != 0:
         return param_check
 
@@ -298,12 +301,12 @@ def load_receiver_throughput():
 
     session = requests.session();
 
-    ret = call_service_for_check(in_opts, "%s/test/info/%s" % (base_url, test_id), session=session)
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
                      % test_id)
 
-    configure_throughput_mapping(in_opts, session=session)
+    configure_throughput_mapping(session=session)
 
     req_url = "%s/%s/throughput" % (base_url, in_sut_key)
 
@@ -339,14 +342,14 @@ def load_receiver_throughput():
         sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
         # TODO: check if the key exists before calling the service
-        call_service(in_opts, req_url, request_json.getvalue(), session=session)
+        call_service(req_url, request_json.getvalue(), session=session)
 
     print ""
 
     return 0
 
 
-def load_test_info(in_opts):
+def load_test_info():
     """
     Loads test information into the database
     :param in_opts: input options from command line
@@ -400,7 +403,7 @@ def load_test_info(in_opts):
 
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
-    ret = call_service_for_check(in_opts, "%s/sut/messaging/_search?q=key:%s" % (base_url, in_sut_key))
+    ret = call_service_for_check("%s/sut/messaging/_search?q=key:%s" % (base_url, in_sut_key))
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no SUT with the ID %s. Please load that key before recording a test info"
                      % test_id)
@@ -434,7 +437,7 @@ def load_test_info(in_opts):
 
     logger.info("JSON: %s" % (request_json.getvalue()))
 
-    call_service(in_opts, req_url, request_json.getvalue())
+    call_service(req_url, request_json.getvalue())
 
     return 0
 
@@ -459,7 +462,7 @@ def main():
         is_test_info = in_opts["testinfo"]
 
         if is_test_info:
-            return load_test_info(in_opts)
+            return load_test_info()
 
         else:
             in_direction = in_opts["msg_direction"]
@@ -476,13 +479,13 @@ def main():
                 return 1
 
             if in_direction == "receiver" and in_load == "latency":
-                return load_receiver_latencies(in_opts)
+                return load_receiver_latencies()
 
             if in_direction == "receiver" and in_load == "throughput":
-                return load_receiver_throughput(in_opts)
+                return load_receiver_throughput()
 
             if in_direction == "sender" and in_load == "throughput":
-                return load_receiver_throughput(in_opts)
+                return load_receiver_throughput()
 
 
     return
