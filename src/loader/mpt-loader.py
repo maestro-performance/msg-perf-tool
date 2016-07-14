@@ -9,6 +9,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from StringIO import StringIO
 import logging
+import ConfigParser
 
 fmt_console = '[%(asctime)s] [%(levelname)s] %(name)s :: %(message)s'
 datefmt_iso = '%Y-%m-%d %H:%M:%S,'
@@ -23,11 +24,22 @@ logging.getLogger().addHandler(console_handler)
 logging.getLogger().setLevel(logging.NOTSET)
 
 logger = logging.getLogger(__name__)
+config = ConfigParser.RawConfigParser();
+in_opts = {};
 
 
 def print_errors(http_response):
     logger.error("Error: %s" % http_response.status_code)
     logger.error("Text: %s" % http_response.content)
+
+def read_param(section, name, default=None):
+    ret = config.get(section, name)
+    if ret is None:
+        ret = in_opts[name]
+        if ret is None and default is not None:
+            ret = default
+
+    return ret;
 
 
 def call_service(in_opts, req_url, request_json, force_update=False, session=None):
@@ -72,8 +84,8 @@ def call_service_for_check(in_opts, req_url, session=None):
     return answer
 
 
-def register(in_opts):
-    base_url = in_opts["url"]
+def register():
+    base_url = read_param("database", "url")
     in_sut_name = in_opts["sut_name"]
     in_sut_key = in_opts["sut_key"]
     in_sut_version = in_opts["sut_version"]
@@ -426,15 +438,15 @@ def load_test_info(in_opts):
 
     return 0
 
-def main(in_opts):
-    logger.info("test")
-    # config = ConfigParser.RawConfigParser()
-    # configfile = in_opts["config"]
+def main():
+    configfile = in_opts["config"]
+    if configfile is not None:
+        config.read(configfile)
 
     is_register = in_opts["register"]
 
     if is_register:
-        return register(in_opts)
+        return register()
     else:
         is_test_info = in_opts["testinfo"]
 
@@ -475,6 +487,14 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     usage_msg = "usage: %prog [options]";
     op = optparse.OptionParser(usage=usage_msg);
+
+    op.add_option("--config", dest="config", type="string",
+                  action="store", help="Path to the configuration file",
+                  metavar="CONFIG_FILE");
+
+    op.add_option("--config-test", dest="config_test", type="string",
+                  action="store", help="Path to the test configuration file",
+                  metavar="CONFIG_TEST_FILE");
 
     # General options
     op.add_option("--url", dest="url", type="string",
@@ -607,7 +627,7 @@ if __name__ == "__main__":
     (opts, args) = op.parse_args();
 
 
-    int_opts = {};
-    int_opts = eval('%s' % opts);
+#    in_opts = {};
+    in_opts = eval('%s' % opts);
 
-    sys.exit(main(int_opts));
+    sys.exit(main());
