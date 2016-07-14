@@ -15,8 +15,7 @@ HELP="USAGE: ./$0 [options]\n
 -c 'count'  -- message count\n
 -s 'size'  -- message size (in bytes [default = 1024])\n
 -p 'parallel count'  -- the number of parallel senders and consumers\n
--u 'upload url'  -- (optional) a SCP URL for uploading the test data\n
--r 'remote plot server'  -- (optional) a SSH/SCP URL for plotting the test data in a remote server \n
+-u 'database url'  -- (optional) a URL for the elastic database that stores the test data\n
 -o 'output directory'  -- output directory for the test report\n
 -n 'test name'  -- test name\n
 -t 'throttle'  -- throttle (sends messages in a fixed rate [ msgs per second per connection])\n
