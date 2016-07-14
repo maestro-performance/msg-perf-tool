@@ -33,9 +33,9 @@ def print_errors(http_response):
     logger.error("Text: %s" % http_response.content)
 
 def read_param(section, name, default=None):
-    ret = config.get(section, name)
+    ret = in_opts[name]
     if ret is None:
-        ret = in_opts[name]
+        ret = config.get(section, name)
         if ret is None and default is not None:
             ret = default
 
@@ -47,8 +47,8 @@ def call_service(in_opts, req_url, request_json, force_update=False, session=Non
 
     headers = {'Content-type': 'application/json'}
 
-    username = in_opts["username"]
-    password = in_opts["password"]
+    username = read_param("database", "username")
+    password = read_param("database", "password")
 
     is_update = in_opts["update"]
 
@@ -74,8 +74,8 @@ def call_service_for_check(in_opts, req_url, session=None):
 
     headers = {'Content-type': 'application/json'}
 
-    username = in_opts["username"]
-    password = in_opts["password"]
+    username = read_param("database", "username")
+    password = read_param("database", "password")
 
     if session is None:
         session = requests.session()
@@ -86,9 +86,9 @@ def call_service_for_check(in_opts, req_url, session=None):
 
 def register():
     base_url = read_param("database", "url")
-    in_sut_name = in_opts["sut_name"]
-    in_sut_key = in_opts["sut_key"]
-    in_sut_version = in_opts["sut_version"]
+    in_sut_name = read_param("sut", "sut_name")
+    in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
 
     if base_url is None:
         logger.error("Base URL is required")
@@ -167,12 +167,12 @@ def count_lines(file):
     return i + 1
 
 def validate_parameters(in_opts):
-    base_url = in_opts["url"]
+    base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut = in_opts["sut_name"]
-    in_key = in_opts["sut_key"]
-    in_version = in_opts["sut_version"]
-    in_testrun = in_opts["test_run"]
+    in_sut_name = read_param("sut", "sut_name")
+    in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
+    in_test_run = read_param("test", "test_run")
     in_direction = in_opts["msg_direction"]
 
     if base_url is None:
@@ -185,22 +185,22 @@ def validate_parameters(in_opts):
 
         return 1
 
-    if in_sut is None:
+    if in_sut_name is None:
         logger.error("SUT name is required")
 
         return 1
 
-    if in_key is None:
+    if in_sut_key is None:
         logger.error("Key is required")
 
         return 1
 
-    if in_version is None:
+    if in_sut_version is None:
         logger.error("Version is required")
 
         return 1
 
-    if in_testrun is None:
+    if in_test_run is None:
         logger.error("Test run is required")
 
         return 1
@@ -212,20 +212,20 @@ def validate_parameters(in_opts):
 
     return 0
 
-def load_receiver_latencies(in_opts):
-    base_url = in_opts["url"]
+def load_receiver_latencies():
+    base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut = in_opts["sut_name"]
-    in_key = in_opts["sut_key"]
-    in_version = in_opts["sut_version"]
-    in_test_run = in_opts["test_run"]
+    in_sut_name = read_param("sut", "sut_name")
+    in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
+    in_test_run = read_param("test", "test_run")
     in_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters(in_opts)
     if param_check != 0:
         return param_check
 
-    test_id = ("%s_%s" % (in_key, in_test_run))
+    test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
     session = requests.session();
 
@@ -241,7 +241,7 @@ def load_receiver_latencies(in_opts):
 
     configure_latency_mapping(in_opts, session=session)
 
-    req_url = "%s/%s/latency" % (base_url, in_key)
+    req_url = "%s/%s/latency" % (base_url, in_sut_key)
 
     logger.info("There are %d lines to read" % (num_lines))
     csv_data = csv.reader(file, delimiter=';', quotechar='|')
@@ -258,8 +258,8 @@ def load_receiver_latencies(in_opts):
 
 
         request_data = {
-            "sut_name": in_sut,
-            "sut_version": in_version,
+            "sut_name": in_sut_name,
+            "sut_version": in_sut_version,
             "latency": latency,
             "creation": creation,
             "test_id": test_id,
@@ -278,13 +278,13 @@ def load_receiver_latencies(in_opts):
 
     return 0
 
-def load_receiver_throughput(in_opts):
-    base_url = in_opts["url"]
+def load_receiver_throughput():
+    base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut_name = in_opts["sut_name"]
-    in_sut_key = in_opts["sut_key"]
-    in_sut_version = in_opts["sut_version"]
-    in_test_run = in_opts["test_run"]
+    in_sut_name = read_param("sut", "sut_name")
+    in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
+    in_test_run = read_param("test", "test_run")
     in_msg_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters(in_opts)
@@ -352,30 +352,30 @@ def load_test_info(in_opts):
     :param in_opts: input options from command line
     :return:
     """
-    base_url = in_opts["url"]
-    in_sut_key = in_opts["sut_key"]
+    base_url = read_param("database", "url")
+    in_sut_key = read_param("sut", "sut_key")
 
-    in_test_run = in_opts["test_run"]
+    in_test_run = read_param("test", "test_run")
     in_start_time = in_opts["test_start_time"]
-    in_test_duration = in_opts["test_duration"]
-    in_test_comment = in_opts["test_comment"]
+    in_test_duration = read_param("test", "test_duration")
+    in_test_comment = read_param("test", "test_comment")
     in_test_result_comment = in_opts["test_result_comment"]
 
-    in_broker_os_name = in_opts["broker_os_name"]
-    in_broker_os_type = in_opts["broker_os_type"]
-    in_broker_os_version = in_opts["broker_os_version"]
-    in_broker_hw_type = in_opts["broker_hw_type"]
-    in_brk_sys_info = in_opts["broker_sys_info"]
+    in_broker_os_name = read_param("broker", "broker_os_name")
+    in_broker_os_type = read_param("broker", "broker_os_type")
+    in_broker_os_version = read_param("broker", "broker_os_version")
+    in_broker_hw_type = read_param("broker", "broker_hw_type")
+    in_brk_sys_info = read_param("broker", "broker_sys_info")
 
-    in_msg_protocol = in_opts["msg_protocol"]
-    in_msg_size = in_opts["msg_size"]
-    in_msg_endpoint_type = in_opts["msg_endpoint_type"]
+    in_msg_protocol = read_param("messaging", "msg_protocol")
+    in_msg_size = read_param("test", "msg_size")
+    in_msg_endpoint_type = read_param("test", "msg_endpoint_type")
 
-    in_prod_count = in_opts["producer_count"]
-    in_prod_sys_info = in_opts["producer_sys_info"]
+    in_prod_count = read_param("producer", "producer_count")
+    in_prod_sys_info = read_param("producer", "producer_sys_info")
 
-    in_con_count = in_opts["consumer_count"]
-    in_con_sysinfo = in_opts["consumer_sys_info"]
+    in_con_count = read_param("consumer", "consumer_count")
+    in_con_sysinfo = read_param("consumer", "consumer_sys_info")
 
 
     if base_url is None:
@@ -439,9 +439,17 @@ def load_test_info(in_opts):
     return 0
 
 def main():
-    configfile = in_opts["config"]
-    if configfile is not None:
-        config.read(configfile)
+    config_file = in_opts["config"]
+    test_config_file = in_opts["config_test"]
+
+    if config_file is not None and test_config_file is None:
+        config.read(config_file)
+
+    if config_file is None and test_config_file is not None:
+        config.read(test_config_file)
+
+    if config_file is not None and test_config_file is not None:
+        config.read( [config_file, test_config_file])
 
     is_register = in_opts["register"]
 
