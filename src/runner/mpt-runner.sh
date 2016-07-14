@@ -5,7 +5,7 @@ export SSH_OPTS=""
 
 app_path=`dirname $0`
 
-ARGS=$(getopt -o l:b:d:c:s:p:u:r:o:n:t:h -n "$0" -- "$@");
+ARGS=$(getopt -o l:b:d:c:C:s:p:u:r:o:n:t:T:R:h -n "$0" -- "$@");
 eval set -- "$ARGS";
 
 HELP="USAGE: ./$0 [options]\n
@@ -13,12 +13,15 @@ HELP="USAGE: ./$0 [options]\n
 -b 'broker-url'  -- broker url (ie: amqp://hostname:5672/queue.name)\n
 -d 'duration'  -- test duration (in minutes)\n
 -c 'count'  -- message count\n
+-C 'config'  -- loader configuration\n
 -s 'size'  -- message size (in bytes [default = 1024])\n
 -p 'parallel count'  -- the number of parallel senders and consumers\n
 -u 'database url'  -- (optional) a URL for the elastic database that stores the test data\n
 -o 'output directory'  -- output directory for the test report\n
 -n 'test name'  -- test name\n
 -t 'throttle'  -- throttle (sends messages in a fixed rate [ msgs per second per connection])\n
+-T 'config-test'  -- test case configuration\n
+-R 'test-run'  -- test run\n
 -h                  -- this help"
 
 while true; do
@@ -43,6 +46,11 @@ while true; do
       export COUNT="$1"
       shift
     ;;
+    -C)
+      shift
+      export LOADER_CONFIG="$1"
+      shift
+    ;;
     -s)
       shift
       export MESSAGE_SIZE="$1"
@@ -51,16 +59,6 @@ while true; do
     -p)
       shift
       export PARALLEL_COUNT="$1"
-      shift
-    ;;
-    -u)
-      shift
-      export UPLOAD_URL="$1"
-      shift
-    ;;
-    -r)
-      shift
-      export REMOTE_PLOT_SERVER="$1"
       shift
     ;;
     -o)
@@ -76,6 +74,16 @@ while true; do
     -t)
       shift
       export THROTTLE="$1"
+      shift
+    ;;
+    -T)
+      shift
+      export CONFIG_TEST="$1"
+      shift
+    ;;
+    -R)
+      shift
+      export TEST_RUN="$1"
       shift
     ;;
     -h)
@@ -129,6 +137,24 @@ fi
 
 if [[ -z "$LOG_DIR" ]] ; then
   echo -e "Log dir is a required option (-l)\n"
+  echo -e ${HELP}
+  exit 1
+fi
+
+if [[ -z "$LOADER_CONFIG" ]] ; then
+  echo -e "Loader configuration is a required option (-C)\n"
+  echo -e ${HELP}
+  exit 1
+fi
+
+if [[ -z "$CONFIG_TEST" ]] ; then
+  echo -e "Test case configuration is a required option (-T)\n"
+  echo -e ${HELP}
+  exit 1
+fi
+
+if [[ -z "$TEST_RUN" ]] ; then
+  echo -e "Test run is a required option (-T)\n"
   echo -e ${HELP}
   exit 1
 fi
@@ -221,3 +247,51 @@ else
 fi
 end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
+
+
+echo "Registering the SUT on the DB"
+./mpt-loader.py --register --config ${LOADER_CONFIG}
+
+echo "Registering the test case on the DB"
+./mpt-loader.py --testinfo \
+  --config "${LOADER_CONFIG}" \
+  --config-test "${CONFIG_TEST}" \
+	--test-run "${TEST_RUN}" \
+	--test-start-time "${start_time}" \
+	--test-duration "${DURATION}" \
+	--test-comment "${TEST_NAME}: small automated test case" \
+	--test-result-comment "Run ok, no comments" \
+
+for file in $LOG_DIR/sender-throughput-${pid_sender}*.csv ; do
+  echo "Loading file: ${file}"
+  ${app_path}/mpt-loader.py --load throughput
+    --config "${LOADER_CONFIG}" \
+    --config-test "${CONFIG_TEST}" \
+    --test-run "${TEST_RUN}" \
+  	--test-run "001" \
+  	--msg-direction sender \
+  	--filename "${file}"
+done
+
+for file in $LOG_DIR/receiver-throughput-${pid_sender}*.csv ; do
+  echo "Loading file: ${file}"
+  ${app_path}/mpt-loader.py --load throughput
+    --config "${LOADER_CONFIG}" \
+    --config-test "${CONFIG_TEST}" \
+    --test-run "${TEST_RUN}" \
+  	--test-run "001" \
+  	--msg-direction receiver \
+  	--filename "${file}"
+done
+
+for file in $LOG_DIR/receiver-latency-${RECEIVER_PID}*.log ; do
+  echo "Loading file: ${file}"
+  ${app_path}/mpt-loader.py --load latency
+    --config "${LOADER_CONFIG}" \
+    --config-test "${CONFIG_TEST}" \
+    --test-run "${TEST_RUN}" \
+  	--test-run "001" \
+  	--msg-direction receiver \
+  	--filename "${file}"
+
+done

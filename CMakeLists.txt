@@ -124,4 +124,5 @@ endif(${STOMP_SUPPORT})
 
 add_subdirectory(src/receiver objs/receiver)
 add_subdirectory(src/sender objs/sender)
-add_subdirectory(src/plot objs/plot)
+add_subdirectory(src/runner objs/runner)
+add_subdirectory(src/loader objs/loader)
