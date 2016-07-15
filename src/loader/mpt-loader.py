@@ -218,6 +218,7 @@ def validate_parameters():
 
     return 0
 
+
 def load_latencies_bulk():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
@@ -242,13 +243,13 @@ def load_latencies_bulk():
 
         return 1
 
-    file = open(in_file_name, 'rb')
-    num_lines = (count_lines(file) - 1)
+    datafile = open(in_file_name, 'rb')
+    num_lines = (count_lines(datafile) - 1)
 
     configure_latency_mapping(session=session)
 
     logger.info("There are %d lines to read" % (num_lines))
-    csv_data = csv.reader(file, delimiter=';', quotechar='|')
+    csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
     i = 0;
 
     req_url = "%s/%s/_bulk" % (base_url, in_sut_key)
@@ -269,7 +270,7 @@ def load_latencies_bulk():
         creation = row[0]
         latency = int(row[1])
 
-        request_data = {
+        latency_data = {
             "sut_name": in_sut_name,
             "sut_version": in_sut_version,
             "latency": latency,
@@ -281,7 +282,7 @@ def load_latencies_bulk():
         json.dump(action_data, bulk_json)
         bulk_json.write('\n')
 
-        json.dump(request_data, bulk_json)
+        json.dump(latency_data, bulk_json)
         bulk_json.write('\n')
 
         i += 1
@@ -298,11 +299,94 @@ def load_latencies_bulk():
 
     print ""
 
-    file.close()
+    datafile.close()
     bulk_json.close()
     return 0
 
+def load_throughput_bulk():
+    base_url = read_param("database", "url")
+    in_file_name = in_opts["filename"]
+    in_sut_name = read_param("sut", "sut_name")
+    in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
+    in_test_run = read_param("test", "test_run")
+    in_msg_direction = in_opts["msg_direction"]
 
+    param_check = validate_parameters()
+    if param_check != 0:
+        return param_check
+
+    test_id = ("%s_%s" % (in_sut_key, in_test_run))
+
+    session = requests.session();
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    if ret.status_code < 200 or ret.status_code >= 205:
+        logger.error("There's no test with the ID %s. Please record that test info before loading data"
+                     % test_id)
+
+    datafile = open(in_file_name, 'rb')
+    num_lines = (count_lines(datafile) - 1)
+
+    configure_throughput_mapping(session=session)
+
+    logger.info("There are %d lines to read" % (num_lines))
+    csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
+
+    req_url = "%s/%s/_bulk" % (base_url, in_sut_key)
+
+    action_data = {
+        "index": {
+            "_type": "throughput"
+        }
+    }
+
+    bulk_json = StringIO();
+
+    i = 0;
+    for row in csv_data:
+        # Skip the headers
+        if i == 0 and row[0] == "timestamp":
+            continue
+
+        ts = row[0]
+        count = int(row[1])
+        duration = int(row[2])
+        rate = float(row[3])
+
+        throughput_data = {
+            "sut_name": in_sut_name,
+            "sut_version": in_sut_version,
+            "ts": ts,
+            "count": count,
+            "duration": duration,
+            "rate": rate,
+            "test_id": test_id,
+            "test_direction": in_msg_direction
+        }
+
+        json.dump(action_data, bulk_json)
+        bulk_json.write('\n')
+
+        json.dump(throughput_data, bulk_json)
+        bulk_json.write('\n')
+
+        i += 1
+        sys.stdout.write("Request %d of %d\r" % (i, num_lines))
+
+        if (i % 1000) == 0:
+            sys.stdout.write("Flushing\r")
+            call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+
+            bulk_json.truncate(0)
+            bulk_json.seek(0)
+
+    call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+
+    print ""
+
+    datafile.close()
+    bulk_json.close()
+    return 0
 
 def load_receiver_throughput():
     base_url = read_param("database", "url")
@@ -507,10 +591,12 @@ def main():
                 return load_latencies_bulk()
 
             if in_direction == "receiver" and in_load == "throughput":
-                return load_receiver_throughput()
+                # return load_receiver_throughput()
+                return load_throughput_bulk()
 
             if in_direction == "sender" and in_load == "throughput":
-                return load_receiver_throughput()
+                # return load_receiver_throughput()
+                return load_throughput_bulk()
 
 
     return
