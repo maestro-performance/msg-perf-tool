@@ -290,10 +290,9 @@ def load_latencies_bulk():
         bulk_json.write('\n')
 
         i += 1
-        sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
         if (i % 1000) == 0:
-            sys.stdout.write("Flushing\r")
+            sys.stdout.write("Bulk uploading latency data (%d records out of %d)\r" % (i, num_lines))
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
@@ -375,10 +374,9 @@ def load_throughput_bulk():
         bulk_json.write('\n')
 
         i += 1
-        sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
         if (i % 1000) == 0:
-            sys.stdout.write("Flushing\r")
+            sys.stdout.write("Bulk uploading throughput data (%d records out of %d)\r" % (i, num_lines))
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
@@ -390,74 +388,6 @@ def load_throughput_bulk():
 
     datafile.close()
     bulk_json.close()
-    return 0
-
-def load_receiver_throughput():
-    base_url = read_param("database", "url")
-    in_file_name = in_opts["filename"]
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
-    in_test_run = read_param("test", "test_run")
-    in_msg_direction = in_opts["msg_direction"]
-
-    param_check = validate_parameters()
-    if param_check != 0:
-        return param_check
-
-    file = open(in_file_name, 'rb')
-    num_lines = count_lines(file)
-
-    test_id = ("%s_%s" % (in_sut_key, in_test_run))
-
-    session = requests.session();
-    is_update = in_opts["update"]
-
-    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
-    if ret.status_code < 200 or ret.status_code >= 205:
-        logger.error("There's no test with the ID %s. Please record that test info before loading data"
-                     % test_id)
-
-    configure_throughput_mapping(session=session)
-
-    req_url = "%s/%s/throughput" % (base_url, in_sut_key)
-
-    logger.info("There are %d lines to read" % (num_lines))
-    csv_data = csv.reader(file, delimiter=';', quotechar='|')
-    i = 0;
-    for row in csv_data:
-        # Skip the headers
-        if i == 0 and row[0] == "timestamp":
-            continue
-
-        ts = row[0]
-        count = int(row[1])
-        duration = int(row[2])
-        rate = float(row[3])
-
-        request_data = {
-            "sut_name": in_sut_name,
-            "sut_version": in_sut_version,
-            "ts": ts,
-            "count": count,
-            "duration": duration,
-            "rate": rate,
-            "test_id": test_id,
-            "test_direction": in_msg_direction
-        }
-
-        request_json = StringIO()
-        json.dump(request_data, request_json)
-
-        i += 1
-        sys.stdout.write("Request %d of %d\r" % (i, num_lines))
-
-        # TODO: check if the key exists before calling the service
-        call_service(req_url, request_json.getvalue(), session=session, is_update=is_update)
-
-    print ""
-
-    file.close()
     return 0
 
 
@@ -595,11 +525,9 @@ def main():
                 return load_latencies_bulk()
 
             if in_direction == "receiver" and in_load == "throughput":
-                # return load_receiver_throughput()
                 return load_throughput_bulk()
 
             if in_direction == "sender" and in_load == "throughput":
-                # return load_receiver_throughput()
                 return load_throughput_bulk()
 
 
