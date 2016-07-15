@@ -111,6 +111,10 @@ def register():
         logger.error("The SUT version is required")
         return 1
 
+    # TODO: this is not good nor flexible. Fix it!
+    filtered_version = in_sut_version.replace(".", "").replace(" ", "").replace("-", "").replace("_", "")
+    sut_id = "%s-%s" % (in_sut_key, filtered_version)
+
     request_data = {
         "sut_name": in_sut_name,
         "sut_key": in_sut_key,
@@ -124,7 +128,7 @@ def register():
     logger.info("JSON: %s" % (request_json.getvalue(),))
 
     is_update = in_opts["update"]
-    req_url = "%s/sut/messaging" % (base_url)
+    req_url = "%s/sut/messaging/%s" % (base_url, sut_id)
     call_service(req_url, request_json.getvalue(), is_update=is_update)
 
     return 0
