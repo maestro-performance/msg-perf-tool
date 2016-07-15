@@ -299,6 +299,7 @@ def load_latencies_bulk():
     print ""
 
     file.close()
+    bulk_json.close()
     return 0
 
 
