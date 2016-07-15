@@ -169,8 +169,9 @@ def configure_throughput_mapping(session=None):
 
 
 
-def count_lines(file):
-    for i, l in enumerate(file):
+def count_lines(datafile):
+    i = 0
+    for i, l in enumerate(datafile):
       pass
 
     file.seek(0)
