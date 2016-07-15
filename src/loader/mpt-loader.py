@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 __author__ = 'opiske'
 
+import ConfigParser
+import csv
+import json
+import logging
 import optparse
 import sys
-import json
-import csv
+from StringIO import StringIO
+
 import requests
 from requests.auth import HTTPBasicAuth
-from StringIO import StringIO
-import logging
-import ConfigParser
 
 fmt_console = '[%(asctime)s] [%(levelname)s] %(name)s :: %(message)s'
 datefmt_iso = '%Y-%m-%d %H:%M:%S,'
