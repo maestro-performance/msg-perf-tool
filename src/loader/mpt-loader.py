@@ -46,15 +46,14 @@ def read_param(section, name, default=None):
     return ret;
 
 
-def call_service(req_url, request_json, force_update=False, session=None):
+def call_service(req_url, request_json, force_update=False, session=None, is_update=False):
     logger.debug("Connecting to %s" % (req_url))
 
     headers = {'Content-type': 'application/json'}
 
     username = read_param("database", "username")
-    password = read_param("database", "password")
-
-    is_update = in_opts["update"]
+    if username is not None:
+        password = read_param("database", "password")
 
     if session is None:
         session = requests.session()
@@ -79,7 +78,8 @@ def call_service_for_check(req_url, session=None):
     headers = {'Content-type': 'application/json'}
 
     username = read_param("database", "username")
-    password = read_param("database", "password")
+    if username is not None:
+        password = read_param("database", "password")
 
     if session is None:
         session = requests.session()
@@ -123,8 +123,9 @@ def register():
     json.dump(request_data, request_json)
     logger.info("JSON: %s" % (request_json.getvalue(),))
 
+    is_update = in_opts["update"]
     req_url = "%s/sut/messaging" % (base_url)
-    call_service(req_url, request_json.getvalue())
+    call_service(req_url, request_json.getvalue(), is_update=is_update)
 
     return 0
 
@@ -140,8 +141,8 @@ def configure_latency_mapping(session=None):
         req_url = "%s/%s/_mapping/latency" % (base_url, in_sut_key)
         request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } }'
 
-
-    ret = call_service(req_url, request_json, force_update=True, session=session)
+    is_update = in_opts["update"]
+    ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
     if ret != 0:
         logger.error("Unable to configure the mappings for latency")
 
@@ -157,7 +158,8 @@ def configure_throughput_mapping(session=None):
         req_url = "%s/%s/_mapping/througput" % (base_url, in_sut_key)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
 
-    ret = call_service(req_url, request_json, force_update=True, session=session)
+    is_update = in_opts["update"]
+    ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
     if ret != 0:
         logger.error("Unable to configure the mappings for throughput")
 
@@ -232,6 +234,7 @@ def load_receiver_latencies():
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
     session = requests.session();
+    is_update = in_opts["update"]
 
     ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
@@ -250,16 +253,14 @@ def load_receiver_latencies():
     logger.info("There are %d lines to read" % (num_lines))
     csv_data = csv.reader(file, delimiter=';', quotechar='|')
     i = 0;
-    for row in csv_data:
-        i += 1
 
+    for row in csv_data:
         # Skip the headers
-        if row[0] == "creation":
+        if i == 0 and row[0] == "creation":
             continue
 
         creation = row[0]
         latency = int(row[1])
-
 
         request_data = {
             "sut_name": in_sut_name,
@@ -272,14 +273,16 @@ def load_receiver_latencies():
 
         request_json = StringIO()
         json.dump(request_data, request_json)
-        # logger.info("JSON: %s" % (request_json.getvalue(),))
+
+        i += 1
         sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
         # TODO: check if the key exists before calling the service
-        call_service(req_url, request_json.getvalue(), session=session)
+        call_service(req_url, request_json.getvalue(), session=session, is_update=is_update)
 
     print ""
 
+    file.close()
     return 0
 
 def load_receiver_throughput():
@@ -301,6 +304,7 @@ def load_receiver_throughput():
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
     session = requests.session();
+    is_update = in_opts["update"]
 
     ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
@@ -315,10 +319,8 @@ def load_receiver_throughput():
     csv_data = csv.reader(file, delimiter=';', quotechar='|')
     i = 0;
     for row in csv_data:
-        i += 1
-
         # Skip the headers
-        if row[0] == "timestamp":
+        if i == 0 and row[0] == "timestamp":
             continue
 
         ts = row[0]
@@ -339,14 +341,16 @@ def load_receiver_throughput():
 
         request_json = StringIO()
         json.dump(request_data, request_json)
-        # logger.info("JSON: %s" % (request_json.getvalue(),))
+
+        i += 1
         sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
         # TODO: check if the key exists before calling the service
-        call_service(req_url, request_json.getvalue(), session=session)
+        call_service(req_url, request_json.getvalue(), session=session, is_update=is_update)
 
     print ""
 
+    file.close()
     return 0
 
 
@@ -438,7 +442,8 @@ def load_test_info():
 
     logger.info("JSON: %s" % (request_json.getvalue()))
 
-    call_service(req_url, request_json.getvalue())
+    is_update = in_opts["update"]
+    call_service(req_url, request_json.getvalue(), is_update=is_update)
 
     return 0
 
