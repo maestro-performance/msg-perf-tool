@@ -260,6 +260,7 @@ echo "Registering the test case on the DB"
 ${app_path}/mpt-loader.py --testinfo \
   --config "${LOADER_CONFIG}" \
   --config-test "${CONFIG_TEST}" \
+  --quiet \
 	--test-run "${TEST_RUN}" \
 	--test-start-time "${start_time}" \
 	--test-duration "${DURATION} / ${COUNT}" \
@@ -271,6 +272,7 @@ for file in $LOG_DIR/sender-throughput-*.csv ; do
   ${app_path}/mpt-loader.py --load throughput \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
+    --quiet \
     --test-run "${TEST_RUN}" \
   	--msg-direction sender \
   	--filename ${file}
@@ -281,6 +283,7 @@ for file in $LOG_DIR/receiver-throughput-*.csv ; do
   ${app_path}/mpt-loader.py --load throughput \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
+    --quiet \
     --test-run "${TEST_RUN}" \
   	--msg-direction receiver \
   	--filename ${file}
@@ -291,6 +294,7 @@ for file in $LOG_DIR/receiver-latency-*.csv ; do
   ${app_path}/mpt-loader.py --load latency \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
+    --quiet \
     --test-run "${TEST_RUN}" \
   	--msg-direction receiver \
   	--filename ${file}
