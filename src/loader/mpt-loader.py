@@ -483,8 +483,8 @@ def load_test_info():
     in_brk_sys_info = read_param("broker", "broker_sys_info")
 
     in_msg_protocol = read_param("messaging", "msg_protocol")
-    in_msg_size = read_param("test", "msg_size")
-    in_msg_endpoint_type = read_param("test", "msg_endpoint_type")
+    in_msg_size = read_param("messaging", "msg_size")
+    in_msg_endpoint_type = read_param("messaging", "msg_endpoint_type")
 
     in_prod_count = read_param("producer", "producer_count")
     in_prod_sys_info = read_param("producer", "producer_sys_info")
