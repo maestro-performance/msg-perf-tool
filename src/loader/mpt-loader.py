@@ -672,7 +672,7 @@ if __name__ == "__main__":
                   help="The test execution number (def: %default)");
 
     op.add_option("--test-duration", dest="test_duration", type="string",
-                  action="store", default="0", metavar="DURATION",
+                  action="store", default=None, metavar="DURATION",
                   help="The test duration in number of messages or time in the format " \
                        "<value><t> (ie: 1 day = 1d, 2 hours = 2h, etc)");
 
@@ -691,12 +691,12 @@ if __name__ == "__main__":
 
     # Message stuff
     op.add_option("--msg-protocol", dest="msg_protocol", type="string",
-                  action="store", default="amqp", metavar="PROTOCOL",
+                  action="store", default=None, metavar="PROTOCOL",
                   help="The messaging protocol used on the test [stomp, amqp, mqtt, etc] "\
                           "(def: %default)");
 
     op.add_option("--msg-size", dest="msg_size", type="string",
-                  action="store", default="0", metavar="SIZE",
+                  action="store", default=None, metavar="SIZE",
                   help="The message size used in the tests (def: %default / 0 for random)");
 
     op.add_option("--msg-direction", dest="msg_direction", type="string",
@@ -709,7 +709,7 @@ if __name__ == "__main__":
 
     # Consumer stuff
     op.add_option("--consumers-count", dest="consumer_count", type="string",
-                  action="store", default="1", metavar="NUMBER",
+                  action="store", default=None, metavar="NUMBER",
                   help="The number of concurrent consumers (def: %default)");
 
     op.add_option("--consumer-sys-info", dest="consumer_sys_info", type="string",
@@ -719,9 +719,8 @@ if __name__ == "__main__":
     # Producer stuff
 
     op.add_option("--producers-count", dest="producer_count", type="string",
-                  action="store", default="1", metavar="NUMBER",
+                  action="store", default=None, metavar="NUMBER",
                   help="The number of concurrent producers (def: %default)");
-
 
     op.add_option("--producer-sys-info", dest="producer_sys_info", type="string",
                   action="store", default=None, metavar="PROD_SYS_INFO",
@@ -741,7 +740,7 @@ if __name__ == "__main__":
                   help="The host OS version [6.6, 6.7, 2012, etc] (def: %default)");
 
     op.add_option("--broker-sys-hw-type", dest="broker_hw_type", type="string",
-                  action="store", default="bare", metavar="HW_TYPE",
+                  action="store", default=None, metavar="HW_TYPE",
                   help="The hardware type [kvm, bare, vmware] (def: %default)");
 
     op.add_option("--broker-sys-info", dest="broker_sys_info", type="string",
