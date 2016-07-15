@@ -218,7 +218,7 @@ def validate_parameters():
 
     return 0
 
-def load_receiver_latencies():
+def load_latencies_bulk():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
     in_sut_name = read_param("sut", "sut_name")
@@ -234,7 +234,6 @@ def load_receiver_latencies():
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
     session = requests.session();
-    is_update = in_opts["update"]
 
     ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
@@ -244,15 +243,23 @@ def load_receiver_latencies():
         return 1
 
     file = open(in_file_name, 'rb')
-    num_lines = count_lines(file)
+    num_lines = (count_lines(file) - 1)
 
     configure_latency_mapping(session=session)
-
-    req_url = "%s/%s/latency" % (base_url, in_sut_key)
 
     logger.info("There are %d lines to read" % (num_lines))
     csv_data = csv.reader(file, delimiter=';', quotechar='|')
     i = 0;
+
+    req_url = "%s/%s/_bulk" % (base_url, in_sut_key)
+
+    action_data = {
+        "index": {
+            "_type": "latency"
+        }
+    }
+
+    bulk_json = StringIO();
 
     for row in csv_data:
         # Skip the headers
@@ -271,19 +278,30 @@ def load_receiver_latencies():
             "test_direction": in_direction
         }
 
-        request_json = StringIO()
-        json.dump(request_data, request_json)
+        json.dump(action_data, bulk_json)
+        bulk_json.write('\n')
+
+        json.dump(request_data, bulk_json)
+        bulk_json.write('\n')
 
         i += 1
         sys.stdout.write("Request %d of %d\r" % (i, num_lines))
 
-        # TODO: check if the key exists before calling the service
-        call_service(req_url, request_json.getvalue(), session=session, is_update=is_update)
+        if (i % 1000) == 0:
+            sys.stdout.write("Flushing\r")
+            call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+
+            bulk_json.truncate(0)
+            bulk_json.seek(0)
+
+    call_service(req_url , bulk_json.getvalue(), session=session, is_update=True)
 
     print ""
 
     file.close()
     return 0
+
+
 
 def load_receiver_throughput():
     base_url = read_param("database", "url")
@@ -485,7 +503,7 @@ def main():
                 return 1
 
             if in_direction == "receiver" and in_load == "latency":
-                return load_receiver_latencies()
+                return load_latencies_bulk()
 
             if in_direction == "receiver" and in_load == "throughput":
                 return load_receiver_throughput()
