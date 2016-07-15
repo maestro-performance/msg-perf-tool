@@ -264,6 +264,7 @@ def load_latencies_bulk():
         }
     }
 
+    quiet = in_opts["quiet"]
     bulk_json = StringIO();
 
     for row in csv_data:
@@ -292,7 +293,8 @@ def load_latencies_bulk():
         i += 1
 
         if (i % 1000) == 0:
-            sys.stdout.write("Bulk uploading latency data (%d records out of %d)\r" % (i, num_lines))
+            if not quiet:
+                sys.stdout.write("Bulk uploading latency data (%d records out of %d)\r" % (i, num_lines))
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
@@ -300,7 +302,8 @@ def load_latencies_bulk():
 
     call_service(req_url , bulk_json.getvalue(), session=session, is_update=True)
 
-    print ""
+    if not quiet:
+        print ""
 
     datafile.close()
     bulk_json.close()
@@ -343,6 +346,7 @@ def load_throughput_bulk():
         }
     }
 
+    quiet = in_opts["quiet"]
     bulk_json = StringIO();
 
     i = 0;
@@ -376,7 +380,8 @@ def load_throughput_bulk():
         i += 1
 
         if (i % 1000) == 0:
-            sys.stdout.write("Bulk uploading throughput data (%d records out of %d)\r" % (i, num_lines))
+            if not quiet:
+                sys.stdout.write("Bulk uploading throughput data (%d records out of %d)\r" % (i, num_lines))
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
@@ -384,7 +389,8 @@ def load_throughput_bulk():
 
     call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
-    print ""
+    if not quiet:
+        print ""
 
     datafile.close()
     bulk_json.close()
@@ -580,6 +586,8 @@ if __name__ == "__main__":
     op.add_option("--testinfo", dest="testinfo", action="store_true", default=False,
                   help="Load test information data into the DB");
 
+    op.add_option("--quiet", dest="quiet", action="store_true", default=False,
+                  help="Do not display any output");
 
     # SUT stuff
     op.add_option("--sut-name", dest="sut_name", type="string",
