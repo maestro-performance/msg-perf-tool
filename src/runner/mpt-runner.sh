@@ -272,7 +272,6 @@ for file in $LOG_DIR/sender-throughput-*.csv ; do
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
     --test-run "${TEST_RUN}" \
-  	--test-run "001" \
   	--msg-direction sender \
   	--filename ${file}
 done
@@ -283,7 +282,6 @@ for file in $LOG_DIR/receiver-throughput-*.csv ; do
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
     --test-run "${TEST_RUN}" \
-  	--test-run "001" \
   	--msg-direction receiver \
   	--filename ${file}
 done
@@ -294,7 +292,6 @@ for file in $LOG_DIR/receiver-latency-*.csv ; do
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
     --test-run "${TEST_RUN}" \
-  	--test-run "001" \
   	--msg-direction receiver \
   	--filename ${file}
 
