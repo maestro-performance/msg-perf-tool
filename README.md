@@ -88,24 +88,6 @@ Run the sender (the controller will print the PID, please take note of that):
 mpt-sender -b amqp://<amqp server>:5672/<queue name> --log-level=stat -d 10 -p 4 --logdir=/tmp/log --daemon
 ```
 
-After the test is complete:
-```
-mpt-parse.sh -l /tmp/log -s <sender PID> -r <receiver PID> -n "<sample test>" -o /tmp/log/report
-```
-
-
-For some systems combinations, it may be necessary to generate the performance reports in another host (i.e: the system running client
-does not have a newer [>= 4.6] version of gnuplot). In this case, it is possible to request the plotting data to be generated in a different system:
-
-```
-mpt-runner.sh -l /tmp/log -t 1000 -b amqp://<broker>:5672/<queue> -d 120 -p 2 -s 256 -u <user>@<host>:<path> -n "development tests" -r <user>@<host>
-```
-
-This uses a fixed path (/tmp/mpt) on the remote server, so, please, make sure to sufficient disk space.
-
-
-At the moment, the data for both sender and receiver must be on the same path. If you are running it distributed, please copy the logs before running the parse.
-
 Tips
 ----
 
