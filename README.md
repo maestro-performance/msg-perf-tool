@@ -8,10 +8,11 @@ Linux Build Status: [![Linux Build Status](https://travis-ci.org/orpiske/msg-per
 Introduction:
 ----
 
-MPT is a tool for running performance tests on AMQP-based messaging systems
-(support for other protocols is in progress). After the test has been executed,
-it creates a report of the system performance. You can see an example of such
-report [here](http://orpiske.net/files/msg-perf-tool/sample-report-v0.0.1/).
+MPT is a tool for running performance tests on messaging systems current development
+version supports AMQP and STOMP messaging protocols. Support for MQTT and OpenWire 
+is planned for the future. The test data is saved in a CSV format and can be exported
+to ElasticSearch DB. That allows it to be visualized using the 
+[Messaging Performance UI](https://github.com/orpiske/msg-perf-ui)
 
 Dependencies:
 ----
@@ -20,16 +21,11 @@ Runtime/Compilation:
 * cmake
 * gcc or clang
 * qpid-proton-c-devel
-
-
-Parsing and plotting:
-* gnuplot (>= 4.6)
-* screenfetch
-* jinja2-cli
-
+* [litestomp](https://github.com/orpiske/litestomp) (optional) for STOMP support
+* python
 
 Recommended:
-* iperf
+* iperf (as a good practice, for testing network performance prior to test execution)
 
 
 Requirements
@@ -63,7 +59,7 @@ For example:
 ```
 
 
-Usage:
+Usage - Performance Tool:
 ----
 
 Here's an example of how to run a 10 minute load test, with 4 concurrent senders,
@@ -84,9 +80,31 @@ mpt-receiver -b amqp://<amqp server>:5672/<queue name> --log-level=stat -d 10 -p
 
 Run the sender (the controller will print the PID, please take note of that):
 
-```
+
 mpt-sender -b amqp://<amqp server>:5672/<queue name> --log-level=stat -d 10 -p 4 --logdir=/tmp/log --daemon
 ```
+
+Usage - Runner:
+----
+
+Dealing with the synchronization and parameters of performance can be daunting, 
+though, therefore a runner script is available to simplify the execution. Before
+running the runner, it's advised to create configuration files for both the 
+application as well as the test scenario. The file configuration should be simple 
+and self-explanatory, since they match the same name of the test parameters.
+
+
+```
+mpt-runner.sh -l /path/to/log -t 5000 -b <protocol>://<host>:<port>/queue/<queue> -d 5 -p 1 -s 32 -C /path/to/mpt-loader.conf -T /path/to/stomp-small-test.conf -R 002
+```
+
+
+Binaries
+----
+
+Binaries for this tool, for Fedora, CentOS and RHEL, can be found on my COPR at
+https://copr.fedorainfracloud.org/coprs/orpiske/msg-perf-tool/
+
 
 Tips
 ----
