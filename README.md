@@ -80,7 +80,7 @@ mpt-receiver -b amqp://<amqp server>:5672/<queue name> --log-level=stat -d 10 -p
 
 Run the sender (the controller will print the PID, please take note of that):
 
-
+```
 mpt-sender -b amqp://<amqp server>:5672/<queue name> --log-level=stat -d 10 -p 4 --logdir=/tmp/log --daemon
 ```
 
