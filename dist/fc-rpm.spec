@@ -54,7 +54,7 @@ make install
 - Improved support for Raspberry PI
 - Minor fixes for memory management and file usage
 
-* Thu Jun 15 2016 Otavio R. Piske <angusyoung@gmail.com> - 20160615
+* Wed Jun 15 2016 Otavio R. Piske <angusyoung@gmail.com> - 20160615
 - Improved the runner script with additional information about the test execution
 - Small fixes for validating input parameters
 
