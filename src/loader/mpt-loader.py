@@ -191,7 +191,7 @@ def count_lines(datafile):
     for i, l in enumerate(datafile):
       pass
 
-    file.seek(0)
+    datafile.seek(0)
     return i + 1
 
 def validate_parameters():
