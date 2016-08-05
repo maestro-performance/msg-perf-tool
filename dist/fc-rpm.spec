@@ -14,6 +14,8 @@ BuildRequires:      make
 BuildRequires:      gcc
 BuildRequires:      gcc-c++
 BuildRequires:      qpid-proton-c-devel
+BuildRequires:      apr-devel
+BuildRequires:      apr-util-devel
 BuildRequires:      litestomp-devel
 Requires:           qpid-proton-c
 Requires:           python
