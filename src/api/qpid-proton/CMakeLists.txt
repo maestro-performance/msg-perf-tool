@@ -1,7 +1,7 @@
 add_definitions(-D_GNU_SOURCE -D_POSIX_C_SOURCE)
 
 add_library(
-	mpt-proton
+	mpt-proton SHARED
         proton-context.c
         proton-wrapper.c
 )
@@ -11,7 +11,6 @@ target_link_libraries(
     qpid-proton
 )
 
-
-
-
-
+install(TARGETS mpt-proton
+	LIBRARY DESTINATION ${CPP_LIBRARY_DIR}
+)
