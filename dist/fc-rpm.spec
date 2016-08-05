@@ -4,7 +4,7 @@
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.1.0
-Release:            1%{?dist}
+Release:            2%{?dist}
 License:            Apache v2
 Group:              Development/Tools
 Source:             msg-perf-tool-%{version}.tar.gz
@@ -55,6 +55,7 @@ make install
 - Added stomp support
 - Improved support for Raspberry PI
 - Minor fixes for memory management and file usage
+- Fixes an incorrect variable reference
 
 * Wed Jun 15 2016 Otavio R. Piske <angusyoung@gmail.com> - 20160615
 - Improved the runner script with additional information about the test execution
