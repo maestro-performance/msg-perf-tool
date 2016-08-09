@@ -148,9 +148,9 @@ The first step is to register the Software Under Test in the database:
 
 ```
 mpt-loader.py --register \
-	--key "activemq" \
-	--sut "ActiveMQ" \
-	--version "5.13.3"  \
+	--sut-key "activemq" \
+	--sut-name "ActiveMQ" \
+	--sut-version "5.13.3"  \
 	--url http://localhost:9200/
 ```
 
