@@ -75,6 +75,9 @@ def call_service(req_url, request_json, force_update=False, session=None, is_upd
     if session is None:
         session = requests.session()
 
+    logger.debug("Req URL: %s" % req_url)
+    logger.debug("Data: %s" % request_json)
+
     if is_update and not force_update:
         answer = session.put(req_url, headers=headers, data=request_json, verify=False,
                                auth=HTTPBasicAuth(username, password))
@@ -153,13 +156,17 @@ def register():
 def configure_latency_mapping(session=None):
     base_url = read_param("database", "url")
     in_sut_key = read_param("sut", "sut_key")
+    in_start_time = in_opts["test_start_time"]
 
-    answer = call_service_for_check(("%s/%s/_mapping" % (base_url, in_sut_key)), session=session)
+    index_time = in_start_time.split()[0]
+    logger.debug("Configuring latency mapping")
+
+    answer = call_service_for_check(("%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
     if answer.status_code == 404:
-        req_url = "%s/%s" % (base_url, in_sut_key)
+        req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
         request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } } } }'
     else:
-        req_url = "%s/%s/_mapping/latency" % (base_url, in_sut_key)
+        req_url = "%s/%s-%s/_mapping/latency" % (base_url, in_sut_key, index_time)
         request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } }'
 
     is_update = in_opts["update"]
@@ -171,12 +178,15 @@ def configure_throughput_mapping(session=None):
     base_url = read_param("database", "url")
     in_sut_key = read_param("sut", "sut_key")
 
-    answer = call_service_for_check(( "%s/%s/_mapping" % (base_url, in_sut_key)), session=session)
+    in_start_time = in_opts["test_start_time"]
+    index_time = in_start_time.split()[0]
+
+    answer = call_service_for_check(( "%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
     if answer.status_code == 404:
-        req_url = "%s/%s" % (base_url, in_sut_key)
+        req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
         request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
     else:
-        req_url = "%s/%s/_mapping/througput" % (base_url, in_sut_key)
+        req_url = "%s/%s-%s/_mapping/througput" % (base_url, in_sut_key, index_time)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
 
     is_update = in_opts["update"]
@@ -249,6 +259,7 @@ def load_latencies_bulk():
     in_sut_version = read_param("sut", "sut_version")
     in_test_run = read_param("test", "test_run")
     in_direction = in_opts["msg_direction"]
+    in_start_time = in_opts["test_start_time"]
 
     param_check = validate_parameters()
     if param_check != 0:
@@ -274,7 +285,8 @@ def load_latencies_bulk():
     csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
     i = 0;
 
-    req_url = "%s/%s/_bulk" % (base_url, in_sut_key)
+    index_time = in_start_time.split()[0]
+    req_url = "%s/%s-%s/_bulk" % (base_url, in_sut_key, index_time)
 
     action_data = {
         "index": {
@@ -313,6 +325,7 @@ def load_latencies_bulk():
         if (i % 1000) == 0:
             if not quiet:
                 sys.stdout.write("Bulk uploading latency data (%d records out of %d)\r" % (i, num_lines))
+
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
@@ -334,6 +347,7 @@ def load_throughput_bulk():
     in_sut_key = read_param("sut", "sut_key")
     in_sut_version = read_param("sut", "sut_version")
     in_test_run = read_param("test", "test_run")
+    in_start_time = in_opts["test_start_time"]
     in_msg_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters()
@@ -356,7 +370,8 @@ def load_throughput_bulk():
     logger.info("There are %d lines to read" % (num_lines))
     csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
 
-    req_url = "%s/%s/_bulk" % (base_url, in_sut_key)
+    index_time = in_start_time.split()[0]
+    req_url = "%s/%s-%s/_bulk" % (base_url, in_sut_key, index_time)
 
     action_data = {
         "index": {
