@@ -1,6 +1,8 @@
 project(mpt)
 cmake_minimum_required(VERSION 2.8)
 
+find_package(PythonInterp)
+
 if( CMAKE_SIZEOF_VOID_P EQUAL 8)
     message(STATUS "64 bits compiler detected")
     set(APP_BUILD_PLATFORM 64)

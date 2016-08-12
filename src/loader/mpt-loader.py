@@ -26,8 +26,8 @@ import optparse
 import sys
 from StringIO import StringIO
 
-import requests
-from requests.auth import HTTPBasicAuth
+from mpt import settings, service
+
 
 fmt_console = '[%(asctime)s] [%(levelname)s] %(name)s :: %(message)s'
 datefmt_iso = '%Y-%m-%d %H:%M:%S,'
@@ -42,77 +42,13 @@ logging.getLogger().addHandler(console_handler)
 logging.getLogger().setLevel(logging.NOTSET)
 
 logger = logging.getLogger(__name__)
-config = ConfigParser.RawConfigParser();
-in_opts = {};
-
-
-def print_errors(http_response):
-    logger.error("Error: %s" % http_response.status_code)
-    logger.error("Text: %s" % http_response.content)
-
-def read_param(section, name, default=None):
-    ret = in_opts[name]
-    if ret is None:
-        try:
-            ret = config.get(section, name)
-            if ret is None and default is not None:
-                ret = default
-        except:
-            ret = None
-
-    return ret;
-
-
-def call_service(req_url, request_json, force_update=False, session=None, is_update=False):
-    logger.debug("Connecting to %s" % (req_url))
-
-    headers = {'Content-type': 'application/json'}
-
-    username = read_param("database", "username")
-    if username is not None:
-        password = read_param("database", "password")
-
-    if session is None:
-        session = requests.session()
-
-    logger.debug("Req URL: %s" % req_url)
-    logger.debug("Data: %s" % request_json)
-
-    if is_update and not force_update:
-        answer = session.put(req_url, headers=headers, data=request_json, verify=False,
-                               auth=HTTPBasicAuth(username, password))
-    else:
-        answer = session.post(req_url, headers=headers, data = request_json, verify=False,
-                               auth=HTTPBasicAuth(username, password))
-
-    if answer.status_code < 200 or answer.status_code >= 205:
-        print_errors(answer)
-        return 3
-
-    return 0
-
-
-def call_service_for_check(req_url, session=None):
-    logger.debug("Connecting to %s" % (req_url))
-
-    headers = {'Content-type': 'application/json'}
-
-    username = read_param("database", "username")
-    if username is not None:
-        password = read_param("database", "password")
-
-    if session is None:
-        session = requests.session()
-
-    answer = session.get(req_url, headers=headers, verify=False, auth=HTTPBasicAuth(username, password))
-    return answer
 
 
 def register():
-    base_url = read_param("database", "url")
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
+    base_url = settings.read_param("database", "url")
+    in_sut_name = settings.read_param("sut", "sut_name")
+    in_sut_key = settings.read_param("sut", "sut_key")
+    in_sut_version = settings.read_param("sut", "sut_version")
 
     if base_url is None:
         logger.error("Base URL is required")
@@ -149,19 +85,19 @@ def register():
 
     is_update = in_opts["update"]
     req_url = "%s/sut/messaging/%s" % (base_url, sut_id)
-    call_service(req_url, request_json.getvalue(), is_update=is_update)
+    service.call_service(req_url, request_json.getvalue(), is_update=is_update)
 
     return 0
 
 def configure_latency_mapping(session=None):
-    base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
+    base_url = settings.read_param("database", "url")
+    in_sut_key = settings.read_param("sut", "sut_key")
     in_start_time = in_opts["test_start_time"]
 
     index_time = in_start_time.split()[0]
     logger.debug("Configuring latency mapping")
 
-    answer = call_service_for_check(("%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
+    answer = service.call_service_for_check(("%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
     if answer.status_code == 404:
         req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
         request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } } } }'
@@ -170,18 +106,18 @@ def configure_latency_mapping(session=None):
         request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } }'
 
     is_update = in_opts["update"]
-    ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
+    ret = service.call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
     if ret != 0:
         logger.error("Unable to configure the mappings for latency")
 
 def configure_throughput_mapping(session=None):
-    base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
+    base_url = settings.read_param("database", "url")
+    in_sut_key = settings.read_param("sut", "sut_key")
 
     in_start_time = in_opts["test_start_time"]
     index_time = in_start_time.split()[0]
 
-    answer = call_service_for_check(( "%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
+    answer = service.call_service_for_check(( "%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
     if answer.status_code == 404:
         req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
         request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
@@ -190,7 +126,7 @@ def configure_throughput_mapping(session=None):
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
 
     is_update = in_opts["update"]
-    ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
+    ret = service.call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
     if ret != 0:
         logger.error("Unable to configure the mappings for throughput")
 
@@ -205,12 +141,12 @@ def count_lines(datafile):
     return i + 1
 
 def validate_parameters():
-    base_url = read_param("database", "url")
+    base_url = settings.read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
-    in_test_run = read_param("test", "test_run")
+    in_sut_name = settings.read_param("sut", "sut_name")
+    in_sut_key = settings.read_param("sut", "sut_key")
+    in_sut_version = settings.read_param("sut", "sut_version")
+    in_test_run = settings.read_param("test", "test_run")
     in_direction = in_opts["msg_direction"]
 
     if base_url is None:
@@ -252,12 +188,12 @@ def validate_parameters():
 
 
 def load_latencies_bulk():
-    base_url = read_param("database", "url")
+    base_url = settings.read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
-    in_test_run = read_param("test", "test_run")
+    in_sut_name = settings.read_param("sut", "sut_name")
+    in_sut_key = settings.read_param("sut", "sut_key")
+    in_sut_version = settings.read_param("sut", "sut_version")
+    in_test_run = settings.read_param("test", "test_run")
     in_direction = in_opts["msg_direction"]
     in_start_time = in_opts["test_start_time"]
 
@@ -269,7 +205,7 @@ def load_latencies_bulk():
 
     session = requests.session();
 
-    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    ret = settings.call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
                      % test_id)
@@ -326,12 +262,12 @@ def load_latencies_bulk():
             if not quiet:
                 sys.stdout.write("Bulk uploading latency data (%d records out of %d)\r" % (i, num_lines))
 
-            call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+                settings.call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
             bulk_json.seek(0)
 
-    call_service(req_url , bulk_json.getvalue(), session=session, is_update=True)
+        settings.call_service(req_url , bulk_json.getvalue(), session=session, is_update=True)
 
     if not quiet:
         print ""
@@ -341,14 +277,14 @@ def load_latencies_bulk():
     return 0
 
 def load_throughput_bulk():
-    base_url = read_param("database", "url")
+    base_url = settings.read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
-    in_test_run = read_param("test", "test_run")
-    in_start_time = in_opts["test_start_time"]
-    in_msg_direction = in_opts["msg_direction"]
+    in_sut_name = settings.read_param("sut", "sut_name")
+    in_sut_key = settings.read_param("sut", "sut_key")
+    in_sut_version = settings.read_param("sut", "sut_version")
+    in_test_run = settings.read_param("test", "test_run")
+    in_start_time = settings.in_opts["test_start_time"]
+    in_msg_direction = settings.in_opts["msg_direction"]
 
     param_check = validate_parameters()
     if param_check != 0:
@@ -357,7 +293,7 @@ def load_throughput_bulk():
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
     session = requests.session();
-    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    ret = service.call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
                      % test_id)
@@ -415,12 +351,12 @@ def load_throughput_bulk():
         if (i % 1000) == 0:
             if not quiet:
                 sys.stdout.write("Bulk uploading throughput data (%d records out of %d)\r" % (i, num_lines))
-            call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+            service.call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
             bulk_json.seek(0)
 
-    call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+    service.call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
     if not quiet:
         print ""
@@ -436,30 +372,30 @@ def load_test_info():
     :param in_opts: input options from command line
     :return:
     """
-    base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
+    base_url = settings.read_param("database", "url")
+    in_sut_key = settings.read_param("sut", "sut_key")
 
-    in_test_run = read_param("test", "test_run")
+    in_test_run = settings.read_param("test", "test_run")
     in_start_time = in_opts["test_start_time"]
-    in_test_duration = read_param("test", "test_duration")
-    in_test_comment = read_param("test", "test_comment")
+    in_test_duration = settings.read_param("test", "test_duration")
+    in_test_comment = settings.read_param("test", "test_comment")
     in_test_result_comment = in_opts["test_result_comment"]
 
-    in_broker_os_name = read_param("broker", "broker_os_name")
-    in_broker_os_type = read_param("broker", "broker_os_type")
-    in_broker_os_version = read_param("broker", "broker_os_version")
-    in_broker_hw_type = read_param("broker", "broker_hw_type")
-    in_brk_sys_info = read_param("broker", "broker_sys_info")
+    in_broker_os_name = settings.read_param("broker", "broker_os_name")
+    in_broker_os_type = settings.read_param("broker", "broker_os_type")
+    in_broker_os_version = settings.read_param("broker", "broker_os_version")
+    in_broker_hw_type = settings.read_param("broker", "broker_hw_type")
+    in_brk_sys_info = settings.read_param("broker", "broker_sys_info")
 
-    in_msg_protocol = read_param("messaging", "msg_protocol")
-    in_msg_size = read_param("messaging", "msg_size")
-    in_msg_endpoint_type = read_param("messaging", "msg_endpoint_type")
+    in_msg_protocol = settings.read_param("messaging", "msg_protocol")
+    in_msg_size = settings.read_param("messaging", "msg_size")
+    in_msg_endpoint_type = settings.read_param("messaging", "msg_endpoint_type")
 
-    in_prod_count = read_param("producer", "producer_count")
-    in_prod_sys_info = read_param("producer", "producer_sys_info")
+    in_prod_count = settings.read_param("producer", "producer_count")
+    in_prod_sys_info = settings.read_param("producer", "producer_sys_info")
 
-    in_con_count = read_param("consumer", "consumer_count")
-    in_con_sysinfo = read_param("consumer", "consumer_sys_info")
+    in_con_count = settings.read_param("consumer", "consumer_count")
+    in_con_sysinfo = settings.read_param("consumer", "consumer_sys_info")
 
 
     if base_url is None:
@@ -484,7 +420,7 @@ def load_test_info():
 
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
-    ret = call_service_for_check("%s/sut/messaging/_search?q=key:%s" % (base_url, in_sut_key))
+    ret = service.call_service_for_check("%s/sut/messaging/_search?q=key:%s" % (base_url, in_sut_key))
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no SUT with the ID %s. Please load that key before recording a test info"
                      % test_id)
@@ -519,7 +455,7 @@ def load_test_info():
     logger.info("JSON: %s" % (request_json.getvalue()))
 
     is_update = in_opts["update"]
-    call_service(req_url, request_json.getvalue(), is_update=is_update)
+    service.call_service(req_url, request_json.getvalue(), is_update=is_update)
 
     return 0
 
@@ -527,14 +463,7 @@ def main():
     config_file = in_opts["config"]
     test_config_file = in_opts["config_test"]
 
-    if config_file is not None and test_config_file is None:
-        config.read(config_file)
-
-    if config_file is None and test_config_file is not None:
-        config.read(test_config_file)
-
-    if config_file is not None and test_config_file is not None:
-        config.read( [config_file, test_config_file])
+    settings.settings_init(config_file, test_config_file)
 
     is_register = in_opts["register"]
 
@@ -686,7 +615,6 @@ if __name__ == "__main__":
                   help="The consumer system information (def: %default)");
 
     # Producer stuff
-
     op.add_option("--producers-count", dest="producer_count", type="string",
                   action="store", default=None, metavar="NUMBER",
                   help="The number of concurrent producers (def: %default)");

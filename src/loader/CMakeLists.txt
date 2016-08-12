@@ -11,3 +11,6 @@ install(FILES config/mpt-loader.conf config/sample-test-case.conf
 	DESTINATION ${MPT_SHARED_DIR}
 )
 
+install(DIRECTORY mpt
+    DESTINATION ${CPP_LIBRARY_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+
