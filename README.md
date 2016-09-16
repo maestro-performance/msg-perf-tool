@@ -8,7 +8,7 @@ Linux Build Status: [![Linux Build Status](https://travis-ci.org/orpiske/msg-per
 Introduction:
 ----
 
-MPT is a tool for running performance tests on messaging systems current development
+MPT is a tool for running performance tests on messaging systems. Current development
 version supports AMQP and STOMP messaging protocols. Support for MQTT and OpenWire 
 is planned for the future. The test data is saved in a CSV format and can be exported
 to ElasticSearch DB. That allows it to be visualized using the 
