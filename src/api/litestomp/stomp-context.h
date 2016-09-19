@@ -22,7 +22,7 @@ extern "C" {
     
 #include <litestomp/stomp_messenger.h>
     
-#include "contrib/logger.h"
+#include <log/gru_logger.h>
 
 typedef struct stomp_ctxt_t_ {
     stomp_messenger_t *messenger;

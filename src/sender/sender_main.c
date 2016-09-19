@@ -32,7 +32,8 @@ static void show_help()
     printf("\t-h\t--help show this help\n");
 }
 
-static struct timeval get_duration(int count) {
+static struct timeval get_duration(int count)
+{
     struct timeval ret;
 
     gettimeofday(&ret, NULL);
@@ -42,30 +43,30 @@ static struct timeval get_duration(int count) {
     return ret;
 }
 
+static bool init_vmsl_proton(vmsl_t *vmsl)
+{
+    logger_t logger = gru_logger_get();
 
-static bool init_vmsl_proton(vmsl_t *vmsl) {
-    logger_t logger = get_logger();
-    
-  #ifdef __AMQP_SUPPORT__
+#ifdef __AMQP_SUPPORT__
     logger(INFO, "Initializing AMQP protocol");
-    
+
     vmsl->init = proton_init;
     vmsl->send = proton_send;
     vmsl->stop = proton_stop;
     vmsl->destroy = proton_destroy;
 
     return true;
-  #else
+#else
     logger(ERROR, "AMQP protocol support was is not enabled");
     return false;
-  #endif // __AMQP_SUPPORT__
+#endif // __AMQP_SUPPORT__
 }
 
+static bool init_vmsl_stomp(vmsl_t *vmsl)
+{
+    logger_t logger = gru_logger_get();
 
-static bool init_vmsl_stomp(vmsl_t *vmsl) {
-    logger_t logger = get_logger();
-    
-  #ifdef __STOMP_SUPPORT__
+#ifdef __STOMP_SUPPORT__
     logger(INFO, "Initializing STOMP protocol");
 
     vmsl->init = litestomp_init;
@@ -74,12 +75,11 @@ static bool init_vmsl_stomp(vmsl_t *vmsl) {
     vmsl->destroy = litestomp_destroy;
 
     return true;
-  #else
+#else
     logger(ERROR, "STOMP protocol support was is not enabled");
     return false;
-  #endif // __STOMP_SUPPORT__
+#endif // __STOMP_SUPPORT__
 }
-
 
 int main(int argc, char **argv)
 {
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     }
 
     set_options_object(options);
-    set_logger(default_logger);
+    gru_logger_set(gru_logger_default_printer);
     while (1) {
 
         static struct option long_options[] = {
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
             options->count = strtol(optarg, NULL, 10);
             break;
         case 'l':
-            options->log_level = get_log_level(optarg);
+            options->log_level = gru_logger_get_level(optarg);
             break;
         case 'p':
             options->parallel_count = atoi(optarg);
@@ -154,7 +154,7 @@ int main(int argc, char **argv)
         default:
             printf("Invalid or missing option\n");
             show_help();
-            break;
+            return EXIT_FAILURE;
         }
     }
 
@@ -164,15 +164,16 @@ int main(int argc, char **argv)
 
     if (strncmp(options->url, "amqp://", 7) == 0) {
         if (!init_vmsl_proton(vmsl)) {
-          goto err_exit;
+            // logger(FATAL, "Unable to initialize AMQP");
+            goto err_exit;
         }
     }
     else {
-      if (strncmp(options->url, "stomp://", 8) == 0) {
-        if (!init_vmsl_stomp(vmsl)) {
-          goto err_exit;
+        if (strncmp(options->url, "stomp://", 8) == 0) {
+            if (!init_vmsl_stomp(vmsl)) {
+                goto err_exit;
+            }
         }
-      }
     }
 
 
@@ -182,52 +183,72 @@ int main(int argc, char **argv)
     int childs[32];
     int child = 0;
 
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     
-    logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-    for (uint16_t i = 0; i < options->parallel_count; i++) {
+    if (options->parallel_count > 1) {
+        logger(INFO, "Creating %d concurrent operations", options->parallel_count);
+        for (uint16_t i = 0; i < options->parallel_count; i++) {
             child = fork();
 
             if (child == 0) {
                 if (strlen(options->logdir) > 0) {
-                    remap_log(options->logdir, "mpt-sender", getppid(),
-                              getpid(), stderr);
+                    gru_status_t status = {0};
+
+                    bool ret = remap_log(options->logdir, "mpt-sender", getppid(),
+                                         getpid(), stderr, &status);
+                    if (!ret) {
+                        fprintf(stderr, "Unable to remap log: %s",
+                                status.message);
+
+                        goto err_exit;
+                    }
                 }
 
-                 sender_start(vmsl, options);
-                 goto success_exit;
+                sender_start(vmsl, options);
+                goto success_exit;
             }
             else {
                 if (child > 0) {
-                        childs[i] = child;
+                    childs[i] = child;
 
                 }
                 else {
-                        printf("Error\n");
+                    printf("Error\n");
                 }
             }
-    }
+        }
 
-    if (child > 0) {
-        setsid();
-        int status = 0;
+        if (child > 0) {
+            setsid();
+            int status = 0;
             for (uint16_t i = 0; i < options->parallel_count; i++) {
                 waitpid(childs[i], &status, 0);
 
-            logger(INFO, "Child process %d terminated with status %d", childs[i], status);
+                logger(INFO, "Child process %d terminated with status %d", childs[i], status);
+            }
         }
     }
-    
+    else {
+        if (strlen(options->logdir) > 0) {
+            gru_status_t status = {0};
+            
+            remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, 
+                      &status);
+        }
+
+        sender_start(vmsl, options);
+    }
+
 
     logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
 
-    success_exit:
+success_exit:
     vmsl_destroy(&vmsl);
     options_destroy(&options);
     return EXIT_SUCCESS;
 
-    err_exit:
+err_exit:
     vmsl_destroy(&vmsl);
     options_destroy(&options);
     return EXIT_FAILURE;

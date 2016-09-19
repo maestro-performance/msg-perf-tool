@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#include "contrib/logger.h"
+#include <log/gru_logger.h>
     
 #include <proton/messenger.h>
     

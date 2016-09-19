@@ -19,7 +19,7 @@ stomp_ctxt_t *litestomp_context_init() {
     stomp_ctxt_t *ret = malloc(sizeof(stomp_ctxt_t));
     
     if (!ret) {
-        logger_t logger = get_logger();
+        logger_t logger = gru_logger_get();
         
         logger(FATAL, "Unable to initialize stomp context");
         exit(1);

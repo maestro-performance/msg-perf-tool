@@ -23,7 +23,7 @@ static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt)
 
 
 msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data) {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(DEBUG, "Initializing stomp wrapper");
 
@@ -98,7 +98,7 @@ void litestomp_destroy(msg_ctxt_t *ctxt) {
 
 void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
     stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(TRACE, "Creating message object");
     
@@ -164,7 +164,7 @@ void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
     
     stomp_status_code_t stat = stomp_subscribe(stomp_ctxt->messenger, &sub_header);
     if (stat != STOMP_SUCCESS) {
-        logger_t logger = get_logger();
+        logger_t logger = gru_logger_get();
         
         logger(ERROR, "Unable to subscribe to the endpoint: %s", 
                stomp_ctxt->messenger->status.message);
@@ -176,7 +176,7 @@ void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
 
 
 void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
     
     stomp_message_t *message = stomp_message_create(NULL);

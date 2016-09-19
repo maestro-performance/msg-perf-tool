@@ -17,7 +17,7 @@
 
 
 vmsl_t *vmsl_init() {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     
     logger(DEBUG, "Initializing virtual messaging system layer");
     

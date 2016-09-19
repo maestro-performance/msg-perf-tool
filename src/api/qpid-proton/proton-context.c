@@ -19,7 +19,7 @@ proton_ctxt_t *proton_context_init() {
     proton_ctxt_t *ret = malloc(sizeof(proton_ctxt_t));
     
     if (!ret) {
-        logger_t logger = get_logger();
+        logger_t logger = gru_logger_get();
         
         logger(FATAL, "Unable to initialize proton context");
         exit(1);

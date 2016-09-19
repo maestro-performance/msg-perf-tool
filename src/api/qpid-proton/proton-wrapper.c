@@ -33,7 +33,7 @@ static inline proton_ctxt_t *proton_ctxt_cast(msg_ctxt_t *ctxt)
 
 msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(DEBUG, "Initializing proton wrapper");
 
@@ -85,7 +85,7 @@ void proton_destroy(msg_ctxt_t *ctxt) {
 
 static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     pn_status_t status = pn_messenger_status(messenger, tracker);
 
@@ -143,7 +143,7 @@ static void proton_commit(pn_messenger_t *messenger)
 {
     pn_tracker_t tracker = pn_messenger_outgoing_tracker(messenger);
 
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(TRACE, "Committing the message delivery");
 
@@ -169,7 +169,7 @@ static pn_timestamp_t proton_now()
 
 static void proton_set_message_properties(pn_message_t *message)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     const options_t *options = get_options_object();
 
     logger(DEBUG, "Setting message address to %s", options->url);
@@ -184,7 +184,7 @@ static void proton_set_message_properties(pn_message_t *message)
 
 static void proton_set_message_data(pn_message_t *message, msg_content_loader content_loader)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(TRACE, "Formatting message body");
 
@@ -198,7 +198,7 @@ static void proton_set_message_data(pn_message_t *message, msg_content_loader co
 
 static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(DEBUG, "Putting message");
     pn_messenger_put(messenger, message);
@@ -221,7 +221,7 @@ static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message)
 
 void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(TRACE, "Creating message object");
     pn_message_t *message = pn_message();
@@ -242,7 +242,7 @@ static void proton_accept(pn_messenger_t *messenger)
 {
     pn_tracker_t tracker = pn_messenger_incoming_tracker(messenger);
 
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(TRACE, "Accepting the message delivery");
 
@@ -264,7 +264,7 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger)
 
 void proton_subscribe(msg_ctxt_t *ctxt, void *data)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     const options_t *options = get_options_object();
     proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
@@ -281,7 +281,7 @@ void proton_subscribe(msg_ctxt_t *ctxt, void *data)
 }
 
 static int proton_receive_local(pn_messenger_t *messenger) {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     
     if (!pn_messenger_is_blocking(messenger)) {
         logger(WARNING, "The messenger is not in blocking mode");
@@ -314,7 +314,7 @@ static int proton_receive_local(pn_messenger_t *messenger) {
 static int proton_do_receive(pn_messenger_t *messenger, pn_message_t *message, 
                               msg_content_data_t *content)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     
     pn_messenger_get(messenger, message);
     if (failed(messenger)) {
@@ -352,7 +352,7 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
     ret.tv_usec = modf(ts, &integral) * 1000000;
     ret.tv_sec = integral;
     
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     
     logger(TRACE, "Returning: %lu / %lu / %f", ret.tv_sec, ret.tv_usec, integral);
     

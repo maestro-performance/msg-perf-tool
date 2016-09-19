@@ -16,7 +16,6 @@
 #include <stdint.h>
 
 #include "timestamp.h"
-#include "contrib/logger.h"
 
 mpt_timestamp_t statistics_now()
 {

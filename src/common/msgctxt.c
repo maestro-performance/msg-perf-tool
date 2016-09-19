@@ -18,7 +18,7 @@
 msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io) {
     msg_ctxt_t *ret = malloc(sizeof(msg_ctxt_t));
     
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     
     if (ret == NULL) {
         logger(FATAL, "Unable to initialize messaging context object");

@@ -20,11 +20,10 @@
 extern "C" {
 #endif
 
-#include "contrib/logger.h"
-
 #include "msgctxt.h"
 #include "statistics.h"
 
+#include <log/gru_logger.h>
   
 typedef msg_ctxt_t *(*msg_init)(stat_io_t *stat_io, void *data);
 typedef void(*msg_send)(msg_ctxt_t *ctxt, msg_content_loader content_loader);

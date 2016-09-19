@@ -15,6 +15,24 @@
  */
 #include "process_utils.h"
 
+
+bool remap_log(const char *dir, const char *base_name, pid_t parent, 
+                      pid_t pid, FILE *fd, gru_status_t *status)
+{
+    char name[64];
+
+    bzero(name, sizeof (name));
+
+    if (parent == 0) {
+        snprintf(name, sizeof (name) - 1, "%s-%d.log", base_name, pid);
+    }
+    else {
+        snprintf(name, sizeof (name) - 1, "%s-%d-%d.log", base_name, parent, pid);
+    }
+
+    return gru_io_remap(dir, name, fd, status);
+}
+
 /**
  * Initializes the controller process if in daemon mode
  * @param options
@@ -41,7 +59,16 @@ void init_controller(bool daemon, const char *logdir, const char *controller_nam
                 }
             }
 
-            remap_log(logdir, controller_name, 0, getpid(), stderr);
+            gru_status_t status = {0};
+            
+            bool ret = remap_log(logdir, controller_name, 0, getpid(), stderr, 
+                                 &status);
+            
+            if (!ret) {
+                fprintf(stderr, "Unable to initialize the controller: %s", 
+                        status.message);
+                exit(1);
+            }
         }
         else {
             if (controller > 0) {

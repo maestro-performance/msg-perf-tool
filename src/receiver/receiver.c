@@ -88,7 +88,7 @@ int main(int argc, char **argv)
     }
 
     set_options_object(options);
-    set_logger(default_logger);
+    gru_logger_set(gru_logger_default_printer);
 
     options->parallel_count = 1;
     while (1) {
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
             options->duration = get_duration(atoi(optarg));
             break;
         case 'l':
-            options->log_level = get_log_level(optarg);
+            options->log_level = gru_logger_get_level(optarg);
             break;
         case 'p':
             options->parallel_count = atoi(optarg);
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 
     int childs[5];
     int child = 0;
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     if (options->parallel_count > 1) {
         logger(INFO, "Creating %d concurrent operations", options->parallel_count);
@@ -174,8 +174,10 @@ int main(int argc, char **argv)
 
             if (child == 0) {
                 if (strlen(options->logdir) > 0) {
+                    gru_status_t status = {0};
+                    
                     remap_log(options->logdir, "mpt-receiver", getppid(),
-                              getpid(), stderr);
+                              getpid(), stderr, &status);
                 }
 
                 receiver_start(vmsl, options);
@@ -203,7 +205,10 @@ int main(int argc, char **argv)
     }
     else {
         if (strlen(options->logdir) > 0) {
-            remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr);
+            gru_status_t status = {0};
+            
+            remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, 
+                      &status);
         }
 
         receiver_start(vmsl, options);

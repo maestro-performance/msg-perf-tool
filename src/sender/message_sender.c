@@ -83,7 +83,7 @@ static bool can_continue(const options_t *options, uint64_t sent)
 static const char *load_message_data(const options_t *options) {
     data = malloc(options->message_size + 1);
     
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     if (data == NULL) {
         
         
@@ -119,9 +119,18 @@ static void content_loader(msg_content_data_t *content_data)
 
 void sender_start(const vmsl_t *vmsl, const options_t *options)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
+    gru_status_t status = {0};
    
-    stat_io_t *stat_io = statistics_init(SENDER);
+    stat_io_t *stat_io = statistics_init(SENDER, &status);
+    if (!stat_io) {
+        logger(FATAL, "Unable to initialize statistics engine: %s", 
+               status.message);
+        
+        return;
+    }
+    logger(TRACE, "Initializing test execution");
+    
     msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
     
     

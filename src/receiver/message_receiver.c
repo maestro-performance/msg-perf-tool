@@ -82,9 +82,17 @@ static bool can_continue(const options_t *options)
 
 void receiver_start(const vmsl_t *vmsl, const options_t *options)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
+    gru_status_t status = {0};
     
-    stat_io_t *stat_io = statistics_init(RECEIVER);
+    stat_io_t *stat_io = statistics_init(RECEIVER, &status);
+    if (!stat_io) {
+        logger(FATAL, "Unable to initialize statistics engine: %s", 
+               status.message);
+        
+        return;
+    }
+    
     msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
  
     install_timer();

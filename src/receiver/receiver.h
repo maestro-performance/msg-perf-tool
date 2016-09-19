@@ -25,9 +25,9 @@ extern "C" {
 #include <getopt.h>
 #include <sys/wait.h>
 
+#include "process_utils.h"
 #include "contrib/options.h"
-#include "contrib/logger.h"
-#include "contrib/log.h"
+#include <log/gru_logger.h>
 
 #include "vmsl.h"
 #include "statistics.h"

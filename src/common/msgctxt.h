@@ -24,7 +24,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "statistics.h"
-#include "contrib/logger.h"
+#include <log/gru_logger.h>
     
 typedef struct msg_content_data_t_ {
     uint64_t count;

@@ -25,10 +25,10 @@ extern "C" {
 #include "statistics.h"
 #include "proton-context.h"
 #include "contrib/options.h"
-#include "contrib/logger.h"
-    
+
 #include "stomp-context.h"
-    
+
+#include <log/gru_logger.h>    
 #include <litestomp/stomp_messenger.h>
 
     

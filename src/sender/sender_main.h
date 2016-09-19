@@ -26,8 +26,8 @@ extern "C" {
 #include <sys/wait.h>
 
 #include "contrib/options.h"
-#include "contrib/logger.h"
-#include "contrib/log.h"
+
+#include <log/gru_logger.h>
 
 #include "vmsl.h"
 #include "message_sender.h"

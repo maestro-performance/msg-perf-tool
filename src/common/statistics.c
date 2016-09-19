@@ -44,47 +44,51 @@ static int timersub(struct timeval *start, struct timeval *end, struct timeval *
 
 #endif // __linux__
 
-static FILE *open_stats_file(const char *prefix, const char *suffix) {
+static FILE *open_stats_file(const char *prefix, const char *suffix, 
+                             gru_status_t *status) {
     const options_t *options = get_options_object();
     char name[64] = {0};
 
     snprintf(name, sizeof (name) - 1, "%s-%s-%d.csv", prefix, suffix, getpid());
-    return open_file(options->logdir, name);
+    
+    return gru_io_open_file(options->logdir, name, status);
 }
 
-static FILE *open_receiver_latency_file() {
-    return open_stats_file("receiver", "latency");
+static FILE *open_receiver_latency_file(gru_status_t *status) {
+    return open_stats_file("receiver", "latency", status);
 }
 
-static FILE *open_receiver_throughput_file() {
-    return open_stats_file("receiver", "throughput");
+static FILE *open_receiver_throughput_file(gru_status_t *status) {
+    return open_stats_file("receiver", "throughput", status);
 }
-static FILE *open_sender_throughput_file() {
-    return open_stats_file("sender", "throughput");
+static FILE *open_sender_throughput_file(gru_status_t *status) {
+    return open_stats_file("sender", "throughput", status);
 }
 
-stat_io_t *statistics_init(stat_direction_t direction) {
-    logger_t logger = get_logger();
+stat_io_t *statistics_init(stat_direction_t direction, gru_status_t *status) {
+    logger_t logger = gru_logger_get();
     stat_io_t *ret = malloc(sizeof(stat_io_t));
     
     if (direction == SENDER) {
         ret->latency = NULL;
-        ret->throughput = open_sender_throughput_file();
+        ret->throughput = open_sender_throughput_file(status);
     }
     else {
-        ret->latency = open_receiver_latency_file();
-        ret->throughput = open_receiver_throughput_file();
+        ret->latency = open_receiver_latency_file(status);
+        ret->throughput = open_receiver_throughput_file(status);
     }
     
     if (!ret->throughput) {
-        logger(ERROR, "Unable to initialize the statistics IO engine");
+        logger(ERROR, "Unable to initialize the statistics IO engine: %s", 
+               status->message);
 
         goto err_exit;
     }
     
     if (direction == RECEIVER) {
         if (!ret->latency) {
-            logger(ERROR, "Unable to initialize the statistics IO engine");
+            logger(ERROR, "Unable to initialize the statistics IO engine: %s", 
+                   status->message);
 
             goto err_exit;
         }
@@ -148,7 +152,7 @@ uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end)
     mpt_timestamp_t ret = {.tv_sec = 0, .tv_usec = 0};
     timersub(&end, &start, &ret);
     
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
     
     /*
      * At least until I have time to dig further into this, this may be entirely
@@ -163,7 +167,7 @@ uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end)
 
 void statistics_latency(stat_io_t *stat_io, mpt_timestamp_t start, mpt_timestamp_t end)
 {
-    logger_t logger = get_logger();
+    logger_t logger = gru_logger_get();
 
     logger(DEBUG, "Creation time: %"PRIi64".%"PRIi64"", 
            (int64_t) start.tv_sec, (int64_t) start.tv_usec);

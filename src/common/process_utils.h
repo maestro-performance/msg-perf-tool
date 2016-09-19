@@ -22,9 +22,13 @@ extern "C" {
     
 #include <stdbool.h>
 #include <unistd.h>
+#include <fcntl.h>
     
-#include "contrib/log.h"
+#include <common/gru_status.h>
+#include <log/gru_logger.h>
 
+bool remap_log(const char *dir, const char *base_name, pid_t parent, 
+                  pid_t pid, FILE *fd, gru_status_t *status);
 void init_controller(bool daemon, const char *logdir, const char *controller_name);
 
 

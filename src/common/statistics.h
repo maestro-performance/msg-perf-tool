@@ -22,8 +22,10 @@ extern "C"
 #endif
 
 #include "timestamp.h"
-#include "contrib/ioutils.h"
-#include "contrib/logger.h"
+
+#include <common/gru_status.h>
+#include <io/gru_ioutils.h>
+#include <log/gru_logger.h>
 
 
 #include <unistd.h>
@@ -41,7 +43,7 @@ typedef struct stat_io_t_ {
     stat_direction_t direction;
 } stat_io_t;
 
-stat_io_t *statistics_init(stat_direction_t direction);
+stat_io_t *statistics_init(stat_direction_t direction, gru_status_t *status);
 void statistics_destroy(stat_io_t **stat_io);
 
 void statistics_latency_header(stat_io_t *stat_io);

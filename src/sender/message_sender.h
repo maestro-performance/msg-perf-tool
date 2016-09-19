@@ -29,6 +29,8 @@ extern "C" {
 #include <unistd.h>
 #include <inttypes.h>
 
+#include <common/gru_status.h>
+    
 void sender_start(const vmsl_t *vmsl, const options_t *options);
 
 
