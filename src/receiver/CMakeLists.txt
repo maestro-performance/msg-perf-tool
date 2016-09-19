@@ -8,7 +8,7 @@ set(RUNTIME_DIR "bin")
 
 add_executable(
 	mpt-receiver
-	receiver.c
+	receiver_main.c
   message_receiver.c
 )
 

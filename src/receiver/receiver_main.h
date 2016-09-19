@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef RECEIVER_H
-#define RECEIVER_H
+#ifndef RECEIVER_MAIN_H
+#define RECEIVER_MAIN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,4 +48,4 @@ extern "C" {
 }
 #endif
 
-#endif /* RECEIVER_H */
+#endif /* RECEIVER_MAIN_H */
