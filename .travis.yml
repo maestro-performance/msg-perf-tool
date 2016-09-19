@@ -8,7 +8,7 @@ before_install:
 before_script:
 - wget https://github.com/orpiske/gru/tarball/master -O gru-head.tar.gz
 - mkdir gru && tar -xvf gru-head.tar.gz -C gru --strip-components=1
-- pushd gru && mkdir build && cd build && cmake .. && make && make install ; popd
+- pushd gru && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make && sudo make install ; popd
 - mkdir build
 - cd build
 - cmake -DCMAKE_BUILD_TYPE=RELEASE -DSTOMP_SUPPORT=OFF -DAMQP_SUPPORT=OFF ..
