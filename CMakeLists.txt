@@ -60,6 +60,20 @@ endif (CMAKE_COMPILER_IS_GNUCXX)
 include_directories(src/common)
 add_subdirectory(src/common objs/common)
 
+#### GRU STUFF
+SET(GRU_DIR /usr CACHE String "GRU install prefix")
+add_definitions(-D__GRU_SUPPORT__)
+include_directories(${GRU_DIR}/include)
+if (${APP_BUILD_PLATFORM} EQUAL "64")
+            link_directories(
+                    ${GRU_DIR}/lib64
+            )
+    else(${APP_BUILD_PLATFORM} EQUAL "64")
+            link_directories(
+                    ${GRU_DIR}/lib
+            )
+    endif(${APP_BUILD_PLATFORM} EQUAL "64")
+
 #### PROTON STUFF
 
 if (${AMQP_SUPPORT})
