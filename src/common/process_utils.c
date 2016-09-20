@@ -35,13 +35,13 @@ bool remap_log(const char *dir, const char *base_name, pid_t parent,
 
 /**
  * Initializes the controller process if in daemon mode
- * @param options
+ * @param background (ie: daemon mode ...)
  * @param logdir
  * @param controller_name
  */
-void init_controller(bool daemon, const char *logdir, const char *controller_name)
+void init_controller(bool background, const char *logdir, const char *controller_name)
 {
-    if (daemon) {
+    if (background) {
         int controller = fork();
 
         if (controller == 0) {
