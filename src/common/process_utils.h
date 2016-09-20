@@ -26,6 +26,7 @@ extern "C" {
     
 #include <common/gru_status.h>
 #include <log/gru_logger.h>
+#include <io/gru_ioutils.h>
 
 bool remap_log(const char *dir, const char *base_name, pid_t parent, 
                   pid_t pid, FILE *fd, gru_status_t *status);
