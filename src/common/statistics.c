@@ -51,7 +51,7 @@ static FILE *open_stats_file(const char *prefix, const char *suffix,
 
     snprintf(name, sizeof (name) - 1, "%s-%s-%d.csv", prefix, suffix, getpid());
     
-    return gru_io_open_file(options->logdir, name, status);
+    return gru_io_open_unique_file(options->logdir, name, status);
 }
 
 static FILE *open_receiver_latency_file(gru_status_t *status) {
