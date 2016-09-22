@@ -35,19 +35,19 @@ void initialize_options(void *data) {
 void save_options(FILE *file, void *data) {
     options_t *options = (options_t *) data;
    
-    gru_config_write_string(file, "broker.url", options->url);
+    gru_config_write_string("broker.url", file, options->url);
     
-    gru_config_write_ulong(file, "message.count", options->count);
-    gru_config_write_uint(file, "message.throttle", options->throttle);
-    gru_config_write_uint(file, "message.size", options->message_size);
+    gru_config_write_ulong("message.count", file, options->count);
+    gru_config_write_uint("message.throttle", file, options->throttle);
+    gru_config_write_uint("message.size", file, options->message_size);
     
-    gru_config_write_ushort(file, "parallel.count", options->parallel_count);
-    gru_config_write_ulong(file, "test.duration", 
+    gru_config_write_ushort("parallel.count", file, options->parallel_count);
+    gru_config_write_ulong("test.duration", file, 
                            gru_duration_minutes(options->duration, NULL));
     
-    gru_config_write_string(file, "log.level", 
+    gru_config_write_string("log.level", file, 
                             log_level_str[options->log_level]);
-    gru_config_write_string(file, "log.dir", options->logdir);
+    gru_config_write_string("log.dir", file, options->logdir);
     
     fflush(file);
 }
@@ -55,24 +55,24 @@ void save_options(FILE *file, void *data) {
 void read_options(FILE *file, void *data) {
     options_t *options = (options_t *) data;
     
-    gru_config_read_string(options->url, file, "broker_url");
-    gru_config_read_ulong(&options->count, file, "message.count");
+    gru_config_read_string("broker_url", file, options->url);
+    gru_config_read_ulong("message.count", file, &options->count);
      
-    gru_config_read_ulong(&options->count, file, "message.count");
-    gru_config_read_uint(&options->throttle, file, "message.throttle");
-    gru_config_read_ulong(&options->message_size, file, "message.size");
+    gru_config_read_ulong("message.count", file, &options->count);
+    gru_config_read_uint("message.throttle", file, &options->throttle);
+    gru_config_read_ulong("message.size", file, &options->message_size);
     
-    gru_config_read_ushort(&options->parallel_count, file, "parallel.count");
+    gru_config_read_ushort("parallel.count", file, &options->parallel_count);
     
     uint64_t duration_minutes;
-    gru_config_read_ulong(&duration_minutes, file, "test.duration");
+    gru_config_read_ulong("test.duration", file, &duration_minutes);
     options->duration = gru_duration_from_minutes(duration_minutes);
     
     char log_level_s[OPT_MAX_STR_SIZE] = {0};
-    gru_config_read_string(log_level_s, file, "log.level");
+    gru_config_read_string("log.level", file, log_level_s);
     options->log_level = gru_logger_get_level(log_level_s);
     
-    gru_config_read_string(options->logdir, file, "log.dir");
+    gru_config_read_string("log.dir", file, options->logdir);
 }
 
 void config_init(options_t *options) {
