@@ -120,7 +120,7 @@ int main(int argc, char **argv)
             strncpy(options->url, optarg, sizeof (options->url) - 1);
             break;
         case 'd':
-            options->duration = get_duration(atoi(optarg));
+            options->endtime = get_duration(atoi(optarg));
             break;
         case 'l':
             options->log_level = gru_logger_get_level(optarg);

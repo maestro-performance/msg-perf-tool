@@ -134,7 +134,7 @@ int main(int argc, char **argv)
             options->parallel_count = atoi(optarg);
             break;
         case 'd':
-            options->duration = get_duration(atoi(optarg));
+            options->endtime = get_duration(atoi(optarg));
             break;
         case 's':
             options->message_size = atoi(optarg);

@@ -47,8 +47,8 @@ void options_set_defaults(options_t *ret)
         ret->count = 0;
         ret->log_level = INFO;
         ret->message_size = 32;
-        ret->duration.tv_sec = 0;
-        ret->duration.tv_usec = 0;
+        ret->endtime.tv_sec = 0;
+        ret->endtime.tv_usec = 0;
         ret->daemon = false;
         ret->throttle = 0;
 }

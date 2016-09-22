@@ -31,8 +31,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
+    
 typedef struct options_t_ {
     char url[OPT_MAX_STR_SIZE];
     uint64_t count;
@@ -40,7 +39,7 @@ typedef struct options_t_ {
     uint16_t parallel_count;
     size_t message_size;
     log_level_t log_level;
-    struct timeval duration;
+    struct timeval endtime;
     bool daemon;
     uint32_t throttle;
 } options_t;
