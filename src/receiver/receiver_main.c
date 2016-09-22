@@ -29,19 +29,6 @@ static void show_help()
 
 }
 
-static struct timeval get_duration(int count)
-{
-    struct timeval ret;
-
-    gettimeofday(&ret, NULL);
-
-    ret.tv_sec = ret.tv_sec + (count * 60);
-
-    return ret;
-}
-
-
-
 static bool init_vmsl_proton(vmsl_t *vmsl)
 {
   #ifdef __AMQP_SUPPORT__
@@ -120,7 +107,7 @@ int main(int argc, char **argv)
             strncpy(options->url, optarg, sizeof (options->url) - 1);
             break;
         case 'd':
-            options->endtime = get_duration(atoi(optarg));
+            options->duration = gru_duration_from_minutes(atoi(optarg));
             break;
         case 'l':
             options->log_level = gru_logger_get_level(optarg);

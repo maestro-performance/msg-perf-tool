@@ -32,17 +32,6 @@ static void show_help()
     printf("\t-h\t--help show this help\n");
 }
 
-static struct timeval get_duration(int count)
-{
-    struct timeval ret;
-
-    gettimeofday(&ret, NULL);
-
-    ret.tv_sec = ret.tv_sec + (count * 60);
-
-    return ret;
-}
-
 static bool init_vmsl_proton(vmsl_t *vmsl)
 {
     logger_t logger = gru_logger_get();
@@ -134,7 +123,7 @@ int main(int argc, char **argv)
             options->parallel_count = atoi(optarg);
             break;
         case 'd':
-            options->endtime = get_duration(atoi(optarg));
+            options->duration = gru_duration_from_minutes(atoi(optarg));
             break;
         case 's':
             options->message_size = atoi(optarg);

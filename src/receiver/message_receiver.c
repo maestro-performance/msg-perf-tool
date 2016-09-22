@@ -67,13 +67,13 @@ static bool can_continue(const options_t *options)
         return false;
     }
 
-    if (options->endtime.tv_sec == 0) {
+    if (options->duration.end.tv_sec == 0) {
         return true;
     }
 
     gettimeofday(&now, NULL);
 
-    if (now.tv_sec >= options->endtime.tv_sec) {
+    if (now.tv_sec >= options->duration.end.tv_sec) {
         return false;
     }
 

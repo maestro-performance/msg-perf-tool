@@ -24,6 +24,8 @@ extern "C" {
 #include <stdint.h>
 #include <getopt.h>
 #include <sys/wait.h>
+    
+#include <time/gru_time_utils.h>
 
 #include "contrib/options.h"
 

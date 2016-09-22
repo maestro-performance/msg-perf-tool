@@ -25,9 +25,12 @@ extern "C" {
 #include <getopt.h>
 #include <sys/wait.h>
 
+#include <log/gru_logger.h>
+#include <time/gru_time_utils.h>
+    
 #include "process_utils.h"
 #include "contrib/options.h"
-#include <log/gru_logger.h>
+
 
 #include "vmsl.h"
 #include "statistics.h"

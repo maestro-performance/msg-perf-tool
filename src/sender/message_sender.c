@@ -72,7 +72,7 @@ static bool can_continue(const options_t *options, uint64_t sent)
     gettimeofday(&now, NULL);
 
     if ((sent < options->count) || options->count == 0) {
-        if (now.tv_sec <= options->endtime.tv_sec || options->endtime.tv_sec == 0) {
+        if (now.tv_sec <= options->duration.end.tv_sec || options->duration.end.tv_sec == 0) {
             return true;
         }
     }

@@ -26,7 +26,10 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/time.h>
+
 #include <log/gru_logger.h>
+#include <time/gru_duration.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,7 +42,7 @@ typedef struct options_t_ {
     uint16_t parallel_count;
     size_t message_size;
     log_level_t log_level;
-    struct timeval endtime;
+    gru_duration_t duration;
     bool daemon;
     uint32_t throttle;
 } options_t;
