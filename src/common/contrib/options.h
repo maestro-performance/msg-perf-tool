@@ -49,6 +49,7 @@ typedef struct options_t_ {
 options_t *options_new();
 void options_destroy(options_t **obj);
 
+void options_set_defaults(options_t *ret);
 
 void set_options_object(options_t *ojb);
 const options_t *get_options_object(void);

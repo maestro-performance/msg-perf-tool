@@ -17,20 +17,6 @@
 
 static options_t *options = NULL;
 
-static void options_new_with_defaults(options_t *ret)
-{
-	bzero(ret->url, sizeof(ret->url));
-	bzero(ret->logdir, sizeof(ret->logdir));
-	ret->parallel_count = 2;
-        ret->count = 0;
-        ret->log_level = INFO;
-        ret->message_size = 32;
-        ret->duration.tv_sec = 0;
-        ret->duration.tv_usec = 0;
-        ret->daemon = false;
-        ret->throttle = 0;
-}
-
 options_t *options_new()
 {
 	options_t *ret = (options_t *) malloc(sizeof(options_t));
@@ -43,7 +29,7 @@ options_t *options_new()
 
 
 
-	options_new_with_defaults(ret);
+	options_set_defaults(ret);
 
 	return ret;
 }
@@ -51,6 +37,20 @@ options_t *options_new()
 void options_destroy(options_t **obj) {
     free(*obj);
     *obj = NULL;
+}
+
+void options_set_defaults(options_t *ret)
+{
+	bzero(ret->url, sizeof(ret->url));
+	bzero(ret->logdir, sizeof(ret->logdir));
+	ret->parallel_count = 2;
+        ret->count = 0;
+        ret->log_level = INFO;
+        ret->message_size = 32;
+        ret->duration.tv_sec = 0;
+        ret->duration.tv_usec = 0;
+        ret->daemon = false;
+        ret->throttle = 0;
 }
 
 void set_options_object(options_t *obj)
