@@ -33,6 +33,7 @@ void initialize_options(void *data) {
 }
 
 void save_options(FILE *file, void *data) {
+    
     options_t *options = (options_t *) data;
    
     gru_config_write_string("broker.url", file, options->url);
@@ -45,6 +46,7 @@ void save_options(FILE *file, void *data) {
     gru_config_write_ulong("test.duration", file, 
                            gru_duration_minutes(options->duration, NULL));
     
+    
     gru_config_write_string("log.level", file, 
                             log_level_str[options->log_level]);
     gru_config_write_string("log.dir", file, options->logdir);
@@ -55,7 +57,7 @@ void save_options(FILE *file, void *data) {
 void read_options(FILE *file, void *data) {
     options_t *options = (options_t *) data;
     
-    gru_config_read_string("broker_url", file, options->url);
+    gru_config_read_string("broker.url", file, &options->url);
     gru_config_read_ulong("message.count", file, &options->count);
      
     gru_config_read_ulong("message.count", file, &options->count);
@@ -68,6 +70,7 @@ void read_options(FILE *file, void *data) {
     gru_config_read_ulong("test.duration", file, &duration_minutes);
     options->duration = gru_duration_from_minutes(duration_minutes);
     
+    
     char log_level_s[OPT_MAX_STR_SIZE] = {0};
     gru_config_read_string("log.level", file, log_level_s);
     options->log_level = gru_logger_get_level(log_level_s);
@@ -75,11 +78,11 @@ void read_options(FILE *file, void *data) {
     gru_config_read_string("log.dir", file, options->logdir);
 }
 
-void config_init(options_t *options) {
+void config_init(options_t *options, const char *dir, const char *filename) {
     gru_status_t status = {0};
     gru_payload_t *payload = gru_payload_init(initialize_options, 
                                               save_options, read_options,
-                                              &options,
+                                              options,
                                               &status);
     
     if (!payload) {
@@ -87,29 +90,32 @@ void config_init(options_t *options) {
                 status.message);
         
         gru_payload_destroy(&payload);
-        return EXIT_FAILURE;
+        return;
     }
     
-    gru_config_t *config = gru_config_init(".", "test.cfg", payload,
+    if (!gru_path_exists(dir, &status)) {
+        if (status.code != GRU_SUCCESS) {
+            return;
+        }
+        
+        gru_path_mkdirs(dir, &status);
+    }
+        
+    
+    gru_config_t *config = gru_config_init(dir, filename, payload,
                                            &status);
 
     if (!config) {
-        fprintf(stderr, "Unable to initialize the configuration: %s\n",
+        if (status.code != GRU_SUCCESS) {
+            fprintf(stderr, "Unable to initialize the configuration: %s\n",
                 status.message);
+        }
+        
 
         gru_payload_destroy(&payload);
-        return EXIT_FAILURE;
+        return;
     }
     
-    if (!gru_path_fexists(fileno(config->file), &status)) {
-        if (status.code != GRU_SUCCESS) {
-            fprintf(stderr, "Unable to check if file exists: %s\n", 
-                    status.message);
-        }
-
-        gru_payload_destroy(&payload);
-        gru_config_destroy(&config);
-        return EXIT_FAILURE;
-    }
-
+    gru_payload_destroy(&payload);
+    gru_config_destroy(&config);
 }

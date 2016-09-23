@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-
+void config_init(options_t *options, const char *dir, const char *filename);
 
 
 #ifdef __cplusplus

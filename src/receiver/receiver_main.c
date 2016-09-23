@@ -75,6 +75,10 @@ int main(int argc, char **argv)
     }
 
     set_options_object(options);
+    
+    const char *apphome = gru_base_app_home("mpt");
+    config_init(options, apphome, "mpt-receiver.ini");
+    
     gru_logger_set(gru_logger_default_printer);
 
     options->parallel_count = 1;
@@ -95,9 +99,8 @@ int main(int argc, char **argv)
         c = getopt_long(argc, argv, "b:d:l:p:s:c:L:Dh", long_options, &option_index);
         if (c == -1) {
             if (optind == 1) {
-                fprintf(stderr, "Not enough options\n");
-                show_help();
-                return EXIT_FAILURE;
+                // Will use defaults from the configuration file
+                break;
             }
             break;
         }
@@ -126,9 +129,11 @@ int main(int argc, char **argv)
             break;
         case 'h':
             show_help();
+            free(apphome);
             return EXIT_SUCCESS;
         default:
             printf("Invalid or missing option\n");
+            free(apphome);
             show_help();
             break;
         }
@@ -207,10 +212,12 @@ int main(int argc, char **argv)
     success_exit:
     vmsl_destroy(&vmsl);
     options_destroy(&options);
+    free(apphome);
     return EXIT_SUCCESS;
 
     err_exit:
     vmsl_destroy(&vmsl);
     options_destroy(&options);
+    free(apphome);
     return EXIT_FAILURE;
 }

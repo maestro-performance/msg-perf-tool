@@ -29,11 +29,14 @@ extern "C" {
 
 #include "contrib/options.h"
 
+#include <common/gru_base.h>
 #include <log/gru_logger.h>
+#include <config/gru_config.h>
 
 #include "vmsl.h"
 #include "message_sender.h"
 #include "process_utils.h"
+#include "config.h"
 
 #if defined(__STOMP_SUPPORT__)
  #include "stomp-wrapper.h"
