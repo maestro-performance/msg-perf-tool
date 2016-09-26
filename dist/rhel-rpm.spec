@@ -14,9 +14,6 @@ BuildRequires:      make
 BuildRequires:      gcc
 BuildRequires:      gcc-c++
 BuildRequires:      qpid-proton-c-devel
-BuildRequires:      apr-devel
-BuildRequires:      apr-util-devel
-BuildRequires:      litestomp-devel
 Requires:           qpid-proton-c
 Requires:           python
 Requires:           python-requests
@@ -30,7 +27,7 @@ A tool for measuring messaging system performance
 
 %build
 mkdir build && cd build
-cmake -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr ..
+cmake -DSTOMP_SUPPORT=OFF -DAMQP_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr ..
 make
 
 %install
