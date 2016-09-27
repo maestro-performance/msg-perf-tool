@@ -371,15 +371,25 @@ void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content)
         int ret = proton_do_receive(proton_ctxt->messenger, message, content);
     
         if (ret == 0) {
-            mpt_timestamp_t created =
-                proton_timestamp_to_mpt_timestamp_t(pn_message_get_creation_time(message));
-            mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
+            pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
+            
+            if (proton_ts > 0) {
+                mpt_timestamp_t created = 
+                    proton_timestamp_to_mpt_timestamp_t(proton_ts);
+                          
+                mpt_timestamp_t now = 
+                        proton_timestamp_to_mpt_timestamp_t(proton_now());
 
-            statistics_latency(ctxt->stat_io, created, now);
+                statistics_latency(ctxt->stat_io, created, now);
+                content->count++;
+            }
+            else {
+                content->errors++;
+            }
 
             proton_accept(proton_ctxt->messenger);
-            content->count++;
         }
+        
         pn_message_free(message);
     }
 }
