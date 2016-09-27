@@ -28,6 +28,7 @@ extern "C" {
     
 typedef struct msg_content_data_t_ {
     uint64_t count;
+    uint64_t errors;
     size_t capacity;
     size_t size;
     void *data;

@@ -106,6 +106,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     bzero(content_storage.data, options->message_size);
     content_storage.capacity = options->message_size;
     content_storage.count = 0;
+    content_storage.errors = 0;
 
     mpt_timestamp_t last;
     mpt_timestamp_t start = statistics_now();
@@ -141,6 +142,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options)
     
     logger(INFO, "Summary: received %"PRIu64" messages in %"PRIu64" milliseconds (rate: %.2f msgs/sec)",
            total_received, elapsed, rate);
+    logger(INFO, "Errors: received %"PRIu64, content_storage.errors);
 
     free(content_storage.data);
 }
