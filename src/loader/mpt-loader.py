@@ -284,10 +284,15 @@ def load_latencies_bulk():
 
     quiet = in_opts["quiet"]
     bulk_json = StringIO();
+    skipped = 0
 
     for row in csv_data:
         # Skip the headers
         if i == 0 and row[0] == "creation":
+            continue
+
+        if len(row) < 2:
+            skipped += 1;
             continue
 
         creation = row[0]
@@ -322,6 +327,9 @@ def load_latencies_bulk():
 
     if not quiet:
         print ""
+
+    if skipped > 0:
+        logger.warn("Skipped invalid %d records", skipped)
 
     datafile.close()
     bulk_json.close()
@@ -368,9 +376,14 @@ def load_throughput_bulk():
     bulk_json = StringIO();
 
     i = 0;
+    skipped = 0;
     for row in csv_data:
         # Skip the headers
         if i == 0 and row[0] == "timestamp":
+            continue
+
+        if len(row) < 4:
+            skipped += 1
             continue
 
         ts = row[0]
@@ -409,6 +422,9 @@ def load_throughput_bulk():
 
     if not quiet:
         print ""
+
+    if skipped > 0:
+        logger.warn("Skipped invalid %d records", skipped)
 
     datafile.close()
     bulk_json.close()
