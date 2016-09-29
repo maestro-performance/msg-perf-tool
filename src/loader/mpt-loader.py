@@ -157,10 +157,10 @@ def configure_latency_mapping(session=None):
     answer = call_service_for_check(("%s/%s/_mapping" % (base_url, in_sut_key)), session=session)
     if answer.status_code == 404:
         req_url = "%s/%s" % (base_url, in_sut_key)
-        request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } } } }'
+        request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"}, "sut_version": { "type": "string", "index": "not_analyzed"  } } } } }'
     else:
         req_url = "%s/%s/_mapping/latency" % (base_url, in_sut_key)
-        request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"} } }'
+        request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"}, "sut_version": { "type": "string", "index": "not_analyzed" } } }'
 
     is_update = in_opts["update"]
     ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
@@ -174,10 +174,10 @@ def configure_throughput_mapping(session=None):
     answer = call_service_for_check(( "%s/%s/_mapping" % (base_url, in_sut_key)), session=session)
     if answer.status_code == 404:
         req_url = "%s/%s" % (base_url, in_sut_key)
-        request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
+        request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } } } }'
     else:
         req_url = "%s/%s/_mapping/througput" % (base_url, in_sut_key)
-        request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
+        request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } }'
 
     is_update = in_opts["update"]
     ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
