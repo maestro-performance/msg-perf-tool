@@ -195,6 +195,29 @@ def configure_throughput_mapping(session=None):
         logger.error("Unable to configure the mappings for throughput")
 
 
+#
+
+
+def configure_testinfo_mapping(session=None):
+    base_url = read_param("database", "url")
+    in_sut_key = read_param("sut", "sut_key")
+    in_start_time = in_opts["test_start_time"]
+
+    index_time = in_start_time.split()[0]
+    logger.debug("Configuring latency mapping")
+
+    answer = call_service_for_check(("%s/test/info/_mapping" % (base_url)), session=session)
+    if answer.status_code == 404:
+        req_url = "%s/test" % (base_url)
+        request_json = '{ "mappings": { "info": { "properties": { "sut_version": { "type": "string", "index": "not_analyzed" } } } } }'
+    else:
+        req_url = "%s/test/_mapping/info" % (base_url)
+        request_json = '{ "properties": { "sut_version": { "type": "string", "index": "not_analyzed" } } }'
+
+    is_update = in_opts["update"]
+    ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
+    if ret != 0:
+        logger.error("Unable to configure the mappings for latency")
 
 def count_lines(datafile):
     i = 0
@@ -500,6 +523,8 @@ def load_test_info():
         return 1
 
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
+
+    configure_testinfo_mapping()
 
     index_time = in_start_time.split()[0]
     test_req_url = "%s-%s" % (in_sut_key, index_time)
