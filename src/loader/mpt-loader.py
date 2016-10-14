@@ -500,6 +500,9 @@ def load_test_info():
 
     test_id = ("%s_%s" % (in_sut_key, in_test_run))
 
+    index_time = in_start_time.split()[0]
+    test_req_url = "%s-%s" % (in_sut_key, index_time)
+
     ret = call_service_for_check("%s/sut/messaging/_search?q=key:%s" % (base_url, in_sut_key))
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no SUT with the ID %s. Please load that key before recording a test info"
@@ -510,6 +513,7 @@ def load_test_info():
     request_data = {
         "test_id": test_id,
         "test_run": in_test_run,
+        "test_req_url": test_req_url,
         "sut_key": in_sut_key,
         "test_start_time": in_start_time,
         "test_duration": in_test_duration,
