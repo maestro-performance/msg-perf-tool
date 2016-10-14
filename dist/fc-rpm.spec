@@ -45,6 +45,14 @@ make install
 
 
 %changelog
+* Fri Oct 14 2016 Otavio R. Piske <angusyoung@gmail.com> - 20161014
+- Version 0.1.1 release
+- Several bug fixes in the loader
+- The loader now uses time-based index for greater performance on the UI
+- The loader now adds additional mappings for all loaded index
+- The loader now requires the test start time for additional operations
+
+
 * Fri Aug 05 2016 Otavio R. Piske <angusyoung@gmail.com> - 20160805
 - Version 0.1.0 release
 - Removed self generated data using gnuplot
