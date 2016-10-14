@@ -454,6 +454,7 @@ def load_test_info():
     """
     base_url = read_param("database", "url")
     in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
 
     in_test_run = read_param("test", "test_run")
     in_start_time = in_opts["test_start_time"]
@@ -515,6 +516,7 @@ def load_test_info():
         "test_run": in_test_run,
         "test_req_url": test_req_url,
         "sut_key": in_sut_key,
+        "sut_version": in_sut_version,
         "test_start_time": in_start_time,
         "test_duration": in_test_duration,
         "msg_protocol": in_msg_protocol,
