@@ -63,11 +63,9 @@ Usage - Performance Tool:
 ----
 
 Here's an example of how to run a 10 minute load test, with 4 concurrent senders,
-4 concurrent receivers, sending 256 bytes of data per message. After test, the
-performance report is uploaded via SCP to the server pointed by <user>@<host>:<path>
-
+4 concurrent receivers, sending 256 bytes of data per message.
 ```
-mpt-runner.sh -l /tmp/log -b amqp://<amqp server>:5672/<queue name> -d 10 -p 4 -s 256 -u <user>@<host>:<path> -n "sample test"
+mpt-runner.sh -l /tmp/log -b amqp://<amqp server>:5672/<queue name> -d 10 -p 4 -s 256 -n "sample test"
 ```
 
 It's possible to have more complex deployment scenarios by running the sender and receiver separately. In this case, you have to
