@@ -153,6 +153,20 @@ def register():
 
     return 0
 
+def configure_cache(session=None):
+    base_url = read_param("database", "url")
+    in_sut_key = read_param("sut", "sut_key")
+
+    logger.debug("Configuring index cache for test data")
+
+
+    req_url = "%s/%s*/_settings" % (base_url, in_sut_key)
+    request_json = '{ "index.cache.query.enable": true }'
+
+    ret = call_service(req_url, request_json, force_update=True, session=session)
+    if ret != 0:
+        logger.error("Unable to configure the index cache for test data")
+
 def configure_latency_mapping(session=None):
     base_url = read_param("database", "url")
     in_sut_key = read_param("sut", "sut_key")
@@ -369,6 +383,8 @@ def load_latencies_bulk():
 
     datafile.close()
     bulk_json.close()
+
+    configure_cache(session=session)
     return 0
 
 def load_throughput_bulk():
@@ -466,6 +482,8 @@ def load_throughput_bulk():
 
     datafile.close()
     bulk_json.close()
+
+    configure_cache(session=session)
     return 0
 
 
