@@ -116,11 +116,6 @@ void statistics_destroy(stat_io_t **stat_io) {
     *stat_io = NULL;
 }
 
-/*
-    logger(STAT, "ts;%s;count;%"PRIu64";duration;%"PRIu64";rate;%.2f", 
-           last_buff, count, partial, rate);
- */
-
 void statistics_latency_header(stat_io_t *stat_io) {
     fprintf(stat_io->latency, "creation;latency\n");
 }
