@@ -72,6 +72,12 @@ int perf_main(int argc, char **argv)
 {
     int c = 0;
     int option_index = 0;
+    
+    if (argc < 2) {
+        show_help();
+        
+        return EXIT_FAILURE;
+    }
 
     options_t *options = options_new();
 
