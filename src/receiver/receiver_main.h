@@ -33,16 +33,9 @@ extern "C" {
 
 
 #include "vmsl.h"
+#include "vmsl_assign.h"
 #include "statistics.h"
 #include "message_receiver.h"
-
-#if defined(__STOMP_SUPPORT__)
- #include "stomp-wrapper.h"
-#endif // __STOMP_SUPPORT__
-
-#if defined(__AMQP_SUPPORT__)
- #include "proton-wrapper.h"
-#endif // __AMQP_SUPPORT__
 
 #include "process_utils.h"
 

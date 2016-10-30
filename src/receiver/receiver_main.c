@@ -29,37 +29,7 @@ static void show_help()
 
 }
 
-static bool init_vmsl_proton(vmsl_t *vmsl)
-{
-  #ifdef __AMQP_SUPPORT__
-    vmsl->init = proton_init;
-    vmsl->receive = proton_receive;
-    vmsl->subscribe = proton_subscribe;
-    vmsl->stop = proton_stop;
-    vmsl->destroy = proton_destroy;
 
-    return true;
-  #else
-    printf("AMQP protocol support was is not enabled");
-    return false;
-  #endif // __AMQP_SUPPORT__
-}
-
-static bool init_vmsl_stomp(vmsl_t *vmsl)
-{
-  #ifdef __STOMP_SUPPORT__
-    vmsl->init = litestomp_init;
-    vmsl->receive = litestomp_receive;
-    vmsl->subscribe = litestomp_subscribe;
-    vmsl->stop = litestomp_stop;
-    vmsl->destroy = litestomp_destroy;
-
-    return true;
-  #else
-    printf("STOMP protocol support was is not enabled");
-    return false;
-  #endif // __STOMP_SUPPORT__
-}
 
 
 
@@ -142,17 +112,9 @@ int main(int argc, char **argv)
     init_controller(options->daemon, options->logdir, "mpt-receiver-controller");
 
     vmsl_t *vmsl = vmsl_init();
-    if (strncmp(options->url, "amqp://", 7) == 0) {
-        if (!init_vmsl_proton(vmsl)) {
-          goto err_exit;
-        }
-    }
-    else {
-      if (strncmp(options->url, "stomp://", 8) == 0) {
-        if (!init_vmsl_stomp(vmsl)) {
-          goto err_exit;
-        }
-      }
+    
+    if (!vmsl_assign_by_url(options->url, vmsl)) {
+        goto err_exit;
     }
 
     int childs[5];

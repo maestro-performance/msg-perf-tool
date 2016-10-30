@@ -27,44 +27,6 @@ static void show_help()
     printf("\t-h\t--help show this help\n");
 }
 
-static bool init_vmsl_proton(vmsl_t *vmsl)
-{
-    logger_t logger = gru_logger_get();
-
-#ifdef __AMQP_SUPPORT__
-    logger(INFO, "Initializing AMQP protocol");
-
-    vmsl->init = proton_init;
-    vmsl->send = proton_send;
-    vmsl->stop = proton_stop;
-    vmsl->destroy = proton_destroy;
-
-    return true;
-#else
-    logger(ERROR, "AMQP protocol support was is not enabled");
-    return false;
-#endif // __AMQP_SUPPORT__
-}
-
-static bool init_vmsl_stomp(vmsl_t *vmsl)
-{
-    logger_t logger = gru_logger_get();
-
-#ifdef __STOMP_SUPPORT__
-    logger(INFO, "Initializing STOMP protocol");
-
-    vmsl->init = litestomp_init;
-    vmsl->send = litestomp_send;
-    vmsl->stop = litestomp_stop;
-    vmsl->destroy = litestomp_destroy;
-
-    return true;
-#else
-    logger(ERROR, "STOMP protocol support was is not enabled");
-    return false;
-#endif // __STOMP_SUPPORT__
-}
-
 int tune_main(int argc, char **argv)
 {
     int c = 0;
@@ -145,17 +107,8 @@ int tune_main(int argc, char **argv)
 
     vmsl_t *vmsl = vmsl_init();
 
-    if (strncmp(options->url, "amqp://", 7) == 0) {
-        if (!init_vmsl_proton(vmsl)) {
-            goto err_exit;
-        }
-    }
-    else {
-        if (strncmp(options->url, "stomp://", 8) == 0) {
-            if (!init_vmsl_stomp(vmsl)) {
-                goto err_exit;
-            }
-        }
+    if (!vmsl_assign_by_url(options->url, vmsl)) {
+        goto err_exit;
     }
 
     logger_t logger = gru_logger_get();

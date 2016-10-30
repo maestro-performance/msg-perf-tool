@@ -12,19 +12,10 @@ add_executable(
   message_receiver.c
 )
 
-if (${STOMP_SUPPORT})
-  set(STOMP_LIBRARIES mpt-stomp)
-endif(${STOMP_SUPPORT})
-
-if (${AMQP_SUPPORT})
-  set(AMQP_LIBRARIES mpt-proton)
-endif(${AMQP_SUPPORT})
-
 target_link_libraries(
 	mpt-receiver
 	mpt-common
-  ${AMQP_LIBRARIES}
-  ${STOMP_LIBRARIES}
+        mpt-api-common
 )
 
 install(TARGETS

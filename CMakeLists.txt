@@ -100,6 +100,9 @@ if (${AMQP_SUPPORT})
     add_subdirectory(src/api/qpid-proton objs/api/qpid-proton)
 endif(${AMQP_SUPPORT})
 
+
+#### LITESTOMP STUFF
+
 if (${STOMP_SUPPORT})
     message(STATUS "Stomp support is enabled")
     add_definitions(-D__STOMP_SUPPORT__)
@@ -123,6 +126,9 @@ if (${STOMP_SUPPORT})
     include_directories(src/api/litestomp)
     add_subdirectory(src/api/litestomp objs/api/litestomp)
 endif(${STOMP_SUPPORT})
+
+include_directories(src/api)
+add_subdirectory(src/api objs/api)
 
 add_subdirectory(src/receiver objs/receiver)
 add_subdirectory(src/sender objs/sender)
