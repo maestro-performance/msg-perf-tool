@@ -16,10 +16,6 @@
 #ifndef MESSAGE_SENDER_H
 #define MESSAGE_SENDER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	
 #include "vmsl.h"
 #include "msgctxt.h"
 #include "statistics.h"
@@ -30,6 +26,12 @@ extern "C" {
 #include <inttypes.h>
 
 #include <common/gru_status.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
+
     
 void sender_start(const vmsl_t *vmsl, const options_t *options);
 
