@@ -109,12 +109,12 @@ int perf_main(int argc, char **argv)
             break;
         case 'h':
             show_help();
-            free(apphome);
+            free((char *) apphome);
             return EXIT_SUCCESS;
         default:
             printf("Invalid or missing option\n");
             show_help();
-            free(apphome);
+            free((char *) apphome);
             return EXIT_FAILURE;
         }
     }
@@ -196,13 +196,13 @@ int perf_main(int argc, char **argv)
 success_exit:
     vmsl_destroy(&vmsl);
     options_destroy(&options);
-    free(apphome);
+    free((char *) apphome);
     return EXIT_SUCCESS;
 
 err_exit:
     vmsl_destroy(&vmsl);
     options_destroy(&options);
-    free(apphome);
+    free((char *) apphome);
     return EXIT_FAILURE;
 }
 

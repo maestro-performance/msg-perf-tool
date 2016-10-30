@@ -33,16 +33,12 @@
 #include <config/gru_config.h>
 
 #include "vmsl.h"
+#include "vmsl_assign.h"
 #include "process_utils.h"
 #include "config.h"
 
-#if defined(__STOMP_SUPPORT__)
- #include "stomp-wrapper.h"
-#endif // __STOMP_SUPPORT__
+#include "tune_sender.h"
 
-#if defined(__AMQP_SUPPORT__)
- #include "proton-wrapper.h"
-#endif // __AMQP_SUPPORT__
 
 #ifdef __cplusplus
 extern "C" {
