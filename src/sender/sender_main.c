@@ -29,8 +29,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     else {     
-        char **new_argv=argv++;
-        return perf_main(argc, new_argv);
+        return perf_main((argc - 1), &argv[1]);
     }
     
     return EXIT_SUCCESS;
