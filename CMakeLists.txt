@@ -26,6 +26,19 @@ SET(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
 SET(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
 
 
+macro(SetLinkDirByPlatform PREFIX)
+    if (${APP_BUILD_PLATFORM} EQUAL "64")
+            link_directories(
+                ${PREFIX}/lib64
+            )
+    else(${APP_BUILD_PLATFORM} EQUAL "64")
+        link_directories(
+                ${PREFIX}/lib
+        )
+    endif(${APP_BUILD_PLATFORM} EQUAL "64")
+ENDMACRO(SetLinkDirByPlatform PREFIX)
+
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_definitions(-DLINUX_BUILD)
 
@@ -60,15 +73,8 @@ endif (CMAKE_COMPILER_IS_GNUCXX)
 SET(GRU_DIR /usr CACHE String "GRU install prefix")
 add_definitions(-D__GRU_SUPPORT__)
 include_directories(${GRU_DIR}/include/gru)
-if (${APP_BUILD_PLATFORM} EQUAL "64")
-        link_directories(
-                ${GRU_DIR}/lib64
-        )
-else(${APP_BUILD_PLATFORM} EQUAL "64")
-        link_directories(
-                ${GRU_DIR}/lib
-        )
-endif(${APP_BUILD_PLATFORM} EQUAL "64")
+SetLinkDirByPlatform(${GRU_DIR})
+
 link_libraries(gru)
 
 include_directories(src/common)
@@ -86,15 +92,7 @@ if (${AMQP_SUPPORT})
             .
     )
 
-    if (${APP_BUILD_PLATFORM} EQUAL "64")
-            link_directories(
-                    ${PROTON_DIR}/lib64
-            )
-    else(${APP_BUILD_PLATFORM} EQUAL "64")
-            link_directories(
-                    ${PROTON_DIR}/lib
-            )
-    endif(${APP_BUILD_PLATFORM} EQUAL "64")
+    SetLinkDirByPlatform(${PROTON_DIR})
 
     include_directories(src/api/qpid-proton)
     add_subdirectory(src/api/qpid-proton objs/api/qpid-proton)
@@ -113,15 +111,7 @@ if (${STOMP_SUPPORT})
             .
     )
 
-    if (${APP_BUILD_PLATFORM} EQUAL "64")
-            link_directories(
-                    ${STOMP_DIR}/lib64
-            )
-    else(${APP_BUILD_PLATFORM} EQUAL "64")
-            link_directories(
-                    ${STOMP_DIR}/lib
-            )
-    endif(${APP_BUILD_PLATFORM} EQUAL "64")
+    SetLinkDirByPlatform(${STOMP_DIR})
 
     include_directories(src/api/litestomp)
     add_subdirectory(src/api/litestomp objs/api/litestomp)
