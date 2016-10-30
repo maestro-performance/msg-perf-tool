@@ -13,23 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef SENDER_H
-#define SENDER_H
+#include "tune_sender.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "sender_perf_main.h"
-#include "sender_tune_main.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-#ifdef __cplusplus
+void tune_start(const vmsl_t *vmsl, const options_t *options) {
+    logger_t logger = gru_logger_get();
+    
+    logger(INFO, "Initializing tune");
 }
-#endif
-
-#endif /* SENDER_H */

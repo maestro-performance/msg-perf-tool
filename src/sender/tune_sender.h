@@ -13,23 +13,30 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef SENDER_H
-#define SENDER_H
+#ifndef TUNE_SENDER_H
+#define TUNE_SENDER_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "vmsl.h"
+#include "msgctxt.h"
+#include "statistics.h"
+#include "contrib/options.h"
+    
+#include <signal.h>
+#include <unistd.h>
+#include <inttypes.h>
 
-#include "sender_perf_main.h"
-#include "sender_tune_main.h"
+#include <common/gru_status.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
+void tune_start(const vmsl_t *vmsl, const options_t *options);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SENDER_H */
+#endif /* TUNE_SENDER_H */
+

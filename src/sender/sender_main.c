@@ -17,7 +17,8 @@
 
 void show_help() {
     printf("Usage: \n");
-    printf("\t\tperf\tRun a performance test against a message broker");
+    printf("\t\tperf\tRun a performance test against a message broker\n");
+    printf("\t\ttune\tTries to automatically determine the sustained throughput\n");
 }
 
 
@@ -28,8 +29,14 @@ int main(int argc, char **argv)
         
         return EXIT_FAILURE;
     }
-    else {     
-        return perf_main((argc - 1), &argv[1]);
+    else {
+        if (strncmp(argv[1], "perf", 4) == 0) {
+            return perf_main((argc - 1), &argv[1]);
+        }
+        
+        if (strncmp(argv[1], "tune", 4) == 0) {
+            return tune_main((argc - 1), &argv[1]);
+        }
     }
     
     return EXIT_SUCCESS;
