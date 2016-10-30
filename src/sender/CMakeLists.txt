@@ -5,9 +5,10 @@ if (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
 endif (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
 
 add_executable(
-	mpt-sender
-	sender_main.c
-  message_sender.c
+    mpt-sender
+    sender_main.c
+    sender_perf_main.c
+    message_sender.c
 )
 
 if (${STOMP_SUPPORT})

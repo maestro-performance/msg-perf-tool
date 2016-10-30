@@ -13,22 +13,48 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef SENDER_H
-#define SENDER_H
+#ifndef SENDER_PERF_MAIN_H
+#define SENDER_PERF_MAIN_H
+
+#include <unistd.h>
+#include <sys/wait.h>
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdint.h>
+#include <getopt.h>
+#include <sys/wait.h>
+    
+#include <time/gru_time_utils.h>
 
-#include "sender_perf_main.h"
+#include "contrib/options.h"
+
+#include <common/gru_base.h>
+#include <log/gru_logger.h>
+#include <config/gru_config.h>
+
+#include "vmsl.h"
+#include "message_sender.h"
+#include "process_utils.h"
+#include "config.h"
+
+#if defined(__STOMP_SUPPORT__)
+ #include "stomp-wrapper.h"
+#endif // __STOMP_SUPPORT__
+
+#if defined(__AMQP_SUPPORT__)
+ #include "proton-wrapper.h"
+#endif // __AMQP_SUPPORT__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+int perf_main(int argc, char **argv);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SENDER_H */
+#endif /* SENDER_PERF_MAIN_H */
+
