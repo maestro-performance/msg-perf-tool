@@ -163,7 +163,7 @@ int main(int argc, char **argv)
       }
     }
 
-    int childs[5];
+    int childs[64];
     int child = 0;
     logger_t logger = get_logger();
 

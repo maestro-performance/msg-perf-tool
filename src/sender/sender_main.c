@@ -179,7 +179,7 @@ int main(int argc, char **argv)
     /**
      * TODO: fix this
      */
-    int childs[32];
+    int childs[64];
     int child = 0;
 
     logger_t logger = get_logger();
