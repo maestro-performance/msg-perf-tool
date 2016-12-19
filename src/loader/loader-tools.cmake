@@ -17,6 +17,6 @@ set(SHARED_DATA_OUTPUT_PATH ${CMAKE_BINARY_DIR}/../../build/target/share/mpt)
 
 # ... then traverse subdirectories
 foreach(config ${loader_config}) 
-    message("Copying configuration data ${CMAKE_CURRENT_SOURCE_DIR}/${config} to shared data dir ${SHARED_DATA_OUTPUT_PATH}")
+    message(STATUS "Copying configuration data ${CMAKE_CURRENT_SOURCE_DIR}/${config} to shared data dir ${SHARED_DATA_OUTPUT_PATH}")
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${config} DESTINATION ${SHARED_DATA_OUTPUT_PATH})
 endforeach(config)
