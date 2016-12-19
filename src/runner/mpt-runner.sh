@@ -272,6 +272,7 @@ for file in $LOG_DIR/sender-throughput-*.csv ; do
   ${app_path}/mpt-loader.py --load throughput \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
+    --test-start-time "${start_time}" \
     --quiet \
     --test-run "${TEST_RUN}" \
   	--msg-direction sender \
@@ -283,6 +284,7 @@ for file in $LOG_DIR/receiver-throughput-*.csv ; do
   ${app_path}/mpt-loader.py --load throughput \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
+    --test-start-time "${start_time}" \
     --quiet \
     --test-run "${TEST_RUN}" \
   	--msg-direction receiver \
@@ -294,9 +296,9 @@ for file in $LOG_DIR/receiver-latency-*.csv ; do
   ${app_path}/mpt-loader.py --load latency \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
+    --test-start-time "${start_time}" \
     --quiet \
     --test-run "${TEST_RUN}" \
   	--msg-direction receiver \
   	--filename ${file}
-
 done
