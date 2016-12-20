@@ -141,7 +141,7 @@ int main(int argc, char **argv)
             show_help();
             return EXIT_SUCCESS;
         default:
-            printf("Invalid or missing option\n");
+            printf("Invalid or missing option: %c\n", c);
             show_help();
             break;
         }
