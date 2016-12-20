@@ -58,13 +58,13 @@ endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 #### GNU Compiler flags
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_C_FLAGS "-Wall -Wshadow -std=c99" CACHE STRING
+	set(CMAKE_C_FLAGS "-Wall -Wshadow -std=c99 ${CMAKE_C_FLAGS}" CACHE STRING
 		"Flags used by the compiler during all build types." FORCE
 	)
-        set(CMAKE_C_FLAGS_DEBUG "-fdiagnostics-color=auto -g" CACHE STRING
+        set(CMAKE_C_FLAGS_DEBUG "-fdiagnostics-color=auto -g ${CMAKE_C_FLAGS_DEBUG}" CACHE STRING
 		"Flags used by the compiler during debug build." FORCE
 	)
-        set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer" CACHE STRING
+        set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -D_FORTIFY_SOURCE=1 ${CMAKE_C_FLAGS_RELEASE}" CACHE STRING
 		"Flags used by the compiler during release build." FORCE
 	)
 endif (CMAKE_COMPILER_IS_GNUCXX)
