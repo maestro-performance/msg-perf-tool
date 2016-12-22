@@ -31,10 +31,10 @@ int tune_main(int argc, char **argv)
 {
     int c = 0;
     int option_index = 0;
-    
+
     if (argc < 2) {
         show_help();
-        
+
         return EXIT_FAILURE;
     }
 
@@ -45,12 +45,12 @@ int tune_main(int argc, char **argv)
     }
 
     set_options_object(options);
-        
+
     const char *apphome = gru_base_app_home("mpt");
     config_init(options, apphome, "mpt-sender.ini");
-    
+
     gru_logger_set(gru_logger_default_printer);
-    
+
     while (1) {
 
         static struct option long_options[] = {
@@ -112,11 +112,11 @@ int tune_main(int argc, char **argv)
     }
 
     logger_t logger = gru_logger_get();
-    
+
     tune_start(vmsl, options);
-    
+
     logger(INFO, "Tune execution terminated successfully");
-    
+
 success_exit:
     vmsl_destroy(&vmsl);
     options_destroy(&options);

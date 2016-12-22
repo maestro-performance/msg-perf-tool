@@ -20,19 +20,26 @@
 #include "msgctxt.h"
 #include "statistics.h"
 #include "contrib/options.h"
-    
+
 #include <signal.h>
 #include <unistd.h>
 #include <inttypes.h>
 
 #include <common/gru_status.h>
+#include <network/gru_uri.h>
+
+#include <management/common/bmic_complements_java.h>
+#include <management/common/bmic_queue_stat.h>
+
+#include <context/bmic_context.h>
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-void tune_start(const vmsl_t *vmsl, const options_t *options);
+int tune_start(const vmsl_t *vmsl, const options_t *options);
 
 #ifdef __cplusplus
 }
