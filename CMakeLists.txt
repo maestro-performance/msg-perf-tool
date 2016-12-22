@@ -77,6 +77,19 @@ SetLinkDirByPlatform(${GRU_DIR})
 
 link_libraries(gru)
 
+
+#### BMIC STUFF
+SET(BMIC_DIR /usr CACHE String "BMIC install prefix")
+add_definitions(-D__BMIC_SUPPORT__)
+include_directories(${BMIC_DIR}/include/bmic)
+SetLinkDirByPlatform(${BMIC_DIR})
+
+link_libraries(
+    bmic-base
+    bmic-management
+    bmic-product
+)
+
 include_directories(src/common)
 add_subdirectory(src/common objs/common)
 
