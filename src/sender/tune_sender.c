@@ -184,7 +184,7 @@ uint32_t tune_calc_approximate(perf_stats_t stats, bmic_queue_stat_t qstat,
 
 	uint64_t elapsed = gru_duration_seconds(duration);
 
-	double approximate = (stats.sent - qstat.queue_size) / 60;
+	double approximate = (stats.sent - qstat.queue_size) / elapsed;
 
 	return trunc(approximate);
 }
@@ -232,6 +232,8 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 		return EXIT_FAILURE;
 	}
 
+    uint16_t multiplier[5] = { 2, 3, 5, 10, 20};
+
 	uint32_t approximate = 0;
 	for (int i = 0; i < steps; i++) {
 		gru_duration_t duration_object = gru_duration_from_minutes(duration[i]);
@@ -251,11 +253,16 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 		}
 
 
-		printf("Step %d finished. Calculating approximate\n", i);
+		printf("Step %d finished. Calculating approximate sustained throughput\n", i);
 		approximate = tune_calc_approximate(pstats, qstats, duration_object, &status);
+        printf("Approximate sustained throughput before applying multiplier: %"PRIu32"\n", approximate);
+
+        approximate += (approximate / multiplier[i]);
 
 		printf("Sent: %"PRIu64". Queue size. %"PRId64". Received %"PRIu64". Approximate: %"PRIu32"\n",
 			 pstats.sent, qstats.queue_size, qstats.msg_ack_count, approximate);
+        printf("Sleeping for 10 seconds to let the receiver catch up\n");
+        sleep(10);
 	}
 
 	bmic_context_cleanup(&ctxt);
