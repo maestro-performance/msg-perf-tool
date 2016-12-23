@@ -69,6 +69,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	)
 endif (CMAKE_COMPILER_IS_GNUCXX)
 
+link_libraries(m)
+
 #### GRU STUFF
 SET(GRU_DIR /usr CACHE String "GRU install prefix")
 add_definitions(-D__GRU_SUPPORT__)
