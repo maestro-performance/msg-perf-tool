@@ -16,28 +16,25 @@
 #include "sender_main.h"
 
 void show_help() {
-    printf("Usage: \n");
-    printf("\t\tperf\tRun a performance test against a message broker\n");
-    printf("\t\ttune\tTries to automatically determine the sustained throughput\n");
+	printf("Usage: \n");
+	printf("\t\tperf\tRun a performance test against a message broker\n");
+	printf("\t\ttune\tTries to automatically determine the sustained throughput\n");
 }
 
+int main(int argc, char **argv) {
+	if (argc < 2) {
+		show_help();
 
-int main(int argc, char **argv)
-{
-    if (argc < 2) {
-        show_help();
-        
-        return EXIT_FAILURE;
-    }
-    else {
-        if (strncmp(argv[1], "perf", 4) == 0) {
-            return perf_main((argc - 1), &argv[1]);
-        }
-        
-        if (strncmp(argv[1], "tune", 4) == 0) {
-            return tune_main((argc - 1), &argv[1]);
-        }
-    }
-    
-    return EXIT_SUCCESS;
+		return EXIT_FAILURE;
+	} else {
+		if (strncmp(argv[1], "perf", 4) == 0) {
+			return perf_main((argc - 1), &argv[1]);
+		}
+
+		if (strncmp(argv[1], "tune", 4) == 0) {
+			return tune_main((argc - 1), &argv[1]);
+		}
+	}
+
+	return EXIT_SUCCESS;
 }

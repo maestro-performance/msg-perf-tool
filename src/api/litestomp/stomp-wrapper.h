@@ -20,16 +20,15 @@
 extern "C" {
 #endif
 
-#include "msgctxt.h"
-#include "timestamp.h"
-#include "statistics.h"
 #include "contrib/options.h"
+#include "msgctxt.h"
+#include "statistics.h"
+#include "timestamp.h"
 
 #include "stomp-context.h"
 
-#include <log/gru_logger.h>
 #include <litestomp/stomp_messenger.h>
-
+#include <log/gru_logger.h>
 
 msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data);
 void litestomp_stop(msg_ctxt_t *ctxt);
@@ -38,7 +37,6 @@ void litestomp_destroy(msg_ctxt_t *ctxt);
 void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader);
 void litestomp_subscribe(msg_ctxt_t *ctxt, void *data);
 void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content);
-
 
 #ifdef __cplusplus
 }

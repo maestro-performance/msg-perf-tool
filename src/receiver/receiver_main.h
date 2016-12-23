@@ -20,25 +20,23 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
 #include <getopt.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <sys/wait.h>
 
 #include <log/gru_logger.h>
 #include <time/gru_time_utils.h>
-    
-#include "process_utils.h"
+
 #include "contrib/options.h"
+#include "process_utils.h"
 
-
+#include "message_receiver.h"
+#include "statistics.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
-#include "statistics.h"
-#include "message_receiver.h"
 
 #include "process_utils.h"
-
 
 #ifdef __cplusplus
 }

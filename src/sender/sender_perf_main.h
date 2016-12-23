@@ -16,27 +16,27 @@
 #ifndef SENDER_PERF_MAIN_H
 #define SENDER_PERF_MAIN_H
 
+#include <sys/wait.h>
 #include <unistd.h>
+
+#include <getopt.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <sys/wait.h>
 
-#include <stdio.h>
-#include <stdint.h>
-#include <getopt.h>
-#include <sys/wait.h>
-    
 #include <time/gru_time_utils.h>
 
 #include "contrib/options.h"
 
 #include <common/gru_base.h>
-#include <log/gru_logger.h>
 #include <config/gru_config.h>
+#include <log/gru_logger.h>
 
-#include "vmsl.h"
-#include "vmsl_assign.h"
+#include "config.h"
 #include "message_sender.h"
 #include "process_utils.h"
-#include "config.h"
+#include "vmsl.h"
+#include "vmsl_assign.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,10 +44,8 @@ extern "C" {
 
 int perf_main(int argc, char **argv);
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* SENDER_PERF_MAIN_H */
-

@@ -16,29 +16,28 @@
 #ifndef SENDER_TUNE_MAIN_H
 #define SENDER_TUNE_MAIN_H
 
+#include <sys/wait.h>
 #include <unistd.h>
+
+#include <getopt.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <sys/wait.h>
 
-#include <stdio.h>
-#include <stdint.h>
-#include <getopt.h>
-#include <sys/wait.h>
-    
 #include <time/gru_time_utils.h>
 
 #include "contrib/options.h"
 
 #include <common/gru_base.h>
-#include <log/gru_logger.h>
 #include <config/gru_config.h>
+#include <log/gru_logger.h>
 
+#include "config.h"
+#include "process_utils.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
-#include "process_utils.h"
-#include "config.h"
 
 #include "tune_sender.h"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,10 +45,8 @@ extern "C" {
 
 int tune_main(int argc, char **argv);
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* SENDER_TUNE_MAIN_H */
-

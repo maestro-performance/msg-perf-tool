@@ -16,14 +16,14 @@
 #ifndef TUNE_SENDER_H
 #define TUNE_SENDER_H
 
-#include "vmsl.h"
+#include "contrib/options.h"
 #include "msgctxt.h"
 #include "statistics.h"
-#include "contrib/options.h"
+#include "vmsl.h"
 
+#include <inttypes.h>
 #include <signal.h>
 #include <unistd.h>
-#include <inttypes.h>
 
 #include <common/gru_status.h>
 #include <network/gru_uri.h>
@@ -33,11 +33,9 @@
 
 #include <context/bmic_context.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 int tune_start(const vmsl_t *vmsl, const options_t *options);
 
@@ -46,4 +44,3 @@ int tune_start(const vmsl_t *vmsl, const options_t *options);
 #endif
 
 #endif /* TUNE_SENDER_H */
-

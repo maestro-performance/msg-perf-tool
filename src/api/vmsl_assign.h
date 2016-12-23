@@ -1,12 +1,12 @@
 /**
  Copyright 2016 Otavio Rodolfo Piske
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
  http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,18 +21,16 @@
 #include "vmsl.h"
 
 #if defined(__STOMP_SUPPORT__)
- #include "stomp-wrapper.h"
+#include "stomp-wrapper.h"
 #endif // __STOMP_SUPPORT__
 
 #if defined(__AMQP_SUPPORT__)
- #include "proton-wrapper.h"
+#include "proton-wrapper.h"
 #endif // __AMQP_SUPPORT__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-
 
 bool vmsl_assign_by_url(const char *url, vmsl_t *vmsl);
 
@@ -41,4 +39,3 @@ bool vmsl_assign_by_url(const char *url, vmsl_t *vmsl);
 #endif
 
 #endif /* VMSL_INIT_H */
-
