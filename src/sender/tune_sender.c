@@ -17,7 +17,6 @@
 
 typedef struct perf_stats_t_ {
 	uint64_t sent;
-	uint64_t queue_size;
 } perf_stats_t;
 
 static bool interrupted = false;
@@ -127,28 +126,32 @@ static bool tune_get_queue_stats(const bmic_context_t *ctxt, const options_t *op
 	const bmic_exchange_t *cap =  ctxt->api->capabilities_load(ctxt->handle, status);
 	if (!cap) {
 		bmic_context_cleanup(&ctxt);
+		fprintf(stderr, "Unable to load capabilities\n");
 		return false;
 	}
 
 	*stat = ctxt->api->queue_stats(ctxt->handle, cap, "test.performance.queue",
 								 status);
 	if (status->code != GRU_SUCCESS) {
+		fprintf(stderr, "Unable to read queue stats\n");
 		return false;
 	}
+	printf("Queue size: %"PRId64"\n", stat->queue_size);
 
 	return true;
 }
 
 
-static perf_stats_t tune_exec_step(const vmsl_t *vmsl, const options_t *options,
+static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 								   uint32_t step, gru_duration_t duration, uint32_t throttle)
 {
+	perf_stats_t ret = {0};
+
 	// Open stdout ... never FAIL.
 	stat_io_t *stat_io = statistics_init_stdout(SENDER, NULL);
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
 
 	mpt_timestamp_t last;
-    mpt_timestamp_t start = statistics_now();
 
 	register uint64_t sent = 0;
 	time_t last_calc = 0;
@@ -162,8 +165,8 @@ static perf_stats_t tune_exec_step(const vmsl_t *vmsl, const options_t *options,
             last_calc = last.tv_sec;
         }
 
-        if (options->throttle > 0) {
-            if (((sent % options->throttle) == 0)) {
+        if (throttle > 0) {
+            if (((sent % throttle) == 0)) {
                 usleep(1000000 - last.tv_usec);
             }
         }
@@ -171,6 +174,9 @@ static perf_stats_t tune_exec_step(const vmsl_t *vmsl, const options_t *options,
 
     vmsl->stop(msg_ctxt);
     vmsl->destroy(msg_ctxt);
+
+	ret.sent = sent;
+	return ret;
 }
 
 uint32_t tune_calc_approximate(perf_stats_t stats, bmic_queue_stat_t qstat,
@@ -191,7 +197,7 @@ static bool tune_init_bmic_ctxt(const options_t *options, bmic_context_t *ctxt,
 	logger(INFO, "Resolved host to %s", uri.host);
 
 	bool ret = bmic_context_init_simple(ctxt, uri.host, "admin", "admin",
-									 &status);
+									 status);
 	gru_uri_cleanup(&uri);
 
 	if (!ret) {
@@ -211,7 +217,7 @@ static bool tune_init_bmic_ctxt(const options_t *options, bmic_context_t *ctxt,
 
 
 int tune_start(const vmsl_t *vmsl, const options_t *options) {
-	gru_status_t status = {0};
+	gru_status_t status = gru_status_new();
     logger_t logger = gru_logger_get();
 
     logger(INFO, "Initializing tune");
@@ -229,18 +235,29 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 	uint32_t approximate = 0;
 	for (int i = 0; i < steps; i++) {
 		gru_duration_t duration_object = gru_duration_from_minutes(duration[i]);
+
+		printf("Starting step %d. Duration %"PRIu64"\n", i, duration[i]);
+
 		perf_stats_t pstats = tune_exec_step(options, vmsl, i, duration_object, approximate);
+		printf("Step %d finished sending data. Reading queue stats\n", i);
 
 		bmic_queue_stat_t qstats = {0};
 		bool stat_ret = tune_get_queue_stats(&ctxt, options, &qstats, &status);
-		if (stat_ret != GRU_SUCCESS) {
-			fprintf(stderr, "%s\n", status.message);
+		if (!stat_ret) {
+			fprintf(stderr, "Error: %s\n", status.message);
 
+			bmic_context_cleanup(&ctxt);
 			return EXIT_FAILURE;
 		}
 
+
+		printf("Step %d finished. Calculating approximate\n", i);
 		approximate = tune_calc_approximate(pstats, qstats, duration_object, &status);
+
+		printf("Sent: %"PRIu64". Queue size. %"PRId64". Received %"PRIu64". Approximate: %"PRIu32"\n",
+			 pstats.sent, qstats.queue_size, qstats.msg_ack_count, approximate);
 	}
 
+	bmic_context_cleanup(&ctxt);
 	return EXIT_SUCCESS;
 }
