@@ -30,6 +30,7 @@ set(MPT_SHARED_DIR ${SHARED_DIR}/mpt)
 
 SET(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
 SET(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
+SET(MQTT_SUPPORT ON CACHE BOOL "Enable MQTT 3.x support")
 
 include_directories(${GRU_INCLUDE_DIR} ${JSON_INCLUDE_DIR} ${BMIC_INCLUDE_DIR})
 link_libraries(${MATH_LIB} ${GRU_LIB} ${BMIC_BASE_LIB} ${BMIC_MANAGEMENT_LIB} ${BMIC_PRODUCT_LIB})
@@ -58,6 +59,25 @@ if (${STOMP_SUPPORT})
     include_directories(src/api/litestomp)
     add_subdirectory(src/api/litestomp objs/api/litestomp)
 endif(${STOMP_SUPPORT})
+
+
+#### PROTON STUFF
+
+if (${MQTT_SUPPORT})
+    message(STATUS "MQTT support is enabled")
+    add_definitions(-D__MQTT_SUPPORT__)
+    set(PAHO_DIR /usr CACHE String "Paho C base directory")
+
+    include_directories(
+            ${PAHO_DIR}/include
+            .
+    )
+
+    SetLinkDirByPlatform(${PAHO_DIR})
+
+    include_directories(src/api/paho-c)
+    add_subdirectory(src/api/paho-c objs/api/paho-c)
+endif(${MQTT_SUPPORT})
 
 include_directories(src/api)
 add_subdirectory(src/api objs/api)

@@ -11,11 +11,16 @@ if (${AMQP_SUPPORT})
   set(AMQP_LIBRARIES mpt-proton)
 endif(${AMQP_SUPPORT})
 
+if (${MQTT_SUPPORT})
+  set(MQTT_LIBRARIES mpt-paho)
+endif(${MQTT_SUPPORTT})
+
 target_link_libraries(
     mpt-api-common
     mpt-common
     ${AMQP_LIBRARIES}
     ${STOMP_LIBRARIES}
+    ${MQTT_LIBRARIES}
 )
 
 install(TARGETS mpt-api-common
