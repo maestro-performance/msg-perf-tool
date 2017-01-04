@@ -91,11 +91,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'h':
 				show_help();
-				free(apphome);
 				return EXIT_SUCCESS;
 			default:
 				printf("Invalid or missing option\n");
-				free(apphome);
 				show_help();
 				break;
 		}
@@ -162,12 +160,10 @@ int main(int argc, char **argv) {
 success_exit:
 	vmsl_destroy(&vmsl);
 	options_destroy(&options);
-	free(apphome);
 	return EXIT_SUCCESS;
 
 err_exit:
 	vmsl_destroy(&vmsl);
 	options_destroy(&options);
-	free(apphome);
 	return EXIT_FAILURE;
 }
