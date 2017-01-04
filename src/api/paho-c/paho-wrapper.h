@@ -24,7 +24,8 @@
 #include "paho-context.h"
 #include "statistics.h"
 
-
+#define QOS_AT_MOST_ONCE 1
+#define TIMEOUT     10000L
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,4 +44,3 @@ void paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content);
 #endif
 
 #endif /* PAHO_WRAPPER_H */
-
