@@ -13,7 +13,7 @@ endif(${AMQP_SUPPORT})
 
 if (${MQTT_SUPPORT})
   set(MQTT_LIBRARIES mpt-paho)
-endif(${MQTT_SUPPORTT})
+endif(${MQTT_SUPPORT})
 
 target_link_libraries(
     mpt-api-common
@@ -26,7 +26,3 @@ target_link_libraries(
 install(TARGETS mpt-api-common
 	LIBRARY DESTINATION ${CPP_LIBRARY_DIR}
 )
-
-
-
-
