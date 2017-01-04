@@ -15,23 +15,26 @@
  */
 #include "sender_perf_main.h"
 
-static void show_help() {
-	printf("Usage: ");
-	printf("\t-b\t--broker-url=<url> broker-url\n");
-	printf("\t-c\t--count=<value> sends a fixed number of messages\n");
-	printf("\t-l\t--log-level=<level> runs in the given verbose (info, stat, "
-		   "debug, etc) level mode\n");
-	printf("\t-p\t--parallel-count=<value> number of parallel connections to the "
-		   "server\n");
-	printf("\t-d\t--duration=<value> runs for a fixed amount of time (in "
-		   "minutes)\n");
-	printf("\t-s\t--size=<value> message size (in bytes)\n");
-	printf("\t-L\t--logdir=<logdir> a directory to save the logs (mandatory for "
-		   "--daemon)\n");
-	printf("\t-t\t--throttle=<value> sets a fixed rate of messages (in messages "
-		   "per second per connection)\n");
-	printf("\t-D\t--daemon run as a daemon in the background\n");
-	printf("\t-h\t--help show this help\n");
+static void show_help(char **argv) {
+	gru_cli_program_usage("mpt-sender", argv[0]);
+
+	gru_cli_option_help("help", "h", "show this help");
+
+	gru_cli_option_help("broker-url", "b", "broker-url to connect to");
+	gru_cli_option_help("count", "c", "sends a fixed number of messages");
+	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
+	gru_cli_option_help("duration", "d", "runs for a fixed amount of time (in minutes)");
+	gru_cli_option_help("log-level", "l",
+					 "runs in the given verbose (info, stat, debug, etc) level mode");
+	gru_cli_option_help("log-dir", "L",
+					 "a directory to save the logs (mandatory for --daemon)");
+	gru_cli_option_help("parallel-count", "p",
+					 "number of parallel connections to the broker");
+
+	gru_cli_option_help("size", "s", "message size (in bytes)");
+	gru_cli_option_help("throttle", "t",
+					 "sets a fixed rate of messages (in messages per second per connection)");
+
 }
 
 int perf_main(int argc, char **argv) {
@@ -39,7 +42,7 @@ int perf_main(int argc, char **argv) {
 	int option_index = 0;
 
 	if (argc < 2) {
-		show_help();
+		show_help(argv);
 
 		return EXIT_FAILURE;
 	}
@@ -59,11 +62,17 @@ int perf_main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {{"broker-url", true, 0, 'b'},
-			{"count", true, 0, 'c'}, {"log-level", true, 0, 'l'},
-			{"parallel-count", true, 0, 'p'}, {"duration", true, 0, 'd'},
-			{"size", true, 0, 's'}, {"logdir", true, 0, 'L'}, {"throttle", true, 0, 't'},
-			{"daemon", false, 0, 'D'}, {"help", false, 0, 'h'}, {0, 0, 0, 0}};
+		static struct option long_options[] = {
+			{"broker-url", true, 0, 'b'},
+			{"count", true, 0, 'c'},
+			{"log-level", true, 0, 'l'},
+			{"parallel-count", true, 0, 'p'},
+			{"duration", true, 0, 'd'},
+			{"size", true, 0, 's'},
+			{"log-dir", true, 0, 'L'},
+			{"throttle", true, 0, 't'},
+			{"daemon", false, 0, 'D'},
+			{"help", false, 0, 'h'}, {0, 0, 0, 0}};
 
 		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:Dh", long_options, &option_index);
 		if (c == -1) {
@@ -103,11 +112,11 @@ int perf_main(int argc, char **argv) {
 				options->daemon = true;
 				break;
 			case 'h':
-				show_help();
+				show_help(argv);
 				return EXIT_SUCCESS;
 			default:
 				printf("Invalid or missing option\n");
-				show_help();
+				show_help(argv);
 				return EXIT_FAILURE;
 		}
 	}
