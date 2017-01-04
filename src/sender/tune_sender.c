@@ -108,15 +108,15 @@ static void content_loader(msg_content_data_t *content_data) {
 }
 
 static bool tune_get_queue_stats(const bmic_context_t *ctxt, const options_t *options,
-	bmic_queue_stat_t *stat, gru_status_t *status) {
+	const char *name, bmic_queue_stat_t *stat, gru_status_t *status) {
 	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
+
 	if (!cap) {
-		bmic_context_cleanup(&ctxt);
 		fprintf(stderr, "Unable to load capabilities\n");
 		return false;
 	}
 
-	*stat = ctxt->api->queue_stats(ctxt->handle, cap, "test.performance.queue", status);
+	*stat = ctxt->api->queue_stats(ctxt->handle, cap, name, status);
 	if (status->code != GRU_SUCCESS) {
 		fprintf(stderr, "Unable to read queue stats\n");
 		return false;
@@ -124,6 +124,33 @@ static bool tune_get_queue_stats(const bmic_context_t *ctxt, const options_t *op
 	printf("Queue size: %" PRId64 "\n", stat->queue_size);
 
 	return true;
+}
+
+static bool tune_purge_queue(const bmic_context_t *ctxt, const options_t *options,
+	const char *name, gru_status_t *status) {
+
+	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
+	if (!cap) {
+		fprintf(stderr, "Unable to load capabilities\n");
+		return false;
+	}
+
+	bool ret = false;
+
+
+	printf("Cleaning the queue\n");
+	ret = ctxt->api->queue_purge(ctxt->handle, cap, name, status);
+	if (status->code != GRU_SUCCESS) {
+		fprintf(stderr, "Unable to purge queue\n");
+	}
+
+	printf("Reseting statistics\n");
+	ret = ctxt->api->queue_reset(ctxt->handle, cap, name, status);
+	if (status->code != GRU_SUCCESS) {
+		fprintf(stderr, "Unable to reset queue counters\n");
+	}
+
+	return ret;
 }
 
 static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
@@ -217,6 +244,12 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 
 	uint32_t approximate = 0;
 	for (int i = 0; i < steps; i++) {
+		bool tret = tune_purge_queue(&ctxt, options, "test.performance.queue", &status);
+		if (!tret) {
+			bmic_context_cleanup(&ctxt);
+			return EXIT_FAILURE;
+		}
+
 		gru_duration_t duration_object = gru_duration_from_minutes(duration[i]);
 
 		printf("Starting step %d. Duration %" PRIu64 "\n", i, duration[i]);
@@ -226,7 +259,8 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 		printf("Step %d finished sending data. Reading queue stats\n", i);
 
 		bmic_queue_stat_t qstats = {0};
-		bool stat_ret = tune_get_queue_stats(&ctxt, options, &qstats, &status);
+		bool stat_ret = tune_get_queue_stats(&ctxt, options, "test.performance.queue",
+											 &qstats, &status);
 		if (!stat_ret) {
 			fprintf(stderr, "Error: %s\n", status.message);
 
