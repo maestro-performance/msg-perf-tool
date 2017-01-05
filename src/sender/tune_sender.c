@@ -171,7 +171,6 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	mpt_timestamp_t now;
 
 	register uint64_t sent = 0;
-	register uint64_t round = 0;
 	time_t last_calc = 0;
 
 
@@ -189,7 +188,6 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 
 
 		if (throttle > 0) {
-			round++;
 			if (sent == throttle) {
 				usleep(1000000 - now.tv_usec);
 			}
