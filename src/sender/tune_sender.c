@@ -107,6 +107,16 @@ static void content_loader(msg_content_data_t *content_data) {
 	content_data->data = data;
 }
 
+static void tune_print_stat(uint32_t steps, const char *msg, ...) {
+	va_list ap;
+
+	printf("%s%s[Step %d] %s", RESET, LIGHT_WHITE, steps, RESET);
+
+	va_start(ap, msg);
+	vprintf(msg, ap);
+	va_end(ap);
+}
+
 static bool tune_get_queue_stats(const bmic_context_t *ctxt, const options_t *options,
 	const char *name, bmic_queue_stat_t *stat, gru_status_t *status) {
 	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
@@ -137,14 +147,11 @@ static bool tune_purge_queue(const bmic_context_t *ctxt, const options_t *option
 
 	bool ret = false;
 
-
-	printf("Cleaning the queue\n");
 	ret = ctxt->api->queue_purge(ctxt->handle, cap, name, status);
 	if (status->code != GRU_SUCCESS) {
 		fprintf(stderr, "Unable to purge queue\n");
 	}
 
-	printf("Reseting statistics\n");
 	ret = ctxt->api->queue_reset(ctxt->handle, cap, name, status);
 	if (status->code != GRU_SUCCESS) {
 		fprintf(stderr, "Unable to reset queue counters\n");
@@ -161,23 +168,30 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	stat_io_t *stat_io = statistics_init_stdout(SENDER, NULL);
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
 
-	mpt_timestamp_t last;
+	mpt_timestamp_t now;
 
 	register uint64_t sent = 0;
+	register uint64_t round = 0;
 	time_t last_calc = 0;
+
 
 	while (can_continue(duration)) {
 		vmsl->send(msg_ctxt, content_loader);
 		sent++;
-		last = statistics_now();
+		now = statistics_now();
 
-		if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
-			last_calc = last.tv_sec;
+		if (last_calc <= (now.tv_sec - 10)) {
+			printf(CLEAR_LINE);
+			tune_print_stat(step, "+");
+			last_calc = now.tv_sec;
+			fflush(NULL);
 		}
 
+
 		if (throttle > 0) {
-			if (((sent % throttle) == 0)) {
-				usleep(1000000 - last.tv_usec);
+			round++;
+			if (sent == throttle) {
+				usleep(1000000 - now.tv_usec);
 			}
 		}
 	}
@@ -224,6 +238,8 @@ static bool tune_init_bmic_ctxt(
 	return true;
 }
 
+
+
 int tune_start(const vmsl_t *vmsl, const options_t *options) {
 	gru_status_t status = gru_status_new();
 	logger_t logger = gru_logger_get();
@@ -244,19 +260,22 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 
 	uint32_t approximate = 0;
 	for (int i = 0; i < steps; i++) {
+		printf(CLEAR_LINE);
+		tune_print_stat(i, "Cleaning the queue");
 		bool tret = tune_purge_queue(&ctxt, options, "test.performance.queue", &status);
 		if (!tret) {
 			bmic_context_cleanup(&ctxt);
 			return EXIT_FAILURE;
 		}
 
+		printf(CLEAR_LINE);
 		gru_duration_t duration_object = gru_duration_from_minutes(duration[i]);
+		tune_print_stat(i, "Duration %" PRIu64 " minutes\n", duration[i]);
 
-		printf("Starting step %d. Duration %" PRIu64 "\n", i, duration[i]);
 
 		perf_stats_t pstats =
 			tune_exec_step(options, vmsl, i, duration_object, approximate);
-		printf("Step %d finished sending data. Reading queue stats\n", i);
+		tune_print_stat(i, "Step %d finished sending data. Reading queue stats\n", i);
 
 		bmic_queue_stat_t qstats = {0};
 		bool stat_ret = tune_get_queue_stats(&ctxt, options, "test.performance.queue",
@@ -268,18 +287,21 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 			return EXIT_FAILURE;
 		}
 
-		printf("Step %d finished. Calculating approximate sustained throughput\n", i);
+
+		tune_print_stat(i, "Calculating approximate sustained throughput");
 		approximate = tune_calc_approximate(pstats, qstats, duration_object, &status);
-		printf("Approximate sustained throughput before applying multiplier: %" PRIu32
+
+		printf(CLEAR_LINE);
+		tune_print_stat(i, "Approximate sustained throughput before applying multiplier: %" PRIu32
 			   "\n",
 			approximate);
 
 		approximate += (approximate / multiplier[i]);
 
-		printf("Sent: %" PRIu64 ". Queue size. %" PRId64 ". Received %" PRIu64
+		tune_print_stat(i, "Sent: %" PRIu64 ". Queue size. %" PRId64 ". Received %" PRIu64
 			   ". Approximate: %" PRIu32 "\n",
 			pstats.sent, qstats.queue_size, qstats.msg_ack_count, approximate);
-		printf("Sleeping for 10 seconds to let the receiver catch up\n");
+		tune_print_stat(i, "Sleeping for 10 seconds to let the receiver catch up\n");
 		sleep(10);
 	}
 

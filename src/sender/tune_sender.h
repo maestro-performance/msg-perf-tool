@@ -16,22 +16,25 @@
 #ifndef TUNE_SENDER_H
 #define TUNE_SENDER_H
 
-#include "contrib/options.h"
-#include "msgctxt.h"
-#include "statistics.h"
-#include "vmsl.h"
-
 #include <inttypes.h>
 #include <signal.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 #include <common/gru_status.h>
+#include <common/gru_colors.h>
 #include <network/gru_uri.h>
+
 
 #include <management/common/bmic_complements_java.h>
 #include <management/common/bmic_queue_stat.h>
 
 #include <context/bmic_context.h>
+
+#include "contrib/options.h"
+#include "msgctxt.h"
+#include "statistics.h"
+#include "vmsl.h"
 
 #ifdef __cplusplus
 extern "C" {
