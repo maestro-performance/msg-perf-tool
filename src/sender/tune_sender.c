@@ -168,27 +168,21 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	stat_io_t *stat_io = statistics_init_stdout(SENDER, NULL);
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
 
-	mpt_timestamp_t now;
-
 	register uint64_t sent = 0;
-	time_t last_calc = 0;
+	register uint64_t round = 0;
 
 
 	while (can_continue(duration)) {
 		vmsl->send(msg_ctxt, content_loader);
 		sent++;
-		now = statistics_now();
-
-		if (last_calc <= (now.tv_sec - 10)) {
-			printf(CLEAR_LINE);
-			tune_print_stat(step, "+");
-			last_calc = now.tv_sec;
-			fflush(NULL);
-		}
-
 
 		if (throttle > 0) {
-			if (sent == throttle) {
+			mpt_timestamp_t now = statistics_now();
+
+			round++;
+
+			if (round == throttle) {
+				round = 0;
 				usleep(1000000 - now.tv_usec);
 			}
 		}
