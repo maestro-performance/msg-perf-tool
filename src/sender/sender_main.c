@@ -16,9 +16,13 @@
 #include "sender_main.h"
 
 void show_help() {
-	printf("Usage: \n");
-	printf("\t\tperf\tRun a performance test against a message broker\n");
-	printf("\t\ttune\tTries to automatically determine the sustained throughput\n");
+	gru_cli_general_usage("mpt-sender");
+
+	gru_cli_program_description(
+		"perf", "Runs a performance test against a message broker");
+	gru_cli_program_description("tune",
+							 "Tries to automatically determine the sustained throughput");
+
 }
 
 int main(int argc, char **argv) {

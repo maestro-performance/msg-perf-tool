@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <cli/gru_cli_opt.h>
+
 #include "sender_perf_main.h"
 #include "sender_tune_main.h"
 
