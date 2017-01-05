@@ -130,22 +130,25 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	mpt_timestamp_t start = statistics_now();
 
 	register uint64_t sent = 0;
+	register uint64_t round = 0;
 	time_t last_calc = 0;
 
 	statistics_throughput_header(stat_io);
 	while (can_continue(options, sent)) {
 		vmsl->send(msg_ctxt, content_loader);
 		sent++;
+
 		last = statistics_now();
 
-		if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
+		if (last_calc <= (last.tv_sec - 10)) {
 			statistics_throughput_partial(stat_io, start, last, sent);
 
 			last_calc = last.tv_sec;
 		}
 
 		if (options->throttle > 0) {
-			if (((sent % options->throttle) == 0)) {
+			round++;
+			if (round == options->throttle) {
 				usleep(1000000 - last.tv_usec);
 			}
 		}
