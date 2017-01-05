@@ -210,14 +210,14 @@ static bool tune_init_bmic_ctxt(
 	gru_uri_cleanup(&uri);
 
 	if (!ret) {
-		bmic_context_cleanup(&ctxt);
+		bmic_context_cleanup(ctxt);
 		return false;
 	}
 
 	// Load the capabilities just so that it is cached
 	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
 	if (!cap) {
-		bmic_context_cleanup(&ctxt);
+		bmic_context_cleanup(ctxt);
 		return false;
 	}
 
