@@ -10,6 +10,9 @@ os:
 sudo: true
 language:
   - c
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; brew install uriparser json-c ; fi
+  
 before_script:
   - echo "Installing gru"
   - wget https://github.com/orpiske/gru/tarball/master -O gru-head.tar.gz
