@@ -4,6 +4,12 @@ cmake_minimum_required(VERSION 2.8)
 include(CheckLists.cmake)
 include(CMakeLists.default.cmake)
 
+set(MPT_VERSION 0.1.1)
+set(MPT_VERSION_MAJOR 0)
+set(MPT_VERSION_MINOR 1)
+set(MPT_VERSION_PATCH 1)
+
+add_definitions(-DPROJECT_NAME="${PROJECT_NAME}" -DMPT_VERSION="${MPT_VERSION}")
 
 if (UNIX)
 	message(STATUS "Adding Unix related build rules")
