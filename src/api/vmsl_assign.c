@@ -60,6 +60,27 @@ static bool vmsl_assign_stomp(vmsl_t *vmsl) {
 #endif // __STOMP_SUPPORT__
 }
 
+
+static bool vmsl_assign_mqtt(vmsl_t *vmsl) {
+	logger_t logger = gru_logger_get();
+
+#ifdef __AMQP_SUPPORT__
+	logger(INFO, "Initializing MQTT protocol");
+
+	vmsl->init = paho_init;
+	vmsl->receive = paho_receive;
+	vmsl->subscribe = paho_subscribe;
+	vmsl->send = paho_send;
+	vmsl->stop = paho_stop;
+	vmsl->destroy = paho_destroy;
+
+	return true;
+#else
+	logger(ERROR, "MQTT protocol support was not enabled");
+	return false;
+#endif // __AMQP_SUPPORT__
+}
+
 bool vmsl_assign_by_url(const char *url, vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
@@ -68,6 +89,11 @@ bool vmsl_assign_by_url(const char *url, vmsl_t *vmsl) {
 	} else {
 		if (strncmp(url, "stomp://", 8) == 0) {
 			return vmsl_assign_stomp(vmsl);
+		}
+		else {
+			if (strncmp(url, "mqtt://", 7) == 0) {
+				return vmsl_assign_mqtt(vmsl);
+			}
 		}
 	}
 

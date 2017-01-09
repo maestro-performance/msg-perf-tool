@@ -16,6 +16,10 @@
 #include "paho-wrapper.h"
 #include "paho-context.h"
 
+static inline paho_ctxt_t *paho_ctxt_cast(msg_ctxt_t *ctxt) {
+	return (paho_ctxt_t *) ctxt->api_context;
+}
+
 msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data) {
     logger_t logger = gru_logger_get();
 
@@ -38,28 +42,31 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data) {
 
     gru_status_t status = gru_status_new();
     const options_t *options = get_options_object();
-    gru_uri_t uri = gru_uri_parse(options->url, &status);
-    if (!gru_uri_set_scheme(&uri, "tcp")) {
+    paho_ctxt->uri = gru_uri_parse_ex(options->url, GRU_URI_PARSE_STRIP, &status);
+
+	if (!gru_uri_set_scheme(&paho_ctxt->uri, "tcp")) {
         logger(FATAL, "Unable to adjust the connection URI");
 
         exit(1);
     }
 
-    gru_uri_set_path(&uri, NULL);
-    const char *connect_url = gru_uri_simple_format(&uri, &status);
+    const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE, &status);
 
-
-    MQTTClient_create(&paho_ctxt->client, connect_url, "msg-perf-tool",
+    int rc = MQTTClient_create(&paho_ctxt->client, connect_url, "msg-perf-tool",
         MQTTCLIENT_PERSISTENCE_NONE, NULL);
+	if (rc != MQTTCLIENT_SUCCESS) {
+        logger(FATAL, "Unable to create MQTT client handle: %d", rc);
+
+        exit(-1);
+    }
 
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 
     conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
 
-    int rc = MQTTClient_connect(paho_ctxt->client, &conn_opts);
-    if (rc != MQTTCLIENT_SUCCESS)
-    {
+    rc = MQTTClient_connect(paho_ctxt->client, &conn_opts);
+    if (rc != MQTTCLIENT_SUCCESS) {
         logger(FATAL, "Unable to connect: %d", rc);
 
         exit(-1);
@@ -72,50 +79,90 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data) {
 
 
 void paho_stop(msg_ctxt_t *ctxt) {
-  paho_ctxt_t *paho_ctxt = paho_context_init();
+	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-  MQTTClient_destroy(&paho_ctxt->client);
+	MQTTClient_destroy(&paho_ctxt->client);
 }
 
 
 void paho_destroy(msg_ctxt_t *ctxt) {
+	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
+	MQTTClient_disconnect(paho_ctxt->client, 10000);
 }
 
 void paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
-  MQTTClient_deliveryToken token;
-  MQTTClient_message pubmsg = MQTTClient_message_initializer;
-  msg_content_data_t msg_content;
+	MQTTClient_deliveryToken token;
+	MQTTClient_message pubmsg = MQTTClient_message_initializer;
+	msg_content_data_t msg_content;
 
-  content_loader(&msg_content);
+	content_loader(&msg_content);
 
-  pubmsg.payload = msg_content.data;
-  pubmsg.payloadlen = msg_content.size;
+	pubmsg.payload = msg_content.data;
+	pubmsg.payloadlen = msg_content.size;
 
-  // QoS0, At most once:
-  pubmsg.qos = QOS_AT_MOST_ONCE;
-  pubmsg.retained = 0;
+	// QoS0, At most once:
+	pubmsg.qos = QOS_AT_MOST_ONCE;
+	pubmsg.retained = 0;
 
-  paho_ctxt_t *paho_ctxt = ctxt->api_context;
+	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-  const options_t *options = get_options_object();
+	logger_t logger = gru_logger_get();
 
-  MQTTClient_publishMessage(paho_ctxt->client, "test.performance.queue",
-    &pubmsg, &token);
-  // printf("Waiting for up to %d seconds for publication of %s\n"
-  //       "on topic %s for client with ClientID: %s\n",
-  //       (int)(TIMEOUT/1000), PAYLOAD, TOPIC, CLIENTID);
-  int rc = MQTTClient_waitForCompletion(paho_ctxt->client, token, TIMEOUT);
-  // printf("Message with delivery token %d delivered\n", token);
-  MQTTClient_disconnect(paho_ctxt->client, 10000);
+	logger(DEBUG, "Sending message to %s", paho_ctxt->uri.path);
+
+	MQTTClient_publishMessage(paho_ctxt->client, paho_ctxt->uri.path,
+		&pubmsg, &token);
+
+	int rc = MQTTClient_waitForCompletion(paho_ctxt->client, token, TIMEOUT);
+	logger(DEBUG, "Delivered message %d", token);
 }
 
 
 void paho_subscribe(msg_ctxt_t *ctxt, void *data) {
+	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
+	logger_t logger = gru_logger_get();
+
+	logger(DEBUG, "Subscribing to %s", paho_ctxt->uri.path);
+
+	int rc = MQTTClient_subscribe(paho_ctxt->client, paho_ctxt->uri.path, QOS_AT_MOST_ONCE);
+
+	switch (rc) {
+		case MQTTCLIENT_SUCCESS: break;
+		default: {
+			logger_t logger = gru_logger_get();
+
+			logger(ERROR, "Unable to subscribe: error %d", rc);
+			break;
+		}
+	}
+	logger(DEBUG, "Subscribed to the topic");
 }
 
 
 void paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
+	MQTTClient_message *msg = NULL;
+	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
+	unsigned long timeout = 10000L;
 
+	int tlen = 0;
+	int rc = MQTTClient_receive(paho_ctxt->client, paho_ctxt->uri.path, &tlen, &msg,
+							 timeout);
+
+	switch (rc) {
+		case MQTTCLIENT_SUCCESS: break;
+		case MQTTCLIENT_TOPICNAME_TRUNCATED: {
+			logger_t logger = gru_logger_get();
+
+			logger(WARNING, "Topic name truncated");
+			break;
+		}
+		default: {
+			logger_t logger = gru_logger_get();
+
+			logger(ERROR, "Unable to subscribe");
+			break;
+		}
+	}
 }
