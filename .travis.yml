@@ -6,7 +6,6 @@ env:
 
 os:
   - linux
-  - osx
 dist: trusty
 sudo: true
 language:
