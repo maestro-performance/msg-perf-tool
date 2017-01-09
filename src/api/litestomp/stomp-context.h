@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#include <litestomp/stomp_messenger.h>
+#include <litestomp-0/stomp_messenger.h>
 
 #include <log/gru_logger.h>
 

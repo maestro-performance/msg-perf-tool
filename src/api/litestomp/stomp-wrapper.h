@@ -27,7 +27,7 @@ extern "C" {
 
 #include "stomp-context.h"
 
-#include <litestomp/stomp_messenger.h>
+#include <litestomp-0/stomp_messenger.h>
 #include <log/gru_logger.h>
 
 msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data);
