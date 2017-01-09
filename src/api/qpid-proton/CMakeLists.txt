@@ -11,7 +11,7 @@ message(STATUS "QPid Proton hint ${PROTON_DIR}")
 message(STATUS "QPid Proton headers found at ${PROTON_INCLUDE_DIR}")
 message(STATUS "QPid Proton library found at ${PROTON_LIB}")
 
-include_directories(${PROTON_LIB})
+include_directories(${PROTON_INCLUDE_DIR})
 
 add_library(
 	mpt-proton SHARED

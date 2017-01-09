@@ -12,7 +12,7 @@ message(STATUS "LiteSTOMP hint ${LITESTOMP_DIR}")
 message(STATUS "LiteSTOMP headers found at ${LITESTOMP_INCLUDE_DIR}")
 message(STATUS "LiteSTOMP library found at ${LITESTOMP_LIB}")
 
-include_directories(${LITESTOMP_LIB})
+include_directories(${LITESTOMP_INCLUDE_DIR})
 
 add_library(
 	mpt-stomp SHARED
