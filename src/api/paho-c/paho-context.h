@@ -20,18 +20,19 @@
 extern "C" {
 #endif
 
-
 #include <log/gru_logger.h>
+#include <network/gru_uri.h>
 
 #include <MQTTClient.h>
 
-typedef struct paho_ctxt_t_ { 
+typedef struct paho_ctxt_t_ {
     MQTTClient client;
+    gru_uri_t uri;
 } paho_ctxt_t;
-    
+
 
 paho_ctxt_t *paho_context_init();
-void proton_context_destroy(paho_ctxt_t **ctxt);
+void paho_context_destroy(paho_ctxt_t **ctxt);
 
 #ifdef __cplusplus
 }
