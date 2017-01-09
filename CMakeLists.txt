@@ -66,14 +66,6 @@ endif(${STOMP_SUPPORT})
 if (${MQTT_SUPPORT})
     message(STATUS "MQTT support is enabled")
     add_definitions(-D__MQTT_SUPPORT__)
-    set(PAHO_DIR /usr CACHE String "Paho C base directory")
-
-    include_directories(
-            ${PAHO_DIR}/include
-            .
-    )
-
-    SetLinkDirByPlatform(${PAHO_DIR})
 
     include_directories(src/api/paho-c)
     add_subdirectory(src/api/paho-c objs/api/paho-c)
