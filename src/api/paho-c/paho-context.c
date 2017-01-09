@@ -17,15 +17,15 @@
 
 paho_ctxt_t *paho_context_init() {
     paho_ctxt_t *ret = malloc(sizeof(paho_ctxt_t));
-    
+
     if (!ret) {
         return NULL;
     }
-    
+
     return ret;
 }
 
-void proton_context_destroy(paho_ctxt_t **ctxt) {
+void paho_context_destroy(paho_ctxt_t **ctxt) {
     free(*ctxt);
     *ctxt = NULL;
 }
