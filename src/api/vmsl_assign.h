@@ -28,6 +28,10 @@
 #include "proton-wrapper.h"
 #endif // __AMQP_SUPPORT__
 
+#if defined(__MQTT_SUPPORT__)
+#include "paho-wrapper.h"
+#endif // __MQTT_SUPPORT__
+
 #ifdef __cplusplus
 extern "C" {
 #endif
