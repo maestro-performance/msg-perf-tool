@@ -1,5 +1,6 @@
 add_definitions(-D_GNU_SOURCE -D_POSIX_C_SOURCE)
 
+
 find_path(LITESTOMP_INCLUDE_DIR stomp_types.h
 					PATH_SUFFIXES litestomp-0)
 find_library(LITESTOMP_LIB NAMES litestomp-0)
@@ -17,7 +18,7 @@ add_library(
 
 target_link_libraries(
     mpt-stomp
-    litestomp
+    litestomp-0
 )
 
 install(TARGETS mpt-stomp
