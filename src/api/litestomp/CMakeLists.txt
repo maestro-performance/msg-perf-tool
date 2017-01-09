@@ -22,7 +22,7 @@ add_library(
 
 target_link_libraries(
     mpt-stomp
-    litestomp-0
+    ${LITESTOMP_LIB}
 )
 
 install(TARGETS mpt-stomp
