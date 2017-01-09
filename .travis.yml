@@ -30,7 +30,7 @@ before_script:
 script:
   - mkdir -p build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=RELEASE -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=OFF ..
+  - cmake -DCMAKE_BUILD_TYPE=RELEASE -DSTOMP_SUPPORT=OFF -DAMQP_SUPPORT=OFF ..
   - make all
   - cd ..
 addons:
