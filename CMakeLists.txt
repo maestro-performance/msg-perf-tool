@@ -9,6 +9,9 @@ set(MPT_VERSION_MAJOR 0)
 set(MPT_VERSION_MINOR 1)
 set(MPT_VERSION_PATCH 1)
 
+set(GRU_DIR "/usr" CACHE STRING "GRU directory")
+set(BMIC_DIR "/usr" CACHE STRING "BMIC directory")
+
 add_definitions(-DPROJECT_NAME="${PROJECT_NAME}" -DMPT_VERSION="${MPT_VERSION}")
 
 if (UNIX)

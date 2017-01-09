@@ -36,8 +36,10 @@ message(STATUS "Math library found at ${MATH_LIB}")
 
 # GRU
 find_path(GRU_INCLUDE_DIR common/gru_base.h
-          PATH_SUFFIXES gru-0)
-find_library(GRU_LIB NAMES gru-0)
+        PATH_SUFFIXES gru-0
+				HINTS ${GRU_DIR}/include)
+find_library(GRU_LIB NAMES gru-0
+				HINTS ${GRU_DIR}/lib ${GRU_DIR}/lib64)
 
 message(STATUS "GRU headers found at ${GRU_INCLUDE_DIR}")
 message(STATUS "GRU library found at ${GRU_LIB}")
@@ -53,10 +55,14 @@ message(STATUS "JSON library found at ${JSON_LIB}")
 
 # BMIC
 find_path(BMIC_INCLUDE_DIR base/common/bmic_object.h
-					PATH_SUFFIXES bmic-0)
-find_library(BMIC_BASE_LIB NAMES bmic-base-0)
-find_library(BMIC_MANAGEMENT_LIB NAMES bmic-management-0)
-find_library(BMIC_PRODUCT_LIB NAMES bmic-product-0)
+				PATH_SUFFIXES bmic-0
+				HINTS ${BMIC_DIR}/include)
+find_library(BMIC_BASE_LIB NAMES bmic-base-0
+				HINTS ${BMIC_DIR}/lib ${BMIC_DIR}/lib64)
+find_library(BMIC_MANAGEMENT_LIB NAMES bmic-management-0
+				HINTS ${BMIC_DIR}/lib ${BMIC_DIR}/lib64)
+find_library(BMIC_PRODUCT_LIB NAMES bmic-product-0
+				HINTS ${BMIC_DIR}/lib ${BMIC_DIR}/lib64)
 
 message(STATUS "BMIC headers found at ${BMIC_INCLUDE_DIR}")
 message(STATUS "BMIC base library found at ${BMIC_BASE_LIB}")
