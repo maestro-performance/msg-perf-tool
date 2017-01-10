@@ -114,49 +114,56 @@ function stop_test() {
 # job is aborted, we release the allocated nodes
 trap stop_test SIGINT SIGTERM
 
-
 if [[ -z "$BROKER_URL" ]] ; then
-  echo -e "Broker is a required option (-b)\n"
-  echo -e ${HELP}
-  exit 1
-fi
-
-if [[ -z "$DURATION" ]] ; then
-  if [[ -z "$COUNT" ]] ; then
-    echo -e "Either the test duration or the message count should be informed (-d or -c)\n"
-    echo -e ${HELP}
-    exit 1
-  fi
-fi
-
-if [[ -z "$PARALLEL_COUNT" ]] ; then
-  echo -e "Parallel count is a required option (-p)\n"
-  echo -e ${HELP}
-  exit 1
-fi
-
-if [[ -z "$LOG_DIR" ]] ; then
-  echo -e "Log dir is a required option (-l)\n"
-  echo -e ${HELP}
-  exit 1
+	echo -e "Broker is a required option (-b)\n"
+	echo -e ${HELP}
+	exit 1
 fi
 
 if [[ -z "$LOADER_CONFIG" ]] ; then
-  echo -e "Loader configuration is a required option (-C)\n"
-  echo -e ${HELP}
-  exit 1
+  echo -e "The loader configuration was not informed, therefore performance test data won't be loaded to the DB (CLI option -C)\n"
+fi
+
+if [[ -z "$LOG_DIR" ]] ; then
+	echo -e "Log dir is a required option (-l)\n"
+	echo -e ${HELP}
+	exit 1
 fi
 
 if [[ -z "$CONFIG_TEST" ]] ; then
-  echo -e "Test case configuration is a required option (-T)\n"
-  echo -e ${HELP}
-  exit 1
+	if [[ -z "$DURATION" ]] ; then
+	  if [[ -z "$COUNT" ]] ; then
+	    echo -e "Either the test duration or the message count should be informed (-d or -c)\n"
+	    echo -e ${HELP}
+	    exit 1
+	  fi
+	fi
+else
+	if [[ ! -f "$CONFIG_TEST" ]] ; then
+		echo "The configuration file ${CONFIG_TEST} does not exist"
+		exit 1
+	else
+		if [[ -z "$TEST_RUN" ]] ; then
+			echo -e "Test run is a required option when loading data to the DB(-R)\n"
+			echo -e ${HELP}
+			exit 1
+		fi
+
+		duration_config=$(cat $CONFIG_TEST | grep -i test_duration | sed 's/ //g')
+		producer_count_config=$(cat $CONFIG_TEST | grep -i producer_count | sed 's/ //g')
+
+		eval $duration_config
+		eval $producer_count
+
+		export DURATION=$test_duration
+		export PARALLEL_COUNT=$producer_count
+	fi
 fi
 
-if [[ -z "$TEST_RUN" ]] ; then
-  echo -e "Test run is a required option (-R)\n"
-  echo -e ${HELP}
-  exit 1
+if [[ -z "$PARALLEL_COUNT" ]] ; then
+	echo -e "Parallel count must be passed as a command-line argument (-p) or set in the test configuration file\n"
+	echo -e ${HELP}
+	exit 1
 fi
 
 [[ ! -d $LOG_DIR ]] && mkdir -p $LOG_DIR
@@ -251,54 +258,58 @@ end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
 
 
-echo "Registering the SUT on the DB using ${LOADER_CONFIG}"
-${app_path}/mpt-loader.py --register \
-  --config "${LOADER_CONFIG}" \
-  --config-test "${CONFIG_TEST}" \
+if [[ ! -z "$LOADER_CONFIG" ]] ; then
+	echo "Registering the SUT on the DB using ${LOADER_CONFIG}"
+	${app_path}/mpt-loader.py --register \
+	  --config "${LOADER_CONFIG}" \
+	  --config-test "${CONFIG_TEST}" \
 
-echo "Registering the test case on the DB"
-${app_path}/mpt-loader.py --testinfo \
-  --config "${LOADER_CONFIG}" \
-  --config-test "${CONFIG_TEST}" \
-  --quiet \
-	--test-run "${TEST_RUN}" \
-	--test-start-time "${start_time}" \
-	--test-duration "${DURATION} / ${COUNT}" \
-	--test-comment "${TEST_NAME} small automated test case" \
-	--test-result-comment "Run ok, no comments"
+	echo "Registering the test case on the DB"
+	${app_path}/mpt-loader.py --testinfo \
+	  --config "${LOADER_CONFIG}" \
+	  --config-test "${CONFIG_TEST}" \
+	  --quiet \
+		--test-run "${TEST_RUN}" \
+		--test-start-time "${start_time}" \
+		--test-duration "${DURATION} / ${COUNT}" \
+		--test-comment "${TEST_NAME} small automated test case" \
+		--test-result-comment "Run ok, no comments"
 
-for file in $LOG_DIR/sender-throughput-*.csv ; do
-  echo "Loading file: ${file}"
-  ${app_path}/mpt-loader.py --load throughput \
-    --config "${LOADER_CONFIG}" \
-    --config-test "${CONFIG_TEST}" \
-    --test-start-time "${start_time}" \
-    --quiet \
-    --test-run "${TEST_RUN}" \
-  	--msg-direction sender \
-  	--filename ${file}
-done
+	for file in $LOG_DIR/sender-throughput-*.csv ; do
+	  echo "Loading file: ${file}"
+	  ${app_path}/mpt-loader.py --load throughput \
+	    --config "${LOADER_CONFIG}" \
+	    --config-test "${CONFIG_TEST}" \
+	    --test-start-time "${start_time}" \
+	    --quiet \
+	    --test-run "${TEST_RUN}" \
+	  	--msg-direction sender \
+	  	--filename ${file}
+	done
 
-for file in $LOG_DIR/receiver-throughput-*.csv ; do
-  echo "Loading file: ${file}"
-  ${app_path}/mpt-loader.py --load throughput \
-    --config "${LOADER_CONFIG}" \
-    --config-test "${CONFIG_TEST}" \
-    --test-start-time "${start_time}" \
-    --quiet \
-    --test-run "${TEST_RUN}" \
-  	--msg-direction receiver \
-  	--filename ${file}
-done
+	for file in $LOG_DIR/receiver-throughput-*.csv ; do
+	  echo "Loading file: ${file}"
+	  ${app_path}/mpt-loader.py --load throughput \
+	    --config "${LOADER_CONFIG}" \
+	    --config-test "${CONFIG_TEST}" \
+	    --test-start-time "${start_time}" \
+	    --quiet \
+	    --test-run "${TEST_RUN}" \
+	  	--msg-direction receiver \
+	  	--filename ${file}
+	done
 
-for file in $LOG_DIR/receiver-latency-*.csv ; do
-  echo "Loading file: ${file}"
-  ${app_path}/mpt-loader.py --load latency \
-    --config "${LOADER_CONFIG}" \
-    --config-test "${CONFIG_TEST}" \
-    --test-start-time "${start_time}" \
-    --quiet \
-    --test-run "${TEST_RUN}" \
-  	--msg-direction receiver \
-  	--filename ${file}
-done
+	for file in $LOG_DIR/receiver-latency-*.csv ; do
+	  echo "Loading file: ${file}"
+	  ${app_path}/mpt-loader.py --load latency \
+	    --config "${LOADER_CONFIG}" \
+	    --config-test "${CONFIG_TEST}" \
+	    --test-start-time "${start_time}" \
+	    --quiet \
+	    --test-run "${TEST_RUN}" \
+	  	--msg-direction receiver \
+	  	--filename ${file}
+	done
+else
+	echo "Loader config was not informed, therefore skipping loading test data"
+fi
