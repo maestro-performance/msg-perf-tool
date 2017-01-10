@@ -45,6 +45,9 @@ make install
 
 
 %changelog
+* Tue Oct 10 2016 Otavio R. Piske <angusyoung@gmail.com> - 20170110
+- Fixed handling of required/optional parameters
+
 * Fri Oct 14 2016 Otavio R. Piske <angusyoung@gmail.com> - 20161014
 - Version 0.1.1 release
 - Several bug fixes in the loader
