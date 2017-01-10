@@ -29,7 +29,7 @@ static inline proton_ctxt_t *proton_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (proton_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data) {
+msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing proton wrapper");
@@ -65,13 +65,13 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data) {
 	return msg_ctxt;
 }
 
-void proton_stop(msg_ctxt_t *ctxt) {
+void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 	pn_messenger_stop(proton_ctxt->messenger);
 }
 
-void proton_destroy(msg_ctxt_t *ctxt) {
+void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 	pn_messenger_free(proton_ctxt->messenger);
@@ -126,7 +126,7 @@ static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker)
 	}
 }
 
-static void proton_commit(pn_messenger_t *messenger) {
+static void proton_commit(pn_messenger_t *messenger, gru_status_t *status) {
 	pn_tracker_t tracker = pn_messenger_outgoing_tracker(messenger);
 
 	logger_t logger = gru_logger_get();
@@ -201,7 +201,7 @@ static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message) {
 	}
 }
 
-void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
+void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(TRACE, "Creating message object");
@@ -214,7 +214,7 @@ void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
 
 	proton_do_send(proton_ctxt->messenger, message);
 
-	proton_commit(proton_ctxt->messenger);
+	proton_commit(proton_ctxt->messenger, status);
 	pn_message_free(message);
 }
 
@@ -240,7 +240,7 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) 
 	pn_messenger_set_blocking(messenger, true);
 }
 
-void proton_subscribe(msg_ctxt_t *ctxt, void *data) {
+void proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	const options_t *options = get_options_object();
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
@@ -333,7 +333,7 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
 	return ret;
 }
 
-void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
+void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 	int count = proton_receive_local(proton_ctxt->messenger);

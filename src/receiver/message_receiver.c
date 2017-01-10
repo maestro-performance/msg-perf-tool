@@ -74,7 +74,7 @@ static bool can_continue(const options_t *options) {
 
 void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
-	gru_status_t status = {0};
+	gru_status_t status = gru_status_new();
 
 	stat_io_t *stat_io = statistics_init(RECEIVER, &status);
 	if (!stat_io) {
@@ -83,12 +83,12 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		return;
 	}
 
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
+	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
 
 	install_timer();
 	install_interrupt_handler();
 
-	vmsl->subscribe(msg_ctxt, NULL);
+	vmsl->subscribe(msg_ctxt, NULL, &status);
 
 	msg_content_data_t content_storage;
 
@@ -106,7 +106,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	statistics_throughput_header(stat_io);
 
 	while (can_continue(options)) {
-		vmsl->receive(msg_ctxt, &content_storage);
+		vmsl->receive(msg_ctxt, &content_storage, &status);
 		last = statistics_now();
 
 		if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
@@ -116,8 +116,8 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		}
 	}
 
-	vmsl->stop(msg_ctxt);
-	vmsl->destroy(msg_ctxt);
+	vmsl->stop(msg_ctxt, &status);
+	vmsl->destroy(msg_ctxt, &status);
 
 	statistics_destroy(&stat_io);
 

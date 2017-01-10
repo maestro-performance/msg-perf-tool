@@ -163,17 +163,18 @@ static bool tune_purge_queue(const bmic_context_t *ctxt, const options_t *option
 static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	uint32_t step, gru_duration_t duration, uint32_t throttle) {
 	perf_stats_t ret = {0};
+	gru_status_t status = gru_status_new();
 
 	// Open stdout ... never FAIL.
 	stat_io_t *stat_io = statistics_init_stdout(SENDER, NULL);
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
+	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
 
 	register uint64_t sent = 0;
 	register uint64_t round = 0;
 
 
 	while (can_continue(duration)) {
-		vmsl->send(msg_ctxt, content_loader);
+		vmsl->send(msg_ctxt, content_loader, &status);
 		sent++;
 
 		if (throttle > 0) {
@@ -188,8 +189,8 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 		}
 	}
 
-	vmsl->stop(msg_ctxt);
-	vmsl->destroy(msg_ctxt);
+	vmsl->stop(msg_ctxt, &status);
+	vmsl->destroy(msg_ctxt, &status);
 
 	ret.sent = sent;
 	return ret;

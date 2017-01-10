@@ -110,7 +110,7 @@ static void content_loader(msg_content_data_t *content_data) {
 
 void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
-	gru_status_t status = {0};
+	gru_status_t status = gru_status_new();
 
 	stat_io_t *stat_io = statistics_init(SENDER, &status);
 	if (!stat_io) {
@@ -120,7 +120,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	}
 	logger(TRACE, "Initializing test execution");
 
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL);
+	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
 
 	install_timer();
 	install_interrupt_handler();
@@ -135,7 +135,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 
 	statistics_throughput_header(stat_io);
 	while (can_continue(options, sent)) {
-		vmsl->send(msg_ctxt, content_loader);
+		vmsl->send(msg_ctxt, content_loader, &status);
 		sent++;
 
 		last = statistics_now();
@@ -154,8 +154,8 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 		}
 	}
 
-	vmsl->stop(msg_ctxt);
-	vmsl->destroy(msg_ctxt);
+	vmsl->stop(msg_ctxt, &status);
+	vmsl->destroy(msg_ctxt, &status);
 
 	unload_message_data();
 

@@ -19,7 +19,7 @@ static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (stomp_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data) {
+msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing stomp wrapper");
@@ -75,11 +75,11 @@ msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data) {
 	return msg_ctxt;
 }
 
-void litestomp_stop(msg_ctxt_t *ctxt) {
+void litestomp_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 	// NO-OP
 }
 
-void litestomp_destroy(msg_ctxt_t *ctxt) {
+void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 
 	stomp_messenger_destroy(&stomp_ctxt->messenger);
@@ -88,7 +88,7 @@ void litestomp_destroy(msg_ctxt_t *ctxt) {
 	msg_ctxt_destroy(&ctxt);
 }
 
-void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
+void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 	logger_t logger = gru_logger_get();
 
@@ -143,7 +143,7 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
 	stomp_message_destroy(&message);
 }
 
-void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
+void litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 	/*
 	 * Subscribes to the endpoint. Uses a fake ID and receipt just for the sake
@@ -161,7 +161,7 @@ void litestomp_subscribe(msg_ctxt_t *ctxt, void *data) {
 	}
 }
 
-void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
+void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 

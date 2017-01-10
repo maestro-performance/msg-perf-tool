@@ -30,13 +30,13 @@ extern "C" {
 #include <litestomp-0/stomp_messenger.h>
 #include <log/gru_logger.h>
 
-msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data);
-void litestomp_stop(msg_ctxt_t *ctxt);
-void litestomp_destroy(msg_ctxt_t *ctxt);
+msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data, gru_status_t *status);
+void litestomp_stop(msg_ctxt_t *ctxt, gru_status_t *status);
+void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 
-void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader);
-void litestomp_subscribe(msg_ctxt_t *ctxt, void *data);
-void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content);
+void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
+void litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
+void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 
 #ifdef __cplusplus
 }

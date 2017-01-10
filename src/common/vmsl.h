@@ -16,22 +16,24 @@
 #ifndef VMSL_H
 #define VMSL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <common/gru_status.h>
+#include <log/gru_logger.h>
 
 #include "msgctxt.h"
 #include "statistics.h"
 
-#include <log/gru_logger.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef msg_ctxt_t *(*msg_init)(stat_io_t *stat_io, void *data);
-typedef void (*msg_send)(msg_ctxt_t *ctxt, msg_content_loader content_loader);
-typedef void (*msg_subscribe)(msg_ctxt_t *ctxt, void *data);
-typedef void (*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content);
-typedef void (*msg_stop)(msg_ctxt_t *ctxt);
-typedef void (*msg_commit)(msg_ctxt_t *ctxt, void *data);
-typedef void (*msg_destroy)(msg_ctxt_t *);
+
+typedef msg_ctxt_t *(*msg_init)(stat_io_t *stat_io, void *data, gru_status_t *status);
+typedef void (*msg_send)(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
+typedef void (*msg_subscribe)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
+typedef void (*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+typedef void (*msg_stop)(msg_ctxt_t *ctxt, gru_status_t *status);
+typedef void (*msg_commit)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
+typedef void (*msg_destroy)(msg_ctxt_t *, gru_status_t *status);
 
 typedef struct vmsl_t_ {
 	msg_init init;
