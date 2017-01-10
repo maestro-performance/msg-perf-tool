@@ -79,6 +79,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	stat_io_t *stat_io = statistics_init(RECEIVER, &status);
 	if (!stat_io) {
 		logger(FATAL, "Unable to initialize statistics engine: %s", status.message);
+		gru_status_reset(&status);
 
 		return;
 	}
@@ -86,6 +87,8 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
 	if (!msg_ctxt) {
 		fprintf(stderr, "%s", status.message);
+		statistics_destroy(&stat_io);
+		gru_status_reset(&status);
 
 		return;
 	}
@@ -96,6 +99,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 		statistics_destroy(&stat_io);
 		vmsl->destroy(msg_ctxt, &status);
+		gru_status_reset(&status);
 		return;
 	}
 
