@@ -50,11 +50,11 @@ typedef struct vmsl_t_ {
 
 vmsl_t vmsl_init();
 
-static inline bool vmls_stat_success(vmsl_stat_t stat) {
+static inline bool vmsl_stat_success(vmsl_stat_t stat) {
     return stat & VMSL_SUCCESS ? true : false;
 }
 
-static inline bool vmls_stat_error(vmsl_stat_t stat) {
+static inline bool vmsl_stat_error(vmsl_stat_t stat) {
     return stat | VMSL_ERROR  ? false : true;
 }
 

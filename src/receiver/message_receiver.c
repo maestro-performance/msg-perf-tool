@@ -91,7 +91,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	}
 
 	vmsl_stat_t ret = vmsl->subscribe(msg_ctxt, NULL, &status);
-	if (vmls_stat_error(ret)) {
+	if (vmsl_stat_error(ret)) {
 		fprintf(stderr, "%s", status.message);
 
 		statistics_destroy(&stat_io);

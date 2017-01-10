@@ -219,7 +219,7 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 	ret = proton_do_send(proton_ctxt->messenger, message, status);
-	if (vmls_stat_error(ret)) {
+	if (vmsl_stat_error(ret)) {
 		return ret;
 	}
 
