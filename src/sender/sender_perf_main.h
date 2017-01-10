@@ -31,6 +31,7 @@
 #include <common/gru_base.h>
 #include <config/gru_config.h>
 #include <log/gru_logger.h>
+#include <cli/gru_cli_opt.h>
 
 #include "config.h"
 #include "message_sender.h"
