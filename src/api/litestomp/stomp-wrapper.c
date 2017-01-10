@@ -14,6 +14,7 @@
  limitations under the License.
  */
 #include "stomp-wrapper.h"
+#include "vmsl.h"
 
 static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (stomp_ctxt_t *) ctxt->api_context;
@@ -161,7 +162,7 @@ void litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	}
 }
 
-void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
+vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 
@@ -171,7 +172,7 @@ void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status
 		logger(ERROR, "Unable to create a stomp message: %s",
 			stomp_ctxt->messenger->status.message);
 
-		return;
+		return VMSL_ERROR;
 	}
 
 	stomp_receive_header_t receive_header = {0};
@@ -180,17 +181,20 @@ void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status
 	if (stat != STOMP_SUCCESS) {
 		logger(ERROR, "Unable to receive messages from the endpoint: %s",
 			stomp_ctxt->messenger->status.message);
-	} else {
-		mpt_timestamp_t now = statistics_now();
 
-		const char *ctime = stomp_exchange_get(
-			stomp_ctxt->messenger->exchange_properties, STOMP_CREATION_TIME);
-
-		mpt_timestamp_t created = ts_from_milli_char(ctime);
-
-		content->count++;
-		statistics_latency(ctxt->stat_io, created, now);
+		stomp_message_destroy(&message);
+		return VMSL_ERROR;
 	}
 
+	mpt_timestamp_t now = statistics_now();
+
+	const char *ctime = stomp_exchange_get(
+		stomp_ctxt->messenger->exchange_properties, STOMP_CREATION_TIME);
+
+	mpt_timestamp_t created = ts_from_milli_char(ctime);
+
+	content->count++;
+	statistics_latency(ctxt->stat_io, created, now);
 	stomp_message_destroy(&message);
+	return VMSL_ERROR;
 }

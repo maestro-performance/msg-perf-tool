@@ -22,6 +22,7 @@ extern "C" {
 
 #include "contrib/options.h"
 #include "msgctxt.h"
+#include "vmsl.h"
 #include "statistics.h"
 #include "timestamp.h"
 
@@ -36,7 +37,7 @@ void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 
 void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
 void litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
-void litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 
 #ifdef __cplusplus
 }

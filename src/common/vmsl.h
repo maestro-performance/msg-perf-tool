@@ -26,11 +26,16 @@
 extern "C" {
 #endif
 
+typedef enum vmsl_stat_t_ {
+    VMSL_SUCCESS = 0,
+    VMSL_ERROR = 1,
+    VMSL_NO_DATA = 2,
+} vmsl_stat_t;
 
 typedef msg_ctxt_t *(*msg_init)(stat_io_t *stat_io, void *data, gru_status_t *status);
 typedef void (*msg_send)(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
 typedef void (*msg_subscribe)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
-typedef void (*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+typedef vmsl_stat_t (*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 typedef void (*msg_stop)(msg_ctxt_t *ctxt, gru_status_t *status);
 typedef void (*msg_commit)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
 typedef void (*msg_destroy)(msg_ctxt_t *, gru_status_t *status);

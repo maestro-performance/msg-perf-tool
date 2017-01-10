@@ -276,13 +276,13 @@ static int proton_receive_local(pn_messenger_t *gru_restrict messenger,
 
 		gru_status_set(status, GRU_FAILURE, protonErrorText);
 
-		return 1;
+		return -1;
 	}
 
 	int incoming = pn_messenger_incoming(messenger);
 	if (incoming == 0) {
 		logger(DEBUG, "There are 0 incoming messages");
-		return 1;
+		return 0;
 	}
 
 	logger(TRACE, "Getting %i messages from proton buffer", incoming);
@@ -336,33 +336,40 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
 	return ret;
 }
 
-void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
+vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 	int count = proton_receive_local(proton_ctxt->messenger, status);
 
-	if (count > 0) {
-
-		pn_message_t *message = pn_message();
-		int ret = proton_do_receive(proton_ctxt->messenger, message, content);
-
-		if (ret == 0) {
-			pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
-
-			if (proton_ts > 0) {
-				mpt_timestamp_t created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
-
-				mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
-
-				statistics_latency(ctxt->stat_io, created, now);
-				content->count++;
-			} else {
-				content->errors++;
-			}
-
-			proton_accept(proton_ctxt->messenger);
+	if (count <= 0) {
+		// No messages received is ok ...
+		if (count == 0) {
+			return (VMSL_SUCCESS | VMSL_NO_DATA);
 		}
 
-		pn_message_free(message);
+		return VMSL_ERROR;
 	}
+
+	pn_message_t *message = pn_message();
+	int ret = proton_do_receive(proton_ctxt->messenger, message, content);
+
+	if (ret == 0) {
+		pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
+
+		if (proton_ts > 0) {
+			mpt_timestamp_t created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
+
+			mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
+
+			statistics_latency(ctxt->stat_io, created, now);
+			content->count++;
+		} else {
+			content->errors++;
+		}
+
+		proton_accept(proton_ctxt->messenger);
+	}
+
+	pn_message_free(message);
+	return VMSL_SUCCESS;
 }
