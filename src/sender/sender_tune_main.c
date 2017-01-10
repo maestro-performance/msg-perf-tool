@@ -63,10 +63,6 @@ int tune_main(int argc, char **argv) {
 
 		c = getopt_long(argc, argv, "b:l:s:L:h", long_options, &option_index);
 		if (c == -1) {
-			if (optind == 1) {
-				// Will use defaults from the configuration file
-				break;
-			}
 			break;
 		}
 
