@@ -89,7 +89,7 @@ void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	msg_ctxt_destroy(&ctxt);
 }
 
-void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
+vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 	logger_t logger = gru_logger_get();
 
@@ -103,7 +103,7 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_sta
 		logger(ERROR, "Unable to create a stomp message: %s",
 			stomp_ctxt->messenger->status.message);
 
-		return;
+		return VMSL_ERROR;
 	}
 
 	msg_content_data_t msg_content;
@@ -120,7 +120,7 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_sta
 			stomp_ctxt->messenger->status.message);
 
 		stomp_message_destroy(&message);
-		return;
+		return VMSL_ERROR;
 	}
 
 	stomp_message_format(message, msg_content.data, msg_content.size);
@@ -138,10 +138,11 @@ void litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_sta
 			stomp_ctxt->messenger->status.message);
 
 		stomp_message_destroy(&message);
-		return;
+		return VMSL_ERROR;
 	}
 
 	stomp_message_destroy(&message);
+	return VMSL_SUCCESS;
 }
 
 void litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {

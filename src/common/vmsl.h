@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 typedef enum vmsl_stat_t_ {
-    VMSL_SUCCESS = 0,
-    VMSL_ERROR = 1,
+    VMSL_ERROR = 0,
+    VMSL_SUCCESS = 1,
     VMSL_NO_DATA = 2,
 } vmsl_stat_t;
 
@@ -51,6 +51,14 @@ typedef struct vmsl_t_ {
 } vmsl_t;
 
 vmsl_t vmsl_init();
+
+static inline bool vmls_stat_success(vmsl_stat_t stat) {
+    return stat & VMSL_SUCCESS ? true : false;
+}
+
+static inline bool vmls_stat_error(vmsl_stat_t stat) {
+    return stat | VMSL_ERROR  ? false : true;
+}
 
 #ifdef __cplusplus
 }

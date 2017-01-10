@@ -180,7 +180,8 @@ static void proton_set_message_data(
 	pn_data_put_string(body, pn_bytes(msg_content.capacity, msg_content.data));
 }
 
-static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message) {
+static vmsl_stat_t proton_do_send(pn_messenger_t *messenger, pn_message_t *message,
+						   gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Putting message");
@@ -189,7 +190,9 @@ static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message) {
 		pn_error_t *error = pn_messenger_error(messenger);
 
 		const char *protonErrorText = pn_error_text(error);
-		logger(ERROR, protonErrorText);
+		gru_status_set(status, GRU_FAILURE, protonErrorText);
+
+		return VMSL_ERROR;
 	}
 
 	pn_messenger_send(messenger, -1);
@@ -197,11 +200,16 @@ static void proton_do_send(pn_messenger_t *messenger, pn_message_t *message) {
 		pn_error_t *error = pn_messenger_error(messenger);
 
 		const char *protonErrorText = pn_error_text(error);
-		logger(ERROR, protonErrorText);
+		gru_status_set(status, GRU_FAILURE, protonErrorText);
+		return VMSL_ERROR;
 	}
+
+	return VMSL_SUCCESS;
 }
 
-void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
+vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
+	vmsl_stat_t ret = {0};
+
 	logger_t logger = gru_logger_get();
 
 	logger(TRACE, "Creating message object");
@@ -212,10 +220,14 @@ void proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status
 
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-	proton_do_send(proton_ctxt->messenger, message);
+	ret = proton_do_send(proton_ctxt->messenger, message, status);
+	if (vmls_stat_error(ret)) {
+		return ret;
+	}
 
 	proton_commit(proton_ctxt->messenger, status);
 	pn_message_free(message);
+	return VMSL_SUCCESS;
 }
 
 static void proton_accept(pn_messenger_t *messenger) {
