@@ -140,7 +140,13 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 
 	statistics_throughput_header(stat_io);
 	while (can_continue(options, sent)) {
-		vmsl->send(msg_ctxt, content_loader, &status);
+		vmsl_stat_t ret = vmsl->send(msg_ctxt, content_loader, &status);
+		if (vmsl_stat_error(ret)) {
+			fprintf(stderr, "Unable to send message: %s\n", status.message);
+
+			break;
+		}
+
 		sent++;
 
 		last = statistics_now();
