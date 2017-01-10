@@ -36,9 +36,19 @@ typedef struct msg_content_data_t_ {
 
 typedef void (*msg_content_loader)(msg_content_data_t *content_data);
 
+/**
+ * Messaging options
+ */
+typedef enum msg_opt_t_ {
+    MSG_DEFAULT = 0,
+    MSG_ACKNOWLEDGE = 1, /** Acknowledge messages to the best possible way supported by the protocol */
+} msg_opt_t;
+
+
 typedef struct msg_ctxt_t_ {
 	void *api_context;
 	stat_io_t *stat_io;
+        msg_opt_t msg_opts;
 } msg_ctxt_t;
 
 msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io);
