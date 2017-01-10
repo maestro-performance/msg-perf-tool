@@ -27,6 +27,7 @@ options_t *options_new() {
 	}
 	bzero(ret->url, sizeof(ret->url));
 	bzero(ret->logdir, sizeof(ret->logdir));
+	ret->daemon = false;
 
 	return ret;
 }

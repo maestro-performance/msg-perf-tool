@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
 			}
 		}
 	} else {
-		if (strlen(options->logdir) > 0) {
+		if (strlen(options->logdir) > 0 && options->daemon) {
 			gru_status_t status = {0};
 
 			remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, &status);
