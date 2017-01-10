@@ -95,25 +95,23 @@ int tune_main(int argc, char **argv) {
 		}
 	}
 
-	vmsl_t *vmsl = vmsl_init();
+	vmsl_t vmsl = vmsl_init();
 
-	if (!vmsl_assign_by_url(options->url, vmsl)) {
+	if (!vmsl_assign_by_url(options->url, &vmsl)) {
 		goto err_exit;
 	}
 
 	logger_t logger = gru_logger_get();
 
-	tune_start(vmsl, options);
+	tune_start(&vmsl, options);
 
 	logger(INFO, "Tune execution terminated successfully");
 
 success_exit:
-	vmsl_destroy(&vmsl);
 	options_destroy(&options);
 	return EXIT_SUCCESS;
 
 err_exit:
-	vmsl_destroy(&vmsl);
 	options_destroy(&options);
 	return EXIT_FAILURE;
 }

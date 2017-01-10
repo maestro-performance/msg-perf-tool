@@ -119,9 +119,9 @@ int perf_main(int argc, char **argv) {
 
 	init_controller(options->daemon, options->logdir, "mpt-sender-controller");
 
-	vmsl_t *vmsl = vmsl_init();
+	vmsl_t vmsl = vmsl_init();
 
-	if (!vmsl_assign_by_url(options->url, vmsl)) {
+	if (!vmsl_assign_by_url(options->url, &vmsl)) {
 		goto err_exit;
 	}
 
@@ -151,7 +151,7 @@ int perf_main(int argc, char **argv) {
 					}
 				}
 
-				sender_start(vmsl, options);
+				sender_start(&vmsl, options);
 				goto success_exit;
 			} else {
 				if (child > 0) {
@@ -180,18 +180,16 @@ int perf_main(int argc, char **argv) {
 			remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
 		}
 
-		sender_start(vmsl, options);
+		sender_start(&vmsl, options);
 	}
 
 	logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
 
 success_exit:
-	vmsl_destroy(&vmsl);
 	options_destroy(&options);
 	return EXIT_SUCCESS;
 
 err_exit:
-	vmsl_destroy(&vmsl);
 	options_destroy(&options);
 	return EXIT_FAILURE;
 }

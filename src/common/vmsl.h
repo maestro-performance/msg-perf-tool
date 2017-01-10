@@ -43,8 +43,7 @@ typedef struct vmsl_t_ {
 	msg_destroy destroy;
 } vmsl_t;
 
-vmsl_t *vmsl_init();
-void vmsl_destroy(vmsl_t **vmsl);
+vmsl_t vmsl_init();
 
 #ifdef __cplusplus
 }
