@@ -252,7 +252,7 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) 
 	pn_messenger_set_blocking(messenger, true);
 }
 
-void proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
+vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	const options_t *options = get_options_object();
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
@@ -263,10 +263,13 @@ void proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 		pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
 
 		const char *protonErrorText = pn_error_text(error);
-		logger(ERROR, protonErrorText);
+		gru_status_set(status, GRU_FAILURE, protonErrorText);
+
+		return VMSL_ERROR;
 	}
 
 	proton_set_incoming_messenger_properties(proton_ctxt->messenger);
+	return VMSL_SUCCESS;
 }
 
 static int proton_receive_local(pn_messenger_t *gru_restrict messenger,
