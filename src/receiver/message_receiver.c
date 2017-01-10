@@ -90,10 +90,17 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		return;
 	}
 
+	vmsl_stat_t ret = vmsl->subscribe(msg_ctxt, NULL, &status);
+	if (vmls_stat_error(ret)) {
+		fprintf(stderr, "%s", status.message);
+
+		statistics_destroy(&stat_io);
+		vmsl->destroy(msg_ctxt, &status);
+		return;
+	}
+
 	install_timer();
 	install_interrupt_handler();
-
-	vmsl->subscribe(msg_ctxt, NULL, &status);
 
 	msg_content_data_t content_storage;
 
