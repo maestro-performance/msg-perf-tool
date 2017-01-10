@@ -257,7 +257,9 @@ void proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	proton_set_incoming_messenger_properties(proton_ctxt->messenger);
 }
 
-static int proton_receive_local(pn_messenger_t *messenger) {
+static int proton_receive_local(pn_messenger_t *gru_restrict messenger,
+								gru_status_t * gru_restrict status)
+{
 	logger_t logger = gru_logger_get();
 
 	if (!pn_messenger_is_blocking(messenger)) {
@@ -271,7 +273,8 @@ static int proton_receive_local(pn_messenger_t *messenger) {
 		pn_error_t *error = pn_messenger_error(messenger);
 
 		const char *protonErrorText = pn_error_text(error);
-		logger(ERROR, protonErrorText);
+
+		gru_status_set(status, GRU_FAILURE, protonErrorText);
 
 		return 1;
 	}
@@ -336,7 +339,7 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
 void proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-	int count = proton_receive_local(proton_ctxt->messenger);
+	int count = proton_receive_local(proton_ctxt->messenger, status);
 
 	if (count > 0) {
 

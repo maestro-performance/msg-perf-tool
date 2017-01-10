@@ -16,20 +16,22 @@
 #ifndef PROTON_WRAPPER_H
 #define PROTON_WRAPPER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <math.h>
+#include <sys/time.h>
+
+#include <proton/message.h>
+#include <proton/messenger.h>
+
+#include <common/gru_portable.h>
 
 #include "contrib/options.h"
 #include "msgctxt.h"
 #include "proton-context.h"
 #include "statistics.h"
 
-#include <math.h>
-#include <sys/time.h>
-
-#include <proton/message.h>
-#include <proton/messenger.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data, gru_status_t *status);
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status);
