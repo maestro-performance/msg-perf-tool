@@ -37,7 +37,6 @@ typedef vmsl_stat_t (*msg_send)(msg_ctxt_t *ctxt, msg_content_loader content_loa
 typedef vmsl_stat_t (*msg_subscribe)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
 typedef vmsl_stat_t (*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 typedef void (*msg_stop)(msg_ctxt_t *ctxt, gru_status_t *status);
-typedef void (*msg_commit)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
 typedef void (*msg_destroy)(msg_ctxt_t *, gru_status_t *status);
 
 typedef struct vmsl_t_ {
@@ -45,7 +44,6 @@ typedef struct vmsl_t_ {
 	msg_send send;
 	msg_subscribe subscribe;
 	msg_receive receive;
-	msg_commit commit;
 	msg_stop stop;
 	msg_destroy destroy;
 } vmsl_t;
