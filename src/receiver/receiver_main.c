@@ -69,10 +69,6 @@ int main(int argc, char **argv) {
 
 		c = getopt_long(argc, argv, "b:d:l:p:s:c:L:Dh", long_options, &option_index);
 		if (c == -1) {
-			if (optind == 1) {
-				// Will use defaults from the configuration file
-				break;
-			}
 			break;
 		}
 
