@@ -168,6 +168,11 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	// Open stdout ... never FAIL.
 	stat_io_t *stat_io = statistics_init_stdout(SENDER, NULL);
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
+	if (!msg_ctxt) {
+		fprintf(stderr, "%s", status.message);
+
+		return ret;
+	}
 
 	register uint64_t sent = 0;
 	register uint64_t round = 0;

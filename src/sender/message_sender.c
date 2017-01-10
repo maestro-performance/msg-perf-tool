@@ -121,6 +121,11 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	logger(TRACE, "Initializing test execution");
 
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
+	if (!msg_ctxt) {
+		fprintf(stderr, "%s", status.message);
+
+		return;
+	}
 
 	install_timer();
 	install_interrupt_handler();

@@ -27,9 +27,7 @@ msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data, gru_status_t *status)
 
 	msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io);
 	if (!msg_ctxt) {
-		logger(FATAL, "Unable to initialize the messaging context");
-
-		exit(1);
+		return NULL;
 	}
 
 	stomp_ctxt_t *stomp_ctxt = litestomp_context_init();

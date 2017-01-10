@@ -23,8 +23,11 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "statistics.h"
 #include <log/gru_logger.h>
+#include <common/gru_alloc.h>
+
+#include "statistics.h"
+
 
 typedef struct msg_content_data_t_ {
 	uint64_t count;
@@ -51,7 +54,7 @@ typedef struct msg_ctxt_t_ {
         msg_opt_t msg_opts;
 } msg_ctxt_t;
 
-msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io);
+msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io, gru_status_t *status);
 void msg_ctxt_destroy(msg_ctxt_t **ctxt);
 
 #ifdef __cplusplus

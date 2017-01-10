@@ -15,16 +15,9 @@
  */
 #include "msgctxt.h"
 
-msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io) {
-	msg_ctxt_t *ret = malloc(sizeof(msg_ctxt_t));
-
-	logger_t logger = gru_logger_get();
-
-	if (ret == NULL) {
-		logger(FATAL, "Unable to initialize messaging context object");
-
-		exit(1);
-	}
+msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io, gru_status_t *status) {
+	msg_ctxt_t *ret = gru_alloc(sizeof(msg_ctxt_t), status);
+	gru_alloc_check(ret, NULL);
 
 	ret->stat_io = stat_io;
 	ret->msg_opts = MSG_DEFAULT;

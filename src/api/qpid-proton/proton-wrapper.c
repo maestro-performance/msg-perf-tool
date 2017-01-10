@@ -34,11 +34,9 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
 
 	logger(DEBUG, "Initializing proton wrapper");
 
-	msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io);
+	msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io, status);
 	if (!msg_ctxt) {
-		logger(FATAL, "Unable to initialize the messaging context");
-
-		exit(1);
+		return NULL;
 	}
 
 	proton_ctxt_t *proton_ctxt = proton_context_init();
