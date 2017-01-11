@@ -24,7 +24,7 @@ static inline paho_ctxt_t *paho_ctxt_cast(msg_ctxt_t *ctxt) {
 msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
     logger_t logger = gru_logger_get();
 
-    logger(DEBUG, "Initializing paho wrapper");
+    logger(DEBUG, "Initializing Paho wrapper");
 
     msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io, status);
     if (!msg_ctxt) {
@@ -53,7 +53,8 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
     const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE,
 											 status);
 
-    int rc = MQTTClient_create(&paho_ctxt->client, connect_url, "msg-perf-tool",
+    logger(DEBUG, "Creating a client to %s", connect_url);
+	int rc = MQTTClient_create(&paho_ctxt->client, connect_url, "msg-perf-tool",
         MQTTCLIENT_PERSISTENCE_NONE, NULL);
 	if (rc != MQTTCLIENT_SUCCESS) {
         logger(FATAL, "Unable to create MQTT client handle: %d", rc);
@@ -61,11 +62,13 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
         exit(-1);
     }
 
+	logger(DEBUG, "Setting connection options");
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 
-    conn_opts.keepAliveInterval = 20;
+    conn_opts.keepAliveInterval = 5;
     conn_opts.cleansession = 1;
 
+	logger(DEBUG, "Connecting to %s", connect_url);
     rc = MQTTClient_connect(paho_ctxt->client, &conn_opts);
     if (rc != MQTTCLIENT_SUCCESS) {
         logger(FATAL, "Unable to connect: %d", rc);
@@ -103,14 +106,15 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_s
 	pubmsg.payloadlen = msg_content.size;
 
 	// QoS0, At most once:
-	pubmsg.qos = QOS_AT_MOST_ONCE;
-	pubmsg.retained = 0;
+	pubmsg.qos = 0;
+	pubmsg.retained = false;
 
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Sending message to %s", paho_ctxt->uri.path);
+	printf("Sending message to %s\n", paho_ctxt->uri.path);
 
 	int rc = MQTTClient_publishMessage(paho_ctxt->client, paho_ctxt->uri.path,
 		&pubmsg, &token);
@@ -135,6 +139,7 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_s
 			return VMSL_ERROR;
 		}
 	}
+	printf("Completed sending message\n");
 
 	logger(DEBUG, "Delivered message %d", token);
 	return VMSL_SUCCESS;
@@ -171,8 +176,10 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 	unsigned long timeout = 10000L;
 
 	int tlen = 0;
-	int rc = MQTTClient_receive(paho_ctxt->client, paho_ctxt->uri.path, &tlen, &msg,
+	char *topic_name;
+	int rc = MQTTClient_receive(paho_ctxt->client, &topic_name, &tlen, &msg,
 							 timeout);
+
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS: break;
@@ -183,11 +190,19 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 			break;
 		}
 		default: {
-			gru_status_set(status, GRU_FAILURE, "Unable to subscribe");
+			gru_status_set(status, GRU_FAILURE, "Unable to receive data: error %d", rc);
 
 			return VMSL_ERROR;
 		}
 	}
+
+	printf("Topic name: %s\n", topic_name);
+
+
+	if (msg && msg->payload) {
+		printf("Body: %.*s\n", msg->payloadlen, msg->payload);
+	}
+
 
 	return VMSL_SUCCESS;
 }
