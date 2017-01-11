@@ -15,17 +15,18 @@
  */
 #include "paho-wrapper.h"
 #include "paho-context.h"
+#include "vmsl.h"
 
 static inline paho_ctxt_t *paho_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (paho_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data) {
+msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
     logger_t logger = gru_logger_get();
 
     logger(DEBUG, "Initializing paho wrapper");
 
-    msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io);
+    msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io, status);
     if (!msg_ctxt) {
             logger(FATAL, "Unable to initialize the messaging context");
 
@@ -40,9 +41,8 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data) {
             exit(1);
     }
 
-    gru_status_t status = gru_status_new();
     const options_t *options = get_options_object();
-    paho_ctxt->uri = gru_uri_parse_ex(options->url, GRU_URI_PARSE_STRIP, &status);
+    paho_ctxt->uri = gru_uri_parse_ex(options->url, GRU_URI_PARSE_STRIP, status);
 
 	if (!gru_uri_set_scheme(&paho_ctxt->uri, "tcp")) {
         logger(FATAL, "Unable to adjust the connection URI");
@@ -50,7 +50,8 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data) {
         exit(1);
     }
 
-    const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE, &status);
+    const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE,
+											 status);
 
     int rc = MQTTClient_create(&paho_ctxt->client, connect_url, "msg-perf-tool",
         MQTTCLIENT_PERSISTENCE_NONE, NULL);
@@ -91,7 +92,7 @@ void paho_destroy(msg_ctxt_t *ctxt) {
 	MQTTClient_disconnect(paho_ctxt->client, 10000);
 }
 
-void paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
+vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
 	MQTTClient_deliveryToken token;
 	MQTTClient_message pubmsg = MQTTClient_message_initializer;
 	msg_content_data_t msg_content;
@@ -111,15 +112,36 @@ void paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader) {
 
 	logger(DEBUG, "Sending message to %s", paho_ctxt->uri.path);
 
-	MQTTClient_publishMessage(paho_ctxt->client, paho_ctxt->uri.path,
+	int rc = MQTTClient_publishMessage(paho_ctxt->client, paho_ctxt->uri.path,
 		&pubmsg, &token);
 
-	int rc = MQTTClient_waitForCompletion(paho_ctxt->client, token, TIMEOUT);
+	switch (rc) {
+		case MQTTCLIENT_SUCCESS: break;
+		default: {
+			gru_status_set(status, GRU_FAILURE, "Unable to publish the message: error %d",
+						 rc);
+
+			return VMSL_ERROR;
+		}
+	}
+
+	rc = MQTTClient_waitForCompletion(paho_ctxt->client, token, TIMEOUT);
+	switch (rc) {
+		case MQTTCLIENT_SUCCESS: break;
+		default: {
+			gru_status_set(status, GRU_FAILURE, "Unable to synchronize: error %d",
+						 rc);
+
+			return VMSL_ERROR;
+		}
+	}
+
 	logger(DEBUG, "Delivered message %d", token);
+	return VMSL_SUCCESS;
 }
 
 
-void paho_subscribe(msg_ctxt_t *ctxt, void *data) {
+vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
 	logger_t logger = gru_logger_get();
@@ -131,17 +153,19 @@ void paho_subscribe(msg_ctxt_t *ctxt, void *data) {
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS: break;
 		default: {
-			logger_t logger = gru_logger_get();
+			gru_status_set(status, GRU_FAILURE, "Unable to subscribe: error %d", rc);
 
-			logger(ERROR, "Unable to subscribe: error %d", rc);
-			break;
+			return VMSL_ERROR;
 		}
 	}
+
 	logger(DEBUG, "Subscribed to the topic");
+	return VMSL_SUCCESS;
 }
 
 
-void paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
+vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
+						 gru_status_t *status) {
 	MQTTClient_message *msg = NULL;
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 	unsigned long timeout = 10000L;
@@ -159,10 +183,11 @@ void paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content) {
 			break;
 		}
 		default: {
-			logger_t logger = gru_logger_get();
+			gru_status_set(status, GRU_FAILURE, "Unable to subscribe");
 
-			logger(ERROR, "Unable to subscribe");
-			break;
+			return VMSL_ERROR;
 		}
 	}
+
+	return VMSL_SUCCESS;
 }
