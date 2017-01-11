@@ -136,21 +136,20 @@ static void proton_commit(pn_messenger_t *messenger, gru_status_t *status) {
 	proton_check_status(messenger, tracker);
 }
 
-static pn_timestamp_t proton_now() {
+static pn_timestamp_t proton_now(gru_status_t *status) {
 	struct timeval now;
 
 	if (gettimeofday(&now, NULL)) {
-		// TODO: error handling
+		gru_status_strerror(status, GRU_FAILURE, errno);
+
+		return -1;
 	}
-	/*
-	 tv_sec
-	 *
-	 */
 
 	return ((pn_timestamp_t) now.tv_sec) * 1000 + (now.tv_usec / 1000);
 }
 
-static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *message) {
+static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *message,
+										  gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	const options_t *options = get_options_object();
 
@@ -161,7 +160,7 @@ static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *messag
 	pn_message_set_durable(message, false);
 	pn_message_set_ttl(message, 50000);
 
-	pn_message_set_creation_time(message, proton_now());
+	pn_message_set_creation_time(message, proton_now(status));
 }
 
 static void proton_set_message_data(
@@ -213,7 +212,7 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 	logger(TRACE, "Creating message object");
 	pn_message_t *message = pn_message();
 
-	proton_set_message_properties(ctxt, message);
+	proton_set_message_properties(ctxt, message, status);
 	proton_set_message_data(message, content_loader);
 
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
@@ -386,10 +385,22 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 		if (proton_ts > 0) {
 			mpt_timestamp_t created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
 
-			mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(proton_now());
+			pn_timestamp_t ts = proton_now(status);
 
-			statistics_latency(ctxt->stat_io, created, now);
-			content->count++;
+			if (likely(ts > 0)) {
+				mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(ts);
+
+				statistics_latency(ctxt->stat_io, created, now);
+				content->count++;
+			}
+			else {
+				logger_t logger = gru_logger_get();
+
+				logger(ERROR,
+					 "Discarding message due to unable to compute current time: %s",
+					 status->message);
+				content->errors++;
+			}
 		} else {
 			content->errors++;
 		}
