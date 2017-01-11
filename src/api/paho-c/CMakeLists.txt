@@ -7,9 +7,9 @@ find_path(PAHOC_INCLUDE_DIR proton/messenger.h
 find_library(PAHOC_LIB NAMES paho-mqtt3c
 HINTS ${PAHOC_DIR}/lib ${PROTON_DIR}/lib64)
 
-message(STATUS "QPid Proton hint ${PROTON_DIR}")
-message(STATUS "QPid Proton headers found at ${PROTON_INCLUDE_DIR}")
-message(STATUS "QPid Proton library found at ${PROTON_LIB}")
+message(STATUS "Paho C hint ${PAHOC_DIR}")
+message(STATUS "Paho C headers found at ${PAHOC_DIR_INCLUDE_DIR}")
+message(STATUS "Paho C library found at ${PAHOC_DIR_LIB}")
 
 include_directories(${PAHOC_LIB})
 
