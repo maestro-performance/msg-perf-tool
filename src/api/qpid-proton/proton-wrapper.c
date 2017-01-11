@@ -162,8 +162,6 @@ static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *messag
 	pn_message_set_ttl(message, 50000);
 
 	pn_message_set_creation_time(message, proton_now());
-
-	pn_message_set_first_acquirer(message, true);
 }
 
 static void proton_set_message_data(
