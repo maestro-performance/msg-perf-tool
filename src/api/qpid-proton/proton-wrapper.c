@@ -285,8 +285,7 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 	return VMSL_SUCCESS;
 }
 
-static int proton_receive_local(pn_messenger_t *gru_restrict messenger,
-								gru_status_t * gru_restrict status)
+static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
 {
 	logger_t logger = gru_logger_get();
 
