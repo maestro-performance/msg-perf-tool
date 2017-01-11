@@ -150,12 +150,14 @@ static pn_timestamp_t proton_now() {
 	return ((pn_timestamp_t) now.tv_sec) * 1000 + (now.tv_usec / 1000);
 }
 
-static void proton_set_message_properties(pn_message_t *message) {
+static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *message) {
 	logger_t logger = gru_logger_get();
 	const options_t *options = get_options_object();
 
 	logger(DEBUG, "Setting message address to %s", options->url);
 	pn_message_set_address(message, options->url);
+
+	// OPT_TODO: must be a configuration
 	pn_message_set_durable(message, false);
 	pn_message_set_ttl(message, 50000);
 
@@ -213,7 +215,7 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 	logger(TRACE, "Creating message object");
 	pn_message_t *message = pn_message();
 
-	proton_set_message_properties(message);
+	proton_set_message_properties(ctxt, message);
 	proton_set_message_data(message, content_loader);
 
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
@@ -247,7 +249,22 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) 
 	 * it was working in an auto-accept mode
 	 */
 	pn_messenger_set_incoming_window(messenger, 1);
+
 	pn_messenger_set_blocking(messenger, true);
+
+	/**
+	 *
+	 * AMQP 1.0 Section 3.3:
+	 * "... by default a message will begin in the AVAILABLE state. Prior to initiating an
+	 * acquiring transfer, the message will transition to the ACQUIRED state. Once in the
+	 * ACQUIRED state, a message is ineligible for acquiring transfers to any other links"
+	 *
+	 * From Proton documentation:
+	 * PN_RCV_FIRST means that "... the receiver will settle deliveries regardless of
+	 * what the sender does ..."
+	 */
+	pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_FIRST);
+
 }
 
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
