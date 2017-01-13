@@ -122,7 +122,16 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	statistics_throughput_header(stat_io);
 
 	while (can_continue(options)) {
-		vmsl->receive(msg_ctxt, &content_storage, &status);
+		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
+		if (unlikely(vmsl_stat_error(rstat))) {
+			fprintf(stderr, "%s\n", status.message);
+
+			statistics_destroy(&stat_io);
+			vmsl->destroy(msg_ctxt, &status);
+			gru_status_reset(&status);
+			return;
+		}
+
 		last = statistics_now();
 
 		if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
