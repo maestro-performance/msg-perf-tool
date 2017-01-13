@@ -25,7 +25,7 @@ msg_ctxt_t *litestomp_init(stat_io_t *stat_io, void *data, gru_status_t *status)
 
 	logger(DEBUG, "Initializing stomp wrapper");
 
-	msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io);
+	msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io, status);
 	if (!msg_ctxt) {
 		return NULL;
 	}
