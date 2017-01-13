@@ -20,7 +20,7 @@ msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io, gru_status_t *status) {
 	gru_alloc_check(ret, NULL);
 
 	ret->stat_io = stat_io;
-	ret->msg_opts = MSG_DEFAULT;
+	ret->msg_opts.qos = MSG_QOS_AT_MOST_ONCE;
 
 	return ret;
 }

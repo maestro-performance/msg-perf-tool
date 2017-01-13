@@ -167,7 +167,13 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 
 	// Open stdout ... never FAIL.
 	stat_io_t *stat_io = statistics_init_stdout(SENDER, NULL);
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
+
+	msg_opt_t opt = {
+		.direction = MSG_DIRECTION_SENDER,
+		.qos = MSG_QOS_AT_MOST_ONCE,
+	};
+
+	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
 	if (!msg_ctxt) {
 		fprintf(stderr, "%s", status.message);
 

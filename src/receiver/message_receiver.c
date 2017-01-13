@@ -84,7 +84,12 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		return;
 	}
 
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
+	msg_opt_t opt = {
+		.direction = MSG_DIRECTION_RECEIVER,
+		.qos = MSG_QOS_AT_MOST_ONCE,
+	};
+
+	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
 	if (!msg_ctxt) {
 		fprintf(stderr, "%s", status.message);
 		statistics_destroy(&stat_io);

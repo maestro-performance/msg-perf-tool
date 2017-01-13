@@ -34,7 +34,7 @@
 extern "C" {
 #endif
 
-msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data, gru_status_t *status);
+msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status);
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 

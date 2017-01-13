@@ -39,12 +39,23 @@ typedef struct msg_content_data_t_ {
 
 typedef void (*msg_content_loader)(msg_content_data_t *content_data);
 
+typedef enum msg_direction_t_ {
+    MSG_DIRECTION_SENDER,
+    MSG_DIRECTION_RECEIVER
+} msg_direction_t;
+
+typedef enum msg_qos_t_ {
+    MSG_QOS_AT_MOST_ONCE,
+    MSG_QOS_AT_LEAST_ONCE, /** Not fully supported and reserved for future use **/
+    MSG_QOS_EXACTLY_ONCE, /** Not fully supported and reserved for future use **/
+} msg_qos_t;
+
 /**
  * Messaging options
  */
-typedef enum msg_opt_t_ {
-    MSG_DEFAULT = 0,
-    MSG_ACKNOWLEDGE = 1, /** Acknowledge messages to the best possible way supported by the protocol */
+typedef struct msg_opt_t_ {
+    msg_direction_t direction;
+    msg_qos_t qos;
 } msg_opt_t;
 
 

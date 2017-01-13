@@ -120,7 +120,12 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	}
 	logger(TRACE, "Initializing test execution");
 
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, NULL, &status);
+	msg_opt_t opt = {
+		.direction = MSG_DIRECTION_SENDER,
+		.qos = MSG_QOS_AT_MOST_ONCE,
+	};
+
+	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
 	if (!msg_ctxt) {
 		fprintf(stderr, "%s", status.message);
 

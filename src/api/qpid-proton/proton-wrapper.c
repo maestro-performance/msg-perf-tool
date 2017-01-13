@@ -29,7 +29,40 @@ static inline proton_ctxt_t *proton_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (proton_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
+static void proton_set_send_options(pn_messenger_t *messenger, msg_opt_t opt){
+	if (opt.qos == MSG_QOS_AT_MOST_ONCE) {
+		/**
+		 * From the documentation:
+		 *
+		 * Sender presettles (aka at-most-once): "... in this configuration the sender
+		 * settles (i.e. forgets about) the delivery before it even reaches the receiver,
+		 * and if anything should happen to the delivery in-flight, there is no way to
+		 * recover, hence the "at most once" semantics ..."
+		 */
+		pn_messenger_set_snd_settle_mode(messenger, PN_SND_SETTLED);
+	}
+	else {
+		logger_t logger = gru_logger_get();
+
+		logger(WARNING, "Using an unsupported QOS mode");
+
+		pn_messenger_set_outgoing_window(messenger, 1);
+		pn_messenger_set_snd_settle_mode(messenger, PN_SND_UNSETTLED);
+	}
+}
+
+static void proton_set_recv_options(pn_messenger_t *messenger, msg_opt_t opt){
+	if (opt.qos == MSG_QOS_AT_LEAST_ONCE) {
+		pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_FIRST);
+	}
+	else {
+		if (opt.qos == MSG_QOS_EXACTLY_ONCE) {
+			pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_SECOND);
+		}
+	}
+}
+
+msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing proton wrapper");
@@ -57,8 +90,16 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
 		exit(1);
 	}
 
+	if (opt.direction == MSG_DIRECTION_SENDER) {
+		proton_set_send_options(messenger, opt);
+	}
+	else {
+		proton_set_recv_options(messenger, opt);
+	}
+
 	proton_ctxt->messenger = messenger;
 	msg_ctxt->api_context = proton_ctxt;
+	msg_ctxt->msg_opts = opt;
 
 	return msg_ctxt;
 }
@@ -212,6 +253,7 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 	logger(TRACE, "Creating message object");
 	pn_message_t *message = pn_message();
 
+
 	proton_set_message_properties(ctxt, message, status);
 	proton_set_message_data(message, content_loader);
 
@@ -222,7 +264,10 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 		return ret;
 	}
 
-	proton_commit(proton_ctxt->messenger, status);
+	if (unlikely(ctxt->msg_opts.qos != MSG_QOS_AT_MOST_ONCE)) {
+		proton_commit(proton_ctxt->messenger, status);
+	}
+
 	pn_message_free(message);
 	return VMSL_SUCCESS;
 }
@@ -236,6 +281,7 @@ static void proton_accept(pn_messenger_t *messenger) {
 
 	proton_check_status(messenger, tracker);
 	pn_messenger_accept(messenger, tracker, 0);
+	pn_messenger_settle(messenger, tracker, 0);
 	proton_check_status(messenger, tracker);
 }
 
@@ -248,20 +294,6 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) 
 	pn_messenger_set_incoming_window(messenger, 1);
 
 	pn_messenger_set_blocking(messenger, true);
-
-	/**
-	 *
-	 * AMQP 1.0 Section 3.3:
-	 * "... by default a message will begin in the AVAILABLE state. Prior to initiating an
-	 * acquiring transfer, the message will transition to the ACQUIRED state. Once in the
-	 * ACQUIRED state, a message is ineligible for acquiring transfers to any other links"
-	 *
-	 * From Proton documentation:
-	 * PN_RCV_FIRST means that "... the receiver will settle deliveries regardless of
-	 * what the sender does ..."
-	 */
-	pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_FIRST);
-
 }
 
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
