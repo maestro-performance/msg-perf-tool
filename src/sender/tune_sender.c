@@ -108,7 +108,14 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 
 
 	while (can_continue(duration)) {
-		vmsl->send(msg_ctxt, content_loader, &status);
+		vmsl_stat_t sstat = vmsl->send(msg_ctxt, content_loader, &status);
+
+		if (vmsl_stat_error(sstat)) {
+			fprintf(stderr, "%s", status.message);
+			break;
+		}
+
+
 		sent++;
 
 		if (throttle > 0) {
