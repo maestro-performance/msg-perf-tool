@@ -83,7 +83,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 		last = statistics_now();
 
-		if (last_calc != last.tv_sec && (last.tv_sec % 10) == 0) {
+		if (last_calc <= (last.tv_sec - 10)) {
 			statistics_throughput_partial(stat_io, start, last, content_storage.count);
 
 			last_calc = last.tv_sec;
