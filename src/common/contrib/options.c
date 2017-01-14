@@ -43,7 +43,7 @@ void options_set_defaults(options_t *ret) {
 	strcpy(ret->logdir, ".");
 
 	ret->parallel_count = 2;
-	ret->count = 5;
+	ret->count = 0;
 	ret->log_level = INFO;
 	ret->message_size = 32;
 	ret->duration = gru_duration_from_seconds(0);
