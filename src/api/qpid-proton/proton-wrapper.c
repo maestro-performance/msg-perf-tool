@@ -172,9 +172,14 @@ static void proton_commit(pn_messenger_t *messenger, gru_status_t *status) {
 
 	logger(TRACE, "Committing the message delivery");
 
+#if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
+#endif
 	pn_messenger_settle(messenger, tracker, 0);
+
+#if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
+#endif
 }
 
 static pn_timestamp_t proton_now(gru_status_t *status) {
@@ -191,10 +196,9 @@ static pn_timestamp_t proton_now(gru_status_t *status) {
 
 static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *message,
 										  gru_status_t *status) {
-	logger_t logger = gru_logger_get();
 	const options_t *options = get_options_object();
 
-	logger(DEBUG, "Setting message address to %s", options->url);
+	mpt_trace("Setting message address to %s", options->url);
 	pn_message_set_address(message, options->url);
 
 	// OPT_TODO: must be a configuration
@@ -206,26 +210,23 @@ static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *messag
 
 static void proton_set_message_data(
 	pn_message_t *message, msg_content_loader content_loader) {
-	logger_t logger = gru_logger_get();
-        static bool cached = false;
+	static bool cached = false;
         static msg_content_data_t msg_content;
 
-	logger(TRACE, "Formatting message body");
+	mpt_trace("Formatting message body");
 
-        pn_data_t *body = pn_message_body(message);
-        if (!cached) { 
-            content_loader(&msg_content);
-            cached = true;
-        }
+	pn_data_t *body = pn_message_body(message);
+	if (!cached) {
+		content_loader(&msg_content);
+		cached = true;
+	}
 
 	pn_data_put_string(body, pn_bytes(msg_content.capacity, msg_content.data));
 }
 
 static vmsl_stat_t proton_do_send(pn_messenger_t *messenger, pn_message_t *message,
 						   gru_status_t *status) {
-	logger_t logger = gru_logger_get();
-
-	logger(DEBUG, "Putting message");
+	mpt_trace("Putting message");
 	pn_messenger_put(messenger, message);
 	if (failed(messenger)) {
 		pn_error_t *error = pn_messenger_error(messenger);
@@ -251,9 +252,7 @@ static vmsl_stat_t proton_do_send(pn_messenger_t *messenger, pn_message_t *messa
 vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
 	vmsl_stat_t ret = {0};
 
-	logger_t logger = gru_logger_get();
-
-	logger(TRACE, "Creating message object");
+	mpt_trace("Creating message object");
 	pn_message_t *message = pn_message();
 
 
@@ -278,14 +277,17 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 static void proton_accept(pn_messenger_t *messenger) {
 	pn_tracker_t tracker = pn_messenger_incoming_tracker(messenger);
 
-	logger_t logger = gru_logger_get();
+	mpt_trace("Accepting the message delivery");
 
-	logger(TRACE, "Accepting the message delivery");
-
+#if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
+#endif
 	pn_messenger_accept(messenger, tracker, 0);
 	pn_messenger_settle(messenger, tracker, 0);
+
+#if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
+#endif
 }
 
 static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) {
@@ -321,14 +323,14 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 
 static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
 {
-	logger_t logger = gru_logger_get();
-
 	if (!pn_messenger_is_blocking(messenger)) {
-		logger(WARNING, "The messenger is not in blocking mode");
+                logger_t logger = gru_logger_get();
+
+                logger(WARNING, "The messenger is not in blocking mode");
 	}
 
 	int limit = -1;
-	logger(TRACE, "Receiving at most %i messages", limit);
+	mpt_trace("Receiving at most %i messages", limit);
 	pn_messenger_recv(messenger, limit);
 	if (failed(messenger)) {
 		pn_error_t *error = pn_messenger_error(messenger);
@@ -342,20 +344,22 @@ static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
 
 	int incoming = pn_messenger_incoming(messenger);
 	if (incoming == 0) {
-		logger(DEBUG, "There are 0 incoming messages");
+		mpt_trace("There are 0 incoming messages");
 		return 0;
 	}
 
-	logger(TRACE, "Getting %i messages from proton buffer", incoming);
+	mpt_trace("Getting %i messages from proton buffer", incoming);
 	return incoming;
 }
 
 static int proton_do_receive(
 	pn_messenger_t *messenger, pn_message_t *message, msg_content_data_t *content) {
-	logger_t logger = gru_logger_get();
+
 
 	pn_messenger_get(messenger, message);
 	if (failed(messenger)) {
+		logger_t logger = gru_logger_get();
+
 		pn_error_t *error = pn_messenger_error(messenger);
 
 		const char *protonErrorText = pn_error_text(error);
@@ -369,6 +373,7 @@ static int proton_do_receive(
 	content->size = content->capacity;
 	pn_data_format(body, content->data, &content->size);
 	if (failed(messenger)) {
+		logger_t logger = gru_logger_get();
 		pn_error_t *error = pn_messenger_error(messenger);
 
 		const char *protonErrorText = pn_error_text(error);
@@ -377,7 +382,7 @@ static int proton_do_receive(
 		return 1;
 	}
 
-	logger(DEBUG, "Received data (%d bytes): %s", content->size, content->data);
+	mpt_trace("Received data (%d bytes): %s", content->size, content->data);
 	return 0;
 }
 

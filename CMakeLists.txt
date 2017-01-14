@@ -11,6 +11,7 @@ set(MPT_VERSION_PATCH 1)
 
 set(GRU_DIR "/usr" CACHE STRING "GRU directory")
 set(BMIC_DIR "/usr" CACHE STRING "BMIC directory")
+set(BUILD_WITH_EXTRA_DEBUG OFF CACHE BOOL "Build extra debug information")
 
 add_definitions(-DPROJECT_NAME="${PROJECT_NAME}" -DMPT_VERSION="${MPT_VERSION}")
 

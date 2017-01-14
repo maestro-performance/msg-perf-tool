@@ -29,6 +29,7 @@
 #include "vmsl.h"
 #include "proton-context.h"
 #include "statistics.h"
+#include "mpt-debug.h"
 
 #ifdef __cplusplus
 extern "C" {

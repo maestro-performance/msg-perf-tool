@@ -12,6 +12,10 @@ set(CPP_INCLUDE_DIR "include")
 set(SHARED_DIR "share")
 
 if (CMAKE_COMPILER_IS_GNUCXX)
+        if (BUILD_WITH_EXTRA_DEBUG)
+			add_definitions(-DMPT_DEBUG=2)
+	endif (BUILD_WITH_EXTRA_DEBUG)
+
 	set(CMAKE_C_FLAGS "-Wall -Wshadow -Wconversion -Wno-sign-conversion -fstrict-aliasing -std=c99 ${CMAKE_USER_C_FLAGS}" CACHE STRING
 		"Flags used by the compiler during all build types." FORCE
 	)
