@@ -13,41 +13,24 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef SENDER_PERF_MAIN_H
-#define SENDER_PERF_MAIN_H
+#ifndef NET_PROBE_H
+#define NET_PROBE_H
 
-#include <sys/wait.h>
-#include <unistd.h>
-
-#include <getopt.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <sys/wait.h>
-
-#include <time/gru_time_utils.h>
-
-#include "contrib/options.h"
-
-#include <common/gru_base.h>
-#include <config/gru_config.h>
-#include <log/gru_logger.h>
-#include <cli/gru_cli_opt.h>
-
-#include "config.h"
-#include "message_sender.h"
-#include "process_utils.h"
-#include "vmsl.h"
-#include "vmsl_assign.h"
-#include "probes/scheduler.h"
+#include <common/gru_status.h>
+#include <io/gru_ioutils.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int perf_main(int argc, char **argv);
+
+bool net_init(const options_t *options, gru_status_t *status);
+int net_collect(gru_status_t *status);
+void net_stop();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SENDER_PERF_MAIN_H */
+#endif /* NET_PROBE_H */
+
