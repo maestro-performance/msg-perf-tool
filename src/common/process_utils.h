@@ -16,21 +16,32 @@
 #ifndef PROCESS_UTILS_H
 #define PROCESS_UTILS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <fcntl.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <common/gru_status.h>
 #include <io/gru_ioutils.h>
 #include <log/gru_logger.h>
 
+#include "contrib/options.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, FILE *fd,
 	gru_status_t *status);
 void init_controller(bool daemon, const char *logdir, const char *controller_name);
+
+bool can_continue(const options_t *options, uint64_t sent);
+
+void install_timer(time_t sec);
+void install_interrupt_handler();
 
 #ifdef __cplusplus
 }

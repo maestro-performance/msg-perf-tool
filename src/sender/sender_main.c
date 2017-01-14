@@ -33,9 +33,7 @@ int main(int argc, char **argv) {
 	} else {
 		if (strncmp(argv[1], "perf", 4) == 0) {
 			return perf_main((argc - 1), &argv[1]);
-		}
-
-		if (strncmp(argv[1], "tune", 4) == 0) {
+		} else if (strncmp(argv[1], "tune", 4) == 0) {
 			return tune_main((argc - 1), &argv[1]);
 		}
 	}

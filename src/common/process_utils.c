@@ -15,6 +15,8 @@
  */
 #include "process_utils.h"
 
+static bool interrupted = false;
+
 bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, FILE *fd,
 	gru_status_t *status) {
 	char name[64];
@@ -74,4 +76,62 @@ void init_controller(bool background, const char *logdir, const char *controller
 			}
 		}
 	}
+}
+
+static void timer_handler(int signum) {
+	// NO-OP for now
+}
+
+static void interrupt_handler(int signum) { interrupted = true; }
+
+void install_timer(time_t sec) {
+	struct sigaction sa;
+	struct itimerval timer;
+
+	memset(&sa, 0, sizeof(sa));
+
+	sa.sa_handler = &timer_handler;
+	sa.sa_flags = SA_SIGINFO;
+	sigaction(SIGALRM, &sa, NULL);
+
+	timer.it_value.tv_sec = sec;
+	timer.it_value.tv_usec = 0;
+
+	timer.it_interval.tv_sec = sec;
+	timer.it_interval.tv_usec = 0;
+
+	setitimer(ITIMER_REAL, &timer, NULL);
+}
+
+void install_interrupt_handler() {
+	struct sigaction sa;
+
+	memset(&sa, 0, sizeof(sa));
+
+	sa.sa_handler = &interrupt_handler;
+	sa.sa_flags = SA_SIGINFO;
+	sigaction(SIGINT, &sa, NULL);
+}
+
+bool can_continue(const options_t *options, uint64_t sent) {
+	struct timeval now;
+
+	if (interrupted) {
+		return false;
+	}
+
+	if (likely(options->count == 0)) {		
+		gettimeofday(&now, NULL);
+		
+		if (likely(now.tv_sec <= options->duration.end.tv_sec)) {
+			return true;
+		}
+	}
+	else {
+			if (likely(sent < options->count)) {
+				return true;
+			}
+	}
+
+	return false;
 }

@@ -22,7 +22,6 @@
 #include "vmsl.h"
 
 #include <inttypes.h>
-#include <signal.h>
 #include <unistd.h>
 
 #include <common/gru_status.h>

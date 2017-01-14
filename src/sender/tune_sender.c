@@ -17,44 +17,9 @@
 
 typedef struct perf_stats_t_ { uint64_t sent; } perf_stats_t;
 
-static bool interrupted = false;
 static char *data = NULL;
 static size_t capacity;
 
-static void timer_handler(int signum) {
-	// NO-OP for now
-}
-
-static void interrupt_handler(int signum) { interrupted = true; }
-
-static void install_timer() {
-	struct sigaction sa;
-	struct itimerval timer;
-
-	memset(&sa, 0, sizeof(sa));
-
-	sa.sa_handler = &timer_handler;
-	sa.sa_flags = SA_SIGINFO;
-	sigaction(SIGALRM, &sa, NULL);
-
-	timer.it_value.tv_sec = 1;
-	timer.it_value.tv_usec = 0;
-
-	timer.it_interval.tv_sec = 1;
-	timer.it_interval.tv_usec = 0;
-
-	setitimer(ITIMER_REAL, &timer, NULL);
-}
-
-static void install_interrupt_handler() {
-	struct sigaction sa;
-
-	memset(&sa, 0, sizeof(sa));
-
-	sa.sa_handler = &interrupt_handler;
-	sa.sa_flags = SA_SIGINFO;
-	sigaction(SIGINT, &sa, NULL);
-}
 
 static const char *load_message_data(const options_t *options) {
 	data = malloc(options->message_size + 1);
@@ -82,10 +47,6 @@ static const char *load_message_data(const options_t *options) {
 
 static bool can_continue(gru_duration_t duration) {
 	struct timeval now;
-
-	if (interrupted) {
-		return false;
-	}
 
 	gettimeofday(&now, NULL);
 

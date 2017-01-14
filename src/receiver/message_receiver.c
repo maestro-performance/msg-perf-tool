@@ -16,62 +16,6 @@
 #include "message_receiver.h"
 #include "vmsl.h"
 
-static bool interrupted = false;
-
-static void timer_handler(int signum) {
-	// NO-OP
-}
-
-static void interrupt_handler(int signum) { interrupted = true; }
-
-static void install_timer() {
-	struct sigaction sa;
-	struct itimerval timer;
-
-	memset(&sa, 0, sizeof(sa));
-
-	sa.sa_handler = &timer_handler;
-	sa.sa_flags = SA_SIGINFO;
-	sigaction(SIGALRM, &sa, NULL);
-
-	timer.it_value.tv_sec = 30;
-	timer.it_value.tv_usec = 0;
-	timer.it_interval.tv_sec = 30;
-	timer.it_interval.tv_usec = 0;
-
-	setitimer(ITIMER_REAL, &timer, NULL);
-}
-
-static void install_interrupt_handler() {
-	struct sigaction sa;
-
-	memset(&sa, 0, sizeof(sa));
-
-	sa.sa_handler = &interrupt_handler;
-	sa.sa_flags = SA_SIGINFO;
-	sigaction(SIGINT, &sa, NULL);
-}
-
-static bool can_continue(const options_t *options) {
-	struct timeval now;
-
-	if (interrupted) {
-		return false;
-	}
-
-	if (options->duration.end.tv_sec == 0) {
-		return true;
-	}
-
-	gettimeofday(&now, NULL);
-
-	if (now.tv_sec >= options->duration.end.tv_sec) {
-		return false;
-	}
-
-	return true;
-}
-
 void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
@@ -108,7 +52,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		return;
 	}
 
-	install_timer();
+	install_timer(30);
 	install_interrupt_handler();
 
 	msg_content_data_t content_storage;
