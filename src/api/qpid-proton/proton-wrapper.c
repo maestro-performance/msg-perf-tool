@@ -207,13 +207,16 @@ static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *messag
 static void proton_set_message_data(
 	pn_message_t *message, msg_content_loader content_loader) {
 	logger_t logger = gru_logger_get();
+        static bool cached = false;
+        static msg_content_data_t msg_content;
 
 	logger(TRACE, "Formatting message body");
 
-	pn_data_t *body = pn_message_body(message);
-	msg_content_data_t msg_content;
-
-	content_loader(&msg_content);
+        pn_data_t *body = pn_message_body(message);
+        if (!cached) { 
+            content_loader(&msg_content);
+            cached = true;
+        }
 
 	pn_data_put_string(body, pn_bytes(msg_content.capacity, msg_content.data));
 }
