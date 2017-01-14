@@ -11,6 +11,7 @@ add_library(
         statistics.c
         process_utils.c
 	msgdata.c
+        probes/scheduler.c
 )
 
 
