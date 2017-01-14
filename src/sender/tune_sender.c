@@ -22,7 +22,7 @@ static bool can_continue(gru_duration_t duration) {
 
 	gettimeofday(&now, NULL);
 
-	if (now.tv_sec <= duration.end.tv_sec || duration.end.tv_sec == 0) {
+	if (likely(now.tv_sec <= duration.end.tv_sec)) {
 		return true;
 	}
 
