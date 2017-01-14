@@ -17,7 +17,7 @@
 
 typedef struct perf_stats_t_ { uint64_t sent; } perf_stats_t;
 
-static bool can_continue(gru_duration_t duration) {
+static bool tune_can_continue(gru_duration_t duration) {
 	struct timeval now;
 
 	gettimeofday(&now, NULL);
@@ -107,14 +107,13 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	register uint64_t round = 0;
 
 
-	while (can_continue(duration)) {
+	while (tune_can_continue(duration)) {
 		vmsl_stat_t sstat = vmsl->send(msg_ctxt, content_loader, &status);
 
 		if (vmsl_stat_error(sstat)) {
 			fprintf(stderr, "%s", status.message);
 			break;
 		}
-
 
 		sent++;
 
