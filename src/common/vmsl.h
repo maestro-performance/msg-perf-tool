@@ -56,7 +56,7 @@ static inline bool vmsl_stat_success(vmsl_stat_t stat) {
 }
 
 static inline bool vmsl_stat_error(vmsl_stat_t stat) {
-    return stat | VMSL_ERROR  ? false : true;
+    return stat & VMSL_SUCCESS ? false : true;
 }
 
 #ifdef __cplusplus
