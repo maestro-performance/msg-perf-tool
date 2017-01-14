@@ -15,45 +15,6 @@
  */
 #include "message_sender.h"
 
-static char *data = NULL;
-static size_t capacity;
-
-
-static const char *load_message_data(const options_t *options) {
-	data = malloc(options->message_size + 1);
-
-	logger_t logger = gru_logger_get();
-	if (data == NULL) {
-
-		logger(FATAL, "Unable to allocate memory for the message data");
-
-		return NULL;
-	}
-
-	logger(INFO, "Loading %d bytes for message data", options->message_size);
-
-	bzero(data, options->message_size);
-
-	for (size_t i = 0; i < options->message_size; i++) {
-		data[i] = 'c';
-	}
-
-	data[options->message_size] = 0;
-	capacity = options->message_size;
-	return data;
-}
-
-static void unload_message_data() {
-	free(data);
-	capacity = 0;
-}
-
-static void content_loader(msg_content_data_t *content_data) {
-	content_data->capacity = capacity;
-	content_data->size = capacity;
-	content_data->data = data;
-}
-
 void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
@@ -80,7 +41,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 
 	install_timer(1);
 	install_interrupt_handler();
-	load_message_data(options);
+	load_message_data(options, &status);
 
 	mpt_timestamp_t last;
 	mpt_timestamp_t start = statistics_now();

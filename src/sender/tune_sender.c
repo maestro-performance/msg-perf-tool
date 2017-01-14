@@ -17,34 +17,6 @@
 
 typedef struct perf_stats_t_ { uint64_t sent; } perf_stats_t;
 
-static char *data = NULL;
-static size_t capacity;
-
-
-static const char *load_message_data(const options_t *options) {
-	data = malloc(options->message_size + 1);
-
-	logger_t logger = gru_logger_get();
-	if (data == NULL) {
-
-		logger(FATAL, "Unable to allocate memory for the message data");
-
-		return NULL;
-	}
-
-	logger(INFO, "Loading %d bytes for message data", options->message_size);
-
-	bzero(data, options->message_size);
-
-	for (size_t i = 0; i < options->message_size; i++) {
-		data[i] = 'c';
-	}
-
-	data[options->message_size] = 0;
-	capacity = options->message_size;
-	return data;
-}
-
 static bool can_continue(gru_duration_t duration) {
 	struct timeval now;
 
@@ -57,16 +29,6 @@ static bool can_continue(gru_duration_t duration) {
 	return false;
 }
 
-static void unload_message_data() {
-	free(data);
-	capacity = 0;
-}
-
-static void content_loader(msg_content_data_t *content_data) {
-	content_data->capacity = capacity;
-	content_data->size = capacity;
-	content_data->data = data;
-}
 
 static void tune_print_stat(uint32_t steps, const char *msg, ...) {
 	va_list ap;

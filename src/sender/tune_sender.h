@@ -33,6 +33,7 @@
 
 #include "contrib/options.h"
 #include "msgctxt.h"
+#include "msgdata.h"
 #include "statistics.h"
 #include "vmsl.h"
 
