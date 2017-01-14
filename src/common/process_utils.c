@@ -114,15 +114,15 @@ void install_interrupt_handler() {
 }
 
 bool can_continue(const options_t *options, uint64_t sent) {
-	struct timeval now;
-
 	if (interrupted) {
 		return false;
 	}
 
-	if (likely(options->count == 0)) {		
-		gettimeofday(&now, NULL);
+	if (likely(options->count == 0)) {
+		struct timeval now;
 		
+		gettimeofday(&now, NULL);
+
 		if (likely(now.tv_sec <= options->duration.end.tv_sec)) {
 			return true;
 		}
