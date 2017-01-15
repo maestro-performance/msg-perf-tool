@@ -417,35 +417,37 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 	}
 
 	pn_message_t *message = pn_message();
-	int ret = proton_do_receive(proton_ctxt->messenger, message, content);
+	for (int i = 0; i < count; i++) {
+		int ret = proton_do_receive(proton_ctxt->messenger, message, content);
 
-	if (ret == 0) {
-		pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
+		if (ret == 0) {
+			pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
 
-		if (proton_ts > 0) {
-			mpt_timestamp_t created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
+			if (proton_ts > 0) {
+				mpt_timestamp_t created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
 
-			pn_timestamp_t ts = proton_now(status);
+				pn_timestamp_t ts = proton_now(status);
 
-			if (likely(ts > 0)) {
-				mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(ts);
+				if (likely(ts > 0)) {
+					mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(ts);
 
-				statistics_latency(ctxt->stat_io, created, now);
-				content->count++;
-			}
-			else {
-				logger_t logger = gru_logger_get();
+					statistics_latency(ctxt->stat_io, created, now);
+					content->count++;
+				}
+				else {
+					logger_t logger = gru_logger_get();
 
-				logger(ERROR,
-					 "Discarding message due to unable to compute current time: %s",
-					 status->message);
+					logger(ERROR,
+						 "Discarding message due to unable to compute current time: %s",
+						 status->message);
+					content->errors++;
+				}
+			} else {
 				content->errors++;
 			}
-		} else {
-			content->errors++;
-		}
 
-		proton_accept(proton_ctxt->messenger);
+			proton_accept(proton_ctxt->messenger);
+		}
 	}
 
 	pn_message_free(message);
