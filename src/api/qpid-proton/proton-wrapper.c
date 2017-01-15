@@ -17,6 +17,8 @@
 #include "proton-context.h"
 #include "vmsl.h"
 
+const int window = 100;
+
 static inline bool failed(pn_messenger_t *messenger) {
 	if (pn_messenger_errno(messenger)) {
 		return true;
@@ -296,7 +298,7 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) 
 	 * By setting the incoming window to 1 it, basically, behaves as if
 	 * it was working in an auto-accept mode
 	 */
-	pn_messenger_set_incoming_window(messenger, 1);
+	pn_messenger_set_incoming_window(messenger, window);
 
 	pn_messenger_set_blocking(messenger, true);
 }
@@ -329,7 +331,7 @@ static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
                 logger(WARNING, "The messenger is not in blocking mode");
 	}
 
-	int limit = -1;
+	int limit = window * 10;
 	mpt_trace("Receiving at most %i messages", limit);
 	pn_messenger_recv(messenger, limit);
 	if (failed(messenger)) {
@@ -354,7 +356,6 @@ static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
 
 static int proton_do_receive(
 	pn_messenger_t *messenger, pn_message_t *message, msg_content_data_t *content) {
-
 
 	pn_messenger_get(messenger, message);
 	if (failed(messenger)) {
@@ -416,6 +417,7 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 		return VMSL_ERROR;
 	}
 
+	int last = 0;
 	pn_message_t *message = pn_message();
 	for (int i = 0; i < count; i++) {
 		int ret = proton_do_receive(proton_ctxt->messenger, message, content);
@@ -446,9 +448,13 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 				content->errors++;
 			}
 		}
+
+		if ((last + window) == i) {
+			proton_accept(proton_ctxt->messenger);
+			last = i;
+		}
 	}
 
-	proton_accept(proton_ctxt->messenger);
 	pn_message_free(message);
 	return VMSL_SUCCESS;
 }
