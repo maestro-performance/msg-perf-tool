@@ -282,8 +282,8 @@ static void proton_accept(pn_messenger_t *messenger) {
 #if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
 #endif
-	pn_messenger_accept(messenger, tracker, 0);
-	pn_messenger_settle(messenger, tracker, 0);
+	pn_messenger_accept(messenger, tracker, PN_CUMULATIVE);
+	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
 
 #if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
@@ -445,11 +445,10 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 			} else {
 				content->errors++;
 			}
-
-			proton_accept(proton_ctxt->messenger);
 		}
 	}
 
+	proton_accept(proton_ctxt->messenger);
 	pn_message_free(message);
 	return VMSL_SUCCESS;
 }
