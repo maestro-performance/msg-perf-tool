@@ -35,30 +35,21 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
 	if (!msg_ctxt) {
-		fprintf(stderr, "%s", status.message);
-		statistics_destroy(&stat_io);
-		gru_status_reset(&status);
-
-		return;
+		goto err_exit;
 	}
 
 	vmsl_stat_t ret = vmsl->subscribe(msg_ctxt, NULL, &status);
 	if (vmsl_stat_error(ret)) {
-		fprintf(stderr, "%s", status.message);
-
-		statistics_destroy(&stat_io);
-		vmsl->destroy(msg_ctxt, &status);
-		gru_status_reset(&status);
-		return;
+		goto err_exit;
 	}
-
-	install_timer(30);
-	install_interrupt_handler();
 
 	msg_content_data_t content_storage;
 
-	content_storage.data = malloc(options->message_size);
-	bzero(content_storage.data, options->message_size);
+	content_storage.data = gru_alloc(options->message_size, &status);
+	if (!content_storage.data) {
+		goto err_exit;
+	}
+
 	content_storage.capacity = options->message_size;
 	content_storage.count = 0;
 	content_storage.errors = 0;
@@ -69,6 +60,9 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	statistics_latency_header(stat_io);
 	statistics_throughput_header(stat_io);
+
+	//install_timer(30);
+	install_interrupt_handler();
 
 	while (can_continue(options)) {
 		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
@@ -98,7 +92,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	uint64_t elapsed = statistics_diff(start, last);
 	double rate = ((double) content_storage.count / elapsed) * 1000;
 
-	uint64_t total_received = content_storage.count - 1;
+	uint64_t total_received = content_storage.count;
 
 	logger(STAT, "summary;received;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
 		total_received, elapsed, rate);
@@ -109,4 +103,17 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger(INFO, "Errors: received %" PRIu64, content_storage.errors);
 
 	free(content_storage.data);
+	return;
+
+	err_exit:
+	fprintf(stderr, "%s", status.message);
+	statistics_destroy(&stat_io);
+
+	if (msg_ctxt) {
+		vmsl->destroy(msg_ctxt, &status);
+	}
+
+	gru_status_reset(&status);
+	return;
+
 }

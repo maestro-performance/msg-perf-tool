@@ -17,14 +17,16 @@
 #ifndef MPT_DEBUG_H
 #define MPT_DEBUG_H
 
+#include <log/gru_logger.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #if defined(MPT_DEBUG) && MPT_DEBUG >=2
- #define mpt_trace(message, ...) { logger_t mptlogger = gru_logger_get(); mptlogger(TRACE, message, __VA_ARGS__) }
+ #define mpt_trace(...) { logger_t mptlogger = gru_logger_get(); mptlogger(TRACE, __VA_ARGS__); }
 #else
- #define mpt_trace(message, ...)
+ #define mpt_trace(...)
 #endif
 
 

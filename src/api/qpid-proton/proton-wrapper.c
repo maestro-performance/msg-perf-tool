@@ -17,7 +17,7 @@
 #include "proton-context.h"
 #include "vmsl.h"
 
-const int window = 100;
+const int window = 10;
 
 static inline bool failed(pn_messenger_t *messenger) {
 	if (pn_messenger_errno(messenger)) {
@@ -279,12 +279,30 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 static void proton_accept(pn_messenger_t *messenger) {
 	pn_tracker_t tracker = pn_messenger_incoming_tracker(messenger);
 
-	mpt_trace("Accepting the message delivery");
+	// mpt_trace("Accepting the message delivery");
+	logger_t logger = gru_logger_get();
+	logger(INFO, "Accepting the message delivery --- ");
 
 #if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
 #endif
 	pn_messenger_accept(messenger, tracker, PN_CUMULATIVE);
+	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
+
+#if defined(MPT_DEBUG) && MPT_DEBUG >=1
+	proton_check_status(messenger, tracker);
+#endif
+}
+
+static void proton_reject(pn_messenger_t *messenger) {
+	pn_tracker_t tracker = pn_messenger_incoming_tracker(messenger);
+
+	mpt_trace("Accepting the message delivery");
+
+#if defined(MPT_DEBUG) && MPT_DEBUG >=1
+	proton_check_status(messenger, tracker);
+#endif
+	pn_messenger_reject(messenger, tracker, PN_CUMULATIVE);
 	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
 
 #if defined(MPT_DEBUG) && MPT_DEBUG >=1
@@ -298,7 +316,7 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) 
 	 * By setting the incoming window to 1 it, basically, behaves as if
 	 * it was working in an auto-accept mode
 	 */
-	pn_messenger_set_incoming_window(messenger, window);
+	pn_messenger_set_incoming_window(messenger, 0);
 
 	pn_messenger_set_blocking(messenger, true);
 }
@@ -326,14 +344,14 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
 {
 	if (!pn_messenger_is_blocking(messenger)) {
-                logger_t logger = gru_logger_get();
+                // logger_t logger = gru_logger_get();
 
-                logger(WARNING, "The messenger is not in blocking mode");
+                // logger(WARNING, "The messenger is not in blocking mode");
 	}
 
 	int limit = window * 10;
 	mpt_trace("Receiving at most %i messages", limit);
-	pn_messenger_recv(messenger, limit);
+	pn_messenger_recv(messenger, 1024);
 	if (failed(messenger)) {
 		pn_error_t *error = pn_messenger_error(messenger);
 
@@ -444,17 +462,40 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 						 status->message);
 					content->errors++;
 				}
-			} else {
+			}
+			else {
 				content->errors++;
 			}
-		}
 
-		if ((last + window) == i) {
-			proton_accept(proton_ctxt->messenger);
-			last = i;
+			if ((last + window) == i) {
+				logger_t logger = gru_logger_get();
+
+				logger(INFO, "Acknowledging message %i (%i / %i)", i, content->count,
+					 content->errors);
+
+				proton_accept(proton_ctxt->messenger);
+				last = i;
+			}
+			else {
+				logger_t logger = gru_logger_get();
+
+				logger(INFO, "Buffering message %i for acknowledge (%i / %i)", i,
+					 content->count, content->errors);
+			}
 		}
 	}
+	logger_t logger = gru_logger_get();
 
+	logger(INFO, "Possible delta for acknowledge (%i / %i)", count, last);
+	proton_accept(proton_ctxt->messenger);
+
+	/*
+	if (count > last) {
+		content->count = content->count - (count - last);
+
+
+	}
+	*/
 	pn_message_free(message);
 	return VMSL_SUCCESS;
 }

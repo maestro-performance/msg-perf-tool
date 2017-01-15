@@ -157,7 +157,9 @@ int main(int argc, char **argv) {
 			remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, &status);
 		}
 
+		logger(INFO, "Starting test");
 		receiver_start(&vmsl, options);
+
 	}
 
 	logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
