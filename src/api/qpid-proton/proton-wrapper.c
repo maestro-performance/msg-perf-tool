@@ -41,6 +41,7 @@ static void proton_set_send_options(pn_messenger_t *messenger, msg_opt_t opt){
 		 * and if anything should happen to the delivery in-flight, there is no way to
 		 * recover, hence the "at most once" semantics ..."
 		 */
+		mpt_trace("Using At most once");
 		pn_messenger_set_snd_settle_mode(messenger, PN_SND_SETTLED);
 	}
 	else {
@@ -54,11 +55,15 @@ static void proton_set_send_options(pn_messenger_t *messenger, msg_opt_t opt){
 }
 
 static void proton_set_recv_options(pn_messenger_t *messenger, msg_opt_t opt){
+	logger_t logger = gru_logger_get();
+
 	if (opt.qos == MSG_QOS_AT_LEAST_ONCE) {
+		logger(INFO, "Setting QOS to At least once");
 		pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_FIRST);
 	}
 	else {
 		if (opt.qos == MSG_QOS_EXACTLY_ONCE) {
+			logger(INFO, "Setting QOS to exactly once");
 			pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_SECOND);
 		}
 	}
@@ -170,9 +175,7 @@ static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker)
 static void proton_commit(pn_messenger_t *messenger, gru_status_t *status) {
 	pn_tracker_t tracker = pn_messenger_outgoing_tracker(messenger);
 
-	logger_t logger = gru_logger_get();
-
-	logger(TRACE, "Committing the message delivery");
+	mpt_trace("Committing the message delivery");
 
 #if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
@@ -279,9 +282,7 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 static void proton_accept(pn_messenger_t *messenger) {
 	pn_tracker_t tracker = pn_messenger_incoming_tracker(messenger);
 
-	// mpt_trace("Accepting the message delivery");
-	logger_t logger = gru_logger_get();
-	logger(INFO, "Accepting the message delivery --- ");
+	mpt_trace("Accepting the message delivery");
 
 #if defined(MPT_DEBUG) && MPT_DEBUG >=1
 	proton_check_status(messenger, tracker);
@@ -311,14 +312,7 @@ static void proton_reject(pn_messenger_t *messenger) {
 }
 
 static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) {
-
-	/*
-	 * By setting the incoming window to 1 it, basically, behaves as if
-	 * it was working in an auto-accept mode
-	 */
-	pn_messenger_set_incoming_window(messenger, 0);
-
-	pn_messenger_set_blocking(messenger, true);
+	pn_messenger_set_incoming_window(messenger, window);
 }
 
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
@@ -343,12 +337,6 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 
 static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
 {
-	if (!pn_messenger_is_blocking(messenger)) {
-                // logger_t logger = gru_logger_get();
-
-                // logger(WARNING, "The messenger is not in blocking mode");
-	}
-
 	int limit = window * 10;
 	mpt_trace("Receiving at most %i messages", limit);
 	pn_messenger_recv(messenger, 1024);
@@ -362,14 +350,7 @@ static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
 		return -1;
 	}
 
-	int incoming = pn_messenger_incoming(messenger);
-	if (incoming == 0) {
-		mpt_trace("There are 0 incoming messages");
-		return 0;
-	}
-
-	mpt_trace("Getting %i messages from proton buffer", incoming);
-	return incoming;
+	return 0;
 }
 
 static int proton_do_receive(
@@ -424,20 +405,16 @@ static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
 vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-	int count = proton_receive_local(proton_ctxt->messenger, status);
-
-	if (count <= 0) {
-		// No messages received is ok ...
-		if (count == 0) {
-			return (VMSL_SUCCESS | VMSL_NO_DATA);
-		}
-
+	if (proton_receive_local(proton_ctxt->messenger, status) < 0) {
 		return VMSL_ERROR;
 	}
 
+	int nmsgs = 0;
 	int last = 0;
+	int cur = 0;
 	pn_message_t *message = pn_message();
-	for (int i = 0; i < count; i++) {
+	while (nmsgs = pn_messenger_incoming(proton_ctxt->messenger)) {
+		cur++;
 		int ret = proton_do_receive(proton_ctxt->messenger, message, content);
 
 		if (ret == 0) {
@@ -467,35 +444,29 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 				content->errors++;
 			}
 
-			if ((last + window) == i) {
-				logger_t logger = gru_logger_get();
-
-				logger(INFO, "Acknowledging message %i (%i / %i)", i, content->count,
+			if ((last + window) == cur) {
+				mpt_trace("Acknowledging message %i of %i (%i / %i)", cur, nmsgs,
+					 content->count,
 					 content->errors);
 
 				proton_accept(proton_ctxt->messenger);
-				last = i;
+				last = cur;
 			}
 			else {
-				logger_t logger = gru_logger_get();
-
-				logger(INFO, "Buffering message %i for acknowledge (%i / %i)", i,
-					 content->count, content->errors);
+				mpt_trace("Buffering message %i of %i for acknowledge (%i / %i)", cur,
+					 nmsgs, content->count, content->errors);
 			}
 		}
 	}
-	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Possible delta for acknowledge (%i / %i)", count, last);
-	proton_accept(proton_ctxt->messenger);
-
-	/*
-	if (count > last) {
-		content->count = content->count - (count - last);
-
-
+	if (cur > last) {
+		uint64_t delta = nmsgs - last;
+		content->count = content->count - delta;
+			mpt_trace("Possible delta for acknowledge: %i (%i / %i)", delta,
+				 nmsgs, last);
+		proton_accept(proton_ctxt->messenger);
 	}
-	*/
+
 	pn_message_free(message);
 	return VMSL_SUCCESS;
 }
