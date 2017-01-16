@@ -75,6 +75,7 @@ int tune_main(int argc, char **argv) {
 				break;
 			case 'l':
 				options->log_level = gru_logger_get_level(optarg);
+				gru_logger_set_mininum(options->log_level);
 				break;
 			case 'd':
 				options->duration = gru_duration_from_minutes(atoi(optarg));

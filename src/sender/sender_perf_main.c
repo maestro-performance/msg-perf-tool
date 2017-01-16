@@ -88,6 +88,7 @@ int perf_main(int argc, char **argv) {
 				break;
 			case 'l':
 				options->log_level = gru_logger_get_level(optarg);
+				gru_logger_set_mininum(options->log_level);
 				break;
 			case 'p':
 				options->parallel_count = atoi(optarg);
