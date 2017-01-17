@@ -1,7 +1,3 @@
-if (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
- add_definitions(-DLINUX_BUILD)
-endif (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
-
 add_library(
 	mpt-api-common SHARED
         vmsl_assign.c
