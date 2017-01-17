@@ -1,7 +1,3 @@
-if (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
- add_definitions(-DLINUX_BUILD)
-endif (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
-
 add_executable(
     mpt-sender
     sender_main.c

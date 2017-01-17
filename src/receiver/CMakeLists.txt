@@ -1,7 +1,3 @@
-if (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
- add_definitions(-DLINUX_BUILD)
-endif (${CMAKE_SYSTEM_NAME} EQUAL "Linux")
-
 set(RUNTIME_DIR "bin")
 
 add_executable(
