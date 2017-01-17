@@ -21,7 +21,7 @@ static inline paho_ctxt_t *paho_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (paho_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
+msg_ctxt_t *paho_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status) {
     logger_t logger = gru_logger_get();
 
     logger(DEBUG, "Initializing Paho wrapper");
@@ -53,9 +53,19 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
     const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE,
 											 status);
 
-    logger(DEBUG, "Creating a client to %s", connect_url);
-	int rc = MQTTClient_create(&paho_ctxt->client, connect_url, "msg-perf-tool",
-        MQTTCLIENT_PERSISTENCE_NONE, NULL);
+	logger(DEBUG, "Creating a client to %s", connect_url);
+	int rc = 0;
+	if (opt.direction == MSG_DIRECTION_SENDER) {
+		rc = MQTTClient_create(&paho_ctxt->client, connect_url, "msg-perf-tool-sender",
+							 MQTTCLIENT_PERSISTENCE_NONE, NULL);
+	}
+	else {
+		rc = MQTTClient_create(&paho_ctxt->client, connect_url, "msg-perf-tool-receiver",
+							 MQTTCLIENT_PERSISTENCE_NONE, NULL);
+	}
+
+
+
 	if (rc != MQTTCLIENT_SUCCESS) {
         logger(FATAL, "Unable to create MQTT client handle: %d", rc);
 
@@ -65,7 +75,7 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, void *data, gru_status_t *status) {
 	logger(DEBUG, "Setting connection options");
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 
-    conn_opts.keepAliveInterval = 5;
+    conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
 
 	logger(DEBUG, "Connecting to %s", connect_url);
@@ -179,7 +189,6 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 	char *topic_name;
 	int rc = MQTTClient_receive(paho_ctxt->client, &topic_name, &tlen, &msg,
 							 timeout);
-
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS: break;
