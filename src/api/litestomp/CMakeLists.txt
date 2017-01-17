@@ -1,5 +1,3 @@
-add_definitions(-D_GNU_SOURCE -D_POSIX_C_SOURCE)
-
 set(LITESTOMP_DIR "/usr" CACHE STRING "Litestomp directory")
 
 find_path(LITESTOMP_INCLUDE_DIR litestomp-0/stomp_types.h
