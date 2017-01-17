@@ -65,7 +65,6 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_
 	}
 
 
-
 	if (rc != MQTTCLIENT_SUCCESS) {
         logger(FATAL, "Unable to create MQTT client handle: %d", rc);
 
@@ -121,10 +120,7 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_s
 
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-	logger_t logger = gru_logger_get();
-
-	logger(DEBUG, "Sending message to %s", paho_ctxt->uri.path);
-	printf("Sending message to %s\n", paho_ctxt->uri.path);
+	mpt_trace("Sending message to %s", paho_ctxt->uri.path);
 
 	int rc = MQTTClient_publishMessage(paho_ctxt->client, paho_ctxt->uri.path,
 		&pubmsg, &token);
@@ -149,9 +145,8 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_s
 			return VMSL_ERROR;
 		}
 	}
-	printf("Completed sending message\n");
 
-	logger(DEBUG, "Delivered message %d", token);
+	mpt_trace("Delivered message %d", token);
 	return VMSL_SUCCESS;
 }
 
@@ -191,7 +186,13 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 							 timeout);
 
 	switch (rc) {
-		case MQTTCLIENT_SUCCESS: break;
+		case MQTTCLIENT_SUCCESS:  {
+			if (!msg) {
+				return VMSL_SUCCESS | VMSL_NO_DATA;
+			}
+
+			return VMSL_SUCCESS;
+		}
 		case MQTTCLIENT_TOPICNAME_TRUNCATED: {
 			logger_t logger = gru_logger_get();
 
@@ -204,14 +205,6 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 			return VMSL_ERROR;
 		}
 	}
-
-	printf("Topic name: %s\n", topic_name);
-
-
-	if (msg && msg->payload) {
-		printf("Body: %.*s\n", msg->payloadlen, msg->payload);
-	}
-
 
 	return VMSL_SUCCESS;
 }

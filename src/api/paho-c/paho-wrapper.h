@@ -24,6 +24,7 @@
 #include "vmsl.h"
 #include "paho-context.h"
 #include "statistics.h"
+#include "mpt-debug.h"
 
 #define QOS_AT_MOST_ONCE 1
 #define TIMEOUT     10000L
