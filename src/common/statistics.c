@@ -127,14 +127,12 @@ uint64_t statistics_diff(gru_timestamp_t start, gru_timestamp_t end) {
 	gru_timestamp_t ret = {.tv_sec = 0, .tv_usec = 0};
 	timersub(&end, &start, &ret);
 
-	logger_t logger = gru_logger_get();
-
 	/*
 	 * At least until I have time to dig further into this, this may be entirely
 	 * wishful thinking on 32 bits platforms, since I am not sure that this will
 	 * work in all the cases or whether this is safe at all.
 	 */
-	logger(DEBUG, "Calculated diff : %" PRIi64 ".%" PRIi64 "", (int64_t) ret.tv_sec,
+	mpt_trace("Calculated diff : %" PRIi64 ".%" PRIi64 "", (int64_t) ret.tv_sec,
 		(int64_t) ret.tv_usec);
 
 	return statistics_convert_to_milli(ret);
