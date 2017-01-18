@@ -9,7 +9,7 @@ Introduction:
 ----
 
 MPT is a tool for running performance tests on messaging systems. Current development
-version supports AMQP and STOMP messaging protocols. Support for MQTT and OpenWire
+version supports AMQP, STOMP and MQTT messaging protocols. Support for OpenWire and others
 is planned for the future. The test data is saved in a CSV format and can be exported
 to ElasticSearch DB. That allows it to be visualized using the
 [Messaging Performance UI](https://github.com/orpiske/msg-perf-ui)
