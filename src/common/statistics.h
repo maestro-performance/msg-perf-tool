@@ -26,6 +26,7 @@
 #include <time/gru_time_utils.h>
 
 #include "contrib/options.h"
+#include "mpt-debug.h"
 
 #ifdef __cplusplus
 extern "C" {
