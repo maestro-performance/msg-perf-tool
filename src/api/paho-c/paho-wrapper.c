@@ -91,17 +91,27 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_
 }
 
 
-void paho_stop(msg_ctxt_t *ctxt) {
+void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-	MQTTClient_destroy(&paho_ctxt->client);
+	int rc = MQTTClient_disconnect(paho_ctxt->client, 10000);
+	switch (rc) {
+		case MQTTCLIENT_SUCCESS: break;
+		default: {
+			logger_t logger = gru_logger_get();
+
+			logger(WARNING, "Unable to disconnect from the server: %d", rc);
+		}
+	}
+
+	return VMSL_SUCCESS;
 }
 
 
-void paho_destroy(msg_ctxt_t *ctxt) {
+void paho_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-	MQTTClient_disconnect(paho_ctxt->client, 10000);
+	MQTTClient_destroy(&paho_ctxt->client);
 }
 
 vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
