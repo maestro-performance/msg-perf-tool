@@ -190,12 +190,12 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru
 		return VMSL_ERROR;
 	}
 
-	mpt_timestamp_t now = statistics_now();
+	gru_timestamp_t now = gru_time_now();
 
 	const char *ctime = stomp_exchange_get(
 		stomp_ctxt->messenger->exchange_properties, STOMP_CREATION_TIME);
 
-	mpt_timestamp_t created = ts_from_milli_char(ctime);
+	gru_timestamp_t created = gru_time_from_milli_char(ctime);
 
 	content->count++;
 	statistics_latency(ctxt->stat_io, created, now);

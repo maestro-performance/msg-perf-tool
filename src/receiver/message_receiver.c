@@ -54,8 +54,8 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	content_storage.count = 0;
 	content_storage.errors = 0;
 
-	mpt_timestamp_t last;
-	mpt_timestamp_t start = statistics_now();
+	gru_timestamp_t last;
+	gru_timestamp_t start = gru_time_now();
 	time_t last_calc = 0;
 
 	statistics_latency_header(stat_io);
@@ -75,7 +75,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			return;
 		}
 
-		last = statistics_now();
+		last = gru_time_now();
 
 		if (last_calc <= (last.tv_sec - 10)) {
 			statistics_throughput_partial(stat_io, start, last, content_storage.count);

@@ -147,12 +147,12 @@ void statistics_throughput_data(stat_io_t *stat_io, const char *last_buff, uint6
 		partial, rate);
 }
 
-static uint64_t statistics_convert_to_milli(mpt_timestamp_t ts) {
+static uint64_t statistics_convert_to_milli(gru_timestamp_t ts) {
 	return (((ts.tv_sec) * 1000) + (ts.tv_usec / 1000));
 }
 
-uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end) {
-	mpt_timestamp_t ret = {.tv_sec = 0, .tv_usec = 0};
+uint64_t statistics_diff(gru_timestamp_t start, gru_timestamp_t end) {
+	gru_timestamp_t ret = {.tv_sec = 0, .tv_usec = 0};
 	timersub(&end, &start, &ret);
 
 	logger_t logger = gru_logger_get();
@@ -168,7 +168,7 @@ uint64_t statistics_diff(mpt_timestamp_t start, mpt_timestamp_t end) {
 	return statistics_convert_to_milli(ret);
 }
 
-void statistics_latency(stat_io_t *stat_io, mpt_timestamp_t start, mpt_timestamp_t end) {
+void statistics_latency(stat_io_t *stat_io, gru_timestamp_t start, gru_timestamp_t end) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Creation time: %" PRIi64 ".%" PRIi64 "", (int64_t) start.tv_sec,
@@ -207,7 +207,7 @@ void statistics_latency(stat_io_t *stat_io, mpt_timestamp_t start, mpt_timestamp
 }
 
 void statistics_throughput_partial(
-	stat_io_t *stat_io, mpt_timestamp_t start, mpt_timestamp_t last, uint64_t count) {
+	stat_io_t *stat_io, gru_timestamp_t start, gru_timestamp_t last, uint64_t count) {
 	uint64_t partial = statistics_diff(start, last);
 	double rate = ((double) count / partial) * 1000;
 
