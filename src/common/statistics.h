@@ -25,11 +25,11 @@
 #include <log/gru_logger.h>
 #include <time/gru_time_utils.h>
 
+#include "contrib/options.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 typedef enum stat_direction_t_ {
 	SENDER,
