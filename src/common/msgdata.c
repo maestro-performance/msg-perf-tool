@@ -31,8 +31,10 @@ const char *load_message_data(const options_t *options, gru_status_t *status) {
 	for (; 0 < i; i--) {
 		data[i] = 'c';
 	}
+	data[0] = 'c';
 
 	capacity = options->message_size;
+	logger(DEBUG, "Loaded message data: %s", data);
 	return data;
 }
 
