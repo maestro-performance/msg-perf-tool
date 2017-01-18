@@ -125,9 +125,8 @@ static struct paho_perf_pl paho_serialize_content(msg_content_data_t msg_content
 
 	char *formatted_ts = gru_time_write_str(&ts);
 
-	printf("Content data = %s\n", msg_content.data);
-	asprintf(&ret.data, "%-24s%s", formatted_ts, msg_content.data);
-	ret.size = 16 + msg_content.size;
+	asprintf(&ret.data, "%18s%s", formatted_ts, msg_content.data);
+	ret.size = 18 + msg_content.size;
 	return ret;
 }
 
@@ -158,9 +157,7 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_s
 
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-	// mpt_trace("Sending message %s to %s", pl.data, paho_ctxt->uri.path);
-	logger_t logger = gru_logger_get();
-	logger(DEBUG, "Sending message '%s' to %s", pl.data, paho_ctxt->uri.path);
+	mpt_trace("Sending message '%s' to %s", pl.data, paho_ctxt->uri.path);
 
 	int rc = MQTTClient_publishMessage(paho_ctxt->client, paho_ctxt->uri.path,
 		&pubmsg, &token);
@@ -232,7 +229,7 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 				return VMSL_SUCCESS | VMSL_NO_DATA;
 			}
 
-			return VMSL_SUCCESS;
+			break;
 		}
 		case MQTTCLIENT_TOPICNAME_TRUNCATED: {
 			logger_t logger = gru_logger_get();
@@ -242,10 +239,19 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 		}
 		default: {
 			gru_status_set(status, GRU_FAILURE, "Unable to receive data: error %d", rc);
-
+			content->errors++;
 			return VMSL_ERROR;
 		}
 	}
+
+	gru_timestamp_t now = gru_time_now();
+
+	char header[18] = {0};
+	sscanf(msg->payload, "%17s", &header);
+
+	gru_timestamp_t created = gru_time_read_str(&header);
+	statistics_latency(ctxt->stat_io, created, now);
+	content->count++;
 
 	return VMSL_SUCCESS;
 }
