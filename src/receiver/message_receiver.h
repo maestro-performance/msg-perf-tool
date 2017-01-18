@@ -23,6 +23,7 @@ extern "C" {
 #include "contrib/options.h"
 #include "msgctxt.h"
 #include "vmsl.h"
+#include "process_utils.h"
 
 #include <inttypes.h>
 #include <signal.h>

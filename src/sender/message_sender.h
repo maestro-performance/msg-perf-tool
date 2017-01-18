@@ -21,6 +21,7 @@
 #include "msgdata.h"
 #include "statistics.h"
 #include "vmsl.h"
+#include "process_utils.h"
 
 #include <inttypes.h>
 #include <unistd.h>
