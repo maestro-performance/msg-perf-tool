@@ -64,7 +64,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	//install_timer(30);
 	install_interrupt_handler();
 
-	while (can_continue(options)) {
+	while (can_continue(options, 0)) {
 		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
 		if (unlikely(vmsl_stat_error(rstat))) {
 			fprintf(stderr, "%s\n", status.message);
