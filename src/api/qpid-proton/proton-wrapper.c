@@ -216,7 +216,7 @@ static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *messag
 static void proton_set_message_data(
 	pn_message_t *message, msg_content_loader content_loader) {
 	static bool cached = false;
-        static msg_content_data_t msg_content;
+	static msg_content_data_t msg_content;
 
 	mpt_trace("Formatting message body");
 
