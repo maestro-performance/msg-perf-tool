@@ -114,15 +114,43 @@ void paho_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	MQTTClient_destroy(&paho_ctxt->client);
 }
 
+struct paho_perf_pl {
+	char *data;
+	int size;
+};
+
+static struct paho_perf_pl paho_serialize_content(msg_content_data_t msg_content) {
+	struct paho_perf_pl ret = {0};
+	gru_timestamp_t ts = gru_time_now();
+
+	char *formatted_ts = gru_time_write_str(&ts);
+
+	printf("Content data = %s\n", msg_content.data);
+	asprintf(&ret.data, "%-24s%s", formatted_ts, msg_content.data);
+	ret.size = 16 + msg_content.size;
+	return ret;
+}
+
+static void paho_serialize_clean(struct paho_perf_pl *pl) {
+	free(pl->data);
+	pl->size = 0;
+}
+
 vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
 	MQTTClient_deliveryToken token;
 	MQTTClient_message pubmsg = MQTTClient_message_initializer;
-	msg_content_data_t msg_content;
+	static bool cached = false;
+	static msg_content_data_t msg_content;
 
-	content_loader(&msg_content);
+	if (!cached) {
+		content_loader(&msg_content);
+		cached = true;
+	}
 
-	pubmsg.payload = msg_content.data;
-	pubmsg.payloadlen = msg_content.size;
+	struct paho_perf_pl pl = paho_serialize_content(msg_content);
+
+	pubmsg.payload = pl.data;
+	pubmsg.payloadlen = pl.size;
 
 	// QoS0, At most once:
 	pubmsg.qos = 0;
@@ -130,10 +158,13 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_s
 
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-	mpt_trace("Sending message to %s", paho_ctxt->uri.path);
+	// mpt_trace("Sending message %s to %s", pl.data, paho_ctxt->uri.path);
+	logger_t logger = gru_logger_get();
+	logger(DEBUG, "Sending message '%s' to %s", pl.data, paho_ctxt->uri.path);
 
 	int rc = MQTTClient_publishMessage(paho_ctxt->client, paho_ctxt->uri.path,
 		&pubmsg, &token);
+	paho_serialize_clean(&pl);
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS: break;
