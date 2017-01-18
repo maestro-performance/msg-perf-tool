@@ -386,8 +386,8 @@ static int proton_do_receive(
 	return 0;
 }
 
-static mpt_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timestamp) {
-	mpt_timestamp_t ret = {0};
+static gru_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timestamp) {
+	gru_timestamp_t ret = {0};
 
 	double ts = ((double) timestamp / 1000);
 	double integral;
@@ -421,12 +421,12 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 			pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
 
 			if (proton_ts > 0) {
-				mpt_timestamp_t created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
+				gru_timestamp_t created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
 
 				pn_timestamp_t ts = proton_now(status);
 
 				if (likely(ts > 0)) {
-					mpt_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(ts);
+					gru_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(ts);
 
 					statistics_latency(ctxt->stat_io, created, now);
 					content->count++;

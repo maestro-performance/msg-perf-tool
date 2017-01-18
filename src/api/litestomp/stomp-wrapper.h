@@ -16,20 +16,22 @@
 #ifndef STOMP_WRAPPER_H
 #define STOMP_WRAPPER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <log/gru_logger.h>
+#include <time/gru_time_utils.h>
+
+#include <litestomp-0/stomp_messenger.h>
 
 #include "contrib/options.h"
 #include "msgctxt.h"
 #include "vmsl.h"
 #include "statistics.h"
-#include "timestamp.h"
 
 #include "stomp-context.h"
 
-#include <litestomp-0/stomp_messenger.h>
-#include <log/gru_logger.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 msg_ctxt_t *litestomp_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status);
 void litestomp_stop(msg_ctxt_t *ctxt, gru_status_t *status);

@@ -8,7 +8,6 @@ add_library(
         config.c
         vmsl.c
         msgctxt.c
-        timestamp.c
         statistics.c
         process_utils.c
 	msgdata.c

@@ -118,7 +118,7 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 		sent++;
 
 		if (throttle > 0) {
-			mpt_timestamp_t now = statistics_now();
+			gru_timestamp_t now = gru_time_now();
 
 			round++;
 

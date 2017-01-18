@@ -43,8 +43,8 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	install_interrupt_handler();
 	load_message_data(options, &status);
 
-	mpt_timestamp_t last;
-	mpt_timestamp_t start = statistics_now();
+	gru_timestamp_t last;
+	gru_timestamp_t start = gru_time_now();
 
 	register uint64_t sent = 0;
 	register uint64_t round = 0;
@@ -61,7 +61,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 
 		sent++;
 
-		last = statistics_now();
+		last = gru_time_now();
 
 		if (last_calc <= (last.tv_sec - 10)) {
 			statistics_throughput_partial(stat_io, start, last, sent);
