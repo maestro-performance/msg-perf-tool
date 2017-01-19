@@ -64,7 +64,7 @@ static bool vmsl_assign_stomp(vmsl_t *vmsl) {
 static bool vmsl_assign_mqtt(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
-#ifdef __AMQP_SUPPORT__
+#ifdef __MQTT_SUPPORT__
 	logger(INFO, "Initializing MQTT protocol");
 
 	vmsl->init = paho_init;
