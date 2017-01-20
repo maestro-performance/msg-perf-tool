@@ -21,7 +21,8 @@ Runtime/Compilation:
 * cmake
 * gcc or clang
 * qpid-proton-c-devel
-* [litestomp](https://github.com/orpiske/litestomp) (optional) for STOMP support
+* [litestomp](https://github.com/orpiske/litestomp) (optional/experimental) for STOMP support
+* [paho-c](https://www.eclipse.org/paho/) (optional/experimental) for MQTT support
 * [gru](https://github.com/orpiske/gru)
 * [bmic](https://github.com/orpiske/bmic)
 * python
