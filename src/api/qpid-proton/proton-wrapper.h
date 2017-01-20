@@ -43,6 +43,8 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
 vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 
+bool proton_vmsl_assign(vmsl_t *vmsl);
+
 #ifdef __cplusplus
 }
 #endif

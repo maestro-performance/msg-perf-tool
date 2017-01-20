@@ -4,15 +4,15 @@ add_library(
 )
 
 if (${STOMP_SUPPORT})
-  set(STOMP_LIBRARIES mpt-stomp)
+    set(STOMP_LIBRARIES mpt-stomp)
 endif(${STOMP_SUPPORT})
 
 if (${AMQP_SUPPORT})
-  set(AMQP_LIBRARIES mpt-proton)
+    set(AMQP_LIBRARIES mpt-proton)
 endif(${AMQP_SUPPORT})
 
 if (${MQTT_SUPPORT})
-  set(MQTT_LIBRARIES mpt-paho)
+    set(MQTT_LIBRARIES mpt-paho)
 endif(${MQTT_SUPPORT})
 
 target_link_libraries(

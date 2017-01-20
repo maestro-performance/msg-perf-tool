@@ -20,21 +20,16 @@
 
 #include "vmsl.h"
 
-#if defined(__STOMP_SUPPORT__)
-#include "stomp-wrapper.h"
-#endif // __STOMP_SUPPORT__
-
-#if defined(__AMQP_SUPPORT__)
-#include "proton-wrapper.h"
-#endif // __AMQP_SUPPORT__
-
-#if defined(__MQTT_SUPPORT__)
-#include "paho-wrapper.h"
-#endif // __MQTT_SUPPORT__
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define vmsl_assign_none(name, proto) \
+static bool name(vmsl_t *vmsl) {\
+	logger_t logger = gru_logger_get();\
+	logger(ERROR, "" proto " protocol support was not enabled");\
+	return false;\
+}\
 
 bool vmsl_assign_by_url(const char *url, vmsl_t *vmsl);
 
