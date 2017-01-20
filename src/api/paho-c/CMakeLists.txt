@@ -11,7 +11,7 @@ message(STATUS "Paho C hint ${PAHOC_DIR}")
 message(STATUS "Paho C headers found at ${PAHOC_DIR_INCLUDE_DIR}")
 message(STATUS "Paho C library found at ${PAHOC_DIR_LIB}")
 
-include_directories(${PAHOC_LIB})
+include_directories(${PAHOC_INCLUDE_DIR})
 
 add_library(
 	mpt-paho SHARED
