@@ -255,3 +255,19 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 
 	return VMSL_SUCCESS;
 }
+
+
+bool paho_vmsl_assign(vmsl_t *vmsl) {
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Initializing MQTT protocol");
+
+	vmsl->init = paho_init;
+	vmsl->receive = paho_receive;
+	vmsl->subscribe = paho_subscribe;
+	vmsl->send = paho_send;
+	vmsl->stop = paho_stop;
+	vmsl->destroy = paho_destroy;
+
+	return true;
+}

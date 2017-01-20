@@ -20,79 +20,38 @@
  * protocols.
  */
 
-static bool vmsl_assign_proton(vmsl_t *vmsl) {
-	logger_t logger = gru_logger_get();
-
 #ifdef __AMQP_SUPPORT__
-	logger(INFO, "Initializing AMQP protocol");
-
-	vmsl->init = proton_init;
-	vmsl->receive = proton_receive;
-	vmsl->subscribe = proton_subscribe;
-	vmsl->send = proton_send;
-	vmsl->stop = proton_stop;
-	vmsl->destroy = proton_destroy;
-
-	return true;
+extern bool proton_vmsl_assign(vmsl_t *vmsl);
 #else
-	logger(ERROR, "AMQP protocol support was not enabled");
-	return false;
-#endif // __AMQP_SUPPORT__
-}
+ vmsl_assign_none(proton_vmsl_assign, "AMQP")
+#endif
 
-static bool vmsl_assign_stomp(vmsl_t *vmsl) {
-	logger_t logger = gru_logger_get();
-
-#ifdef __STOMP_SUPPORT__
-	logger(INFO, "Initializing STOMP protocol");
-
-	vmsl->init = litestomp_init;
-	vmsl->receive = litestomp_receive;
-	vmsl->subscribe = litestomp_subscribe;
-	vmsl->send = litestomp_send;
-	vmsl->stop = litestomp_stop;
-	vmsl->destroy = litestomp_destroy;
-
-	return true;
-#else
-	logger(ERROR, "STOMP protocol support was not enabled");
-	return false;
-#endif // __STOMP_SUPPORT__
-}
-
-
-static bool vmsl_assign_mqtt(vmsl_t *vmsl) {
-	logger_t logger = gru_logger_get();
 
 #ifdef __MQTT_SUPPORT__
-	logger(INFO, "Initializing MQTT protocol");
-
-	vmsl->init = paho_init;
-	vmsl->receive = paho_receive;
-	vmsl->subscribe = paho_subscribe;
-	vmsl->send = paho_send;
-	vmsl->stop = paho_stop;
-	vmsl->destroy = paho_destroy;
-
-	return true;
+extern bool paho_vmsl_assign(vmsl_t *vmsl);
 #else
-	logger(ERROR, "MQTT protocol support was not enabled");
-	return false;
-#endif // __AMQP_SUPPORT__
-}
+vmsl_assign_none(paho_vmsl_assign, "MQTT")
+#endif
+
+#ifdef __STOMP_SUPPORT__
+extern bool litestomp_vmsl_assign(vmsl_t *vmsl);
+#else
+vmsl_assign_none(litestomp_vmsl_assign, "STOMP")
+#endif
+
 
 bool vmsl_assign_by_url(const char *url, vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
 	if (strncmp(url, "amqp://", 7) == 0) {
-		return vmsl_assign_proton(vmsl);
+		return proton_vmsl_assign(vmsl);
 	} else {
 		if (strncmp(url, "stomp://", 8) == 0) {
-			return vmsl_assign_stomp(vmsl);
+			return litestomp_vmsl_assign(vmsl);
 		}
 		else {
 			if (strncmp(url, "mqtt://", 7) == 0) {
-				return vmsl_assign_mqtt(vmsl);
+				return paho_vmsl_assign(vmsl);
 			}
 		}
 	}

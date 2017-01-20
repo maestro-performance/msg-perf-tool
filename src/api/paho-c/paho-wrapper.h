@@ -42,6 +42,8 @@ vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
 vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
         gru_status_t *status);
 
+bool paho_vmsl_assign(vmsl_t *vmsl);
+
 #ifdef __cplusplus
 }
 #endif

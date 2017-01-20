@@ -470,3 +470,20 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 	pn_message_free(message);
 	return VMSL_SUCCESS;
 }
+
+
+bool proton_vmsl_assign(vmsl_t *vmsl) {
+	logger_t logger = gru_logger_get();
+
+
+	logger(INFO, "Initializing AMQP protocol");
+
+	vmsl->init = proton_init;
+	vmsl->receive = proton_receive;
+	vmsl->subscribe = proton_subscribe;
+	vmsl->send = proton_send;
+	vmsl->stop = proton_stop;
+	vmsl->destroy = proton_destroy;
+
+	return true;
+}

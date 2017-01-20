@@ -202,3 +202,19 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru
 	stomp_message_destroy(&message);
 	return VMSL_ERROR;
 }
+
+
+bool litestomp_vmsl_assign(vmsl_t *vmsl) {
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Initializing STOMP protocol");
+
+	vmsl->init = litestomp_init;
+	vmsl->receive = litestomp_receive;
+	vmsl->subscribe = litestomp_subscribe;
+	vmsl->send = litestomp_send;
+	vmsl->stop = litestomp_stop;
+	vmsl->destroy = litestomp_destroy;
+
+	return true;
+}
