@@ -19,6 +19,7 @@ add_library(
 
 target_link_libraries(
     mpt-stomp
+		mpt-common
     ${LITESTOMP_LIB}
 )
 

@@ -19,6 +19,7 @@ add_library(
 
 target_link_libraries(
     mpt-proton
+		mpt-common
     ${PROTON_LIB}
 )
 

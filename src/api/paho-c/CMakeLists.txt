@@ -14,13 +14,14 @@ message(STATUS "Paho C library found at ${PAHOC_DIR_LIB}")
 include_directories(${PAHOC_INCLUDE_DIR})
 
 add_library(
-	mpt-paho SHARED
-        paho-context.c
-        paho-wrapper.c
+    mpt-paho SHARED
+    paho-context.c
+    paho-wrapper.c
 )
 
 target_link_libraries(
     mpt-paho
+    mpt-common
     ${PAHOC_LIB}
 )
 
