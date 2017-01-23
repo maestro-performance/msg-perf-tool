@@ -125,7 +125,7 @@ static struct paho_perf_pl paho_serialize_content(msg_content_data_t msg_content
 
 	char *formatted_ts = gru_time_write_str(&ts);
 
-	asprintf(&ret.data, "%18s%s", formatted_ts, msg_content.data);
+	asprintf(&ret.data, "%18s%s", formatted_ts, (char *) msg_content.data);
 	ret.size = 18 + msg_content.size;
 	return ret;
 }
@@ -250,7 +250,7 @@ vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content,
 	char header[18] = {0};
 	sscanf(msg->payload, "%17s", &header);
 
-	gru_timestamp_t created = gru_time_read_str(&header);
+	gru_timestamp_t created = gru_time_read_str(header);
 	statistics_latency(ctxt->stat_io, created, now);
 	content->count++;
 
