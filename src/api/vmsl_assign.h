@@ -18,6 +18,8 @@
 
 #include <stdbool.h>
 
+#include <network/gru_uri.h>
+
 #include "vmsl.h"
 
 #ifdef __cplusplus
@@ -31,7 +33,14 @@ static bool name(vmsl_t *vmsl) {\
 	return false;\
 }\
 
-bool vmsl_assign_by_url(const char *url, vmsl_t *vmsl);
+
+/**
+ * Initializes the virtual messaging system layer
+ * @param uri
+ * @param vmsl
+ * @return
+ */
+bool vmsl_assign_by_url(gru_uri_t *uri, vmsl_t *vmsl);
 
 #ifdef __cplusplus
 }

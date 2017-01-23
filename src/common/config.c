@@ -28,8 +28,12 @@ void initialize_options(void *data) {
 void save_options(FILE *file, void *data) {
 
 	options_t *options = (options_t *) data;
+	gru_status_t status = gru_status_new();
 
-	gru_config_write_string("broker.url", file, options->url);
+	char *tmp_url = gru_uri_simple_format(&options->uri, &status);
+	gru_config_write_string("broker.url", file, tmp_url);
+	gru_dealloc_string(&tmp_url);
+
 
 	gru_config_write_ulong("message.count", file, options->count);
 	gru_config_write_uint("message.throttle", file, options->throttle);
@@ -48,7 +52,15 @@ void save_options(FILE *file, void *data) {
 void read_options(FILE *file, void *data) {
 	options_t *options = (options_t *) data;
 
-	gru_config_read_string("broker.url", file, &options->url);
+	gru_status_t status = gru_status_new();
+	char tmp_url[4096] = {0};
+	gru_config_read_string("broker.url", file, tmp_url);
+	options->uri = gru_uri_parse(tmp_url, &status);
+	if (status.code != GRU_SUCCESS) {
+		fprintf(stderr, "%s\n", status.message);
+		return;
+	}
+
 	gru_config_read_ulong("message.count", file, &options->count);
 
 	gru_config_read_ulong("message.count", file, &options->count);

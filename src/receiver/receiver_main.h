@@ -28,6 +28,7 @@ extern "C" {
 #include <log/gru_logger.h>
 #include <time/gru_time_utils.h>
 #include <cli/gru_cli_opt.h>
+#include <config/gru_config.h>
 
 #include "contrib/options.h"
 #include "process_utils.h"

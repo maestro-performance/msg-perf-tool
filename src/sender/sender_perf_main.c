@@ -13,6 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+#include <network/gru_uri.h>
+
 #include "sender_perf_main.h"
 
 static void show_help(char **argv) {
@@ -48,6 +50,7 @@ int perf_main(int argc, char **argv) {
 	}
 
 	options_t *options = options_new();
+	gru_status_t status = gru_status_new();
 
 	if (!options) {
 		return EXIT_FAILURE;
@@ -81,7 +84,11 @@ int perf_main(int argc, char **argv) {
 
 		switch (c) {
 			case 'b':
-				strncpy(options->url, optarg, sizeof(options->url) - 1);
+				options->uri = gru_uri_parse(optarg, &status);
+				if (status.code != GRU_SUCCESS) {
+					fprintf(stderr, "%s", status.message);
+					goto err_exit;
+				}
 				break;
 			case 'c':
 				options->count = strtol(optarg, NULL, 10);
@@ -122,7 +129,7 @@ int perf_main(int argc, char **argv) {
 
 	vmsl_t vmsl = vmsl_init();
 
-	if (!vmsl_assign_by_url(options->url, &vmsl)) {
+	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
 		goto err_exit;
 	}
 
@@ -141,8 +148,6 @@ int perf_main(int argc, char **argv) {
 
 			if (child == 0) {
 				if (strlen(options->logdir) > 0) {
-					gru_status_t status = {0};
-
 					bool ret = remap_log(options->logdir, "mpt-sender", getppid(),
 						getpid(), stderr, &status);
 					if (!ret) {
@@ -166,17 +171,16 @@ int perf_main(int argc, char **argv) {
 
 		if (child > 0) {
 			setsid();
-			int status = 0;
+			int rc = 0;
 			for (uint16_t i = 0; i < options->parallel_count; i++) {
-				waitpid(childs[i], &status, 0);
+				waitpid(childs[i], &rc, 0);
 
 				logger(INFO, "Child process %d terminated with status %d", childs[i],
-					status);
+					rc);
 			}
 		}
 	} else {
 		if (strlen(options->logdir) > 0 && options->daemon) {
-			gru_status_t status = {0};
 
 			remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
 		}
