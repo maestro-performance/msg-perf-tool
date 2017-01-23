@@ -13,11 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+#include <network/gru_uri.h>
+
 #include "proton-wrapper.h"
 #include "proton-context.h"
 #include "vmsl.h"
 
 const int window = 10;
+const char *url = NULL;
 
 static inline bool failed(pn_messenger_t *messenger) {
 	if (pn_messenger_errno(messenger)) {
@@ -84,7 +87,7 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_statu
 	if (!proton_ctxt) {
 		logger(FATAL, "Unable to initialize the proton context");
 
-		exit(1);
+		goto err_exit;
 	}
 
 	pn_messenger_t *messenger = pn_messenger(NULL);
@@ -94,7 +97,8 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_statu
 	if (err) {
 		logger(FATAL, "Unable to start the proton messenger");
 
-		exit(1);
+		proton_context_destroy(&proton_ctxt);
+		goto err_exit;
 	}
 
 	if (opt.direction == MSG_DIRECTION_SENDER) {
@@ -104,11 +108,22 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_statu
 		proton_set_recv_options(messenger, opt);
 	}
 
+	const options_t *options = get_options_object();
+
+	url = gru_uri_simple_format(&options->uri, status);
+	if (status->code != GRU_SUCCESS) {
+		goto err_exit;
+	}
+
 	proton_ctxt->messenger = messenger;
 	msg_ctxt->api_context = proton_ctxt;
 	msg_ctxt->msg_opts = opt;
 
 	return msg_ctxt;
+
+	err_exit:
+	msg_ctxt_destroy(&msg_ctxt);
+	return NULL;
 }
 
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
@@ -201,10 +216,9 @@ static pn_timestamp_t proton_now(gru_status_t *status) {
 
 static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *message,
 										  gru_status_t *status) {
-	const options_t *options = get_options_object();
 
-	mpt_trace("Setting message address to %s", options->url);
-	pn_message_set_address(message, options->url);
+	mpt_trace("Setting message address to %s", url);
+	pn_message_set_address(message, url);
 
 	// OPT_TODO: must be a configuration
 	pn_message_set_durable(message, false);
@@ -317,11 +331,10 @@ static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) 
 
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	const options_t *options = get_options_object();
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-	logger(INFO, "Subscribing to endpoint address at %s", options->url);
-	pn_messenger_subscribe(proton_ctxt->messenger, options->url);
+	logger(INFO, "Subscribing to endpoint address at %s", url);
+	pn_messenger_subscribe(proton_ctxt->messenger, url);
 	if (failed(proton_ctxt->messenger)) {
 		pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
 

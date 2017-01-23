@@ -42,7 +42,7 @@ msg_ctxt_t *paho_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_
     }
 
     const options_t *options = get_options_object();
-    paho_ctxt->uri = gru_uri_parse_ex(options->url, GRU_URI_PARSE_STRIP, status);
+    paho_ctxt->uri = gru_uri_clone(options->uri, status);
 
 	if (!gru_uri_set_scheme(&paho_ctxt->uri, "tcp")) {
         logger(FATAL, "Unable to adjust the connection URI");
@@ -104,7 +104,7 @@ void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 		}
 	}
 
-	return VMSL_SUCCESS;
+	return;
 }
 
 
@@ -194,9 +194,10 @@ vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Subscribing to %s", paho_ctxt->uri.path);
+	// Just a small hack to ignore the trailing / from the default-parsed URI
+	logger(DEBUG, "Subscribing to %s", &paho_ctxt->uri.path[1]);
 
-	int rc = MQTTClient_subscribe(paho_ctxt->client, paho_ctxt->uri.path, QOS_AT_MOST_ONCE);
+	int rc = MQTTClient_subscribe(paho_ctxt->client, &paho_ctxt->uri.path[1], QOS_AT_MOST_ONCE);
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS: break;

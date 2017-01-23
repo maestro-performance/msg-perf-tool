@@ -16,6 +16,8 @@
 #include "stomp-wrapper.h"
 #include "vmsl.h"
 
+const char *url = NULL;
+
 static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (stomp_ctxt_t *) ctxt->api_context;
 }
@@ -36,27 +38,32 @@ msg_ctxt_t *litestomp_init(stat_io_t *stat_io, msg_opt_t opt, void *data,
 	if (!stomp_ctxt) {
 		logger(FATAL, "Unable to initialize the stomp context");
 
-		exit(1);
+		goto err_exit1;
+	}
+
+
+	const options_t *options = get_options_object();
+	url = gru_uri_simple_format(&options->uri, status);
+	if (!url) {
+		goto err_exit1;
 	}
 
 	stomp_messenger_t *messenger = stomp_messenger_init();
 
 	if (!messenger) {
 		fprintf(stderr, "Unable to initialize stomp messenger\n");
-
-		exit(1);
+		goto err_exit1;
 	}
 
-	const options_t *options = get_options_object();
 
 	/*
 	 * Sets the endpoint address
 	 */
-	stomp_status_code_t stat = stomp_set_endpoint(messenger, options->url);
+	stomp_status_code_t stat = stomp_set_endpoint(messenger, url);
 	if (stat != STOMP_SUCCESS) {
 		fprintf(stderr, "%s\n", messenger->status.message);
 
-		exit(1);
+		goto err_exit2;
 	}
 
 	/*
@@ -66,13 +73,20 @@ msg_ctxt_t *litestomp_init(stat_io_t *stat_io, msg_opt_t opt, void *data,
 	if (stat != STOMP_SUCCESS) {
 		fprintf(stderr, "%s\n", messenger->status.message);
 
-		exit(1);
+		goto err_exit2;
 	}
 
 	stomp_ctxt->messenger = messenger;
 	msg_ctxt->api_context = stomp_ctxt;
 
 	return msg_ctxt;
+
+	err_exit2:
+	stomp_messenger_destroy(&messenger);
+
+	err_exit1:
+	msg_ctxt_destroy(&msg_ctxt);
+	return NULL;
 }
 
 void litestomp_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
@@ -86,6 +100,10 @@ void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 
 	litestomp_context_destroy(&stomp_ctxt);
 	msg_ctxt_destroy(&ctxt);
+
+	if (url) {
+		gru_dealloc_const_string(&url);
+	}
 }
 
 vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {

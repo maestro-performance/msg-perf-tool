@@ -28,13 +28,14 @@
 
 #include <log/gru_logger.h>
 #include <time/gru_duration.h>
+#include <network/gru_uri.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct options_t_ {
-	char url[OPT_MAX_STR_SIZE];
+        gru_uri_t uri;
 	uint64_t count;
 	char logdir[OPT_MAX_STR_SIZE];
 	uint16_t parallel_count;

@@ -13,6 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+#include <network/gru_uri.h>
+
 #include "vmsl_assign.h"
 
 /**
@@ -40,17 +42,17 @@ vmsl_assign_none(litestomp_vmsl_assign, "STOMP")
 #endif
 
 
-bool vmsl_assign_by_url(const char *url, vmsl_t *vmsl) {
+bool vmsl_assign_by_url(gru_uri_t *uri, vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
-	if (strncmp(url, "amqp://", 7) == 0) {
+	if (strncmp(uri->scheme, "amqp", 4) == 0) {
 		return proton_vmsl_assign(vmsl);
 	} else {
-		if (strncmp(url, "stomp://", 8) == 0) {
+		if (strncmp(uri->scheme, "stomp", 5) == 0) {
 			return litestomp_vmsl_assign(vmsl);
 		}
 		else {
-			if (strncmp(url, "mqtt://", 7) == 0) {
+			if (strncmp(uri->scheme, "mqtt", 4) == 0) {
 				return paho_vmsl_assign(vmsl);
 			}
 		}

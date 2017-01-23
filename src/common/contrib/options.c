@@ -25,7 +25,7 @@ options_t *options_new() {
 
 		return NULL;
 	}
-	bzero(ret->url, sizeof(ret->url));
+
 	bzero(ret->logdir, sizeof(ret->logdir));
 	ret->daemon = false;
 
@@ -38,7 +38,13 @@ void options_destroy(options_t **obj) {
 }
 
 void options_set_defaults(options_t *ret) {
-	strncpy(ret->url, "amqp://localhost:5672/test.performance.queue", sizeof(ret->url));
+	gru_status_t status = gru_status_new();
+	
+	ret->uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", &status);
+	if (status.code != GRU_SUCCESS) {
+		fprintf(stderr, "%s", status.message);
+		return;
+	}
 
 	strcpy(ret->logdir, ".");
 

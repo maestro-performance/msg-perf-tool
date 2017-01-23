@@ -40,6 +40,7 @@ int tune_main(int argc, char **argv) {
 	}
 
 	options_t *options = options_new();
+	gru_status_t status = gru_status_new();
 
 	if (!options) {
 		return EXIT_FAILURE;
@@ -68,7 +69,11 @@ int tune_main(int argc, char **argv) {
 
 		switch (c) {
 			case 'b':
-				strncpy(options->url, optarg, sizeof(options->url) - 1);
+				options->uri = gru_uri_parse(optarg, &status);
+				if (status.code != GRU_SUCCESS) {
+					fprintf(stderr, "%s", status.message);
+					goto err_exit;
+				}
 				break;
 			case 'c':
 				options->count = strtol(optarg, NULL, 10);
@@ -98,7 +103,7 @@ int tune_main(int argc, char **argv) {
 
 	vmsl_t vmsl = vmsl_init();
 
-	if (!vmsl_assign_by_url(options->url, &vmsl)) {
+	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
 		goto err_exit;
 	}
 
