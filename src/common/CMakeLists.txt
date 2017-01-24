@@ -14,6 +14,7 @@ add_library(
         probes/scheduler.c
 )
 
+add_subdirectory(probes/network objs/common/probes/network)
 
 install(TARGETS mpt-common
 	LIBRARY DESTINATION ${CPP_LIBRARY_DIR}

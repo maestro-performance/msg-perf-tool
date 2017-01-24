@@ -185,9 +185,9 @@ int perf_main(int argc, char **argv) {
 			remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
 		}
 
-                probe_scheduler_start();
+		probe_scheduler_start(&status);
 		sender_start(&vmsl, options);
-                probe_scheduler_stop();
+        probe_scheduler_stop();
 	}
 
 	logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());

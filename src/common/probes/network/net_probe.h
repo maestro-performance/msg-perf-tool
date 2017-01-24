@@ -18,15 +18,20 @@
 
 #include <common/gru_status.h>
 #include <io/gru_ioutils.h>
+#include <log/gru_logger.h>
+
+#include "../probe.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+probe_entry_t *net_entry(gru_status_t *status);
 
 bool net_init(const options_t *options, gru_status_t *status);
 int net_collect(gru_status_t *status);
 void net_stop();
+const char *net_name();
 
 #ifdef __cplusplus
 }
