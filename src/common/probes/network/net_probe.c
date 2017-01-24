@@ -45,7 +45,8 @@ bool net_init(const options_t *options, gru_status_t *status) {
 
 
 int net_collect(gru_status_t *status) {
-    fprintf(report, "test");
+    fprintf(report, "test\n");
+	fflush(report);
     return 0;
 }
 

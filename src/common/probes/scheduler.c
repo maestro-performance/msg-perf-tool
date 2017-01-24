@@ -100,13 +100,31 @@ static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *na
 }
 
 bool probe_scheduler_start(gru_status_t *status) {
+	logger_t logger = gru_logger_get();
+
 	list = gru_list_new(status);
 	if (!list) {
 		return false;
 	}
 
-	probe_entry_t *net = probe_scheduler_load_probe("libmpt-probe-net.so", "net_entry");
-	gru_list_append(list, net);
+	options_t *options = get_options_object();
+	uint32_t num_mod = gru_list_count(options->probes);
+
+	for (uint32_t i = 0; i < num_mod; i++) {
+		gru_node_t *node = gru_list_get(options->probes, i);
+		char *mod_name = (char *) node->data;
+		char lib[256] = {0};
+		char ename[256] = {0};
+
+		snprintf(lib, sizeof(lib) - 1, "libmpt-probe-%s.so", mod_name);
+		snprintf(ename, sizeof(ename) - 1, "%s_entry", mod_name);
+
+		logger(DEBUG, "Loading symbol %s@%s\n", ename,lib);
+
+		probe_entry_t *net = probe_scheduler_load_probe(lib, ename);
+		gru_list_append(list, net);
+	}
+
 
 	gru_list_for_each(list, probe_scheduler_launch_probe, NULL);
 }
