@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-/* 
+/*
  * File:   scheduler.h
  * Author: otavio
  *
@@ -25,20 +25,23 @@
 #define SCHEDULER_H
 
 #include <pthread.h>
+#include <dlfcn.h>
 
 #include <common/gru_status.h>
 #include <collection/gru_list.h>
+#include <log/gru_logger.h>
+
+
+
+#include "probe.h"
+
+#include "network/net_probe.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-typedef struct probe_entry_t_ {
-    bool cancel;
-} probe_entry_t;
 
-    
-void probe_scheduler_start();
+bool probe_scheduler_start(gru_status_t *status);
 void probe_scheduler_stop();
 
 

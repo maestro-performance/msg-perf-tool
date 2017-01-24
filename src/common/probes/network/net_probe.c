@@ -16,14 +16,30 @@
 #include "net_probe.h"
 
 static FILE *report;
+static const char *name = "net";
+
+
+probe_entry_t *net_entry(gru_status_t *status) {
+	probe_entry_t *ret = gru_alloc(sizeof(probe_entry_t), status);
+	gru_alloc_check(ret, NULL);
+
+	ret->init = net_init;
+	ret->collect = net_collect;
+	ret->stop = net_stop;
+	ret->name = net_name;
+
+	ret->cancel = false;
+
+	return ret;
+}
 
 bool net_init(const options_t *options, gru_status_t *status) {
     report = gru_io_open_file(options->logdir, "net.csv", status);
-    
+
     if (!report) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -38,3 +54,6 @@ void net_stop() {
     fclose(report);
 }
 
+const char *net_name() {
+	return name;
+}
