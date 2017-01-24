@@ -74,6 +74,11 @@ int tune_main(int argc, char **argv) {
 					fprintf(stderr, "%s", status.message);
 					goto err_exit;
 				}
+
+				if (strcmp(options->uri.scheme, "mqtt") == 0) {
+					fprintf(stderr, "MQTT tune is not supported at the moment\n");
+					goto err_exit;
+				}
 				break;
 			case 'c':
 				options->count = strtol(optarg, NULL, 10);
