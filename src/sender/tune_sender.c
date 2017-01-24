@@ -193,7 +193,7 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 	for (int i = 0; i < steps; i++) {
 		printf(CLEAR_LINE);
 		tune_print_stat(i, "Cleaning the queue");
-		bool tret = tune_purge_queue(&ctxt, options, options->uri.path, &status);
+		bool tret = tune_purge_queue(&ctxt, options, &options->uri.path[1], &status);
 		if (!tret) {
 			bmic_context_cleanup(&ctxt);
 			return EXIT_FAILURE;
@@ -209,7 +209,7 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 		tune_print_stat(i, "Step %d finished sending data. Reading queue stats\n", i);
 
 		bmic_queue_stat_t qstats = {0};
-		bool stat_ret = tune_get_queue_stats(&ctxt, options, options->uri.path,
+		bool stat_ret = tune_get_queue_stats(&ctxt, options, &options->uri.path[1],
 											 &qstats, &status);
 		if (!stat_ret) {
 			fprintf(stderr, "Error: %s\n", status.message);
