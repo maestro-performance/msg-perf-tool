@@ -20,8 +20,11 @@
 #include "contrib/options.h"
 
 #include <common/gru_status.h>
+#include <common/gru_alloc.h>
 #include <config/gru_config.h>
 #include <config/gru_payload.h>
+#include <collection/gru_list.h>
+#include <string/gru_util.h>
 
 #ifdef __cplusplus
 extern "C" {

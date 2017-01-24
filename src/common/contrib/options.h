@@ -29,6 +29,7 @@
 #include <log/gru_logger.h>
 #include <time/gru_duration.h>
 #include <network/gru_uri.h>
+#include <collection/gru_list.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +45,7 @@ typedef struct options_t_ {
 	gru_duration_t duration;
 	bool daemon;
 	uint32_t throttle;
+        gru_list_t *probes;
 } options_t;
 
 options_t *options_new();
