@@ -50,7 +50,7 @@ int tune_main(int argc, char **argv) {
 
 	const char *apphome = gru_base_app_home("mpt");
 	config_init(options, apphome, "mpt-sender.ini", &status);
-	if (!status.code == GRU_SUCCESS) {
+	if (gru_status_error(&status)) {
 		fprintf(stderr, "%s\n", status.message);
 
 		return EXIT_FAILURE;

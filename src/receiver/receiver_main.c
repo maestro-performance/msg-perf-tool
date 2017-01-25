@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 
 	const char *apphome = gru_base_app_home("mpt");
 	config_init(options, apphome, "mpt-receiver.ini", &status);
-	if (!status.code == GRU_SUCCESS) {
+	if (gru_status_error(&status)) {
 		fprintf(stderr, "%s\n", status.message);
 
 		return EXIT_FAILURE;
