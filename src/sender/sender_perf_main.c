@@ -59,7 +59,12 @@ int perf_main(int argc, char **argv) {
 	set_options_object(options);
 
 	const char *apphome = gru_base_app_home("mpt");
-	config_init(options, apphome, "mpt-sender.ini");
+	config_init(options, apphome, "mpt-sender.ini", &status);
+	if (!status.code == GRU_SUCCESS) {
+		fprintf(stderr, "%s\n", status.message);
+
+		return EXIT_FAILURE;
+	}
 
 	gru_logger_set(gru_logger_default_printer);
 
