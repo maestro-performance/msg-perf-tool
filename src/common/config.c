@@ -93,32 +93,31 @@ void read_options(FILE *file, void *data) {
 	}
 }
 
-void config_init(options_t *options, const char *dir, const char *filename) {
-	gru_status_t status = {0};
+void config_init(options_t *options, const char *dir, const char *filename,
+				 gru_status_t *status) {
 	gru_payload_t *payload = gru_payload_init(
-		initialize_options, save_options, read_options, options, &status);
+		initialize_options, save_options, read_options, options, status);
 
 	if (!payload) {
-		fprintf(stderr, "Unable to initialize the payload: %s\n", status.message);
+		fprintf(stderr, "Unable to initialize the payload: %s\n", status->message);
 
 		gru_payload_destroy(&payload);
 		return;
 	}
 
-	if (!gru_path_exists(dir, &status)) {
-		if (status.code != GRU_SUCCESS) {
+	if (!gru_path_exists(dir, status)) {
+		if (status->code != GRU_SUCCESS) {
 			return;
 		}
 
-		gru_path_mkdirs(dir, &status);
+		gru_path_mkdirs(dir, status);
 	}
 
-	gru_config_t *config = gru_config_init(dir, filename, payload, &status);
-
+	gru_config_t *config = gru_config_init(dir, filename, payload, status);
 	if (!config) {
-		if (status.code != GRU_SUCCESS) {
+		if (status->code != GRU_SUCCESS) {
 			fprintf(
-				stderr, "Unable to initialize the configuration: %s\n", status.message);
+				stderr, "Unable to initialize the configuration: %s\n", status->message);
 		}
 
 		gru_payload_destroy(&payload);

@@ -30,7 +30,8 @@
 extern "C" {
 #endif
 
-void config_init(options_t *options, const char *dir, const char *filename);
+void config_init(options_t *options, const char *dir, const char *filename,
+        gru_status_t *status);
 
 #ifdef __cplusplus
 }
