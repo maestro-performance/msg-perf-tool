@@ -90,7 +90,7 @@ int perf_main(int argc, char **argv) {
 		switch (c) {
 			case 'b':
 				options->uri = gru_uri_parse(optarg, &status);
-				if (status.code != GRU_SUCCESS) {
+				if (gru_status_error(&status)) {
 					fprintf(stderr, "%s", status.message);
 					goto err_exit;
 				}

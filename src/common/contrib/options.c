@@ -39,9 +39,9 @@ void options_destroy(options_t **obj) {
 
 void options_set_defaults(options_t *ret) {
 	gru_status_t status = gru_status_new();
-	
+
 	ret->uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", &status);
-	if (status.code != GRU_SUCCESS) {
+	if (gru_status_error(&status)) {
 		fprintf(stderr, "%s", status.message);
 		return;
 	}
