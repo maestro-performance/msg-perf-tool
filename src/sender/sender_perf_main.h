@@ -28,17 +28,17 @@
 
 #include "contrib/options.h"
 
+#include <cli/gru_cli_opt.h>
 #include <common/gru_base.h>
 #include <config/gru_config.h>
 #include <log/gru_logger.h>
-#include <cli/gru_cli_opt.h>
 
 #include "config.h"
 #include "message_sender.h"
+#include "probes/scheduler.h"
 #include "process_utils.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
-#include "probes/scheduler.h"
 
 #ifdef __cplusplus
 extern "C" {

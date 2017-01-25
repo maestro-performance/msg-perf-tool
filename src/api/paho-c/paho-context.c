@@ -16,16 +16,16 @@
 #include "paho-context.h"
 
 paho_ctxt_t *paho_context_init() {
-    paho_ctxt_t *ret = malloc(sizeof(paho_ctxt_t));
+	paho_ctxt_t *ret = malloc(sizeof(paho_ctxt_t));
 
-    if (!ret) {
-        return NULL;
-    }
+	if (!ret) {
+		return NULL;
+	}
 
-    return ret;
+	return ret;
 }
 
 void paho_context_destroy(paho_ctxt_t **ctxt) {
-    free(*ctxt);
-    *ctxt = NULL;
+	free(*ctxt);
+	*ctxt = NULL;
 }

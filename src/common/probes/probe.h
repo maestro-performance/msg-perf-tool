@@ -38,20 +38,18 @@ typedef void (*probe_stop)();
 typedef const char *(*probe_name)();
 
 typedef struct probe_entry_t_ {
-    probe_init init;
-    probe_collect collect;
-    probe_stop stop;
-    probe_name name;
+	probe_init init;
+	probe_collect collect;
+	probe_stop stop;
+	probe_name name;
 
-    pthread_t thread;
-    void *handle;
-    bool cancel;
+	pthread_t thread;
+	void *handle;
+	bool cancel;
 } probe_entry_t;
-
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* PROBE_H */
-

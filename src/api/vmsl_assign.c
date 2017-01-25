@@ -25,9 +25,8 @@
 #ifdef __AMQP_SUPPORT__
 extern bool proton_vmsl_assign(vmsl_t *vmsl);
 #else
- vmsl_assign_none(proton_vmsl_assign, "AMQP")
+vmsl_assign_none(proton_vmsl_assign, "AMQP")
 #endif
-
 
 #ifdef __MQTT_SUPPORT__
 extern bool paho_vmsl_assign(vmsl_t *vmsl);
@@ -38,9 +37,8 @@ vmsl_assign_none(paho_vmsl_assign, "MQTT")
 #ifdef __STOMP_SUPPORT__
 extern bool litestomp_vmsl_assign(vmsl_t *vmsl);
 #else
-vmsl_assign_none(litestomp_vmsl_assign, "STOMP")
+	vmsl_assign_none(litestomp_vmsl_assign, "STOMP")
 #endif
-
 
 bool vmsl_assign_by_url(gru_uri_t *uri, vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
@@ -50,8 +48,7 @@ bool vmsl_assign_by_url(gru_uri_t *uri, vmsl_t *vmsl) {
 	} else {
 		if (strncmp(uri->scheme, "stomp", 5) == 0) {
 			return litestomp_vmsl_assign(vmsl);
-		}
-		else {
+		} else {
 			if (strncmp(uri->scheme, "mqtt", 4) == 0) {
 				return paho_vmsl_assign(vmsl);
 			}

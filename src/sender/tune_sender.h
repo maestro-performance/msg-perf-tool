@@ -18,13 +18,12 @@
 
 #include <inttypes.h>
 #include <signal.h>
-#include <unistd.h>
 #include <stdarg.h>
+#include <unistd.h>
 
-#include <common/gru_status.h>
 #include <common/gru_colors.h>
+#include <common/gru_status.h>
 #include <network/gru_uri.h>
-
 
 #include <management/common/bmic_complements_java.h>
 #include <management/common/bmic_queue_stat.h>

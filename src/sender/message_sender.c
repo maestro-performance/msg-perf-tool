@@ -28,8 +28,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	logger(TRACE, "Initializing test execution");
 
 	msg_opt_t opt = {
-		.direction = MSG_DIRECTION_SENDER,
-		.qos = MSG_QOS_AT_MOST_ONCE,
+		.direction = MSG_DIRECTION_SENDER, .qos = MSG_QOS_AT_MOST_ONCE,
 	};
 
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
@@ -87,10 +86,16 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	uint64_t elapsed = statistics_diff(start, last);
 	double rate = ((double) sent / elapsed) * 1000;
 
-	logger(STAT, "summary;sent;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f", sent, elapsed,
+	logger(STAT,
+		"summary;sent;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
+		sent,
+		elapsed,
 		rate);
 
-	logger(INFO, "Summary: sent %" PRIu64 " messages in %" PRIu64
-				 " milliseconds (rate: %.2f msgs/sec)",
-		sent, elapsed, rate);
+	logger(INFO,
+		"Summary: sent %" PRIu64 " messages in %" PRIu64
+		" milliseconds (rate: %.2f msgs/sec)",
+		sent,
+		elapsed,
+		rate);
 }

@@ -26,17 +26,18 @@ static void show_help(char **argv) {
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
 	gru_cli_option_help("duration", "d", "runs for a fixed amount of time (in minutes)");
-	gru_cli_option_help("log-level", "l",
-					 "runs in the given verbose (info, stat, debug, etc) level mode");
-	gru_cli_option_help("log-dir", "L",
-					 "a directory to save the logs (mandatory for --daemon)");
-	gru_cli_option_help("parallel-count", "p",
-					 "number of parallel connections to the broker");
+	gru_cli_option_help("log-level",
+		"l",
+		"runs in the given verbose (info, stat, debug, etc) level mode");
+	gru_cli_option_help(
+		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
+	gru_cli_option_help(
+		"parallel-count", "p", "number of parallel connections to the broker");
 
 	gru_cli_option_help("size", "s", "message size (in bytes)");
-	gru_cli_option_help("throttle", "t",
-					 "sets a fixed rate of messages (in messages per second per connection)");
-
+	gru_cli_option_help("throttle",
+		"t",
+		"sets a fixed rate of messages (in messages per second per connection)");
 }
 
 int perf_main(int argc, char **argv) {
@@ -70,8 +71,7 @@ int perf_main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {
-			{"broker-url", true, 0, 'b'},
+		static struct option long_options[] = {{"broker-url", true, 0, 'b'},
 			{"count", true, 0, 'c'},
 			{"log-level", true, 0, 'l'},
 			{"parallel-count", true, 0, 'p'},
@@ -80,7 +80,8 @@ int perf_main(int argc, char **argv) {
 			{"log-dir", true, 0, 'L'},
 			{"throttle", true, 0, 't'},
 			{"daemon", false, 0, 'D'},
-			{"help", false, 0, 'h'}, {0, 0, 0, 0}};
+			{"help", false, 0, 'h'},
+			{0, 0, 0, 0}};
 
 		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:Dh", long_options, &option_index);
 		if (c == -1) {
@@ -153,8 +154,12 @@ int perf_main(int argc, char **argv) {
 
 			if (child == 0) {
 				if (strlen(options->logdir) > 0) {
-					bool ret = remap_log(options->logdir, "mpt-sender", getppid(),
-						getpid(), stderr, &status);
+					bool ret = remap_log(options->logdir,
+						"mpt-sender",
+						getppid(),
+						getpid(),
+						stderr,
+						&status);
 					if (!ret) {
 						fprintf(stderr, "Unable to remap log: %s", status.message);
 
@@ -167,7 +172,6 @@ int perf_main(int argc, char **argv) {
 			} else {
 				if (child > 0) {
 					childs[i] = child;
-
 				} else {
 					printf("Error\n");
 				}
@@ -180,8 +184,7 @@ int perf_main(int argc, char **argv) {
 			for (uint16_t i = 0; i < options->parallel_count; i++) {
 				waitpid(childs[i], &rc, 0);
 
-				logger(INFO, "Child process %d terminated with status %d", childs[i],
-					rc);
+				logger(INFO, "Child process %d terminated with status %d", childs[i], rc);
 			}
 		}
 	} else {
@@ -192,7 +195,7 @@ int perf_main(int argc, char **argv) {
 
 		probe_scheduler_start(&status);
 		sender_start(&vmsl, options);
-        probe_scheduler_stop();
+		probe_scheduler_stop();
 	}
 
 	logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());

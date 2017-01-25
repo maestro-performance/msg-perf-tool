@@ -15,8 +15,8 @@
  */
 #include <network/gru_uri.h>
 
-#include "proton-wrapper.h"
 #include "proton-context.h"
+#include "proton-wrapper.h"
 #include "vmsl.h"
 
 const int window = 10;
@@ -34,20 +34,20 @@ static inline proton_ctxt_t *proton_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (proton_ctxt_t *) ctxt->api_context;
 }
 
-static void proton_set_send_options(pn_messenger_t *messenger, msg_opt_t opt){
+static void proton_set_send_options(pn_messenger_t *messenger, msg_opt_t opt) {
 	if (opt.qos == MSG_QOS_AT_MOST_ONCE) {
 		/**
 		 * From the documentation:
 		 *
 		 * Sender presettles (aka at-most-once): "... in this configuration the sender
-		 * settles (i.e. forgets about) the delivery before it even reaches the receiver,
+		 * settles (i.e. forgets about) the delivery before it even reaches the
+		 * receiver,
 		 * and if anything should happen to the delivery in-flight, there is no way to
 		 * recover, hence the "at most once" semantics ..."
 		 */
 		mpt_trace("Using At most once");
 		pn_messenger_set_snd_settle_mode(messenger, PN_SND_SETTLED);
-	}
-	else {
+	} else {
 		logger_t logger = gru_logger_get();
 
 		logger(WARNING, "Using an unsupported QOS mode");
@@ -57,14 +57,13 @@ static void proton_set_send_options(pn_messenger_t *messenger, msg_opt_t opt){
 	}
 }
 
-static void proton_set_recv_options(pn_messenger_t *messenger, msg_opt_t opt){
+static void proton_set_recv_options(pn_messenger_t *messenger, msg_opt_t opt) {
 	logger_t logger = gru_logger_get();
 
 	if (opt.qos == MSG_QOS_AT_LEAST_ONCE) {
 		logger(INFO, "Setting QOS to At least once");
 		pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_FIRST);
-	}
-	else {
+	} else {
 		if (opt.qos == MSG_QOS_EXACTLY_ONCE) {
 			logger(INFO, "Setting QOS to exactly once");
 			pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_SECOND);
@@ -72,7 +71,8 @@ static void proton_set_recv_options(pn_messenger_t *messenger, msg_opt_t opt){
 	}
 }
 
-msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status) {
+msg_ctxt_t *proton_init(
+	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing proton wrapper");
@@ -103,8 +103,7 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_statu
 
 	if (opt.direction == MSG_DIRECTION_SENDER) {
 		proton_set_send_options(messenger, opt);
-	}
-	else {
+	} else {
 		proton_set_recv_options(messenger, opt);
 	}
 
@@ -121,7 +120,7 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_statu
 
 	return msg_ctxt;
 
-	err_exit:
+err_exit:
 	msg_ctxt_destroy(&msg_ctxt);
 	return NULL;
 }
@@ -192,12 +191,12 @@ static void proton_commit(pn_messenger_t *messenger, gru_status_t *status) {
 
 	mpt_trace("Committing the message delivery");
 
-#if defined(MPT_DEBUG) && MPT_DEBUG >=1
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
 	proton_check_status(messenger, tracker);
 #endif
 	pn_messenger_settle(messenger, tracker, 0);
 
-#if defined(MPT_DEBUG) && MPT_DEBUG >=1
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
 	proton_check_status(messenger, tracker);
 #endif
 }
@@ -214,8 +213,8 @@ static pn_timestamp_t proton_now(gru_status_t *status) {
 	return ((pn_timestamp_t) now.tv_sec) * 1000 + (now.tv_usec / 1000);
 }
 
-static void proton_set_message_properties(msg_ctxt_t *ctxt, pn_message_t *message,
-										  gru_status_t *status) {
+static void proton_set_message_properties(
+	msg_ctxt_t *ctxt, pn_message_t *message, gru_status_t *status) {
 
 	mpt_trace("Setting message address to %s", url);
 	pn_message_set_address(message, url);
@@ -243,8 +242,8 @@ static void proton_set_message_data(
 	pn_data_put_string(body, pn_bytes(msg_content.capacity, msg_content.data));
 }
 
-static vmsl_stat_t proton_do_send(pn_messenger_t *messenger, pn_message_t *message,
-						   gru_status_t *status) {
+static vmsl_stat_t proton_do_send(
+	pn_messenger_t *messenger, pn_message_t *message, gru_status_t *status) {
 	mpt_trace("Putting message");
 	pn_messenger_put(messenger, message);
 	if (failed(messenger)) {
@@ -268,12 +267,12 @@ static vmsl_stat_t proton_do_send(pn_messenger_t *messenger, pn_message_t *messa
 	return VMSL_SUCCESS;
 }
 
-vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
+vmsl_stat_t proton_send(
+	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
 	vmsl_stat_t ret = {0};
 
 	mpt_trace("Creating message object");
 	pn_message_t *message = pn_message();
-
 
 	proton_set_message_properties(ctxt, message, status);
 	proton_set_message_data(message, content_loader);
@@ -298,13 +297,13 @@ static void proton_accept(pn_messenger_t *messenger) {
 
 	mpt_trace("Accepting the message delivery");
 
-#if defined(MPT_DEBUG) && MPT_DEBUG >=1
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
 	proton_check_status(messenger, tracker);
 #endif
 	pn_messenger_accept(messenger, tracker, PN_CUMULATIVE);
 	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
 
-#if defined(MPT_DEBUG) && MPT_DEBUG >=1
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
 	proton_check_status(messenger, tracker);
 #endif
 }
@@ -314,13 +313,13 @@ static void proton_reject(pn_messenger_t *messenger) {
 
 	mpt_trace("Accepting the message delivery");
 
-#if defined(MPT_DEBUG) && MPT_DEBUG >=1
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
 	proton_check_status(messenger, tracker);
 #endif
 	pn_messenger_reject(messenger, tracker, PN_CUMULATIVE);
 	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
 
-#if defined(MPT_DEBUG) && MPT_DEBUG >=1
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
 	proton_check_status(messenger, tracker);
 #endif
 }
@@ -348,8 +347,7 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 	return VMSL_SUCCESS;
 }
 
-static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status)
-{
+static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status) {
 	int limit = window * 10;
 	mpt_trace("Receiving at most %i messages", limit);
 	pn_messenger_recv(messenger, 1024);
@@ -415,7 +413,8 @@ static gru_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
 	return ret;
 }
 
-vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
+vmsl_stat_t proton_receive(
+	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 	if (proton_receive_local(proton_ctxt->messenger, status) < 0) {
@@ -443,31 +442,34 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 
 					statistics_latency(ctxt->stat_io, created, now);
 					content->count++;
-				}
-				else {
+				} else {
 					logger_t logger = gru_logger_get();
 
 					logger(ERROR,
-						 "Discarding message due to unable to compute current time: %s",
-						 status->message);
+						"Discarding message due to unable to "
+						"compute current time: %s",
+						status->message);
 					content->errors++;
 				}
-			}
-			else {
+			} else {
 				content->errors++;
 			}
 
 			if ((last + window) == cur) {
-				mpt_trace("Acknowledging message %i of %i (%i / %i)", cur, nmsgs,
-					 content->count,
-					 content->errors);
+				mpt_trace("Acknowledging message %i of %i (%i / %i)",
+					cur,
+					nmsgs,
+					content->count,
+					content->errors);
 
 				proton_accept(proton_ctxt->messenger);
 				last = cur;
-			}
-			else {
-				mpt_trace("Buffering message %i of %i for acknowledge (%i / %i)", cur,
-					 nmsgs, content->count, content->errors);
+			} else {
+				mpt_trace("Buffering message %i of %i for acknowledge (%i / %i)",
+					cur,
+					nmsgs,
+					content->count,
+					content->errors);
 			}
 		}
 	}
@@ -475,8 +477,7 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 	if (cur > last) {
 		uint64_t delta = nmsgs - last;
 		content->count = content->count - delta;
-			mpt_trace("Possible delta for acknowledge: %i (%i / %i)", delta,
-				 nmsgs, last);
+		mpt_trace("Possible delta for acknowledge: %i (%i / %i)", delta, nmsgs, last);
 		proton_accept(proton_ctxt->messenger);
 	}
 
@@ -484,10 +485,8 @@ vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_st
 	return VMSL_SUCCESS;
 }
 
-
 bool proton_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
-
 
 	logger(INFO, "Initializing AMQP protocol");
 

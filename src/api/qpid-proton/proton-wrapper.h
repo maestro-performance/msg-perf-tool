@@ -25,23 +25,26 @@
 #include <common/gru_portable.h>
 
 #include "contrib/options.h"
+#include "mpt-debug.h"
 #include "msgctxt.h"
-#include "vmsl.h"
 #include "proton-context.h"
 #include "statistics.h"
-#include "mpt-debug.h"
+#include "vmsl.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status);
+msg_ctxt_t *proton_init(
+	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status);
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 
-vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
+vmsl_stat_t proton_send(
+	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
-vmsl_stat_t proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+vmsl_stat_t proton_receive(
+	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 
 bool proton_vmsl_assign(vmsl_t *vmsl);
 

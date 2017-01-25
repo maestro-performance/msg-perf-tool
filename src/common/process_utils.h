@@ -16,11 +16,10 @@
 #ifndef PROCESS_UTILS_H
 #define PROCESS_UTILS_H
 
-
 #include <fcntl.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <signal.h>
 
 #include <common/gru_status.h>
 #include <io/gru_ioutils.h>
@@ -31,8 +30,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, FILE *fd,
 	gru_status_t *status);

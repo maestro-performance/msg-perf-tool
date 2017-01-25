@@ -29,8 +29,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	}
 
 	msg_opt_t opt = {
-		.direction = MSG_DIRECTION_RECEIVER,
-		.qos = MSG_QOS_AT_MOST_ONCE,
+		.direction = MSG_DIRECTION_RECEIVER, .qos = MSG_QOS_AT_MOST_ONCE,
 	};
 
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
@@ -61,7 +60,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	statistics_latency_header(stat_io);
 	statistics_throughput_header(stat_io);
 
-	//install_timer(30);
+	// install_timer(30);
 	install_interrupt_handler();
 
 	while (can_continue(options, 0)) {
@@ -94,18 +93,24 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	uint64_t total_received = content_storage.count;
 
-	logger(STAT, "summary;received;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
-		total_received, elapsed, rate);
+	logger(STAT,
+		"summary;received;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
+		total_received,
+		elapsed,
+		rate);
 
-	logger(INFO, "Summary: received %" PRIu64 " messages in %" PRIu64
-				 " milliseconds (rate: %.2f msgs/sec)",
-		total_received, elapsed, rate);
+	logger(INFO,
+		"Summary: received %" PRIu64 " messages in %" PRIu64
+		" milliseconds (rate: %.2f msgs/sec)",
+		total_received,
+		elapsed,
+		rate);
 	logger(INFO, "Errors: received %" PRIu64, content_storage.errors);
 
 	free(content_storage.data);
 	return;
 
-	err_exit:
+err_exit:
 	fprintf(stderr, "%s", status.message);
 	statistics_destroy(&stat_io);
 
@@ -115,5 +120,4 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	gru_status_reset(&status);
 	return;
-
 }

@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <common/gru_status.h>
 #include <common/gru_alloc.h>
+#include <common/gru_status.h>
 
 #include "contrib/options.h"
 #include "msgctxt.h"
@@ -34,10 +34,8 @@ const char *load_message_data(const options_t *options, gru_status_t *status);
 void unload_message_data();
 void content_loader(msg_content_data_t *content_data);
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* MSGDATA_H */
-

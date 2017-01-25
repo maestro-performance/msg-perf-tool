@@ -27,6 +27,7 @@
 #include <sys/types.h>
 
 #include <collection/gru_list.h>
+#include <config/gru_config.h>
 #include <log/gru_logger.h>
 #include <network/gru_uri.h>
 #include <time/gru_duration.h>
@@ -46,6 +47,8 @@ typedef struct options_t_ {
 	bool daemon;
 	uint32_t throttle;
 	gru_list_t *probes;
+
+	gru_config_t *config; // A pointer to the configuration file/object
 } options_t;
 
 options_t *options_new();

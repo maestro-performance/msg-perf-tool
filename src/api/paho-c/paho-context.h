@@ -26,10 +26,9 @@ extern "C" {
 #include <MQTTClient.h>
 
 typedef struct paho_ctxt_t_ {
-    MQTTClient client;
-    gru_uri_t uri;
+	MQTTClient client;
+	gru_uri_t uri;
 } paho_ctxt_t;
-
 
 paho_ctxt_t *paho_context_init();
 void paho_context_destroy(paho_ctxt_t **ctxt);
@@ -39,4 +38,3 @@ void paho_context_destroy(paho_ctxt_t **ctxt);
 #endif
 
 #endif /* PAHO_CONTEXT_H */
-

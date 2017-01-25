@@ -16,7 +16,13 @@
 #include "config.h"
 
 static char *log_level_str[7] = {
-	"trace", "debug", "info", "stat", "warning", "error", "fatal",
+	"trace",
+	"debug",
+	"info",
+	"stat",
+	"warning",
+	"error",
+	"fatal",
 };
 
 void initialize_options(void *data) {
@@ -33,7 +39,6 @@ void save_options(FILE *file, void *data) {
 	char *tmp_url = gru_uri_simple_format(&options->uri, &status);
 	gru_config_write_string("broker.url", file, tmp_url);
 	gru_dealloc_string(&tmp_url);
-
 
 	gru_config_write_ulong("message.count", file, options->count);
 	gru_config_write_uint("message.throttle", file, options->throttle);
@@ -83,7 +88,6 @@ void read_options(FILE *file, void *data) {
 
 	gru_config_read_string("log.dir", file, options->logdir);
 
-
 	char probes_list[4096] = {0};
 	gru_config_read_string("probes.list", file, probes_list);
 	options->probes = gru_split(probes_list, ',', &status);
@@ -93,10 +97,10 @@ void read_options(FILE *file, void *data) {
 	}
 }
 
-void config_init(options_t *options, const char *dir, const char *filename,
-				 gru_status_t *status) {
-	gru_payload_t *payload = gru_payload_init(
-		initialize_options, save_options, read_options, options, status);
+void config_init(
+	options_t *options, const char *dir, const char *filename, gru_status_t *status) {
+	gru_payload_t *payload =
+		gru_payload_init(initialize_options, save_options, read_options, options, status);
 
 	if (!payload) {
 		fprintf(stderr, "Unable to initialize the payload: %s\n", status->message);
@@ -113,8 +117,8 @@ void config_init(options_t *options, const char *dir, const char *filename,
 		gru_path_mkdirs(dir, status);
 	}
 
-	gru_config_t *config = gru_config_init(dir, filename, payload, status);
-	if (!config) {
+	options->config = gru_config_init(dir, filename, payload, status);
+	if (!options->config) {
 		if (gru_status_error(status)) {
 			fprintf(
 				stderr, "Unable to initialize the configuration: %s\n", status->message);
@@ -125,5 +129,4 @@ void config_init(options_t *options, const char *dir, const char *filename,
 	}
 
 	gru_payload_destroy(&payload);
-	gru_config_destroy(&config);
 }

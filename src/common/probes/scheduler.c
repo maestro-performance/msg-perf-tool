@@ -34,8 +34,6 @@ static void *probe_scheduler_run(void *en) {
 
 			break;
 		}
-
-		sleep(1);
 	}
 
 	logger(DEBUG, "Finished running probe %s", entry->name());
@@ -136,4 +134,6 @@ static void probe_scheduler_stop_probe(const void *nodedata, void *payload) {
 	dlclose(entry->handle);
 }
 
-void probe_scheduler_stop() { gru_list_for_each(list, probe_scheduler_stop_probe, NULL); }
+void probe_scheduler_stop() {
+	gru_list_for_each(list, probe_scheduler_stop_probe, NULL);
+}

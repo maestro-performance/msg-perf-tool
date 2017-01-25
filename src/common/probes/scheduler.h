@@ -24,14 +24,12 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <pthread.h>
 #include <dlfcn.h>
+#include <pthread.h>
 
-#include <common/gru_status.h>
 #include <collection/gru_list.h>
+#include <common/gru_status.h>
 #include <log/gru_logger.h>
-
-
 
 #include "probe.h"
 
@@ -44,10 +42,8 @@ extern "C" {
 bool probe_scheduler_start(gru_status_t *status);
 void probe_scheduler_stop();
 
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* SCHEDULER_H */
-
