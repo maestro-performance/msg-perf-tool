@@ -24,8 +24,8 @@
 #include <stdio.h>
 #include <sys/wait.h>
 
-#include <time/gru_time_utils.h>
 #include <cli/gru_cli_opt.h>
+#include <time/gru_time_utils.h>
 
 #include "contrib/options.h"
 

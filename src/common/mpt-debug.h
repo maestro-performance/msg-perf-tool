@@ -23,16 +23,18 @@
 extern "C" {
 #endif
 
-#if MPT_DEBUG >=2
- #define mpt_trace(...) { logger_t mptlogger = gru_logger_get(); mptlogger(TRACE, __VA_ARGS__); }
+#if MPT_DEBUG >= 2
+#define mpt_trace(...)                                                                   \
+	{                                                                                    \
+		logger_t mptlogger = gru_logger_get();                                           \
+		mptlogger(TRACE, __VA_ARGS__);                                                   \
+	}
 #else
- #define mpt_trace(...)
+#define mpt_trace(...)
 #endif
-
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* MPT_DEBUG_H */
-

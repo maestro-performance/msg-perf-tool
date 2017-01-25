@@ -23,11 +23,10 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 
-#include <log/gru_logger.h>
 #include <common/gru_alloc.h>
+#include <log/gru_logger.h>
 
 #include "statistics.h"
-
 
 typedef struct msg_content_data_t_ {
 	uint64_t count;
@@ -40,29 +39,28 @@ typedef struct msg_content_data_t_ {
 typedef void (*msg_content_loader)(msg_content_data_t *content_data);
 
 typedef enum msg_direction_t_ {
-    MSG_DIRECTION_SENDER,
-    MSG_DIRECTION_RECEIVER
+	MSG_DIRECTION_SENDER,
+	MSG_DIRECTION_RECEIVER
 } msg_direction_t;
 
 typedef enum msg_qos_t_ {
-    MSG_QOS_AT_MOST_ONCE,
-    MSG_QOS_AT_LEAST_ONCE, /** Not fully supported and reserved for future use **/
-    MSG_QOS_EXACTLY_ONCE, /** Not fully supported and reserved for future use **/
+	MSG_QOS_AT_MOST_ONCE,
+	MSG_QOS_AT_LEAST_ONCE, /** Not fully supported and reserved for future use **/
+	MSG_QOS_EXACTLY_ONCE, /** Not fully supported and reserved for future use **/
 } msg_qos_t;
 
 /**
  * Messaging options
  */
 typedef struct msg_opt_t_ {
-    msg_direction_t direction;
-    msg_qos_t qos;
+	msg_direction_t direction;
+	msg_qos_t qos;
 } msg_opt_t;
-
 
 typedef struct msg_ctxt_t_ {
 	void *api_context;
 	stat_io_t *stat_io;
-        msg_opt_t msg_opts;
+	msg_opt_t msg_opts;
 } msg_ctxt_t;
 
 msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io, gru_status_t *status);

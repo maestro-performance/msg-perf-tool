@@ -26,13 +26,12 @@
 extern "C" {
 #endif
 
-#define vmsl_assign_none(name, proto) \
-static bool name(vmsl_t *vmsl) {\
-	logger_t logger = gru_logger_get();\
-	logger(ERROR, "" proto " protocol support was not enabled");\
-	return false;\
-}\
-
+#define vmsl_assign_none(name, proto)                                                    \
+	static bool name(vmsl_t *vmsl) {                                                     \
+		logger_t logger = gru_logger_get();                                              \
+		logger(ERROR, "" proto " protocol support was not enabled");                     \
+		return false;                                                                    \
+	}
 
 /**
  * Initializes the virtual messaging system layer

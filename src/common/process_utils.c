@@ -82,7 +82,9 @@ static void timer_handler(int signum) {
 	// NO-OP for now
 }
 
-static void interrupt_handler(int signum) { interrupted = true; }
+static void interrupt_handler(int signum) {
+	interrupted = true;
+}
 
 void install_timer(time_t sec) {
 	struct sigaction sa;
@@ -120,17 +122,16 @@ bool can_continue(const options_t *options, uint64_t sent) {
 
 	if (likely(options->count == 0)) {
 		struct timeval now;
-		
+
 		gettimeofday(&now, NULL);
 
 		if (likely(now.tv_sec <= options->duration.end.tv_sec)) {
 			return true;
 		}
-	}
-	else {
-			if (likely(sent < options->count)) {
-				return true;
-			}
+	} else {
+		if (likely(sent < options->count)) {
+			return true;
+		}
 	}
 
 	return false;

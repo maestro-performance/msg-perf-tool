@@ -24,15 +24,15 @@ static void show_help(char **argv) {
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
 	gru_cli_option_help("duration", "d", "runs for a fixed amount of time (in minutes)");
-	gru_cli_option_help("log-level", "l",
-					 "runs in the given verbose (info, stat, debug, etc) level mode");
-	gru_cli_option_help("log-dir", "L",
-					 "a directory to save the logs (mandatory for --daemon)");
-	gru_cli_option_help("parallel-count", "p",
-					 "number of parallel connections to the broker");
+	gru_cli_option_help("log-level",
+		"l",
+		"runs in the given verbose (info, stat, debug, etc) level mode");
+	gru_cli_option_help(
+		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
+	gru_cli_option_help(
+		"parallel-count", "p", "number of parallel connections to the broker");
 
 	gru_cli_option_help("size", "s", "message size (in bytes)");
-
 }
 
 int main(int argc, char **argv) {
@@ -68,9 +68,13 @@ int main(int argc, char **argv) {
 	while (1) {
 
 		static struct option long_options[] = {{"broker-url", true, 0, 'b'},
-			{"duration", true, 0, 'd'}, {"log-level", true, 0, 'l'},
-			{"parallel-count", true, 0, 'p'}, {"message-size", true, 0, 's'},
-			{"log-dir", true, 0, 'L'}, {"daemon", false, 0, 'D'}, {"help", false, 0, 'h'},
+			{"duration", true, 0, 'd'},
+			{"log-level", true, 0, 'l'},
+			{"parallel-count", true, 0, 'p'},
+			{"message-size", true, 0, 's'},
+			{"log-dir", true, 0, 'L'},
+			{"daemon", false, 0, 'D'},
+			{"help", false, 0, 'h'},
 			{0, 0, 0, 0}};
 
 		c = getopt_long(argc, argv, "b:d:l:p:s:c:L:Dh", long_options, &option_index);
@@ -134,8 +138,12 @@ int main(int argc, char **argv) {
 
 			if (child == 0) {
 				if (strlen(options->logdir) > 0) {
-					remap_log(options->logdir, "mpt-receiver", getppid(), getpid(),
-						stderr, &status);
+					remap_log(options->logdir,
+						"mpt-receiver",
+						getppid(),
+						getpid(),
+						stderr,
+						&status);
 				}
 
 				receiver_start(&vmsl, options);
@@ -143,7 +151,6 @@ int main(int argc, char **argv) {
 			} else {
 				if (child > 0) {
 					childs[i] = child;
-
 				} else {
 					printf("Error\n");
 				}
@@ -155,8 +162,7 @@ int main(int argc, char **argv) {
 			for (uint16_t i = 0; i < options->parallel_count; i++) {
 				waitpid(childs[i], &rc, 0);
 
-				logger(INFO, "Child process %d terminated with status %d", childs[i],
-					rc);
+				logger(INFO, "Child process %d terminated with status %d", childs[i], rc);
 			}
 		}
 	} else {
@@ -167,7 +173,6 @@ int main(int argc, char **argv) {
 
 		logger(INFO, "Starting test");
 		receiver_start(&vmsl, options);
-
 	}
 
 	logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());

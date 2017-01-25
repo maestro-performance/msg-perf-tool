@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   bmic_probe.h
  * Author: otavio
  *
@@ -18,12 +18,8 @@
 extern "C" {
 #endif
 
-
-
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* BMIC_PROBE_H */
-

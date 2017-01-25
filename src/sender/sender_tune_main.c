@@ -21,10 +21,11 @@ static void show_help(char **argv) {
 	gru_cli_option_help("help", "h", "show this help");
 
 	gru_cli_option_help("broker-url", "b", "broker-url to connect to");
-	gru_cli_option_help("log-level", "l",
-					 "runs in the given verbose (info, stat, debug, etc) level mode");
-	gru_cli_option_help("log-dir", "L",
-					 "a directory to save the logs (mandatory for --daemon)");
+	gru_cli_option_help("log-level",
+		"l",
+		"runs in the given verbose (info, stat, debug, etc) level mode");
+	gru_cli_option_help(
+		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
 
 	gru_cli_option_help("size", "s", "message size (in bytes)");
 }
@@ -60,12 +61,12 @@ int tune_main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {
-			{"broker-url", true, 0, 'b'},
+		static struct option long_options[] = {{"broker-url", true, 0, 'b'},
 			{"log-level", true, 0, 'l'},
 			{"log-dir", true, 0, 'L'},
 			{"size", true, 0, 's'},
-			{"help", false, 0, 'h'}, {0, 0, 0, 0}};
+			{"help", false, 0, 'h'},
+			{0, 0, 0, 0}};
 
 		c = getopt_long(argc, argv, "b:l:s:L:h", long_options, &option_index);
 		if (c == -1) {

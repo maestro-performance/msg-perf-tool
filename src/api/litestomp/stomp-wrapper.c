@@ -22,8 +22,8 @@ static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (stomp_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *litestomp_init(stat_io_t *stat_io, msg_opt_t opt, void *data,
-						   gru_status_t *status) {
+msg_ctxt_t *litestomp_init(
+	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing stomp wrapper");
@@ -41,7 +41,6 @@ msg_ctxt_t *litestomp_init(stat_io_t *stat_io, msg_opt_t opt, void *data,
 		goto err_exit1;
 	}
 
-
 	const options_t *options = get_options_object();
 	url = gru_uri_simple_format(&options->uri, status);
 	if (!url) {
@@ -54,7 +53,6 @@ msg_ctxt_t *litestomp_init(stat_io_t *stat_io, msg_opt_t opt, void *data,
 		fprintf(stderr, "Unable to initialize stomp messenger\n");
 		goto err_exit1;
 	}
-
 
 	/*
 	 * Sets the endpoint address
@@ -81,10 +79,10 @@ msg_ctxt_t *litestomp_init(stat_io_t *stat_io, msg_opt_t opt, void *data,
 
 	return msg_ctxt;
 
-	err_exit2:
+err_exit2:
 	stomp_messenger_destroy(&messenger);
 
-	err_exit1:
+err_exit1:
 	msg_ctxt_destroy(&msg_ctxt);
 	return NULL;
 }
@@ -106,7 +104,8 @@ void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	}
 }
 
-vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
+vmsl_stat_t litestomp_send(
+	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 	logger_t logger = gru_logger_get();
 
@@ -117,7 +116,8 @@ vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, 
 	*/
 	stomp_message_t *message = stomp_message_create(&stomp_ctxt->messenger->status);
 	if (!message) {
-		logger(ERROR, "Unable to create a stomp message: %s",
+		logger(ERROR,
+			"Unable to create a stomp message: %s",
 			stomp_ctxt->messenger->status.message);
 
 		return VMSL_ERROR;
@@ -133,7 +133,8 @@ vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, 
 	stomp_status_code_t stat = stomp_exchange_util_ctime(
 		stomp_ctxt->messenger->exchange_properties, &stomp_ctxt->messenger->status);
 	if (stat != STOMP_SUCCESS) {
-		logger(ERROR, "Unable to set the message creation time: %s",
+		logger(ERROR,
+			"Unable to set the message creation time: %s",
 			stomp_ctxt->messenger->status.message);
 
 		stomp_message_destroy(&message);
@@ -151,7 +152,8 @@ vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_loader content_loader, 
 	 */
 	stat = stomp_send(stomp_ctxt->messenger, &send_header, message);
 	if (stat != STOMP_SUCCESS) {
-		logger(ERROR, "Unable to send the message: %s",
+		logger(ERROR,
+			"Unable to send the message: %s",
 			stomp_ctxt->messenger->status.message);
 
 		stomp_message_destroy(&message);
@@ -174,9 +176,12 @@ vmsl_stat_t litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *stat
 	if (stat != STOMP_SUCCESS) {
 		logger_t logger = gru_logger_get();
 
-		logger(ERROR, "Unable to subscribe to the endpoint: %s",
+		logger(ERROR,
+			"Unable to subscribe to the endpoint: %s",
 			stomp_ctxt->messenger->status.message);
-		gru_status_set(status, GRU_FAILURE, "Unable to subscribe to the endpoint: %s",
+		gru_status_set(status,
+			GRU_FAILURE,
+			"Unable to subscribe to the endpoint: %s",
 			stomp_ctxt->messenger->status.message);
 		return VMSL_ERROR;
 	}
@@ -184,14 +189,16 @@ vmsl_stat_t litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *stat
 	return VMSL_SUCCESS;
 }
 
-vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
+vmsl_stat_t litestomp_receive(
+	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 
 	stomp_message_t *message = stomp_message_create(NULL);
 
 	if (!message) {
-		logger(ERROR, "Unable to create a stomp message: %s",
+		logger(ERROR,
+			"Unable to create a stomp message: %s",
 			stomp_ctxt->messenger->status.message);
 
 		return VMSL_ERROR;
@@ -201,7 +208,8 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru
 	stomp_status_code_t stat =
 		stomp_receive(stomp_ctxt->messenger, &receive_header, message);
 	if (stat != STOMP_SUCCESS) {
-		logger(ERROR, "Unable to receive messages from the endpoint: %s",
+		logger(ERROR,
+			"Unable to receive messages from the endpoint: %s",
 			stomp_ctxt->messenger->status.message);
 
 		stomp_message_destroy(&message);
@@ -220,7 +228,6 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru
 	stomp_message_destroy(&message);
 	return VMSL_ERROR;
 }
-
 
 bool litestomp_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();

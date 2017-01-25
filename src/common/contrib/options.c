@@ -33,7 +33,11 @@ options_t *options_new() {
 }
 
 void options_destroy(options_t **obj) {
-	free(*obj);
+	options_t *opt = (*obj);
+
+	gru_config_destroy(&opt->config);
+
+	free(opt);
 	*obj = NULL;
 }
 
@@ -63,4 +67,6 @@ void set_options_object(options_t *obj) {
 	}
 }
 
-const options_t *get_options_object(void) { return options; }
+const options_t *get_options_object(void) {
+	return options;
+}

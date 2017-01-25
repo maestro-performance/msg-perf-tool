@@ -27,16 +27,18 @@ extern "C" {
 #endif
 
 typedef enum vmsl_stat_t_ {
-    VMSL_ERROR = 0,
-    VMSL_SUCCESS = 1,
-    VMSL_NO_DATA = 2,
+	VMSL_ERROR = 0,
+	VMSL_SUCCESS = 1,
+	VMSL_NO_DATA = 2,
 } vmsl_stat_t;
 
-typedef msg_ctxt_t *(*msg_init)(stat_io_t *stat_io, msg_opt_t opt, void *data,
-        gru_status_t *status);
-typedef vmsl_stat_t (*msg_send)(msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
+typedef msg_ctxt_t *(*msg_init)(
+	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status);
+typedef vmsl_stat_t (*msg_send)(
+	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
 typedef vmsl_stat_t (*msg_subscribe)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
-typedef vmsl_stat_t (*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+typedef vmsl_stat_t (*msg_receive)(
+	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 typedef void (*msg_stop)(msg_ctxt_t *ctxt, gru_status_t *status);
 typedef void (*msg_destroy)(msg_ctxt_t *, gru_status_t *status);
 
@@ -52,11 +54,11 @@ typedef struct vmsl_t_ {
 vmsl_t vmsl_init();
 
 static inline bool vmsl_stat_success(vmsl_stat_t stat) {
-    return stat & VMSL_SUCCESS ? true : false;
+	return stat & VMSL_SUCCESS ? true : false;
 }
 
 static inline bool vmsl_stat_error(vmsl_stat_t stat) {
-    return stat & VMSL_SUCCESS ? false : true;
+	return stat & VMSL_SUCCESS ? false : true;
 }
 
 #ifdef __cplusplus

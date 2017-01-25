@@ -19,19 +19,19 @@
 
 #include "contrib/options.h"
 
-#include <common/gru_status.h>
+#include <collection/gru_list.h>
 #include <common/gru_alloc.h>
+#include <common/gru_status.h>
 #include <config/gru_config.h>
 #include <config/gru_payload.h>
-#include <collection/gru_list.h>
 #include <string/gru_util.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void config_init(options_t *options, const char *dir, const char *filename,
-        gru_status_t *status);
+void config_init(
+	options_t *options, const char *dir, const char *filename, gru_status_t *status);
 
 #ifdef __cplusplus
 }

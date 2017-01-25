@@ -18,7 +18,6 @@
 static char *data = NULL;
 static size_t capacity;
 
-
 const char *load_message_data(const options_t *options, gru_status_t *status) {
 	data = gru_alloc(options->message_size, status);
 	gru_alloc_check(data, NULL);

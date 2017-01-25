@@ -57,7 +57,8 @@ stat_io_t *statistics_init(stat_direction_t direction, gru_status_t *status) {
 
 	if (direction == RECEIVER) {
 		if (!ret->latency) {
-			logger(ERROR, "Unable to initialize the statistics IO engine: %s",
+			logger(ERROR,
+				"Unable to initialize the statistics IO engine: %s",
 				status->message);
 
 			goto err_exit;
@@ -115,8 +116,12 @@ void statistics_latency_data(
 
 void statistics_throughput_data(stat_io_t *stat_io, const char *last_buff, uint64_t count,
 	uint64_t partial, double rate) {
-	fprintf(stat_io->throughput, "%s;%" PRIu64 ";%" PRIu64 ";%.2f\n", last_buff, count,
-		partial, rate);
+	fprintf(stat_io->throughput,
+		"%s;%" PRIu64 ";%" PRIu64 ";%.2f\n",
+		last_buff,
+		count,
+		partial,
+		rate);
 }
 
 static uint64_t statistics_convert_to_milli(gru_timestamp_t ts) {
@@ -132,7 +137,8 @@ uint64_t statistics_diff(gru_timestamp_t start, gru_timestamp_t end) {
 	 * wishful thinking on 32 bits platforms, since I am not sure that this will
 	 * work in all the cases or whether this is safe at all.
 	 */
-	mpt_trace("Calculated diff : %" PRIi64 ".%" PRIi64 "", (int64_t) ret.tv_sec,
+	mpt_trace("Calculated diff : %" PRIi64 ".%" PRIi64 "",
+		(int64_t) ret.tv_sec,
 		(int64_t) ret.tv_usec);
 
 	return statistics_convert_to_milli(ret);
@@ -141,9 +147,13 @@ uint64_t statistics_diff(gru_timestamp_t start, gru_timestamp_t end) {
 void statistics_latency(stat_io_t *stat_io, gru_timestamp_t start, gru_timestamp_t end) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Creation time: %" PRIi64 ".%" PRIi64 "", (int64_t) start.tv_sec,
+	logger(DEBUG,
+		"Creation time: %" PRIi64 ".%" PRIi64 "",
+		(int64_t) start.tv_sec,
 		(int64_t) start.tv_usec);
-	logger(DEBUG, "Received time: %" PRIi64 ".%" PRIi64 "", (int64_t) end.tv_sec,
+	logger(DEBUG,
+		"Received time: %" PRIi64 ".%" PRIi64 "",
+		(int64_t) end.tv_sec,
 		(int64_t) end.tv_usec);
 
 	char tm_creation_buff[64] = {0};
@@ -167,11 +177,17 @@ void statistics_latency(stat_io_t *stat_io, gru_timestamp_t start, gru_timestamp
 		strftime(
 			tm_received_buff, sizeof(tm_received_buff), "%Y-%m-%d %H:%M:%S", received_tm);
 
-		logger(STAT, "error;%" PRIu64 ";creation;%s.%" PRId32 ";received;%s.%" PRId32 "",
-			statistics_diff(start, end), tm_creation_buff, (start.tv_usec / 1000),
-			tm_received_buff, (end.tv_usec / 1000));
+		logger(STAT,
+			"error;%" PRIu64 ";creation;%s.%" PRId32 ";received;%s.%" PRId32 "",
+			statistics_diff(start, end),
+			tm_creation_buff,
+			(start.tv_usec / 1000),
+			tm_received_buff,
+			(end.tv_usec / 1000));
 	} else {
-		statistics_latency_data(stat_io, statistics_diff(start, end), tm_creation_buff,
+		statistics_latency_data(stat_io,
+			statistics_diff(start, end),
+			tm_creation_buff,
 			(start.tv_usec / 1000));
 	}
 }

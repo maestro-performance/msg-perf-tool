@@ -29,7 +29,6 @@ static bool tune_can_continue(gru_duration_t duration) {
 	return false;
 }
 
-
 static void tune_print_stat(uint32_t steps, const char *msg, ...) {
 	va_list ap;
 
@@ -92,8 +91,7 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	stat_io_t *stat_io = statistics_init_stdout(SENDER, NULL);
 
 	msg_opt_t opt = {
-		.direction = MSG_DIRECTION_SENDER,
-		.qos = MSG_QOS_AT_MOST_ONCE,
+		.direction = MSG_DIRECTION_SENDER, .qos = MSG_QOS_AT_MOST_ONCE,
 	};
 
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
@@ -105,7 +103,6 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 
 	register uint64_t sent = 0;
 	register uint64_t round = 0;
-
 
 	while (tune_can_continue(duration)) {
 		vmsl_stat_t sstat = vmsl->send(msg_ctxt, content_loader, &status);
@@ -152,7 +149,8 @@ static bool tune_init_bmic_ctxt(
 
 	logger(INFO, "Resolved host to %s", options->uri.host);
 
-	bool ret = bmic_context_init_simple(ctxt, options->uri.host, "admin", "admin", status);
+	bool ret =
+		bmic_context_init_simple(ctxt, options->uri.host, "admin", "admin", status);
 
 	if (!ret) {
 		bmic_context_cleanup(ctxt);
@@ -168,8 +166,6 @@ static bool tune_init_bmic_ctxt(
 
 	return true;
 }
-
-
 
 int tune_start(const vmsl_t *vmsl, const options_t *options) {
 	gru_status_t status = gru_status_new();
@@ -203,14 +199,13 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 		gru_duration_t duration_object = gru_duration_from_minutes(duration[i]);
 		tune_print_stat(i, "Duration %" PRIu64 " minutes\n", duration[i]);
 
-
 		perf_stats_t pstats =
 			tune_exec_step(options, vmsl, i, duration_object, approximate);
 		tune_print_stat(i, "Step %d finished sending data. Reading queue stats\n", i);
 
 		bmic_queue_stat_t qstats = {0};
-		bool stat_ret = tune_get_queue_stats(&ctxt, options, &options->uri.path[1],
-											 &qstats, &status);
+		bool stat_ret =
+			tune_get_queue_stats(&ctxt, options, &options->uri.path[1], &qstats, &status);
 		if (!stat_ret) {
 			fprintf(stderr, "Error: %s\n", status.message);
 
@@ -218,20 +213,23 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 			return EXIT_FAILURE;
 		}
 
-
 		tune_print_stat(i, "Calculating approximate sustained throughput");
 		approximate = tune_calc_approximate(pstats, qstats, duration_object, &status);
 
 		printf(CLEAR_LINE);
-		tune_print_stat(i, "Approximate sustained throughput before applying multiplier: %" PRIu32
-			   "\n",
+		tune_print_stat(i,
+			"Approximate sustained throughput before applying multiplier: %" PRIu32 "\n",
 			approximate);
 
 		approximate += (approximate / multiplier[i]);
 
-		tune_print_stat(i, "Sent: %" PRIu64 ". Queue size. %" PRId64 ". Received %" PRIu64
-			   ". Approximate: %" PRIu32 "\n",
-			pstats.sent, qstats.queue_size, qstats.msg_ack_count, approximate);
+		tune_print_stat(i,
+			"Sent: %" PRIu64 ". Queue size. %" PRId64 ". Received %" PRIu64
+			". Approximate: %" PRIu32 "\n",
+			pstats.sent,
+			qstats.queue_size,
+			qstats.msg_ack_count,
+			approximate);
 		tune_print_stat(i, "Sleeping for 10 seconds to let the receiver catch up\n");
 		sleep(10);
 	}

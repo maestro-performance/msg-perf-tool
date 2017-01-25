@@ -20,9 +20,8 @@ void show_help() {
 
 	gru_cli_program_description(
 		"perf", "Runs a performance test against a message broker");
-	gru_cli_program_description("tune",
-							 "Tries to automatically determine the sustained throughput");
-
+	gru_cli_program_description(
+		"tune", "Tries to automatically determine the sustained throughput");
 }
 
 int main(int argc, char **argv) {

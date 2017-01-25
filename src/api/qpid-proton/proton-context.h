@@ -24,8 +24,7 @@ extern "C" {
 
 #include <proton/messenger.h>
 
-typedef struct proton_ctxt_t_ {
-    pn_messenger_t *messenger; } proton_ctxt_t;
+typedef struct proton_ctxt_t_ { pn_messenger_t *messenger; } proton_ctxt_t;
 
 proton_ctxt_t *proton_context_init();
 void proton_context_destroy(proton_ctxt_t **ctxt);

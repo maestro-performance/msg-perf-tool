@@ -38,4 +38,3 @@ const char *net_name();
 #endif
 
 #endif /* NET_PROBE_H */
-
