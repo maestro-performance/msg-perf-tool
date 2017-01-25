@@ -16,18 +16,18 @@
 
 #include <common/gru_alloc.h>
 
-#include "scheduler.h"
 #include "contrib/options.h"
+#include "scheduler.h"
 
 gru_list_t *list;
 
 static void *probe_scheduler_run(void *en) {
 	logger_t logger = gru_logger_get();
-    probe_entry_t *entry = (probe_entry_t *) en;
+	probe_entry_t *entry = (probe_entry_t *) en;
 	gru_status_t status = gru_status_new();
 
-    while (!entry->cancel) {
-        logger(DEBUG, "Running probe %s", entry->name());
+	while (!entry->cancel) {
+		logger(DEBUG, "Running probe %s", entry->name());
 		entry->collect(&status);
 		if (gru_status_error(&status)) {
 			logger(ERROR, "Probe %s error: %s", entry->name(), status.message);
@@ -35,11 +35,11 @@ static void *probe_scheduler_run(void *en) {
 			break;
 		}
 
-        sleep(1);
-    }
+		sleep(1);
+	}
 
-    logger(DEBUG, "Finished running probe %s", entry->name());
-    return NULL;
+	logger(DEBUG, "Finished running probe %s", entry->name());
+	return NULL;
 }
 
 static void probe_scheduler_launch_probe(const void *nodedata, void *payload) {
@@ -56,13 +56,13 @@ static void probe_scheduler_launch_probe(const void *nodedata, void *payload) {
 	}
 
 	int sys_ret = pthread_create(&entry->thread, NULL, probe_scheduler_run, entry);
-    if (sys_ret != 0) {
-        logger(ERROR, "Unable to create probe thread");
+	if (sys_ret != 0) {
+		logger(ERROR, "Unable to create probe thread");
 
-        return;
-    }
+		return;
+	}
 
-    logger(INFO, "Probe %s created", entry->name());
+	logger(INFO, "Probe %s created", entry->name());
 }
 
 static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *name) {
@@ -80,7 +80,7 @@ static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *na
 
 	probe_entry_t *(*new_entry)(gru_status_t *);
 
-	new_entry = (probe_entry_t *(*)(gru_status_t *)) dlsym(handle, name);
+	new_entry = (probe_entry_t * (*) (gru_status_t *) ) dlsym(handle, name);
 	error = dlerror();
 	if (error) {
 		fprintf(stderr, "Unable to open handle: %s\n", error);
@@ -119,12 +119,11 @@ bool probe_scheduler_start(gru_status_t *status) {
 		snprintf(lib, sizeof(lib) - 1, "libmpt-probe-%s.so", mod_name);
 		snprintf(ename, sizeof(ename) - 1, "%s_entry", mod_name);
 
-		logger(DEBUG, "Loading symbol %s@%s\n", ename,lib);
+		logger(DEBUG, "Loading symbol %s@%s", ename, lib);
 
 		probe_entry_t *net = probe_scheduler_load_probe(lib, ename);
 		gru_list_append(list, net);
 	}
-
 
 	gru_list_for_each(list, probe_scheduler_launch_probe, NULL);
 }
@@ -137,6 +136,4 @@ static void probe_scheduler_stop_probe(const void *nodedata, void *payload) {
 	dlclose(entry->handle);
 }
 
-void probe_scheduler_stop() {
-	gru_list_for_each(list, probe_scheduler_stop_probe, NULL);
-}
+void probe_scheduler_stop() { gru_list_for_each(list, probe_scheduler_stop_probe, NULL); }
