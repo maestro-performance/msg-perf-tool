@@ -60,7 +60,7 @@ void read_options(FILE *file, void *data) {
 	char tmp_url[4096] = {0};
 	gru_config_read_string("broker.url", file, tmp_url);
 	options->uri = gru_uri_parse(tmp_url, &status);
-	if (status.code != GRU_SUCCESS) {
+	if (gru_status_error(&status)) {
 		fprintf(stderr, "%s\n", status.message);
 		return;
 	}
@@ -87,7 +87,7 @@ void read_options(FILE *file, void *data) {
 	char probes_list[4096] = {0};
 	gru_config_read_string("probes.list", file, probes_list);
 	options->probes = gru_split(probes_list, ',', &status);
-	if (status.code != GRU_SUCCESS) {
+	if (gru_status_error(&status)) {
 		fprintf(stderr, "%s\n", status.message);
 		return;
 	}
@@ -106,7 +106,7 @@ void config_init(options_t *options, const char *dir, const char *filename,
 	}
 
 	if (!gru_path_exists(dir, status)) {
-		if (status->code != GRU_SUCCESS) {
+		if (gru_status_error(status)) {
 			return;
 		}
 
@@ -115,7 +115,7 @@ void config_init(options_t *options, const char *dir, const char *filename,
 
 	gru_config_t *config = gru_config_init(dir, filename, payload, status);
 	if (!config) {
-		if (status->code != GRU_SUCCESS) {
+		if (gru_status_error(status)) {
 			fprintf(
 				stderr, "Unable to initialize the configuration: %s\n", status->message);
 		}

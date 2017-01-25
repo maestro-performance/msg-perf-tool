@@ -29,7 +29,7 @@ static void *probe_scheduler_run(void *en) {
     while (!entry->cancel) {
         logger(DEBUG, "Running probe %s", entry->name());
 		entry->collect(&status);
-		if (status.code != GRU_SUCCESS) {
+		if (gru_status_error(&status)) {
 			logger(ERROR, "Probe %s error: %s", entry->name(), status.message);
 
 			break;
@@ -91,7 +91,7 @@ static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *na
 	gru_status_t status = gru_status_new();
 	probe_entry_t *ret = (*new_entry)(&status);
 
-	if (status.code != GRU_SUCCESS) {
+	if (gru_status_error(&status)) {
 		fprintf(stderr, "%s\n", status.message);
 	}
 	ret->handle = handle;

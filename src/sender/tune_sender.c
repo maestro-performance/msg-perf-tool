@@ -50,7 +50,7 @@ static bool tune_get_queue_stats(const bmic_context_t *ctxt, const options_t *op
 	}
 
 	*stat = ctxt->api->queue_stats(ctxt->handle, cap, name, status);
-	if (status->code != GRU_SUCCESS) {
+	if (gru_status_error(status)) {
 		fprintf(stderr, "Unable to read queue stats\n");
 		return false;
 	}
@@ -71,12 +71,12 @@ static bool tune_purge_queue(const bmic_context_t *ctxt, const options_t *option
 	bool ret = false;
 
 	ret = ctxt->api->queue_purge(ctxt->handle, cap, name, status);
-	if (status->code != GRU_SUCCESS) {
+	if (gru_status_error(status)) {
 		fprintf(stderr, "Unable to purge queue\n");
 	}
 
 	ret = ctxt->api->queue_reset(ctxt->handle, cap, name, status);
-	if (status->code != GRU_SUCCESS) {
+	if (gru_status_error(status)) {
 		fprintf(stderr, "Unable to reset queue counters\n");
 	}
 

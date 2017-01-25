@@ -111,7 +111,7 @@ msg_ctxt_t *proton_init(stat_io_t *stat_io, msg_opt_t opt, void *data, gru_statu
 	const options_t *options = get_options_object();
 
 	url = gru_uri_simple_format(&options->uri, status);
-	if (status->code != GRU_SUCCESS) {
+	if (gru_status_error(status)) {
 		goto err_exit;
 	}
 
