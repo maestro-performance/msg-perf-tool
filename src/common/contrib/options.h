@@ -26,17 +26,17 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include <log/gru_logger.h>
-#include <time/gru_duration.h>
-#include <network/gru_uri.h>
 #include <collection/gru_list.h>
+#include <log/gru_logger.h>
+#include <network/gru_uri.h>
+#include <time/gru_duration.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct options_t_ {
-        gru_uri_t uri;
+	gru_uri_t uri;
 	uint64_t count;
 	char logdir[OPT_MAX_STR_SIZE];
 	uint16_t parallel_count;
@@ -45,7 +45,7 @@ typedef struct options_t_ {
 	gru_duration_t duration;
 	bool daemon;
 	uint32_t throttle;
-        gru_list_t *probes;
+	gru_list_t *probes;
 } options_t;
 
 options_t *options_new();
