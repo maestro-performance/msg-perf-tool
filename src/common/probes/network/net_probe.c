@@ -35,16 +35,13 @@ probe_entry_t *net_entry(gru_status_t *status) {
 
 static char *net_get_filename(const char *device, const char *what, gru_status_t *status) {
 	char *ret = NULL;
-	// logger_t logger = gru_logger_get();
-
+	
 	if (asprintf(&ret,  "/sys/class/net/%s/statistics/%s", device, what) == -1) {
 		gru_status_set(status, GRU_FAILURE, "Not enough memory");
 
 		return NULL;
 
 	}
-
-	// logger(INFO, "Openning %s", ret);
 
 	return ret;
 }
@@ -109,7 +106,12 @@ int net_collect(gru_status_t *status) {
 
 	uint64_t last_tx_data = 0;
 	uint64_t last_rx_data = 0;
-	while (true) { 
+	
+	while (true) {
+		/*
+		 * TODO: Possibly not the best way to do it, reopening 
+		 * the file at every iteraction. 
+		 */
 		FILE *tx_file = net_open_tx_file(device, status);
 		if (!tx_file) {
 			logger(ERROR, "Unable to open device TX file");
@@ -128,8 +130,6 @@ int net_collect(gru_status_t *status) {
 		fclose(rx_file);
 		fclose(tx_file);
 
-		// char *filtered_tx_data = gru_rtrim(tx_data, sizeof(tx_data));
-		// char *filtered_rx_data = gru_rtrim(rx_data, sizeof(rx_data));
 		uint64_t curr_tx_data = atoll(tx_data);
 		uint64_t curr_rx_data = atoll(rx_data);
 
