@@ -35,6 +35,7 @@
 #include "msgdata.h"
 #include "statistics.h"
 #include "vmsl.h"
+#include "bmic_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
