@@ -13,33 +13,30 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-#ifndef BMIC_PROBE_H
-#define BMIC_PROBE_H
+#ifndef BMIC_UTILS_H
+#define BMIC_UTILS_H
+
+#include <stdlib.h>
+#include <stdbool.h>
 
 #include <common/gru_status.h>
-#include <io/gru_ioutils.h>
-#include <log/gru_logger.h>
 
 #include <context/bmic_context.h>
 
-#include "probes/probe.h"
-
-#include "bmic_utils.h"
+#include "contrib/options.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-probe_entry_t *bmic_entry(gru_status_t *status);
+bool mpt_init_bmic_ctxt(const options_t *options, bmic_context_t *ctxt, 
+	gru_status_t *status);
 
-bool bmic_init(const options_t *options, gru_status_t *status);
-int bmic_collect(gru_status_t *status);
-void bmic_stop();
-const char *bmic_name();
-
+void mpt_get_queue_stats(const bmic_context_t *ctxt, const char *name, 
+	bmic_queue_stat_t *stat, gru_status_t *status);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* BMIC_PROBE_H */
+#endif /* BMIC_UTILS_H */

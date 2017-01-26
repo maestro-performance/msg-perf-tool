@@ -39,24 +39,6 @@ static void tune_print_stat(uint32_t steps, const char *msg, ...) {
 	va_end(ap);
 }
 
-static bool tune_get_queue_stats(const bmic_context_t *ctxt, const options_t *options,
-	const char *name, bmic_queue_stat_t *stat, gru_status_t *status) {
-	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
-
-	if (!cap) {
-		fprintf(stderr, "Unable to load capabilities\n");
-		return false;
-	}
-
-	*stat = ctxt->api->queue_stats(ctxt->handle, cap, name, status);
-	if (gru_status_error(status)) {
-		fprintf(stderr, "Unable to read queue stats\n");
-		return false;
-	}
-	printf("Queue size: %" PRId64 "\n", stat->queue_size);
-
-	return true;
-}
 
 static bool tune_purge_queue(const bmic_context_t *ctxt, const options_t *options,
 	const char *name, gru_status_t *status) {
@@ -143,29 +125,6 @@ uint32_t tune_calc_approximate(perf_stats_t stats, bmic_queue_stat_t qstat,
 	return trunc(approximate);
 }
 
-static bool tune_init_bmic_ctxt(
-	const options_t *options, bmic_context_t *ctxt, gru_status_t *status) {
-	logger_t logger = gru_logger_get();
-
-	logger(INFO, "Resolved host to %s", options->uri.host);
-
-	bool ret =
-		bmic_context_init_simple(ctxt, options->uri.host, "admin", "admin", status);
-
-	if (!ret) {
-		bmic_context_cleanup(ctxt);
-		return false;
-	}
-
-	// Load the capabilities just so that it is cached
-	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
-	if (!cap) {
-		bmic_context_cleanup(ctxt);
-		return false;
-	}
-
-	return true;
-}
 
 int tune_start(const vmsl_t *vmsl, const options_t *options) {
 	gru_status_t status = gru_status_new();
@@ -176,7 +135,7 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 	uint64_t duration[5] = {1, 2, 4, 8, 10};
 
 	bmic_context_t ctxt = {0};
-	bool ret_ctxt = tune_init_bmic_ctxt(options, &ctxt, &status);
+	bool ret_ctxt = mpt_init_bmic_ctxt(options, &ctxt, &status);
 	if (!ret_ctxt) {
 		fprintf(stderr, "%s\n", status.message);
 
@@ -204,14 +163,14 @@ int tune_start(const vmsl_t *vmsl, const options_t *options) {
 		tune_print_stat(i, "Step %d finished sending data. Reading queue stats\n", i);
 
 		bmic_queue_stat_t qstats = {0};
-		bool stat_ret =
-			tune_get_queue_stats(&ctxt, options, &options->uri.path[1], &qstats, &status);
-		if (!stat_ret) {
+		mpt_get_queue_stats(&ctxt, &options->uri.path[1], &qstats, &status);
+		if (gru_status_error(&status)) {
 			fprintf(stderr, "Error: %s\n", status.message);
 
 			bmic_context_cleanup(&ctxt);
 			return EXIT_FAILURE;
 		}
+		printf("Queue size: %" PRId64 "\n", qstats.queue_size);
 
 		tune_print_stat(i, "Calculating approximate sustained throughput");
 		approximate = tune_calc_approximate(pstats, qstats, duration_object, &status);
