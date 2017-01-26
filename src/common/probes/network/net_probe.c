@@ -88,7 +88,10 @@ bool net_init(const options_t *options, gru_status_t *status) {
 
 	logger(INFO, "Reading device %s", device);
 
-	report = gru_io_open_file(options->logdir, "net.csv", status);
+	char name[64] = {0};
+
+	snprintf(name, sizeof(name) - 1, "network-statistics-%d.csv", getpid());
+	report = gru_io_open_file(options->logdir, name, status);
 
 	if (!report) {
 		return false;
