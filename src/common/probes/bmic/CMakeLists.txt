@@ -1,5 +1,5 @@
 add_library(
-	mpt-probe-bmic SHARED
+	mpt-probe-bmic MODULE
         bmic_probe.c
 )
 

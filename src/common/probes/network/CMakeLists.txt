@@ -1,5 +1,5 @@
 add_library(
-	mpt-probe-net SHARED
+	mpt-probe-net MODULE
         net_probe.c
 )
 
