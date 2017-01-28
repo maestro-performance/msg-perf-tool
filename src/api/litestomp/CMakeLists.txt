@@ -1,9 +1,9 @@
 set(LITESTOMP_DIR "/usr" CACHE STRING "Litestomp directory")
 
 find_path(LITESTOMP_INCLUDE_DIR litestomp-0/stomp_types.h
-		HINTS ${LITESTOMP_DIR}/include)
+		HINTS ${LITESTOMP_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 find_library(LITESTOMP_LIB NAMES litestomp-0
-		HINTS ${LITESTOMP_DIR}/lib ${LITESTOMP_DIR}/lib64)
+		HINTS ${LITESTOMP_DIR}/${CMAKE_INSTALL_LIBDIR})
 
 message(STATUS "LiteSTOMP hint ${LITESTOMP_DIR}")
 message(STATUS "LiteSTOMP headers found at ${LITESTOMP_INCLUDE_DIR}")
@@ -13,16 +13,16 @@ include_directories(${LITESTOMP_INCLUDE_DIR})
 
 add_library(
 	mpt-stomp SHARED
-        stomp-context.c
-        stomp-wrapper.c
+	stomp-context.c
+	stomp-wrapper.c
 )
 
 target_link_libraries(
     mpt-stomp
-		mpt-common
+	mpt-common
     ${LITESTOMP_LIB}
 )
 
 install(TARGETS mpt-stomp
-	LIBRARY DESTINATION ${CPP_LIBRARY_DIR}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

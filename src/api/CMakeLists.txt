@@ -24,5 +24,5 @@ target_link_libraries(
 )
 
 install(TARGETS mpt-api-common
-	LIBRARY DESTINATION ${CPP_LIBRARY_DIR}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

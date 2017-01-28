@@ -9,10 +9,10 @@ add_executable(
 target_link_libraries(
 	mpt-receiver
 	mpt-common
-        mpt-api-common
+	mpt-api-common
 )
 
 install(TARGETS
-            mpt-receiver
-	RUNTIME DESTINATION ${RUNTIME_DIR}
+	mpt-receiver
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

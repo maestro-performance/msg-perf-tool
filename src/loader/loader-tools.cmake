@@ -1,7 +1,7 @@
 # In all project subdirectories
 set(loader_tools mpt-loader.py)
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/../../build/target/bin)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/../../build/target/${CMAKE_INSTALL_BINDIR})
 
 # ... then traverse subdirectories
 foreach(tool ${loader_tools}) 
@@ -13,7 +13,7 @@ endforeach(tool)
 # In all project subdirectories
 set(loader_config config/mpt-loader.conf config/sample-test-case.conf)
 
-set(SHARED_DATA_OUTPUT_PATH ${CMAKE_BINARY_DIR}/../../build/target/share/mpt)
+set(SHARED_DATA_OUTPUT_PATH ${CMAKE_BINARY_DIR}/../../build/target/${CMAKE_INSTALL_DATAROOTDIR}/mpt)
 
 # ... then traverse subdirectories
 foreach(config ${loader_config}) 
