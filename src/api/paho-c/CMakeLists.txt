@@ -8,8 +8,8 @@ find_library(PAHOC_LIB NAMES paho-mqtt3c
     HINTS ${PAHOC_DIR}/${CMAKE_INSTALL_LIBDIR})
 
 message(STATUS "Paho C hint ${PAHOC_DIR}")
-message(STATUS "Paho C headers found at ${PAHOC_DIR_INCLUDE_DIR}")
-message(STATUS "Paho C library found at ${PAHOC_DIR_LIB}")
+message(STATUS "Paho C headers found at ${PAHOC_INCLUDE_DIR}")
+message(STATUS "Paho C library found at ${PAHOC_LIB}")
 
 include_directories(${PAHOC_INCLUDE_DIR})
 
