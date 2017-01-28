@@ -63,7 +63,8 @@ macro (DefineIfSet VARIABLE)
 endmacro(DefineIfSet)
 
 include(CheckFunctionExists)
-if (UNIX)
-	check_function_exists(strlcpy HAVE_STRLCPY)
-	DefineIfSet(HAVE_STRLCPY)
-endif (UNIX)
+check_function_exists(strlcpy HAVE_STRLCPY)
+DefineIfSet(HAVE_STRLCPY)
+
+check_function_exists(strndup HAVE_STRNDUP)
+DefineIfSet(HAVE_STRNDUP)
