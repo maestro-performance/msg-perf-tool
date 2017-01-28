@@ -3,7 +3,6 @@ add_library(
         net_probe.c
 )
 
-
 install(TARGETS mpt-probe-net
-	LIBRARY DESTINATION ${CPP_LIBRARY_DIR}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

@@ -4,6 +4,6 @@ add_custom_target(runner-scripts ALL
 )
 
 install(PROGRAMS mpt-runner.sh
-	DESTINATION ${RUNTIME_DIR}
+	DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 

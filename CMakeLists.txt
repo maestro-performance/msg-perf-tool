@@ -1,6 +1,7 @@
 project(mpt)
 cmake_minimum_required(VERSION 2.8)
 
+include(GNUInstallDirs)
 include(CheckLists.cmake)
 include(CMakeLists.default.cmake)
 
@@ -24,9 +25,6 @@ else (UNIX)
 		include(CMakeLists.windows.cmake)
 	endif (WIN32)
 endif(UNIX)
-
-set(SHARED_DIR "share")
-set(MPT_SHARED_DIR ${SHARED_DIR}/mpt)
 
 SET(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
 SET(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")

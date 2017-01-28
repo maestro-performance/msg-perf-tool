@@ -15,5 +15,5 @@ target_link_libraries(
 
 install(TARGETS
         mpt-sender
-	RUNTIME DESTINATION ${RUNTIME_DIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
