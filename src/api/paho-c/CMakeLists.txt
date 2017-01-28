@@ -2,7 +2,7 @@ add_definitions(-D_GNU_SOURCE -D_POSIX_C_SOURCE)
 
 set(PAHOC_DIR "/usr" CACHE STRING "Proton directory")
 
-find_path(PAHOC_INCLUDE_DIR proton/messenger.h
+find_path(PAHOC_INCLUDE_DIR MQTTClient.h
 	HINTS ${PAHOC_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 find_library(PAHOC_LIB NAMES paho-mqtt3c
     HINTS ${PAHOC_DIR}/${CMAKE_INSTALL_LIBDIR})
