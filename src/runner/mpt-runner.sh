@@ -2,6 +2,7 @@
 
 export MESSAGE_SIZE=1024
 export SSH_OPTS=""
+export THROTTLE=0
 
 app_path=`dirname $0`
 
@@ -182,6 +183,7 @@ function run_by_duration() {
 
   echo "Lauching the sender"
   export pid_sender=`${app_path}/mpt-sender perf -b $BROKER_URL -t $THROTTLE --log-level=STAT --duration $DURATION -p $PARALLEL_COUNT --log-dir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
+
 
   # Sleeps for a little longer than the test duration so that it gives some time
   # for the program to finish and flush data
