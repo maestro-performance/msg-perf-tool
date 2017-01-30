@@ -87,7 +87,7 @@ def call_service(req_url, request_json, force_update=False, session=None, is_upd
 
     if answer.status_code < 200 or answer.status_code >= 205:
         print_errors(answer)
-        return 3
+        return answer.status_code
 
     return 0
 
@@ -156,15 +156,18 @@ def register():
 def configure_cache(session=None):
     base_url = read_param("database", "url")
     in_sut_key = read_param("sut", "sut_key")
+    in_start_time = in_opts["test_start_time"]
+
+    index_time = in_start_time.split()[0]
 
     logger.debug("Configuring index cache for test data")
 
-
-    req_url = "%s/%s*/_settings" % (base_url, in_sut_key)
+    req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
     request_json = '{ "index.cache.query.enable": true }'
 
+    # It will return 400 if already configured
     ret = call_service(req_url, request_json, force_update=True, session=session)
-    if ret != 0:
+    if ret != 0 and ret != 400 :
         logger.error("Unable to configure the index cache for test data")
 
 def configure_latency_mapping(session=None):
@@ -588,6 +591,243 @@ def load_test_info():
 
     return 0
 
+def load_sender_network_info():
+    base_url = read_param("database", "url")
+    in_file_name = in_opts["filename"]
+    in_sut_name = read_param("sut", "sut_name")
+    in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
+    in_test_run = read_param("test", "test_run")
+    in_start_time = in_opts["test_start_time"]
+
+    param_check = validate_parameters()
+    if param_check != 0:
+        return param_check
+
+    test_id = ("%s_%s" % (in_sut_key, in_test_run))
+
+    session = requests.session();
+
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    if ret.status_code < 200 or ret.status_code >= 205:
+        logger.error("There's no test with the ID %s. Please record that test info before loading data"
+                     % test_id)
+
+        return 1
+
+    datafile = open(in_file_name, 'rb')
+    num_lines = (count_lines(datafile) - 1)
+
+    # configure_latency_mapping(session=session)
+
+    logger.info("There are %d lines to read" % (num_lines))
+    csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
+    i = 0;
+
+    index_time = in_start_time.split()[0]
+    req_url = "%s/%s-%s/_bulk" % (base_url, in_sut_key, index_time)
+
+    action_data = {
+        "index": {
+            "_type": "sender-network"
+        }
+    }
+
+    quiet = in_opts["quiet"]
+    bulk_json = StringIO();
+    skipped = 0
+
+    for row in csv_data:
+        # Skip the headers
+        if i == 0 and row[0] == "TX":
+            continue
+
+        if len(row) < 2:
+            skipped += 1;
+            continue
+
+        tx = int(row[0])
+        rx = int(row[1])
+
+        latency_data = {
+            "sut_name": in_sut_name,
+            "sut_version": in_sut_version,
+            "rx": rx,
+            "tx": tx,
+            "test_id": test_id,
+            "test_direction": "sender"
+        }
+
+        json.dump(action_data, bulk_json)
+        bulk_json.write('\n')
+
+        json.dump(latency_data, bulk_json)
+        bulk_json.write('\n')
+
+        i += 1
+
+        if (i % 1000) == 0:
+            if not quiet:
+                sys.stdout.write("Bulk uploading sender network data (%d records out of %d)\r" % (i, num_lines))
+
+            call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+
+            bulk_json.truncate(0)
+            bulk_json.seek(0)
+
+    call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+
+    if not quiet:
+        print ""
+
+    if skipped > 0:
+        logger.warn("Skipped invalid %d records", skipped)
+
+    datafile.close()
+    bulk_json.close()
+
+    configure_cache(session=session)
+    return 0
+
+
+def load_broker_java_info():
+    base_url = read_param("database", "url")
+    in_file_name = in_opts["filename"]
+    in_sut_name = read_param("sut", "sut_name")
+    in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
+    in_test_run = read_param("test", "test_run")
+    in_start_time = in_opts["test_start_time"]
+
+    param_check = validate_parameters()
+    if param_check != 0:
+        return param_check
+
+    test_id = ("%s_%s" % (in_sut_key, in_test_run))
+
+    session = requests.session();
+
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    if ret.status_code < 200 or ret.status_code >= 205:
+        logger.error("There's no test with the ID %s. Please record that test info before loading data"
+                     % test_id)
+
+        return 1
+
+    datafile = open(in_file_name, 'rb')
+    num_lines = (count_lines(datafile) - 1)
+
+    # configure_latency_mapping(session=session)
+
+    logger.info("There are %d lines to read" % (num_lines))
+    csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
+    i = 0;
+
+    index_time = in_start_time.split()[0]
+    req_url = "%s/%s-%s/_bulk" % (base_url, in_sut_key, index_time)
+
+    action_data = {
+        "index": {
+            "_type": "broker-java"
+        }
+    }
+
+    quiet = in_opts["quiet"]
+    bulk_json = StringIO();
+    skipped = 0
+
+    for row in csv_data:
+        # Skip the headers
+        if i == 0 and row[0] == "load":
+            continue
+
+        if len(row) < 2:
+            skipped += 1;
+            continue
+
+        load = row[0]
+        open_fds = int(row[1])
+        free_fds = int(row[2])
+        free_mem = int(row[3])
+        swap_free = int(row[4])
+        swap_cmm = int(row[5])
+        eden_ini = int(row[6])
+        eden_cmm = int(row[7])
+        eden_max = int(row[8])
+        eden_used = int(row[9])
+        svv_ini = int(row[10])
+        svv_cmm = int(row[11])
+        svv_max = int(row[12])
+        svv_used = int(row[13])
+        tnd_ini = int(row[14])
+        tnd_cmm = int(row[15])
+        tnd_max = int(row[16])
+        tnd_used = int(row[17])
+        pm_ini = int(row[18])
+        pm_cmm = int(row[19])
+        pm_max = int(row[20])
+        pm_used = int(row[21])
+
+        latency_data = {
+            "sut_name": in_sut_name,
+            "sut_version": in_sut_version,
+            "test_id": test_id,
+            "test_direction": "sender",
+            "load": load,
+            "open_fds": open_fds,
+            "free_fds": free_fds,
+            "free_mem": free_mem,
+            "swap_free": swap_free,
+            "swap_cmm": swap_cmm,
+            "eden_ini": eden_ini,
+            "eden_cmm": eden_cmm,
+            "eden_max": eden_max,
+            "eden_used": eden_used,
+            "svv_ini": svv_ini,
+            "svv_cmm": svv_cmm,
+            "svv_max": svv_max,
+            "svv_used": svv_used,
+            "tnd_ini": tnd_ini,
+            "tnd_cmm": tnd_cmm,
+            "tnd_max": tnd_max,
+            "tnd_used": tnd_used,
+            "pm_ini": pm_ini,
+            "pm_cmm": pm_cmm,
+            "pm_max": pm_max,
+            "pm_used": pm_used,
+        }
+
+        json.dump(action_data, bulk_json)
+        bulk_json.write('\n')
+
+        json.dump(latency_data, bulk_json)
+        bulk_json.write('\n')
+
+        i += 1
+
+        if (i % 1000) == 0:
+            if not quiet:
+                sys.stdout.write("Bulk uploading sender network data (%d records out of %d)\r" % (i, num_lines))
+
+            call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+
+            bulk_json.truncate(0)
+            bulk_json.seek(0)
+
+    call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
+
+    if not quiet:
+        print ""
+
+    if skipped > 0:
+        logger.warn("Skipped invalid %d records", skipped)
+
+    datafile.close()
+    bulk_json.close()
+
+    configure_cache(session=session)
+    return 0
+
 def main():
     config_file = in_opts["config"]
     test_config_file = in_opts["config_test"]
@@ -634,6 +874,12 @@ def main():
             if in_direction == "sender" and in_load == "throughput":
                 return load_throughput_bulk()
 
+            if in_direction == "sender" and in_load == "network":
+                return load_sender_network_info()
+
+            if in_direction == "sender" and in_load == "java":
+                return load_broker_java_info()
+
 
     return
 
@@ -679,7 +925,7 @@ if __name__ == "__main__":
 
     op.add_option("--load", dest="load", type="string",
                   action="store", default=None, metavar="DATA_TYPE",
-                  help="Load or latency throughput test data into the DB (def: %default)");
+                  help="The test data (latency, throughput, network, java) to load into the DB (def: %default)");
 
     op.add_option("--testinfo", dest="testinfo", action="store_true", default=False,
                   help="Load test information data into the DB");

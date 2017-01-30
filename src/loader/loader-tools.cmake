@@ -1,7 +1,7 @@
 # In all project subdirectories
 set(loader_tools mpt-loader.py)
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/../../build/target/${CMAKE_INSTALL_BINDIR})
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/../../build/target/bin)
 
 # ... then traverse subdirectories
 foreach(tool ${loader_tools}) 
