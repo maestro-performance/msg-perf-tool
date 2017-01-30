@@ -149,6 +149,11 @@ int perf_main(int argc, char **argv) {
 
 	if (options->parallel_count > 1) {
 		logger(INFO, "Creating %d concurrent operations", options->parallel_count);
+
+#ifdef LINUX_BUILD
+		probe_scheduler_start(&status);
+#endif // LINUX_BUILD
+
 		for (uint16_t i = 0; i < options->parallel_count; i++) {
 			child = fork();
 
@@ -162,6 +167,10 @@ int perf_main(int argc, char **argv) {
 						&status);
 					if (!ret) {
 						fprintf(stderr, "Unable to remap log: %s", status.message);
+
+#ifdef LINUX_BUILD
+						probe_scheduler_stop();
+#endif // LINUX_BUILD
 
 						goto err_exit;
 					}
@@ -187,15 +196,25 @@ int perf_main(int argc, char **argv) {
 				logger(INFO, "Child process %d terminated with status %d", childs[i], rc);
 			}
 		}
+
+#ifdef LINUX_BUILD
+		probe_scheduler_stop();
+#endif // LINUX_BUILD
+
 	} else {
 		if (strlen(options->logdir) > 0 && options->daemon) {
 
 			remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
 		}
 
+#ifdef LINUX_BUILD
 		probe_scheduler_start(&status);
+#endif // LINUX_BUILD
 		sender_start(&vmsl, options);
+
+#ifdef LINUX_BUILD
 		probe_scheduler_stop();
+#endif // LINUX_BUILD
 	}
 
 	logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
