@@ -46,6 +46,10 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	gru_timestamp_t start = gru_time_now();
 
 	register uint64_t sent = 0;
+
+	/*
+	 * Stores the number of sent messages if and only if throttle is enabled
+	 */
 	register uint64_t round = 0;
 	time_t last_calc = 0;
 
@@ -72,6 +76,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 			round++;
 			if (round == options->throttle) {
 				usleep(1000000 - last.tv_usec);
+				round = 0;
 			}
 		}
 	}
