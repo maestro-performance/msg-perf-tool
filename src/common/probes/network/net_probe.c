@@ -150,6 +150,10 @@ int net_collect(gru_status_t *status) {
 
 		fprintf(report, "%ld;%ld\n", tx_rate, rx_rate);
 		fflush(report);
+
+		last_tx_data = curr_tx_data;
+		last_rx_data = curr_rx_data;
+		
 		sleep(1);
 	}
 
