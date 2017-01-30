@@ -187,7 +187,7 @@ function run_by_duration() {
   # for the program to finish and flush data
 
   echo "Sleeping for ${DURATION}15s"
-  sleep "${DURATION}15s"
+  sleep "${DURATION}" 15s
 }
 
 
