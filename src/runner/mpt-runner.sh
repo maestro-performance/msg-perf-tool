@@ -153,13 +153,14 @@ else
 		producer_count_config=$(cat $CONFIG_TEST | grep -i producer_count | sed 's/ //g')
 
 		eval $duration_config
-		eval $producer_count
+		eval $producer_count_config
 
 		export DURATION=$test_duration
 		export PARALLEL_COUNT=$producer_count
 	fi
 fi
 
+echo "Parallel count = ${PARALLEL_COUNT}"
 if [[ -z "$PARALLEL_COUNT" ]] ; then
 	echo -e "Parallel count must be passed as a command-line argument (-p) or set in the test configuration file\n"
 	echo -e ${HELP}
