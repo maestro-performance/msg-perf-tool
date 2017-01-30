@@ -1,7 +1,6 @@
 #!/bin/bash
 
 export MESSAGE_SIZE=1024
-export SSH_OPTS=""
 export THROTTLE=0
 
 app_path=`dirname $0`
