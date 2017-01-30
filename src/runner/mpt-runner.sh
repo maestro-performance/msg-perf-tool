@@ -310,6 +310,30 @@ if [[ ! -z "$LOADER_CONFIG" ]] ; then
 	  	--msg-direction receiver \
 	  	--filename ${file}
 	done
+
+  for file in $LOG_DIR/network-statistics-*.csv ; do
+	  echo "Loading file: ${file}"
+	  ${app_path}/mpt-loader.py --load network \
+	    --config "${LOADER_CONFIG}" \
+	    --config-test "${CONFIG_TEST}" \
+	    --test-start-time "${start_time}" \
+	    --quiet \
+	    --test-run "${TEST_RUN}" \
+	  	--msg-direction receiver \
+	  	--filename ${file}
+	done
+
+  for file in $LOG_DIR/broker-jvm-statistics-*.csv ; do
+	  echo "Loading file: ${file}"
+	  ${app_path}/mpt-loader.py --load java \
+	    --config "${LOADER_CONFIG}" \
+	    --config-test "${CONFIG_TEST}" \
+	    --test-start-time "${start_time}" \
+	    --quiet \
+	    --test-run "${TEST_RUN}" \
+	  	--msg-direction receiver \
+	  	--filename ${file}
+	done
 else
 	echo "Loader config was not informed, therefore skipping loading test data"
 fi
