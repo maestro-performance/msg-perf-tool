@@ -1,5 +1,3 @@
-set(RUNTIME_DIR "bin")
-
 add_executable(
 	mpt-receiver
 	receiver_main.c
