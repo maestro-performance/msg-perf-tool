@@ -178,29 +178,29 @@ fi
 
 function run_by_duration() {
   echo "Lauching the receiver"
-  export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT --duration=$DURATION -p $PARALLEL_COUNT --logdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
+  export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT --duration=$DURATION -p $PARALLEL_COUNT --log-dir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
 
   echo "Lauching the sender"
-  export pid_sender=`${app_path}/mpt-sender -b $BROKER_URL -t $THROTTLE --log-level=STAT --duration $DURATION -p $PARALLEL_COUNT --logdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
+  export pid_sender=`${app_path}/mpt-sender perf -b $BROKER_URL -t $THROTTLE --log-level=STAT --duration $DURATION -p $PARALLEL_COUNT --log-dir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
 
   # Sleeps for a little longer than the test duration so that it gives some time
   # for the program to finish and flush data
 
-  echo "Sleeping for ${DURATION}m15s"
-  sleep 15s "${DURATION}m"
+  echo "Sleeping for ${DURATION}15s"
+  sleep "${DURATION}15s"
 }
 
 
 function run_by_count() {
   echo "Lauching the receiver "
-  export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT -p $PARALLEL_COUNT --lo-gdir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
+  export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT -p $PARALLEL_COUNT --log-dir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
   if [[ -z "${pid_receiver}" ]] ; then
     echo "Invalid PID for the receiver: ${pid_receiver}"
     exit 1
   fi
 
   echo "Lauching the sender and waiting for it to send ${COUNT} messages"
-  export pid_sender=`${app_path}/mpt-sender -b $BROKER_URL -t $THROTTLE --log-level=STAT --count $COUNT -p $PARALLEL_COUNT --log-dir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
+  export pid_sender=`${app_path}/mpt-sender perf -b $BROKER_URL -t $THROTTLE --log-level=STAT --count $COUNT -p $PARALLEL_COUNT --log-dir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
   if [[ -z "${pid_sender}" ]] ; then
     echo "Invalid PID for the sender: ${pid_sender}"
     exit 1
