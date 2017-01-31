@@ -89,7 +89,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	statistics_destroy(&stat_io);
 
 	uint64_t elapsed = statistics_diff(start, last);
-	double rate = ((double) content_storage.count / elapsed) * 1000;
+	double rate = ((double) content_storage.count / (double) elapsed) * 1000;
 
 	uint64_t total_received = content_storage.count;
 

@@ -120,9 +120,9 @@ uint32_t tune_calc_approximate(perf_stats_t stats, bmic_queue_stat_t qstat,
 
 	uint64_t elapsed = gru_duration_seconds(duration);
 
-	double approximate = (stats.sent - qstat.queue_size) / elapsed;
+	double approximate = ((double) (stats.sent - qstat.queue_size)) / (double) elapsed;
 
-	return trunc(approximate);
+	return (uint32_t) trunc(approximate);
 }
 
 
