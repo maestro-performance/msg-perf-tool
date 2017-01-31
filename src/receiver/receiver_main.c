@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 				gru_logger_set_mininum(options->log_level);
 				break;
 			case 'p':
-				options->parallel_count = atoi(optarg);
+				options->parallel_count = (uint16_t) atoi(optarg);
 				break;
 			case 's':
 				options->message_size = atoll(optarg);
