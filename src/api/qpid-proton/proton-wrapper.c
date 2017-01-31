@@ -140,7 +140,7 @@ void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	msg_ctxt_destroy(&ctxt);
 }
 
-static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker) {
+gru_attr_unused static void proton_check_status(pn_messenger_t *messenger, pn_tracker_t tracker) {
 	logger_t logger = gru_logger_get();
 
 	pn_status_t status = pn_messenger_status(messenger, tracker);
@@ -301,22 +301,6 @@ static void proton_accept(pn_messenger_t *messenger) {
 	proton_check_status(messenger, tracker);
 #endif
 	pn_messenger_accept(messenger, tracker, PN_CUMULATIVE);
-	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
-
-#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
-	proton_check_status(messenger, tracker);
-#endif
-}
-
-static void proton_reject(pn_messenger_t *messenger) {
-	pn_tracker_t tracker = pn_messenger_incoming_tracker(messenger);
-
-	mpt_trace("Accepting the message delivery");
-
-#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
-	proton_check_status(messenger, tracker);
-#endif
-	pn_messenger_reject(messenger, tracker, PN_CUMULATIVE);
 	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
 
 #if defined(MPT_DEBUG) && MPT_DEBUG >= 1
