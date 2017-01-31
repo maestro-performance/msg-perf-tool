@@ -42,7 +42,7 @@ static void *probe_scheduler_run(void *en) {
 
 static void probe_scheduler_launch_probe(const void *nodedata, void *payload) {
 	probe_entry_t *entry = (probe_entry_t *) nodedata;
-	options_t *options = get_options_object();
+	const options_t *options = get_options_object();
 	logger_t logger = gru_logger_get();
 
 	gru_status_t status = gru_status_new();
@@ -105,11 +105,11 @@ bool probe_scheduler_start(gru_status_t *status) {
 		return false;
 	}
 
-	options_t *options = get_options_object();
+	const options_t *options = get_options_object();
 	uint32_t num_mod = gru_list_count(options->probes);
 
 	for (uint32_t i = 0; i < num_mod; i++) {
-		gru_node_t *node = gru_list_get(options->probes, i);
+		const gru_node_t *node = gru_list_get(options->probes, i);
 		char *mod_name = (char *) node->data;
 		char lib[256] = {0};
 		char ename[256] = {0};
@@ -124,6 +124,8 @@ bool probe_scheduler_start(gru_status_t *status) {
 	}
 
 	gru_list_for_each(list, probe_scheduler_launch_probe, NULL);
+
+	return true;
 }
 
 static void probe_scheduler_stop_probe(const void *nodedata, void *payload) {
