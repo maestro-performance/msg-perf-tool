@@ -640,17 +640,19 @@ def load_sender_network_info():
 
     for row in csv_data:
         # Skip the headers
-        if i == 0 and row[0] == "TX":
+        if i == 0 and row[0] == "timestamp":
             continue
 
         if len(row) < 2:
             skipped += 1;
             continue
 
-        tx = int(row[0])
-        rx = int(row[1])
+        ts = row[0]
+        tx = int(row[1])
+        rx = int(row[2])
 
         latency_data = {
+            "ts": ts,
             "sut_name": in_sut_name,
             "sut_version": in_sut_version,
             "rx": rx,
@@ -740,37 +742,39 @@ def load_broker_java_info():
 
     for row in csv_data:
         # Skip the headers
-        if i == 0 and row[0] == "load":
+        if i == 0 and row[0] == "timestamp":
             continue
 
         if len(row) < 2:
             skipped += 1;
             continue
 
-        load = row[0]
-        open_fds = int(row[1])
-        free_fds = int(row[2])
-        free_mem = int(row[3])
-        swap_free = int(row[4])
-        swap_cmm = int(row[5])
-        eden_ini = int(row[6])
-        eden_cmm = int(row[7])
-        eden_max = int(row[8])
-        eden_used = int(row[9])
-        svv_ini = int(row[10])
-        svv_cmm = int(row[11])
-        svv_max = int(row[12])
-        svv_used = int(row[13])
-        tnd_ini = int(row[14])
-        tnd_cmm = int(row[15])
-        tnd_max = int(row[16])
-        tnd_used = int(row[17])
-        pm_ini = int(row[18])
-        pm_cmm = int(row[19])
-        pm_max = int(row[20])
-        pm_used = int(row[21])
+        ts = row[0]
+        load = row[1]
+        open_fds = int(row[2])
+        free_fds = int(row[3])
+        free_mem = int(row[4])
+        swap_free = int(row[5])
+        swap_cmm = int(row[6])
+        eden_ini = int(row[7])
+        eden_cmm = int(row[8])
+        eden_max = int(row[9])
+        eden_used = int(row[10])
+        svv_ini = int(row[11])
+        svv_cmm = int(row[12])
+        svv_max = int(row[13])
+        svv_used = int(row[14])
+        tnd_ini = int(row[15])
+        tnd_cmm = int(row[16])
+        tnd_max = int(row[17])
+        tnd_used = int(row[18])
+        pm_ini = int(row[19])
+        pm_cmm = int(row[20])
+        pm_max = int(row[21])
+        pm_used = int(row[22])
 
         latency_data = {
+            "ts": ts,
             "sut_name": in_sut_name,
             "sut_version": in_sut_version,
             "test_id": test_id,

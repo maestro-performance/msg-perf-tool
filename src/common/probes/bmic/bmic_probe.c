@@ -66,7 +66,7 @@ bool bmic_init(const options_t *options, gru_status_t *status) {
 		return false;
 	}
 
-	fprintf(report, "load;open fds;free fds;free mem;swap free;swap committed;");
+	fprintf(report, "timestamp;load;open fds;free fds;free mem;swap free;swap committed;");
 	fprintf(report, "eden inital;eden committed;eden max;eden used;");
 	fprintf(report, "survivor inital;survivor committed;survivor max;survivor used;");
 	fprintf(report, "tenured inital;tenured committed;tenured max;tenured used;");
@@ -102,7 +102,7 @@ int bmic_collect(gru_status_t *status) {
 			permgen = api->java.permgen_info(ctxt.handle, status);
 		}
 
-		fprintf(report,"%.1f;", osinfo.load_average);
+		fprintf(report,"%"PRIu64";%.1f;", gru_time_now_milli(), osinfo.load_average);
 		fprintf(report, "%" PRId64";%" PRId64 ";", 	osinfo.open_fd, 
 			(osinfo.max_fd - osinfo.open_fd));
 		fprintf(report, "%" PRId64 ";", as_mb(osinfo.mem_free));
