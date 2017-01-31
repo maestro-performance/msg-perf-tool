@@ -131,6 +131,7 @@ static struct paho_perf_pl paho_serialize_content(msg_content_data_t msg_content
 
 	asprintf(&ret.data, "%18s%s", formatted_ts, (char *) msg_content.data);
 	ret.size = 18 + msg_content.size;
+	gru_dealloc_string(&formatted_ts);
 	return ret;
 }
 
