@@ -599,6 +599,7 @@ def load_sender_network_info():
     in_sut_version = read_param("sut", "sut_version")
     in_test_run = read_param("test", "test_run")
     in_start_time = in_opts["test_start_time"]
+    in_msg_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters()
     if param_check != 0:
@@ -655,7 +656,7 @@ def load_sender_network_info():
             "rx": rx,
             "tx": tx,
             "test_id": test_id,
-            "test_direction": "sender"
+            "test_direction": in_msg_direction
         }
 
         json.dump(action_data, bulk_json)
@@ -698,6 +699,7 @@ def load_broker_java_info():
     in_sut_version = read_param("sut", "sut_version")
     in_test_run = read_param("test", "test_run")
     in_start_time = in_opts["test_start_time"]
+    in_msg_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters()
     if param_check != 0:
@@ -772,7 +774,7 @@ def load_broker_java_info():
             "sut_name": in_sut_name,
             "sut_version": in_sut_version,
             "test_id": test_id,
-            "test_direction": "sender",
+            "test_direction": in_msg_direction,
             "load": load,
             "open_fds": open_fds,
             "free_fds": free_fds,
@@ -877,7 +879,7 @@ def main():
             if in_direction == "sender" and in_load == "network":
                 return load_sender_network_info()
 
-            if in_direction == "sender" and in_load == "java":
+            if in_direction == "receiver" and in_load == "java":
                 return load_broker_java_info()
 
 

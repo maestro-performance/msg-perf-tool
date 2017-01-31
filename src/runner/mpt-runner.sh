@@ -321,7 +321,7 @@ if [[ ! -z "$LOADER_CONFIG" ]] ; then
 	    --test-start-time "${start_time}" \
 	    --quiet \
 	    --test-run "${TEST_RUN}" \
-	  	--msg-direction receiver \
+	  	--msg-direction sender \
 	  	--filename ${file}
 	done
 
