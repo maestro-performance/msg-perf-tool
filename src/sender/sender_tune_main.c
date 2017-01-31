@@ -124,7 +124,6 @@ int tune_main(int argc, char **argv) {
 
 	logger(INFO, "Tune execution terminated successfully");
 
-success_exit:
 	options_destroy(&options);
 	return EXIT_SUCCESS;
 
