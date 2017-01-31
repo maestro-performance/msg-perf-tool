@@ -33,10 +33,10 @@ probe_entry_t *net_entry(gru_status_t *status) {
 	return ret;
 }
 
-static char *net_get_filename(const char *device, const char *what, gru_status_t *status) {
+static char *net_get_filename(const char *devname, const char *what, gru_status_t *status) {
 	char *ret = NULL;
 	
-	if (asprintf(&ret,  "/sys/class/net/%s/statistics/%s", device, what) == -1) {
+	if (asprintf(&ret,  "/sys/class/net/%s/statistics/%s", devname, what) == -1) {
 		gru_status_set(status, GRU_FAILURE, "Not enough memory");
 
 		return NULL;
@@ -46,8 +46,8 @@ static char *net_get_filename(const char *device, const char *what, gru_status_t
 	return ret;
 }
 
-static FILE *net_open_tx_file(const char *device, gru_status_t *status) {
-	char *path = net_get_filename(device, "tx_bytes", status); 
+static FILE *net_open_tx_file(const char *devname, gru_status_t *status) {
+	char *path = net_get_filename(devname, "tx_bytes", status); 
 	
 	if (gru_status_error(status)) {
 		return NULL;
@@ -63,8 +63,8 @@ static FILE *net_open_tx_file(const char *device, gru_status_t *status) {
 	return tx_file;
 }
 
-static FILE *net_open_rx_file(const char *device, gru_status_t *status) {
-	char *path = net_get_filename(device, "rx_bytes", status);
+static FILE *net_open_rx_file(const char *devname, gru_status_t *status) {
+	char *path = net_get_filename(devname, "rx_bytes", status);
 
 	if (gru_status_error(status)) {
 		return NULL;
@@ -88,11 +88,11 @@ bool net_init(const options_t *options, gru_status_t *status) {
 
 	logger(INFO, "Reading device %s", device);
 
-	char name[64] = {0};
+	char filename[64] = {0};
 
-	snprintf(name, sizeof(name) - 1, "network-statistics-%d.csv", getpid());
+	snprintf(filename, sizeof(filename) - 1, "network-statistics-%d.csv", getpid());
 
-	report = gru_io_open_file(options->logdir, name, status);
+	report = gru_io_open_file(options->logdir, filename, status);
 
 	if (!report) {
 		return false;

@@ -51,11 +51,11 @@ bool bmic_init(const options_t *options, gru_status_t *status) {
 
 	logger(DEBUG, "Creating report file");
 
-	char name[64] = {0};
+	char filename[64] = {0};
 
-	snprintf(name, sizeof(name) - 1, "broker-jvm-statistics-%d.csv", getpid());
+	snprintf(filename, sizeof(filename) - 1, "broker-jvm-statistics-%d.csv", getpid());
 
-	report = gru_io_open_file(options->logdir, name, status);
+	report = gru_io_open_file(options->logdir, filename, status);
 
 	if (!report) {
 		return false;
