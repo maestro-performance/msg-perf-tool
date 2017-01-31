@@ -98,7 +98,7 @@ bool net_init(const options_t *options, gru_status_t *status) {
 		return false;
 	}
 
-	fprintf(report, "timestamp,tx;rx\n");
+	fprintf(report, "timestamp;tx;rx\n");
 
 	return true;
 }
@@ -148,7 +148,7 @@ int net_collect(gru_status_t *status) {
 		uint64_t tx_rate = curr_tx_data - last_tx_data;
 		uint64_t rx_rate = curr_rx_data - last_rx_data;
 
-		fprintf(report, "%"PRIu64"%ld;%ld\n", gru_time_now_milli(), tx_rate, rx_rate);
+		fprintf(report, "%"PRIu64";%ld;%ld\n", gru_time_now_milli(), tx_rate, rx_rate);
 		fflush(report);
 
 		last_tx_data = curr_tx_data;
