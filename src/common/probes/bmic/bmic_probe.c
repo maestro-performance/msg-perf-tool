@@ -77,7 +77,7 @@ bool bmic_init(const options_t *options, gru_status_t *status) {
 
 
 int bmic_collect(gru_status_t *status) {
-	options_t *options = get_options_object();
+	const options_t *options = get_options_object();
 
 	bmic_api_interface_t *api = ctxt.api;
 	bmic_java_info_t jinfo = api->java.java_info(ctxt.handle, status);
