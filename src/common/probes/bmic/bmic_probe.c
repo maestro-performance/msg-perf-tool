@@ -80,7 +80,7 @@ int bmic_collect(gru_status_t *status) {
 	options_t *options = get_options_object();
 
 	bmic_api_interface_t *api = ctxt.api;
-	bmic_java_info_t jinfo = api->java.java_info(ctxt.handle, &status);
+	bmic_java_info_t jinfo = api->java.java_info(ctxt.handle, status);
 	while (true) { 
 		bmic_queue_stat_t qstats = {0};
 		mpt_get_queue_stats(&ctxt, &options->uri.path[1], &qstats, status);
