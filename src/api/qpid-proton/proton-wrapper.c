@@ -348,9 +348,9 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 }
 
 static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status) {
-	int limit = window * 10;
+	const int limit = 1024;
 	mpt_trace("Receiving at most %i messages", limit);
-	pn_messenger_recv(messenger, 1024);
+	pn_messenger_recv(messenger, limit);
 	if (failed(messenger)) {
 		pn_error_t *error = pn_messenger_error(messenger);
 
