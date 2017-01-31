@@ -89,7 +89,7 @@ void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	statistics_destroy(&stat_io);
 
 	uint64_t elapsed = statistics_diff(start, last);
-	double rate = ((double) sent / elapsed) * 1000;
+	double rate = ((double) sent / (double) elapsed) * 1000;
 
 	logger(STAT,
 		"summary;sent;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
