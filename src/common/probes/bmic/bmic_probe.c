@@ -109,6 +109,8 @@ int bmic_collect(gru_status_t *status) {
 		struct tm *creation_tm = localtime_r(&now.tv_sec, &result);
 
 		if (!creation_tm) {
+			logger_t logger = gru_logger_get();
+			
 			logger(ERROR, "Unable to calculate current localtime");
 
 			return 1;
