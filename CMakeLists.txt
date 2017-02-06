@@ -30,9 +30,17 @@ SET(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
 SET(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
 SET(MQTT_SUPPORT OFF CACHE BOOL "Enable MQTT 3.x support")
 
-include_directories(${GRU_INCLUDE_DIR} ${JSON_INCLUDE_DIR} ${BMIC_INCLUDE_DIR})
-link_libraries(${MATH_LIB} ${GRU_LIB} ${BMIC_BASE_LIB} ${BMIC_MANAGEMENT_LIB} ${BMIC_PRODUCT_LIB})
+include_directories(${GRU_INCLUDE_DIR} 
+    ${JSON_INCLUDE_DIR} 
+    ${BMIC_INCLUDE_DIR} 
+    ${URIPARSER_INCLUDE_DIR})
 
+link_libraries(${MATH_LIB} 
+    ${GRU_LIB} 
+    ${BMIC_BASE_LIB} 
+    ${BMIC_MANAGEMENT_LIB} 
+    ${BMIC_PRODUCT_LIB} 
+    ${URIPARSER_LIB})
 
 include_directories(src/common)
 add_subdirectory(src/common objs/common)

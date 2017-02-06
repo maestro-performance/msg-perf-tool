@@ -50,3 +50,10 @@ message(STATUS "BMIC headers found at ${BMIC_INCLUDE_DIR}")
 message(STATUS "BMIC base library found at ${BMIC_BASE_LIB}")
 message(STATUS "BMIC management library found at ${BMIC_MANAGEMENT_LIB}")
 message(STATUS "BMIC product library found at ${BMIC_PRODUCT_LIB}")
+
+find_path(URIPARSER_INCLUDE_DIR uriparser/Uri.h)
+find_library(URIPARSER_LIB NAMES uriparser liburiparser)
+
+message(STATUS "URIParser found on ${URIPARSER_INCLUDE_DIR}")
+message(STATUS "URIParser library found at ${URIPARSER_LIB}")
+
