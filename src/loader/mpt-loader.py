@@ -35,7 +35,7 @@ datefmt_iso = '%Y-%m-%d %H:%M:%S,'
 console_formatter = logging.Formatter(fmt_console, datefmt=datefmt_iso)
 
 console_handler = logging.StreamHandler()  # Python 2.6
-console_handler.setLevel(logging.ERROR)  # setting console level
+console_handler.setLevel(logging.DEBUG)  # setting console level
 console_handler.setFormatter(console_formatter)
 
 logging.getLogger().addHandler(console_handler)
@@ -591,6 +591,27 @@ def load_test_info():
 
     return 0
 
+def configure_network_mapping(session=None):
+    base_url = read_param("database", "url")
+    in_sut_key = read_param("sut", "sut_key")
+
+    in_start_time = in_opts["test_start_time"]
+    index_time = in_start_time.split()[0]
+
+    answer = call_service_for_check(("%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
+    if answer.status_code == 404:
+        req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
+        request_json = '{ "mappings": { "sender-network": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } } } }'
+    else:
+        req_url = "%s/%s-%s/_mapping/sender-network" % (base_url, in_sut_key, index_time)
+        request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } }'
+
+    is_update = in_opts["update"]
+    ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
+    if ret != 0:
+        logger.error("Unable to configure the mappings for network")
+
+
 def load_sender_network_info():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
@@ -619,7 +640,7 @@ def load_sender_network_info():
     datafile = open(in_file_name, 'rb')
     num_lines = (count_lines(datafile) - 1)
 
-    # configure_latency_mapping(session=session)
+    configure_network_mapping(session=session)
 
     logger.info("There are %d lines to read" % (num_lines))
     csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
@@ -673,6 +694,7 @@ def load_sender_network_info():
             if not quiet:
                 sys.stdout.write("Bulk uploading sender network data (%d records out of %d)\r" % (i, num_lines))
 
+            logger.info("JSON: %s" % (bulk_json.getvalue()))
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
@@ -692,6 +714,26 @@ def load_sender_network_info():
     configure_cache(session=session)
     return 0
 
+
+def configure_broker_java_mapping(session=None):
+    base_url = read_param("database", "url")
+    in_sut_key = read_param("sut", "sut_key")
+
+    in_start_time = in_opts["test_start_time"]
+    index_time = in_start_time.split()[0]
+
+    answer = call_service_for_check(("%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
+    if answer.status_code == 404:
+        req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
+        request_json = '{ "mappings": { "broker-java": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
+    else:
+        req_url = "%s/%s-%s/_mapping/broker-java" % (base_url, in_sut_key, index_time)
+        request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
+
+    is_update = in_opts["update"]
+    ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
+    if ret != 0:
+        logger.error("Unable to configure the mappings for network")
 
 def load_broker_java_info():
     base_url = read_param("database", "url")
@@ -721,7 +763,7 @@ def load_broker_java_info():
     datafile = open(in_file_name, 'rb')
     num_lines = (count_lines(datafile) - 1)
 
-    # configure_latency_mapping(session=session)
+    configure_broker_java_mapping(session=session)
 
     logger.info("There are %d lines to read" % (num_lines))
     csv_data = csv.reader(datafile, delimiter=';', quotechar='|')

@@ -102,7 +102,22 @@ int bmic_collect(gru_status_t *status) {
 			permgen = api->java.permgen_info(ctxt.handle, status);
 		}
 
-		fprintf(report,"%"PRIu64";%.1f;", gru_time_now_milli(), osinfo.load_average);
+		char tm_creation_buff[64] = {0};
+		gru_timestamp_t now = gru_time_now();
+
+		struct tm result;
+		struct tm *creation_tm = localtime_r(&now.tv_sec, &result);
+
+		if (!creation_tm) {
+			logger(ERROR, "Unable to calculate current localtime");
+
+			return 1;
+		}
+
+		strftime(tm_creation_buff, sizeof(tm_creation_buff), "%Y-%m-%d %H:%M:%S", 
+			creation_tm);
+
+		fprintf(report,"%s;%.1f;", tm_creation_buff, osinfo.load_average);
 		fprintf(report, "%" PRId64";%" PRId64 ";", 	osinfo.open_fd, 
 			(osinfo.max_fd - osinfo.open_fd));
 		fprintf(report, "%" PRId64 ";", as_mb(osinfo.mem_free));
