@@ -255,7 +255,7 @@ cat /dev/null > ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "TEST_RUN=${TEST_RUN}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "TEST_NAME=${TEST_NAME}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
-echo "START_TIME=${start_time}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+echo "START_TIME=\"${start_time}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
 if [[ ! -z "${DURATION}" ]] ; then
   export REAL_DURATION=${DURATION}
@@ -278,7 +278,7 @@ fi
 
 end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
-echo "END_TIME=${end_time}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+echo "END_TIME=\"${end_time}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
 
 if [[ ! -z "${LOADER_CONFIG}" ]] ; then
