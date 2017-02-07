@@ -131,8 +131,8 @@ if [[ -z "${LOG_DIR}" ]] ; then
 fi
 
 if [[ -z "${CONFIG_TEST}" ]] ; then
-	if [[ -z "$DURATION" ]] ; then
-	  if [[ -z "$COUNT" ]] ; then
+	if [[ -z "${DURATION}" ]] ; then
+	  if [[ -z "${COUNT}" ]] ; then
 	    echo -e "Either the test duration or the message count should be informed (-d or -c)\n"
 	    echo -e ${HELP}
 	    exit 1
@@ -186,10 +186,10 @@ fi
 
 function run_by_duration() {
   echo "Lauching the receiver"
-  export pid_receiver=`${app_path}/mpt-receiver -b ${BROKER_URL} --log-level=STAT --duration=$DURATION -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
+  export pid_receiver=`${app_path}/mpt-receiver -b ${BROKER_URL} --log-level=STAT --duration=${DURATION} -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
 
   echo "Lauching the sender"
-  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t $THROTTLE --log-level=STAT --duration $DURATION -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
+  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t ${THROTTLE} --log-level=STAT --duration ${DURATION} -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
 
 
   # Sleeps for a little longer than the test duration so that it gives some time
@@ -209,7 +209,7 @@ function run_by_count() {
   fi
 
   echo "Lauching the sender and waiting for it to send ${COUNT} messages"
-  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t $THROTTLE --log-level=STAT --count $COUNT -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
+  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t ${THROTTLE} --log-level=STAT --count ${COUNT} -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
   if [[ -z "${pid_sender}" ]] ; then
     echo "Invalid PID for the sender: ${pid_sender}"
     exit 1
