@@ -186,10 +186,10 @@ fi
 
 function run_by_duration() {
   echo "Lauching the receiver"
-  export pid_receiver=`${app_path}/mpt-receiver -b ${BROKER_URL} --log-level=STAT --duration=$DURATION -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR} -s ${MESSAGE_SIZE} --daemon`
+  export pid_receiver=`${app_path}/mpt-receiver -b ${BROKER_URL} --log-level=STAT --duration=$DURATION -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
 
   echo "Lauching the sender"
-  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t $THROTTLE --log-level=STAT --duration $DURATION -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR} -s ${MESSAGE_SIZE} --daemon`
+  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t $THROTTLE --log-level=STAT --duration $DURATION -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
 
 
   # Sleeps for a little longer than the test duration so that it gives some time
