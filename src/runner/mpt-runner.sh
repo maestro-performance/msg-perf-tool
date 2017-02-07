@@ -167,7 +167,16 @@ if [[ -z "$PARALLEL_COUNT" ]] ; then
 	exit 1
 fi
 
-[[ ! -d $LOG_DIR ]] && mkdir -p $LOG_DIR
+if [[ -d $LOG_DIR/$TEST_RUN ]] ; then
+  has_files=$(ls -1 $LOG_DIR/$TEST_RUN | wc -l)
+  if [[ $has_files -ne 0 ]] ; then
+    echo "Aborting test execution because test data for run ID $TEST_RUN already exist"
+    exit 1
+  fi
+else
+  echo "Creating test log directory $LOG_DIR/$TEST_RUN"
+  mkdir -p $LOG_DIR/$TEST_RUN
+fi
 
 echo "Broker URL: $BROKER_URL"
 if [[ -z THROTTLE="$1" ]] ; then
@@ -239,17 +248,6 @@ function run_by_count() {
   done
   echo ""
 }
-
-
-if [[ -d $LOG_DIR/$TEST_RUN ]] ; then
-  has_files=$(ls -1 $LOG_DIR/$TEST_RUN | wc -l)
-  if [[ $has_files -ne 0 ]] ; then
-    echo "Aborting test execution because test data for run ID $TEST_RUN already exist"
-    exit 1
-  fi
-else
-  mkdir -p $LOG_DIR/$TEST_RUN
-fi
 
 start_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test start time: ${start_time}"
