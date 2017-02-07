@@ -35,7 +35,7 @@ datefmt_iso = '%Y-%m-%d %H:%M:%S,'
 console_formatter = logging.Formatter(fmt_console, datefmt=datefmt_iso)
 
 console_handler = logging.StreamHandler()  # Python 2.6
-console_handler.setLevel(logging.DEBUG)  # setting console level
+console_handler.setLevel(logging.ERROR)  # setting console level
 console_handler.setFormatter(console_formatter)
 
 logging.getLogger().addHandler(console_handler)
@@ -694,7 +694,6 @@ def load_sender_network_info():
             if not quiet:
                 sys.stdout.write("Bulk uploading sender network data (%d records out of %d)\r" % (i, num_lines))
 
-            logger.info("JSON: %s" % (bulk_json.getvalue()))
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
 
             bulk_json.truncate(0)
