@@ -114,7 +114,7 @@ function stop_test() {
 # job is aborted, we release the allocated nodes
 trap stop_test SIGINT SIGTERM
 
-if [[ -z "$BROKER_URL" ]] ; then
+if [[ -z "${BROKER_URL}" ]] ; then
 	echo -e "Broker is a required option (-b)\n"
 	echo -e ${HELP}
 	exit 1
@@ -124,13 +124,13 @@ if [[ -z "$LOADER_CONFIG" ]] ; then
   echo -e "The loader configuration was not informed, therefore performance test data won't be loaded to the DB (CLI option -C)\n"
 fi
 
-if [[ -z "$LOG_DIR" ]] ; then
+if [[ -z "${LOG_DIR}" ]] ; then
 	echo -e "Log dir is a required option (-l)\n"
 	echo -e ${HELP}
 	exit 1
 fi
 
-if [[ -z "$CONFIG_TEST" ]] ; then
+if [[ -z "${CONFIG_TEST}" ]] ; then
 	if [[ -z "$DURATION" ]] ; then
 	  if [[ -z "$COUNT" ]] ; then
 	    echo -e "Either the test duration or the message count should be informed (-d or -c)\n"
@@ -139,18 +139,18 @@ if [[ -z "$CONFIG_TEST" ]] ; then
 	  fi
 	fi
 else
-	if [[ ! -f "$CONFIG_TEST" ]] ; then
+	if [[ ! -f "${CONFIG_TEST}" ]] ; then
 		echo "The configuration file ${CONFIG_TEST} does not exist"
 		exit 1
 	else
-		if [[ -z "$TEST_RUN" ]] ; then
+		if [[ -z "${TEST_RUN}" ]] ; then
 			echo -e "Test run is a required option when loading data to the DB(-R)\n"
 			echo -e ${HELP}
 			exit 1
 		fi
 
-		duration_config=$(cat $CONFIG_TEST | grep -i test_duration | sed 's/ //g')
-		producer_count_config=$(cat $CONFIG_TEST | grep -i producer_count | sed 's/ //g')
+		duration_config=$(cat ${CONFIG_TEST} | grep -i test_duration | sed 's/ //g')
+		producer_count_config=$(cat ${CONFIG_TEST} | grep -i producer_count | sed 's/ //g')
 
 		eval $duration_config
 		eval $producer_count_config
@@ -160,25 +160,24 @@ else
 	fi
 fi
 
-echo "Parallel count = ${PARALLEL_COUNT}"
-if [[ -z "$PARALLEL_COUNT" ]] ; then
+if [[ -z "${PARALLEL_COUNT}" ]] ; then
 	echo -e "Parallel count must be passed as a command-line argument (-p) or set in the test configuration file\n"
 	echo -e ${HELP}
 	exit 1
 fi
 
-if [[ -d $LOG_DIR/$TEST_RUN ]] ; then
-  has_files=$(ls -1 $LOG_DIR/$TEST_RUN | wc -l)
+if [[ -d ${LOG_DIR}/${TEST_RUN} ]] ; then
+  has_files=$(ls -1 ${LOG_DIR}/${TEST_RUN} | wc -l)
   if [[ $has_files -ne 0 ]] ; then
-    echo "Aborting test execution because test data for run ID $TEST_RUN already exist"
+    echo "Aborting test execution because test data for run ID ${TEST_RUN} already exist"
     exit 1
   fi
 else
-  echo "Creating test log directory $LOG_DIR/$TEST_RUN"
-  mkdir -p $LOG_DIR/$TEST_RUN
+  echo "Creating test log directory ${LOG_DIR}/${TEST_RUN}"
+  mkdir -p ${LOG_DIR}/${TEST_RUN}
 fi
 
-echo "Broker URL: $BROKER_URL"
+echo "Broker URL: ${BROKER_URL}"
 if [[ -z THROTTLE="$1" ]] ; then
   export THROTTLE="0"
 else
@@ -187,10 +186,10 @@ fi
 
 function run_by_duration() {
   echo "Lauching the receiver"
-  export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT --duration=$DURATION -p $PARALLEL_COUNT --log-dir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
+  export pid_receiver=`${app_path}/mpt-receiver -b ${BROKER_URL} --log-level=STAT --duration=$DURATION -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR} -s ${MESSAGE_SIZE} --daemon`
 
   echo "Lauching the sender"
-  export pid_sender=`${app_path}/mpt-sender perf -b $BROKER_URL -t $THROTTLE --log-level=STAT --duration $DURATION -p $PARALLEL_COUNT --log-dir=$LOG_DIR -s $MESSAGE_SIZE --daemon`
+  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t $THROTTLE --log-level=STAT --duration $DURATION -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR} -s ${MESSAGE_SIZE} --daemon`
 
 
   # Sleeps for a little longer than the test duration so that it gives some time
@@ -203,14 +202,14 @@ function run_by_duration() {
 
 function run_by_count() {
   echo "Lauching the receiver "
-  export pid_receiver=`${app_path}/mpt-receiver -b $BROKER_URL --log-level=STAT -p $PARALLEL_COUNT --log-dir=$LOG_DIR/$TEST_RUN -s $MESSAGE_SIZE --daemon`
+  export pid_receiver=`${app_path}/mpt-receiver -b ${BROKER_URL} --log-level=STAT -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
   if [[ -z "${pid_receiver}" ]] ; then
     echo "Invalid PID for the receiver: ${pid_receiver}"
     exit 1
   fi
 
   echo "Lauching the sender and waiting for it to send ${COUNT} messages"
-  export pid_sender=`${app_path}/mpt-sender perf -b $BROKER_URL -t $THROTTLE --log-level=STAT --count $COUNT -p $PARALLEL_COUNT --log-dir=$LOG_DIR/$TEST_RUN -s $MESSAGE_SIZE --daemon`
+  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t $THROTTLE --log-level=STAT --count $COUNT -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
   if [[ -z "${pid_sender}" ]] ; then
     echo "Invalid PID for the sender: ${pid_sender}"
     exit 1
@@ -285,7 +284,7 @@ if [[ ! -z "$LOADER_CONFIG" ]] ; then
 		--test-comment "${TEST_NAME} small automated test case" \
 		--test-result-comment "Run ok, no comments"
 
-	for file in $LOG_DIR/$TEST_RUN/sender-throughput-*.csv ; do
+	for file in ${LOG_DIR}/${TEST_RUN}/sender-throughput-*.csv ; do
 	  echo "Loading file: ${file}"
 	  ${app_path}/mpt-loader.py --load throughput \
 	    --config "${LOADER_CONFIG}" \
@@ -297,7 +296,7 @@ if [[ ! -z "$LOADER_CONFIG" ]] ; then
 	  	--filename ${file}
 	done
 
-	for file in $LOG_DIR/$TEST_RUN/receiver-throughput-*.csv ; do
+	for file in ${LOG_DIR}/${TEST_RUN}/receiver-throughput-*.csv ; do
 	  echo "Loading file: ${file}"
 	  ${app_path}/mpt-loader.py --load throughput \
 	    --config "${LOADER_CONFIG}" \
@@ -309,7 +308,7 @@ if [[ ! -z "$LOADER_CONFIG" ]] ; then
 	  	--filename ${file}
 	done
 
-	for file in $LOG_DIR/$TEST_RUN/receiver-latency-*.csv ; do
+	for file in ${LOG_DIR}/${TEST_RUN}/receiver-latency-*.csv ; do
 	  echo "Loading file: ${file}"
 	  ${app_path}/mpt-loader.py --load latency \
 	    --config "${LOADER_CONFIG}" \
@@ -321,7 +320,7 @@ if [[ ! -z "$LOADER_CONFIG" ]] ; then
 	  	--filename ${file}
 	done
 
-  for file in $LOG_DIR/$TEST_RUN/network-statistics-*.csv ; do
+  for file in ${LOG_DIR}/${TEST_RUN}/network-statistics-*.csv ; do
 	  echo "Loading file: ${file}"
 	  ${app_path}/mpt-loader.py --load network \
 	    --config "${LOADER_CONFIG}" \
@@ -333,7 +332,7 @@ if [[ ! -z "$LOADER_CONFIG" ]] ; then
 	  	--filename ${file}
 	done
 
-  for file in $LOG_DIR/$TEST_RUN/broker-jvm-statistics-*.csv ; do
+  for file in ${LOG_DIR}/${TEST_RUN}/broker-jvm-statistics-*.csv ; do
 	  echo "Loading file: ${file}"
 	  ${app_path}/mpt-loader.py --load java \
 	    --config "${LOADER_CONFIG}" \
