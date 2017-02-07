@@ -120,7 +120,7 @@ if [[ -z "${BROKER_URL}" ]] ; then
 	exit 1
 fi
 
-if [[ -z "$LOADER_CONFIG" ]] ; then
+if [[ -z "${LOADER_CONFIG}" ]] ; then
   echo -e "The loader configuration was not informed, therefore performance test data won't be loaded to the DB (CLI option -C)\n"
 fi
 
@@ -250,12 +250,24 @@ function run_by_count() {
 
 start_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test start time: ${start_time}"
-if [[ ! -z "$DURATION" ]] ; then
+
+cat /dev/null > ${LOG_DIR}/${TEST_RUN}/replay.conf
+echo "TEST_RUN=${TEST_RUN}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+echo "TEST_NAME=${TEST_NAME}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+
+echo "START_TIME=${start_time}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+
+if [[ ! -z "${DURATION}" ]] ; then
+  export REAL_DURATION=${DURATION}
+  echo "REAL_DURATION=${REAL_DURATION}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
   run_by_duration
+  
   echo ""
 else
 
-  if [[ ! -z "$COUNT" ]] ; then
+  if [[ ! -z "${COUNT}" ]] ; then
+    export REAL_DURATION=${COUNT}
+    echo "REAL_DURATION=${REAL_DURATION}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf  
     run_by_count
     echo ""
   else
@@ -263,11 +275,13 @@ else
     exit 1
   fi
 fi
+
 end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
+echo "END_TIME=${end_time}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
 
-if [[ ! -z "$LOADER_CONFIG" ]] ; then
+if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	echo "Registering the SUT on the DB using ${LOADER_CONFIG}"
 	${app_path}/mpt-loader.py --register \
 	  --config "${LOADER_CONFIG}" \
@@ -280,7 +294,7 @@ if [[ ! -z "$LOADER_CONFIG" ]] ; then
 	  --quiet \
 		--test-run "${TEST_RUN}" \
 		--test-start-time "${start_time}" \
-		--test-duration "${DURATION} / ${COUNT}" \
+		--test-duration "${REAL_DURATION}" \
 		--test-comment "${TEST_NAME} small automated test case" \
 		--test-result-comment "Run ok, no comments"
 
