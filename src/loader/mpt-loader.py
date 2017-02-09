@@ -118,6 +118,11 @@ def get_index_name():
     vkey=in_sut_version.replace(".", "").replace("-", "")
     return "%s-%s-%s-%s" % (in_sut_key, vkey, in_test_run, index_time)
 
+def get_cid(filename):
+    parts = filename.replace(".csv", "").split("-")
+
+    return parts[2]
+
 def register():
     base_url = read_param("database", "url")
     in_sut_name = read_param("sut", "sut_name")
@@ -322,6 +327,9 @@ def load_latencies_bulk():
         }
     }
 
+    # Get the client ID (ie.: the PID)
+    cid = get_cid(in_file_name)
+
     quiet = in_opts["quiet"]
     bulk_json = StringIO();
     skipped = 0
@@ -339,6 +347,7 @@ def load_latencies_bulk():
         latency = int(row[1])
 
         latency_data = {
+            "cid": cid,
             "latency": latency,
             "creation": creation,
         }
@@ -409,6 +418,9 @@ def load_throughput_bulk():
         }
     }
 
+    # Get the client ID (ie.: the PID)
+    cid = get_cid(in_file_name)
+
     quiet = in_opts["quiet"]
     bulk_json = StringIO();
 
@@ -430,6 +442,7 @@ def load_throughput_bulk():
 
         throughput_data = {
             "ts": ts,
+            "cid": cid,
             "count": count,
             "duration": duration,
             "rate": rate,
