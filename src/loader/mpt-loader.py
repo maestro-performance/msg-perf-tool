@@ -208,7 +208,7 @@ def configure_throughput_mapping(session=None, direction=None):
         req_url = "%s/%s" % (base_url, index_name)
         request_json = '{ "mappings": { "mpt-%s-throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } } } }' % direction
     else:
-        req_url = "%s/%s/_mapping/mpt-%s-througput" % (base_url, index_name, direction)
+        req_url = "%s/%s/_mapping/mpt-%s-throughput" % (base_url, index_name, direction)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } }'
 
     is_update = in_opts["update"]
