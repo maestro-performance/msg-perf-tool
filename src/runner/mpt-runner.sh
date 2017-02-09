@@ -2,10 +2,11 @@
 
 export MESSAGE_SIZE=1024
 export THROTTLE=0
+export QUIET_OPT=""
 
 app_path=`dirname $0`
 
-ARGS=$(getopt -o l:b:d:c:C:s:p:u:r:o:n:t:T:R:h -n "$0" -- "$@");
+ARGS=$(getopt -o l:b:d:c:C:s:p:qu:r:o:n:t:T:R:h -n "$0" -- "$@");
 eval set -- "$ARGS";
 
 HELP="USAGE: ./$0 [options]\n
@@ -16,6 +17,7 @@ HELP="USAGE: ./$0 [options]\n
 -C 'config'  -- loader configuration\n
 -s 'size'  -- message size (in bytes [default = 1024])\n
 -p 'parallel count'  -- the number of parallel senders and consumers\n
+-q 'quiet'  -- quiet mode\n
 -u 'database url'  -- (optional) a URL for the elastic database that stores the test data\n
 -o 'output directory'  -- output directory for the test report\n
 -n 'test name'  -- test name\n
@@ -61,6 +63,10 @@ while true; do
       export PARALLEL_COUNT="$1"
       shift
     ;;
+    -q)
+      shift
+      export QUIET_OPT="--quiet"
+      exit 0
     -o)
       shift
       export OUTPUT_DIR="$1"
@@ -252,6 +258,7 @@ start_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test start time: ${start_time}"
 
 cat /dev/null > ${LOG_DIR}/${TEST_RUN}/replay.conf
+echo "LOG_DIR=${LOG_DIR}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "TEST_RUN=${TEST_RUN}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "TEST_NAME=${TEST_NAME}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
@@ -280,8 +287,10 @@ end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
 echo "END_TIME=\"${end_time}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
-
 if [[ ! -z "${LOADER_CONFIG}" ]] ; then
+  echo "LOADER_CONFIG=\"${LOADER_CONFIG}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+  echo "CONFIG_TEST=\"${CONFIG_TEST}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+
 	echo "Registering the SUT on the DB using ${LOADER_CONFIG}"
 	${app_path}/mpt-loader.py --register \
 	  --config "${LOADER_CONFIG}" \
@@ -291,7 +300,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	${app_path}/mpt-loader.py --testinfo \
 	  --config "${LOADER_CONFIG}" \
 	  --config-test "${CONFIG_TEST}" \
-	  --quiet \
+	  ${QUIET_OPT} \
 		--test-run "${TEST_RUN}" \
 		--test-start-time "${start_time}" \
 		--test-duration "${REAL_DURATION}" \
@@ -304,7 +313,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
 	    --test-start-time "${start_time}" \
-	    --quiet \
+	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction sender \
 	  	--filename ${file}
@@ -316,7 +325,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
 	    --test-start-time "${start_time}" \
-	    --quiet \
+	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction receiver \
 	  	--filename ${file}
@@ -328,7 +337,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
 	    --test-start-time "${start_time}" \
-	    --quiet \
+	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction receiver \
 	  	--filename ${file}
@@ -340,7 +349,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
 	    --test-start-time "${start_time}" \
-	    --quiet \
+	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction sender \
 	  	--filename ${file}
@@ -352,7 +361,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
 	    --test-start-time "${start_time}" \
-	    --quiet \
+	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction receiver \
 	  	--filename ${file}
