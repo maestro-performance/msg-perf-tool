@@ -254,15 +254,15 @@ function run_by_count() {
   echo ""
 }
 
-start_time=$(date '+%Y-%m-%d %H:%M:%S')
-echo "Test start time: ${start_time}"
+START_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+echo "Test start time: ${START_TIME}"
 
 cat /dev/null > ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "LOG_DIR=${LOG_DIR}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "TEST_RUN=${TEST_RUN}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "TEST_NAME=\"${TEST_NAME}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
-echo "START_TIME=\"${start_time}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+echo "START_TIME=\"${START_TIME}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
 if [[ ! -z "${DURATION}" ]] ; then
   export REAL_DURATION=${DURATION}
@@ -302,7 +302,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	  --config-test "${CONFIG_TEST}" \
 	  ${QUIET_OPT} \
 		--test-run "${TEST_RUN}" \
-		--test-start-time "${start_time}" \
+		--test-start-time "${START_TIME}" \
 		--test-duration "${REAL_DURATION}" \
 		--test-comment "${TEST_NAME} small automated test case" \
 		--test-result-comment "Run ok, no comments"
@@ -312,7 +312,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	  ${app_path}/mpt-loader.py --load throughput \
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
-	    --test-start-time "${start_time}" \
+	    --test-start-time "${START_TIME}" \
 	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction sender \
@@ -324,7 +324,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	  ${app_path}/mpt-loader.py --load throughput \
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
-	    --test-start-time "${start_time}" \
+	    --test-start-time "${START_TIME}" \
 	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction receiver \
@@ -336,7 +336,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	  ${app_path}/mpt-loader.py --load latency \
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
-	    --test-start-time "${start_time}" \
+	    --test-start-time "${START_TIME}" \
 	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction receiver \
@@ -348,7 +348,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	  ${app_path}/mpt-loader.py --load network \
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
-	    --test-start-time "${start_time}" \
+	    --test-start-time "${START_TIME}" \
 	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction sender \
@@ -360,7 +360,7 @@ if [[ ! -z "${LOADER_CONFIG}" ]] ; then
 	  ${app_path}/mpt-loader.py --load java \
 	    --config "${LOADER_CONFIG}" \
 	    --config-test "${CONFIG_TEST}" \
-	    --test-start-time "${start_time}" \
+	    --test-start-time "${START_TIME}" \
 	    ${QUIET_OPT} \
 	    --test-run "${TEST_RUN}" \
 	  	--msg-direction receiver \

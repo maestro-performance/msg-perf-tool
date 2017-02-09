@@ -22,7 +22,7 @@ ${app_path}/mpt-loader.py --testinfo \
   --config-test "${CONFIG_TEST}" \
   --quiet \
   --test-run "${TEST_RUN}" \
-  --test-start-time "${start_time}" \
+  --test-start-time "${START_TIME}" \
   --test-duration "${REAL_DURATION}" \
   --test-comment "${TEST_NAME} small automated test case" \
   --test-result-comment "Run ok, no comments"
@@ -32,7 +32,7 @@ for file in ${LOG_DIR}/${TEST_RUN}/sender-throughput-*.csv ; do
   ${app_path}/mpt-loader.py --load throughput \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
-    --test-start-time "${start_time}" \
+    --test-start-time "${START_TIME}" \
     --quiet \
     --test-run "${TEST_RUN}" \
     --msg-direction sender \
@@ -44,7 +44,7 @@ for file in ${LOG_DIR}/${TEST_RUN}/receiver-throughput-*.csv ; do
   ${app_path}/mpt-loader.py --load throughput \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
-    --test-start-time "${start_time}" \
+    --test-start-time "${START_TIME}" \
     --quiet \
     --test-run "${TEST_RUN}" \
     --msg-direction receiver \
@@ -56,7 +56,7 @@ for file in ${LOG_DIR}/${TEST_RUN}/receiver-latency-*.csv ; do
   ${app_path}/mpt-loader.py --load latency \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
-    --test-start-time "${start_time}" \
+    --test-start-time "${START_TIME}" \
     --quiet \
     --test-run "${TEST_RUN}" \
     --msg-direction receiver \
@@ -68,7 +68,7 @@ for file in ${LOG_DIR}/${TEST_RUN}/network-statistics-*.csv ; do
   ${app_path}/mpt-loader.py --load network \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
-    --test-start-time "${start_time}" \
+    --test-start-time "${START_TIME}" \
     --quiet \
     --test-run "${TEST_RUN}" \
     --msg-direction sender \
@@ -80,7 +80,7 @@ for file in ${LOG_DIR}/${TEST_RUN}/broker-jvm-statistics-*.csv ; do
   ${app_path}/mpt-loader.py --load java \
     --config "${LOADER_CONFIG}" \
     --config-test "${CONFIG_TEST}" \
-    --test-start-time "${start_time}" \
+    --test-start-time "${START_TIME}" \
     --quiet \
     --test-run "${TEST_RUN}" \
     --msg-direction receiver \
