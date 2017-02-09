@@ -64,8 +64,6 @@ def read_param(section, name, default=None):
 
 
 def call_service(req_url, request_json, force_update=False, session=None, is_update=False):
-    logger.debug("Connecting to %s" % (req_url))
-
     headers = {'Content-type': 'application/json'}
 
     username = read_param("database", "username")
@@ -79,9 +77,11 @@ def call_service(req_url, request_json, force_update=False, session=None, is_upd
     logger.debug("Data: %s" % request_json)
 
     if is_update and not force_update:
+        logger.info("Executing HTTP PUT to %s" % (req_url))
         answer = session.put(req_url, headers=headers, data=request_json, verify=False,
                                auth=HTTPBasicAuth(username, password))
     else:
+        logger.info("Executing HTTP POST to %s" % (req_url))
         answer = session.post(req_url, headers=headers, data = request_json, verify=False,
                                auth=HTTPBasicAuth(username, password))
 
@@ -201,7 +201,7 @@ def configure_latency_mapping(session=None):
 
 def configure_throughput_mapping(session=None, direction=None):
     base_url = read_param("database", "url")
-    index_name = get_index_name();
+    index_name = get_index_name()
 
     answer = call_service_for_check(( "%s/%s/_mapping" % (base_url, index_name)), session=session)
     if answer.status_code == 404:
@@ -385,9 +385,9 @@ def load_throughput_bulk():
     if param_check != 0:
         return param_check
 
-    index_name = get_index_name();
+    index_name = get_index_name()
 
-    session = requests.session();
+    session = requests.session()
     ret = call_service_for_check("%s/test/info/%s" % (base_url, index_name), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
