@@ -107,6 +107,16 @@ def call_service_for_check(req_url, session=None):
     answer = session.get(req_url, headers=headers, verify=False, auth=HTTPBasicAuth(username, password))
     return answer
 
+def get_index_name():
+    in_test_run = read_param("test", "test_run")
+    in_start_time = in_opts["test_start_time"]
+    in_sut_key = read_param("sut", "sut_key")
+    in_sut_version = read_param("sut", "sut_version")
+
+    index_time = in_start_time.split()[0]
+
+    vkey=in_sut_version.replace(".", "").replace("-", "")
+    return "%s-%s-%s-%s" % (in_sut_key, vkey, in_test_run, index_time)
 
 def register():
     base_url = read_param("database", "url")
@@ -172,18 +182,16 @@ def configure_cache(session=None):
 
 def configure_latency_mapping(session=None):
     base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
-    in_start_time = in_opts["test_start_time"]
 
-    index_time = in_start_time.split()[0]
+    index_name = get_index_name();
     logger.debug("Configuring latency mapping")
 
-    answer = call_service_for_check(("%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
+    answer = call_service_for_check(("%s/%s/_mapping" % (base_url, index_name)), session=session)
     if answer.status_code == 404:
-        req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
-        request_json = '{ "mappings": { "latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"}, "sut_version": { "type": "string", "index": "not_analyzed"  } } } } }'
+        req_url = "%s/%s" % (base_url, index_name)
+        request_json = '{ "mappings": { "receiver-latency": { "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"}, "sut_version": { "type": "string", "index": "not_analyzed"  } } } } }'
     else:
-        req_url = "%s/%s-%s/_mapping/latency" % (base_url, in_sut_key, index_time)
+        req_url = "%s/%s/_mapping/receiver-latency" % (base_url, index_name)
         request_json = '{ "properties": { "creation": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS"}, "sut_version": { "type": "string", "index": "not_analyzed" } } }'
 
     is_update = in_opts["update"]
@@ -191,19 +199,16 @@ def configure_latency_mapping(session=None):
     if ret != 0:
         logger.error("Unable to configure the mappings for latency")
 
-def configure_throughput_mapping(session=None):
+def configure_throughput_mapping(session=None, direction=None):
     base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
+    index_name = get_index_name();
 
-    in_start_time = in_opts["test_start_time"]
-    index_time = in_start_time.split()[0]
-
-    answer = call_service_for_check(( "%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
+    answer = call_service_for_check(( "%s/%s/_mapping" % (base_url, index_name)), session=session)
     if answer.status_code == 404:
-        req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
-        request_json = '{ "mappings": { "throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } } } }'
+        req_url = "%s/%s" % (base_url, index_name)
+        request_json = '{ "mappings": { "mpt-%s-throughput": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } } } }' % direction
     else:
-        req_url = "%s/%s-%s/_mapping/througput" % (base_url, in_sut_key, index_time)
+        req_url = "%s/%s/_mapping/mpt-%s-througput" % (base_url, index_name, direction)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } }'
 
     is_update = in_opts["update"]
@@ -212,16 +217,10 @@ def configure_throughput_mapping(session=None):
         logger.error("Unable to configure the mappings for throughput")
 
 
-#
-
 
 def configure_testinfo_mapping(session=None):
     base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
-    in_start_time = in_opts["test_start_time"]
-
-    index_time = in_start_time.split()[0]
-    logger.debug("Configuring latency mapping")
+    logger.debug("Configuring test info mapping")
 
     answer = call_service_for_check(("%s/test/info/_mapping" % (base_url)), session=session)
     if answer.status_code == 404:
@@ -294,25 +293,20 @@ def validate_parameters():
 def load_latencies_bulk():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
-    in_test_run = read_param("test", "test_run")
     in_direction = in_opts["msg_direction"]
-    in_start_time = in_opts["test_start_time"]
 
     param_check = validate_parameters()
     if param_check != 0:
         return param_check
 
-    test_id = ("%s_%s" % (in_sut_key, in_test_run))
+    index_name = get_index_name();
 
     session = requests.session();
 
-    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, index_name), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
-                     % test_id)
+                     % index_name)
 
         return 1
 
@@ -325,12 +319,11 @@ def load_latencies_bulk():
     csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
     i = 0;
 
-    index_time = in_start_time.split()[0]
-    req_url = "%s/%s-%s/_bulk" % (base_url, in_sut_key, index_time)
+    req_url = "%s/%s/_bulk" % (base_url, index_name)
 
     action_data = {
         "index": {
-            "_type": "latency"
+            "_type": ("mpt-%s-latency" % in_direction)
         }
     }
 
@@ -351,12 +344,8 @@ def load_latencies_bulk():
         latency = int(row[1])
 
         latency_data = {
-            "sut_name": in_sut_name,
-            "sut_version": in_sut_version,
             "latency": latency,
             "creation": creation,
-            "test_id": test_id,
-            "test_direction": in_direction
         }
 
         json.dump(action_data, bulk_json)
@@ -404,28 +393,27 @@ def load_throughput_bulk():
     if param_check != 0:
         return param_check
 
-    test_id = ("%s_%s" % (in_sut_key, in_test_run))
+    index_name = get_index_name();
 
     session = requests.session();
-    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, index_name), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
-                     % test_id)
+                     % index_name)
 
     datafile = open(in_file_name, 'rb')
     num_lines = (count_lines(datafile) - 1)
 
-    configure_throughput_mapping(session=session)
+    configure_throughput_mapping(session=session, direction=in_msg_direction)
 
     logger.info("There are %d lines to read" % (num_lines))
     csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
 
-    index_time = in_start_time.split()[0]
-    req_url = "%s/%s-%s/_bulk" % (base_url, in_sut_key, index_time)
+    req_url = "%s/%s/_bulk" % (base_url, index_name)
 
     action_data = {
         "index": {
-            "_type": "throughput"
+            "_type": ("mpt-%s-throughput" % in_msg_direction)
         }
     }
 
@@ -449,14 +437,10 @@ def load_throughput_bulk():
         rate = float(row[3])
 
         throughput_data = {
-            "sut_name": in_sut_name,
-            "sut_version": in_sut_version,
             "ts": ts,
             "count": count,
             "duration": duration,
             "rate": rate,
-            "test_id": test_id,
-            "test_direction": in_msg_direction
         }
 
         json.dump(action_data, bulk_json)
@@ -543,24 +527,21 @@ def load_test_info():
 
         return 1
 
-    test_id = ("%s_%s" % (in_sut_key, in_test_run))
-
     configure_testinfo_mapping()
 
-    index_time = in_start_time.split()[0]
-    test_req_url = "%s-%s" % (in_sut_key, index_time)
+    index_name = get_index_name();
 
     ret = call_service_for_check("%s/sut/messaging/_search?q=key:%s" % (base_url, in_sut_key))
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no SUT with the ID %s. Please load that key before recording a test info"
-                     % test_id)
+                     % index_name)
 
-    req_url = "%s/test/info/%s" % (base_url, test_id)
+    req_url = "%s/test/info/%s" % (base_url, index_name)
 
     request_data = {
-        "test_id": test_id,
+        "test_id": index_name,
         "test_run": in_test_run,
-        "test_req_url": test_req_url,
+        "test_req_url": index_name,
         "sut_key": in_sut_key,
         "sut_version": in_sut_version,
         "test_start_time": in_start_time,
@@ -593,17 +574,14 @@ def load_test_info():
 
 def configure_network_mapping(session=None):
     base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
+    index_name = get_index_name();
 
-    in_start_time = in_opts["test_start_time"]
-    index_time = in_start_time.split()[0]
-
-    answer = call_service_for_check(("%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
+    answer = call_service_for_check(("%s/%s/_mapping" % (base_url, index_name)), session=session)
     if answer.status_code == 404:
-        req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
+        req_url = "%s/%s" % (base_url, index_name)
         request_json = '{ "mappings": { "sender-network": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } } } }'
     else:
-        req_url = "%s/%s-%s/_mapping/sender-network" % (base_url, in_sut_key, index_time)
+        req_url = "%s/%s/_mapping/sender-network" % (base_url, index_name)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"}, "sut_version": { "type": "string", "index": "not_analyzed" } } }'
 
     is_update = in_opts["update"]
@@ -615,25 +593,20 @@ def configure_network_mapping(session=None):
 def load_sender_network_info():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
-    in_test_run = read_param("test", "test_run")
-    in_start_time = in_opts["test_start_time"]
     in_msg_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters()
     if param_check != 0:
         return param_check
 
-    test_id = ("%s_%s" % (in_sut_key, in_test_run))
+    index_name = get_index_name();
 
     session = requests.session();
 
-    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, index_name), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
-                     % test_id)
+                     % index_name)
 
         return 1
 
@@ -646,8 +619,7 @@ def load_sender_network_info():
     csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
     i = 0;
 
-    index_time = in_start_time.split()[0]
-    req_url = "%s/%s-%s/_bulk" % (base_url, in_sut_key, index_time)
+    req_url = "%s/%s/_bulk" % (base_url, index_name)
 
     action_data = {
         "index": {
@@ -674,12 +646,8 @@ def load_sender_network_info():
 
         latency_data = {
             "ts": ts,
-            "sut_name": in_sut_name,
-            "sut_version": in_sut_version,
             "rx": rx,
             "tx": tx,
-            "test_id": test_id,
-            "test_direction": in_msg_direction
         }
 
         json.dump(action_data, bulk_json)
@@ -716,17 +684,15 @@ def load_sender_network_info():
 
 def configure_broker_java_mapping(session=None):
     base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
 
-    in_start_time = in_opts["test_start_time"]
-    index_time = in_start_time.split()[0]
+    index_name = get_index_name()
 
-    answer = call_service_for_check(("%s/%s-%s/_mapping" % (base_url, in_sut_key, index_time)), session=session)
+    answer = call_service_for_check(("%s/%s/_mapping" % (base_url, index_name)), session=session)
     if answer.status_code == 404:
-        req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
+        req_url = "%s/%s" % (base_url, index_name)
         request_json = '{ "mappings": { "broker-java": { "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } } } }'
     else:
-        req_url = "%s/%s-%s/_mapping/broker-java" % (base_url, in_sut_key, index_time)
+        req_url = "%s/%s/_mapping/broker-java" % (base_url, index_name)
         request_json = '{ "properties": { "ts": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss"} } }'
 
     is_update = in_opts["update"]
@@ -737,25 +703,19 @@ def configure_broker_java_mapping(session=None):
 def load_broker_java_info():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
-    in_test_run = read_param("test", "test_run")
-    in_start_time = in_opts["test_start_time"]
-    in_msg_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters()
     if param_check != 0:
         return param_check
 
-    test_id = ("%s_%s" % (in_sut_key, in_test_run))
-
     session = requests.session();
 
-    ret = call_service_for_check("%s/test/info/%s" % (base_url, test_id), session=session)
+    index_name = get_index_name()
+
+    ret = call_service_for_check("%s/test/info/%s" % (base_url, index_name), session=session)
     if ret.status_code < 200 or ret.status_code >= 205:
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
-                     % test_id)
+                     % index_name)
 
         return 1
 
@@ -768,8 +728,7 @@ def load_broker_java_info():
     csv_data = csv.reader(datafile, delimiter=';', quotechar='|')
     i = 0;
 
-    index_time = in_start_time.split()[0]
-    req_url = "%s/%s-%s/_bulk" % (base_url, in_sut_key, index_time)
+    req_url = "%s/%s/_bulk" % (base_url, index_name)
 
     action_data = {
         "index": {
@@ -820,10 +779,6 @@ def load_broker_java_info():
 
         sys_data = {
             "ts": ts,
-            "sut_name": in_sut_name,
-            "sut_version": in_sut_version,
-            "test_id": test_id,
-            "test_direction": in_msg_direction,
             "load": load,
             "open_fds": open_fds,
             "free_fds": free_fds,
