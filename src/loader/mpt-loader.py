@@ -121,7 +121,7 @@ def get_index_name():
 def get_cid(filename):
     parts = filename.replace(".csv", "").split("-")
 
-    return parts[2]
+    return parts[-1]
 
 def register():
     base_url = read_param("database", "url")
