@@ -66,7 +66,7 @@ while true; do
     -q)
       shift
       export QUIET_OPT="--quiet"
-      exit 0
+    ;;
     -o)
       shift
       export OUTPUT_DIR="$1"
