@@ -393,6 +393,8 @@ def load_throughput_bulk():
         logger.error("There's no test with the ID %s. Please record that test info before loading data"
                      % index_name)
 
+        return 1
+
     datafile = open(in_file_name, 'rb')
     num_lines = (count_lines(datafile) - 1)
 
