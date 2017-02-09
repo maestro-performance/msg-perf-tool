@@ -22,7 +22,7 @@ static const char *name = "bmic";
 static bmic_context_t ctxt = {0};
 
 static void print_queue_stat(bmic_queue_stat_t stat) {
-	fprintf(report, "%" PRId64 ";%" PRId64 ";%" PRId64 ",%" PRId64 "\n",
+	fprintf(report, "%" PRId64 ";%" PRId64 ";%" PRId64 ";%" PRId64 "\n",
 		stat.queue_size, stat.consumer_count, stat.msg_ack_count, stat.msg_exp_count);
 }
 
