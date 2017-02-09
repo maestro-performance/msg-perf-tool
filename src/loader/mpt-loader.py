@@ -216,8 +216,6 @@ def configure_throughput_mapping(session=None, direction=None):
     if ret != 0:
         logger.error("Unable to configure the mappings for throughput")
 
-
-
 def configure_testinfo_mapping(session=None):
     base_url = read_param("database", "url")
     logger.debug("Configuring test info mapping")
@@ -288,7 +286,6 @@ def validate_parameters():
         return 1
 
     return 0
-
 
 def load_latencies_bulk():
     base_url = read_param("database", "url")
@@ -382,11 +379,6 @@ def load_latencies_bulk():
 def load_throughput_bulk():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
-    in_sut_name = read_param("sut", "sut_name")
-    in_sut_key = read_param("sut", "sut_key")
-    in_sut_version = read_param("sut", "sut_version")
-    in_test_run = read_param("test", "test_run")
-    in_start_time = in_opts["test_start_time"]
     in_msg_direction = in_opts["msg_direction"]
 
     param_check = validate_parameters()
@@ -472,7 +464,6 @@ def load_throughput_bulk():
 
     configure_cache(session=session)
     return 0
-
 
 def load_test_info():
     """
@@ -589,7 +580,6 @@ def configure_network_mapping(session=None):
     if ret != 0:
         logger.error("Unable to configure the mappings for network")
 
-
 def load_sender_network_info():
     base_url = read_param("database", "url")
     in_file_name = in_opts["filename"]
@@ -680,7 +670,6 @@ def load_sender_network_info():
 
     configure_cache(session=session)
     return 0
-
 
 def configure_broker_java_mapping(session=None):
     base_url = read_param("database", "url")
