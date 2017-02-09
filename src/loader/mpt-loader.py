@@ -813,8 +813,12 @@ def load_broker_java_info():
         pm_cmm = int(row[20])
         pm_max = int(row[21])
         pm_used = int(row[22])
+        queue_size = int(row[23])
+        consumers = int(row[24])
+        msg_ack = int(row[25])
+        msg_exp = int(row[26])
 
-        latency_data = {
+        sys_data = {
             "ts": ts,
             "sut_name": in_sut_name,
             "sut_version": in_sut_version,
@@ -842,12 +846,16 @@ def load_broker_java_info():
             "pm_cmm": pm_cmm,
             "pm_max": pm_max,
             "pm_used": pm_used,
+            "queue_size": queue_size,
+            "consumers": consumers,
+            "msg_ack": msg_ack,
+            "msg_exp": msg_exp,
         }
 
         json.dump(action_data, bulk_json)
         bulk_json.write('\n')
 
-        json.dump(latency_data, bulk_json)
+        json.dump(sys_data, bulk_json)
         bulk_json.write('\n')
 
         i += 1

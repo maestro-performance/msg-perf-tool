@@ -70,7 +70,8 @@ bool bmic_init(const options_t *options, gru_status_t *status) {
 	fprintf(report, "eden inital;eden committed;eden max;eden used;");
 	fprintf(report, "survivor inital;survivor committed;survivor max;survivor used;");
 	fprintf(report, "tenured inital;tenured committed;tenured max;tenured used;");
-	fprintf(report, "pm inital;pm committed;pm max;pm used;\n");
+	fprintf(report, "pm inital;pm committed;pm max;pm used;");
+	fprintf(report, "queue size;consumers;ack;exp;\n");
 
 	return true;
 }
