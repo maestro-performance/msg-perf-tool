@@ -35,7 +35,7 @@ datefmt_iso = '%Y-%m-%d %H:%M:%S,'
 console_formatter = logging.Formatter(fmt_console, datefmt=datefmt_iso)
 
 console_handler = logging.StreamHandler()  # Python 2.6
-console_handler.setLevel(logging.ERROR)  # setting console level
+console_handler.setLevel(logging.INFO)  # setting console level
 console_handler.setFormatter(console_formatter)
 
 logging.getLogger().addHandler(console_handler)
@@ -165,14 +165,12 @@ def register():
 
 def configure_cache(session=None):
     base_url = read_param("database", "url")
-    in_sut_key = read_param("sut", "sut_key")
-    in_start_time = in_opts["test_start_time"]
 
-    index_time = in_start_time.split()[0]
+    index_name = get_index_name()
 
-    logger.debug("Configuring index cache for test data")
+    logger.info("Configuring index cache for test data")
 
-    req_url = "%s/%s-%s" % (base_url, in_sut_key, index_time)
+    req_url = "%s/%s" % (base_url, index_name)
     request_json = '{ "index.cache.query.enable": true }'
 
     # It will return 400 if already configured
