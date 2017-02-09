@@ -351,7 +351,7 @@ def load_latencies_bulk():
 
         i += 1
 
-        if (i % 1000) == 0:
+        if (i % 30000) == 0:
             if not quiet:
                 sys.stdout.write("Bulk uploading latency data (%d records out of %d)\r" % (i, num_lines))
 
@@ -443,7 +443,7 @@ def load_throughput_bulk():
 
         i += 1
 
-        if (i % 1000) == 0:
+        if (i % 7000) == 0:
             if not quiet:
                 sys.stdout.write("Bulk uploading throughput data (%d records out of %d)\r" % (i, num_lines))
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
