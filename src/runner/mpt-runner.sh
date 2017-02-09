@@ -260,7 +260,7 @@ echo "Test start time: ${start_time}"
 cat /dev/null > ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "LOG_DIR=${LOG_DIR}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 echo "TEST_RUN=${TEST_RUN}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
-echo "TEST_NAME=${TEST_NAME}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+echo "TEST_NAME=\"${TEST_NAME}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
 echo "START_TIME=\"${start_time}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
