@@ -437,14 +437,12 @@ def load_throughput_bulk():
 
         ts = row[0]
         count = int(row[1])
-        duration = int(row[2])
-        rate = float(row[3])
+        rate = float(row[2])
 
         throughput_data = {
             "ts": ts,
             "cid": cid,
             "count": count,
-            "duration": duration,
             "rate": rate,
         }
 
@@ -456,7 +454,7 @@ def load_throughput_bulk():
 
         i += 1
 
-        if (i % 7000) == 0:
+        if (i % 7500) == 0:
             if not quiet:
                 sys.stdout.write("Bulk uploading throughput data (%d records out of %d)\r" % (i, num_lines))
             call_service(req_url, bulk_json.getvalue(), session=session, is_update=True)
