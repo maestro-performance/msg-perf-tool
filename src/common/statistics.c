@@ -115,12 +115,11 @@ void statistics_latency_data(
 }
 
 void statistics_throughput_data(stat_io_t *stat_io, const char *last_buff, uint64_t count,
-	uint64_t partial, double rate) {
+	double rate) {
 	fprintf(stat_io->throughput,
-		"%s;%" PRIu64 ";%" PRIu64 ";%.2f\n",
+		"%s;%" PRIu64 ";%.2f\n",
 		last_buff,
 		count,
-		partial,
 		rate);
 }
 
@@ -192,15 +191,15 @@ void statistics_latency(stat_io_t *stat_io, gru_timestamp_t start, gru_timestamp
 	}
 }
 
-void statistics_throughput_partial(
-	stat_io_t *stat_io, gru_timestamp_t start, gru_timestamp_t last, uint64_t count) {
-	uint64_t partial = statistics_diff(start, last);
-	double rate = ((double) count / partial) * 1000;
+void statistics_throughput_partial(stat_io_t *stat_io, gru_timestamp_t now, 
+	uint32_t elapsed, uint64_t count) 
+{
+	double rate = ((double) count / elapsed);
 
 	char last_buff[64] = {0};
 
-	struct tm *last_tm = localtime(&last.tv_sec);
+	struct tm *last_tm = localtime(&now.tv_sec);
 	strftime(last_buff, sizeof(last_buff), "%Y-%m-%d %H:%M:%S", last_tm);
 
-	statistics_throughput_data(stat_io, last_buff, count, partial, rate);
+	statistics_throughput_data(stat_io, last_buff, count, rate);
 }

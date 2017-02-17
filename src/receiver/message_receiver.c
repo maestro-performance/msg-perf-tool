@@ -19,6 +19,8 @@
 void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
+	const uint32_t tp_interval = 10;
+	uint64_t last_count = 0;
 
 	stat_io_t *stat_io = statistics_init(RECEIVER, &status);
 	if (!stat_io) {
@@ -76,9 +78,12 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 		last = gru_time_now();
 
-		if (last_calc <= (last.tv_sec - 10)) {
-			statistics_throughput_partial(stat_io, start, last, content_storage.count);
+		if (last_calc <= (last.tv_sec - tp_interval)) {
+			uint64_t processed_count = content_storage.count - last_count;
 
+			statistics_throughput_partial(stat_io, last, tp_interval, processed_count);
+			
+			last_count = content_storage.count;
 			last_calc = last.tv_sec;
 		}
 	}
