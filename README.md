@@ -37,7 +37,8 @@ Disk Space:
 The clients may generate a lot of data depending on how much messages are sent
 per second. On my baseline system (two servers with Quad-Core AMD Opteron 2376 @ 8x 2.3GHz)
 on a gigabit network, it generates around 1Gb of data per hour, transferring
-around 66.000 messages per second.
+several thousand messages per second (the exact number may vary according to message size,
+network bandwidth and broker setup).
 
 Operating Systems:
 * Linux: x86 and x86_64
