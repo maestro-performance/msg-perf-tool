@@ -98,14 +98,20 @@ static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *na
 }
 
 bool probe_scheduler_start(gru_status_t *status) {
+	const options_t *options = get_options_object();
 	logger_t logger = gru_logger_get();
+
+	if (!options->probing) { 
+		logger(INFO, "Disabling probes"); 
+		return true;
+	}
 
 	list = gru_list_new(status);
 	if (!list) {
 		return false;
 	}
 
-	const options_t *options = get_options_object();
+	
 	uint32_t num_mod = gru_list_count(options->probes);
 
 	for (uint32_t i = 0; i < num_mod; i++) {
@@ -137,5 +143,9 @@ static void probe_scheduler_stop_probe(const void *nodedata, void *payload) {
 }
 
 void probe_scheduler_stop() {
-	gru_list_for_each(list, probe_scheduler_stop_probe, NULL);
+	const options_t *options = get_options_object();
+	
+	if (options->probing) { 
+		gru_list_for_each(list, probe_scheduler_stop_probe, NULL);	
+	}
 }

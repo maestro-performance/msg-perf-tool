@@ -31,6 +31,7 @@ static void show_help(char **argv) {
 		"runs in the given verbose (info, stat, debug, etc) level mode");
 	gru_cli_option_help(
 		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
+	gru_cli_option_help("no-probles", "N", "disable probes");
 	gru_cli_option_help(
 		"parallel-count", "p", "number of parallel connections to the broker");
 
@@ -80,10 +81,11 @@ int perf_main(int argc, char **argv) {
 			{"log-dir", true, 0, 'L'},
 			{"throttle", true, 0, 't'},
 			{"daemon", false, 0, 'D'},
+			{"no-probes", false, 0, 'N'},
 			{"help", false, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:Dh", long_options, &option_index);
+		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:DNh", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -120,6 +122,9 @@ int perf_main(int argc, char **argv) {
 				break;
 			case 'D':
 				options->daemon = true;
+				break;
+			case 'N':
+				options->probing = false;
 				break;
 			case 'h':
 				show_help(argv);

@@ -58,6 +58,7 @@ void options_set_defaults(options_t *ret) {
 	ret->message_size = 32;
 	ret->duration = gru_duration_from_seconds(0);
 	ret->daemon = false;
+	ret->probing = true;
 	ret->throttle = 0;
 }
 

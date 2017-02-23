@@ -46,6 +46,7 @@ typedef struct options_t_ {
 	gru_duration_t duration;
 	bool daemon;
 	uint32_t throttle;
+	bool probing;
 	gru_list_t *probes;
 
 	gru_config_t *config; // A pointer to the configuration file/object
