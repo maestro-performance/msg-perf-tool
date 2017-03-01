@@ -173,7 +173,7 @@ if [[ -z "${PARALLEL_COUNT}" ]] ; then
 fi
 
 if [[ -d ${LOG_DIR}/${TEST_RUN} ]] ; then
-  has_files=$(ls -1 ${LOG_DIR}/${TEST_RUN} | wc -l)
+  has_files=$(ls -1 ${LOG_DIR}/${TEST_RUN}/ | wc -l)
   if [[ $has_files -ne 0 ]] ; then
     echo "Aborting test execution because test data for run ID ${TEST_RUN} already exist"
     exit 1
@@ -254,19 +254,25 @@ function run_by_count() {
   echo ""
 }
 
+function save_replay() {
+  if [[ ! -z "${LOADER_CONFIG}" ]] ; then
+    echo "$1=\"$2\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+  fi
+}
+
 START_TIME=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test start time: ${START_TIME}"
 
 cat /dev/null > ${LOG_DIR}/${TEST_RUN}/replay.conf
-echo "LOG_DIR=${LOG_DIR}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
-echo "TEST_RUN=${TEST_RUN}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
-echo "TEST_NAME=\"${TEST_NAME}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+save_replay "LOG_DIR" "${LOG_DIR}"
+save_replay "TEST_RUN" "${TEST_RUN}"
+save_reply "TEST_NAME" "${TEST_NAME}"
+save_reply "START_TIME" "${START_TIME}"
 
-echo "START_TIME=\"${START_TIME}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
 
 if [[ ! -z "${DURATION}" ]] ; then
   export REAL_DURATION=${DURATION}
-  echo "REAL_DURATION=${REAL_DURATION}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+  save_reply "REAL_DURATION" "${REAL_DURATION}"
   run_by_duration
   
   echo ""
@@ -274,7 +280,7 @@ else
 
   if [[ ! -z "${COUNT}" ]] ; then
     export REAL_DURATION=${COUNT}
-    echo "REAL_DURATION=${REAL_DURATION}" >> ${LOG_DIR}/${TEST_RUN}/replay.conf  
+    save_reply "REAL_DURATION" "${REAL_DURATION}"
     run_by_count
     echo ""
   else
@@ -285,13 +291,13 @@ fi
 
 end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
-echo "END_TIME=\"${end_time}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+save_reply "END_TIME" "${end_time}"
 
 if [[ ! -z "${LOADER_CONFIG}" ]] ; then
-  echo "LOADER_CONFIG=\"${LOADER_CONFIG}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
-  echo "CONFIG_TEST=\"${CONFIG_TEST}\"" >> ${LOG_DIR}/${TEST_RUN}/replay.conf
+  save_reply "LOADER_CONFIG" "${LOADER_CONFIG}"
+  save_reply "CONFIG_TEST" "${CONFIG_TEST}"
 
-	echo "Registering the SUT on the DB using ${LOADER_CONFIG}"
+  echo "Registering the SUT on the DB using ${LOADER_CONFIG}"
 	${app_path}/mpt-loader.py --register \
 	  --config "${LOADER_CONFIG}" \
 	  --config-test "${CONFIG_TEST}" \
