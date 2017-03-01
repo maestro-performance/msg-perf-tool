@@ -3,10 +3,11 @@
 export MESSAGE_SIZE=1024
 export THROTTLE=0
 export QUIET_OPT=""
+export EXTRA_SENDER_ARGS=""
 
 app_path=`dirname $0`
 
-ARGS=$(getopt -o l:b:d:c:C:s:p:qu:r:o:n:t:T:R:h -n "$0" -- "$@");
+ARGS=$(getopt -o l:b:d:c:C:s:p:qu:r:o:n:Nt:T:R:h -n "$0" -- "$@");
 eval set -- "$ARGS";
 
 HELP="USAGE: ./$0 [options]\n
@@ -21,6 +22,7 @@ HELP="USAGE: ./$0 [options]\n
 -u 'database url'  -- (optional) a URL for the elastic database that stores the test data\n
 -o 'output directory'  -- output directory for the test report\n
 -n 'test name'  -- test name\n
+-N 'no-probes'  -- do not enable probes\n
 -t 'throttle'  -- throttle (sends messages in a fixed rate [ msgs per second per connection])\n
 -T 'config-test'  -- test case configuration\n
 -R 'test-run'  -- test run\n
@@ -76,6 +78,10 @@ while true; do
       shift
       export TEST_NAME="$1"
       shift
+    ;;
+    -N)
+      shift
+      export EXTRA_SENDER_ARGS="--no-probes"
     ;;
     -t)
       shift
@@ -195,7 +201,7 @@ function run_by_duration() {
   export pid_receiver=`${app_path}/mpt-receiver -b ${BROKER_URL} --log-level=STAT --duration=${DURATION} -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
 
   echo "Lauching the sender"
-  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t ${THROTTLE} --log-level=STAT --duration ${DURATION} -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon`
+  export pid_sender=`${app_path}/mpt-sender perf -b ${BROKER_URL} -t ${THROTTLE} --log-level=STAT --duration ${DURATION} -p ${PARALLEL_COUNT} --log-dir=${LOG_DIR}/${TEST_RUN} -s ${MESSAGE_SIZE} --daemon ${EXTRA_SENDER_ARGS}`
 
 
   # Sleeps for a little longer than the test duration so that it gives some time
