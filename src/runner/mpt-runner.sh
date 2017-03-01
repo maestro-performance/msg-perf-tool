@@ -266,13 +266,13 @@ echo "Test start time: ${START_TIME}"
 cat /dev/null > ${LOG_DIR}/${TEST_RUN}/replay.conf
 save_replay "LOG_DIR" "${LOG_DIR}"
 save_replay "TEST_RUN" "${TEST_RUN}"
-save_reply "TEST_NAME" "${TEST_NAME}"
-save_reply "START_TIME" "${START_TIME}"
+save_replay "TEST_NAME" "${TEST_NAME}"
+save_replay "START_TIME" "${START_TIME}"
 
 
 if [[ ! -z "${DURATION}" ]] ; then
   export REAL_DURATION=${DURATION}
-  save_reply "REAL_DURATION" "${REAL_DURATION}"
+  save_replay "REAL_DURATION" "${REAL_DURATION}"
   run_by_duration
   
   echo ""
@@ -280,7 +280,7 @@ else
 
   if [[ ! -z "${COUNT}" ]] ; then
     export REAL_DURATION=${COUNT}
-    save_reply "REAL_DURATION" "${REAL_DURATION}"
+    save_replay "REAL_DURATION" "${REAL_DURATION}"
     run_by_count
     echo ""
   else
@@ -291,11 +291,11 @@ fi
 
 end_time=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Test end time: ${end_time}"
-save_reply "END_TIME" "${end_time}"
+save_replay "END_TIME" "${end_time}"
 
 if [[ ! -z "${LOADER_CONFIG}" ]] ; then
-  save_reply "LOADER_CONFIG" "${LOADER_CONFIG}"
-  save_reply "CONFIG_TEST" "${CONFIG_TEST}"
+  save_replay "LOADER_CONFIG" "${LOADER_CONFIG}"
+  save_replay "CONFIG_TEST" "${CONFIG_TEST}"
 
   echo "Registering the SUT on the DB using ${LOADER_CONFIG}"
 	${app_path}/mpt-loader.py --register \
