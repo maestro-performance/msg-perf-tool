@@ -106,7 +106,7 @@ void statistics_latency_header(stat_io_t *stat_io) {
 }
 
 void statistics_throughput_header(stat_io_t *stat_io) {
-	fprintf(stat_io->throughput, "timestamp;count;duration;rate\n");
+	fprintf(stat_io->throughput, "timestamp;count;rate\n");
 }
 
 void statistics_latency_data(
