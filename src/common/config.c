@@ -51,6 +51,13 @@ void save_options(FILE *file, void *data) {
 	gru_config_write_string("log.level", file, log_level_str[options->log_level]);
 	gru_config_write_string("log.dir", file, options->logdir);
 
+	if (options->probing) {
+		gru_config_write_string("probes.enabled", file, "true");
+	}
+	else {
+		gru_config_write_string("probes.enabled", file, "false");
+	}
+
 	char *probes = gru_str_serialize(options->probes, ',', &status);
 	gru_config_write_string("probes.list", file, probes);
 	gru_dealloc_string(&probes);
@@ -87,6 +94,15 @@ void read_options(FILE *file, void *data) {
 	options->log_level = gru_logger_get_level(log_level_s);
 
 	gru_config_read_string("log.dir", file, options->logdir);
+
+	char probes_enabled_setting[10] = {0};
+	gru_config_read_string("probes.enabled", file, probes_enabled_setting);
+	if (strlen(probes_enabled_setting) == 0 || strcmp(probes_enabled_setting, "true")) {
+		options->probing = true;
+	}
+	else {
+		options->probing = false;
+	}
 
 	char probes_list[4096] = {0};
 	gru_config_read_string("probes.list", file, probes_list);
