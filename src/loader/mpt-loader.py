@@ -35,7 +35,7 @@ datefmt_iso = '%Y-%m-%d %H:%M:%S,'
 console_formatter = logging.Formatter(fmt_console, datefmt=datefmt_iso)
 
 console_handler = logging.StreamHandler()  # Python 2.6
-console_handler.setLevel(logging.INFO)  # setting console level
+console_handler.setLevel(logging.DEBUG)  # setting console level
 console_handler.setFormatter(console_formatter)
 
 logging.getLogger().addHandler(console_handler)
@@ -431,7 +431,7 @@ def load_throughput_bulk():
         if i == 0 and row[0] == "timestamp":
             continue
 
-        if len(row) < 4:
+        if len(row) < 3:
             skipped += 1
             continue
 
