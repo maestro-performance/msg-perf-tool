@@ -179,7 +179,7 @@ def configure_cache(session=None):
     request_json = '{ "index.cache.query.enable": true }'
 
     # It will return 400 if already configured
-    ret = call_service(req_url, request_json, force_update=False, session=session)
+    ret = call_service(req_url, request_json, force_update=False, session=session, is_update=True)
     if ret != 0 and ret != 400 :
         logger.error("Unable to configure the index cache for test data")
 
