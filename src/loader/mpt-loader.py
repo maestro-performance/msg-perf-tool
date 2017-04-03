@@ -175,11 +175,11 @@ def configure_cache(session=None):
 
     logger.info("Configuring index cache for test data")
 
-    req_url = "%s/%s" % (base_url, index_name)
+    req_url = "%s/%s/_settings" % (base_url, index_name)
     request_json = '{ "index.cache.query.enable": true }'
 
     # It will return 400 if already configured
-    ret = call_service(req_url, request_json, force_update=True, session=session)
+    ret = call_service(req_url, request_json, force_update=False, session=session)
     if ret != 0 and ret != 400 :
         logger.error("Unable to configure the index cache for test data")
 
@@ -226,10 +226,10 @@ def configure_testinfo_mapping(session=None):
     answer = call_service_for_check(("%s/test/info/_mapping" % (base_url)), session=session)
     if answer.status_code == 404:
         req_url = "%s/test" % (base_url)
-        request_json = '{ "mappings": { "info": { "properties": { "sut_version": { "type": "string", "index": "not_analyzed" } } } } }'
+        request_json = '{ "mappings": { "info": { "properties": { "sut_version": { "type": "string", "index": "not_analyzed" }, "sut_key": { "type": "string", "index": "not_analyzed" } } } } }'
     else:
         req_url = "%s/test/_mapping/info" % (base_url)
-        request_json = '{ "properties": { "sut_version": { "type": "string", "index": "not_analyzed" } } }'
+        request_json = '{ "properties": { "sut_version": { "type": "string", "index": "not_analyzed" }, "sut_key": { "type": "string", "index": "not_analyzed" } } }'
 
     is_update = in_opts["update"]
     ret = call_service(req_url, request_json, force_update=True, session=session, is_update=is_update)
