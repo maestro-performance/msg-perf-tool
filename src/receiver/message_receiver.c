@@ -68,12 +68,10 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	while (can_continue(options, 0)) {
 		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
 		if (unlikely(vmsl_stat_error(rstat))) {
-			fprintf(stderr, "%s\n", status.message);
+			logger(ERROR, "Error receiving data: %s\n", status.message);
 
-			statistics_destroy(&stat_io);
-			vmsl->destroy(msg_ctxt, &status);
 			gru_status_reset(&status);
-			return;
+			break;
 		}
 
 		last = gru_time_now();
