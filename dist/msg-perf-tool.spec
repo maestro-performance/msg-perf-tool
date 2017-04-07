@@ -3,7 +3,7 @@
 
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
-Version:            0.1.2
+Version:            0.2.0
 Release:            0%{?dist}
 License:            Apache v2
 Group:              Development/Tools
@@ -59,7 +59,7 @@ make install
 
 %changelog
 * Mon Feb 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 20170227
-- Version 0.1.2 release
+- Version 0.2.0 release
 - Fixed a bug in the AMPQ setling mode
 - Fixed a bug in the runner which passed incorrect parameters to the benchmark tools
 - Added support for probes 
