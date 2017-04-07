@@ -409,7 +409,7 @@ vmsl_stat_t proton_receive(
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
     vmsl_stat_t local_ret = proton_receive_local(proton_ctxt->messenger, status);
-	if (local_ret & VMSL_ERROR) {
+	if (local_ret == VMSL_ERROR) {
 		return local_ret;
 	}
     else {
