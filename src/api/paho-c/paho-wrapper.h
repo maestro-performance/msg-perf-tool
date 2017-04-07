@@ -19,7 +19,6 @@
 
 #include <network/gru_uri.h>
 
-#include "contrib/options.h"
 #include "mpt-debug.h"
 #include "msgctxt.h"
 #include "paho-context.h"
@@ -41,8 +40,10 @@ void paho_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 vmsl_stat_t paho_send(
 	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
 vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
-vmsl_stat_t paho_receive(
-	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, 
+	gru_status_t *status);
+vmsl_stat_t paho_maestro_basic(msg_ctxt_t *ctxt, msg_content_data_t *content, 
+	gru_status_t *status);
 
 bool paho_vmsl_assign(vmsl_t *vmsl);
 

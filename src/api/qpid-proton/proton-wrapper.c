@@ -107,9 +107,7 @@ msg_ctxt_t *proton_init(
 		proton_set_recv_options(messenger, opt);
 	}
 
-	const options_t *options = get_options_object();
-
-	url = gru_uri_simple_format(&options->uri, status);
+	url = gru_uri_simple_format(&opt.uri, status);
 	if (gru_status_error(status)) {
 		goto err_exit;
 	}
@@ -426,7 +424,7 @@ vmsl_stat_t proton_receive(
 		cur++;
 		int ret = proton_do_receive(proton_ctxt->messenger, message, content);
 
-		if (ret == 0) {
+		if (ret == 0 && (ctxt->msg_opts.statistics & MSG_STAT_LATENCY)) {
 			pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
 
 			if (proton_ts > 0) {
@@ -467,6 +465,11 @@ vmsl_stat_t proton_receive(
 					nmsgs,
 					content->count,
 					content->errors);
+			}
+		}
+		else {
+			if (ret == 0) {
+				content->count++;
 			}
 		}
 	}

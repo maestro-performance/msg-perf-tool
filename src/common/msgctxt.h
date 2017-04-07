@@ -27,14 +27,7 @@ extern "C" {
 #include <log/gru_logger.h>
 
 #include "statistics.h"
-
-typedef struct msg_content_data_t_ {
-	uint64_t count;
-	uint64_t errors;
-	size_t capacity;
-	size_t size;
-	void *data;
-} msg_content_data_t;
+#include "msg_content_data.h"
 
 typedef void (*msg_content_loader)(msg_content_data_t *content_data);
 
@@ -49,12 +42,21 @@ typedef enum msg_qos_t_ {
 	MSG_QOS_EXACTLY_ONCE, /** Not fully supported and reserved for future use **/
 } msg_qos_t;
 
+typedef enum msg_stat_opt_t_ {
+	MSG_STAT_NONE = 0, /** Disable statistics **/
+	MSG_STAT_LATENCY = 1, /** Enable latency statistics **/
+	MSG_STAT_THROUGHPUT = 2, /** Enable throughtput statistics **/
+	MSG_STAT_DEFAULT = (MSG_STAT_LATENCY & MSG_STAT_THROUGHPUT)
+} msg_stat_opt_t;
+
 /**
  * Messaging options
  */
 typedef struct msg_opt_t_ {
 	msg_direction_t direction;
 	msg_qos_t qos;
+	msg_stat_opt_t statistics;
+	gru_uri_t uri;
 } msg_opt_t;
 
 typedef struct msg_ctxt_t_ {

@@ -22,7 +22,7 @@ static void show_help(char **argv) {
 
 	gru_cli_option_help("help", "h", "show this help");
 
-	gru_cli_option_help("broker-url", "b", "broker-url to connect to");
+	gru_cli_option_help("broker-url", "b", "broker URL to connect to");
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
 	gru_cli_option_help("duration", "d", "runs for a fixed amount of time (in minutes)");
@@ -39,6 +39,7 @@ static void show_help(char **argv) {
 	gru_cli_option_help("throttle",
 		"t",
 		"sets a fixed rate of messages (in messages per second per connection)");
+	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
 }
 
 int perf_main(int argc, char **argv) {
@@ -72,7 +73,8 @@ int perf_main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {{"broker-url", true, 0, 'b'},
+		static struct option long_options[] = {
+			{"broker-url", true, 0, 'b'},
 			{"count", true, 0, 'c'},
 			{"log-level", true, 0, 'l'},
 			{"parallel-count", true, 0, 'p'},
@@ -82,10 +84,11 @@ int perf_main(int argc, char **argv) {
 			{"throttle", true, 0, 't'},
 			{"daemon", false, 0, 'D'},
 			{"no-probes", false, 0, 'N'},
+			{"maestro-url", true, 0, 'm'},
 			{"help", false, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:DNh", long_options, &option_index);
+		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:DNm:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -125,6 +128,13 @@ int perf_main(int argc, char **argv) {
 				break;
 			case 'N':
 				options->probing = false;
+				break;
+			case 'm':
+				options->maestro_uri = gru_uri_parse(optarg, &status);
+				if (gru_status_error(&status)) {
+					fprintf(stderr, "%s", status.message);
+					goto err_exit;
+				}
 				break;
 			case 'h':
 				show_help(argv);

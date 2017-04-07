@@ -37,13 +37,12 @@ msg_ctxt_t *paho_init(
 	paho_ctxt_t *paho_ctxt = paho_context_init();
 
 	if (!paho_ctxt) {
-		logger(FATAL, "Unable to initialize the proton context");
+		logger(FATAL, "Unable to initialize the paho context");
 
 		exit(1);
 	}
 
-	const options_t *options = get_options_object();
-	paho_ctxt->uri = gru_uri_clone(options->uri, status);
+	paho_ctxt->uri = gru_uri_clone(opt.uri, status);
 
 	if (!gru_uri_set_scheme(&paho_ctxt->uri, "tcp")) {
 		logger(FATAL, "Unable to adjust the connection URI");
@@ -54,7 +53,7 @@ msg_ctxt_t *paho_init(
 	const char *connect_url =
 		gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE, status);
 
-	logger(DEBUG, "Creating a client to %s from url %s ", connect_url, 
+	logger(DEBUG, "Creating a client to %s with path %s ", connect_url, 
             paho_ctxt->uri.path);
 	int rc = 0;
 	if (opt.direction == MSG_DIRECTION_SENDER) {
@@ -251,13 +250,16 @@ vmsl_stat_t paho_receive(
 		}
 	}
 
-	gru_timestamp_t now = gru_time_now();
+	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) { 
+		gru_timestamp_t now = gru_time_now();
 
-	char header[18] = {0};
-	sscanf(msg->payload, "%17s", &header);
+		char header[18] = {0};
+		sscanf(msg->payload, "%17s", &header);
 
-	gru_timestamp_t created = gru_time_read_str(header);
-	statistics_latency(ctxt->stat_io, created, now);
+		gru_timestamp_t created = gru_time_read_str(header);
+		statistics_latency(ctxt->stat_io, created, now);
+	}
+	
 	content->count++;
 
 	return VMSL_SUCCESS;

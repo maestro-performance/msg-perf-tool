@@ -50,6 +50,12 @@ void options_set_defaults(options_t *ret) {
 		return;
 	}
 
+	ret->maestro_uri = gru_uri_parse("mqtt://localhost:1883/mpt/maestro", &status);
+	if (gru_status_error(&status)) {
+		fprintf(stderr, "%s", status.message);
+		return;
+	}
+
 	strcpy(ret->logdir, ".");
 
 	ret->parallel_count = 2;

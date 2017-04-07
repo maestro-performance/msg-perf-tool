@@ -21,6 +21,7 @@ msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io, gru_status_t *status) {
 
 	ret->stat_io = stat_io;
 	ret->msg_opts.qos = MSG_QOS_AT_MOST_ONCE;
+	ret->msg_opts.statistics = MSG_STAT_DEFAULT;
 
 	return ret;
 }

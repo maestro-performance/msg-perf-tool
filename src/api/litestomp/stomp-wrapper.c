@@ -41,8 +41,8 @@ msg_ctxt_t *litestomp_init(
 		goto err_exit1;
 	}
 
-	const options_t *options = get_options_object();
-	url = gru_uri_simple_format(&options->uri, status);
+	
+	url = gru_uri_simple_format(&opt.uri, status);
 	if (!url) {
 		goto err_exit1;
 	}

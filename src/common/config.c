@@ -40,6 +40,10 @@ void save_options(FILE *file, void *data) {
 	gru_config_write_string("broker.url", file, tmp_url);
 	gru_dealloc_string(&tmp_url);
 
+	tmp_url = gru_uri_simple_format(&options->maestro_uri, &status);
+	gru_config_write_string("maestro.url", file, tmp_url);
+	gru_dealloc_string(&tmp_url);
+
 	gru_config_write_ulong("message.count", file, options->count);
 	gru_config_write_uint("message.throttle", file, options->throttle);
 	gru_config_write_uint("message.size", file, options->message_size);
@@ -72,6 +76,13 @@ void read_options(FILE *file, void *data) {
 	char tmp_url[4096] = {0};
 	gru_config_read_string("broker.url", file, tmp_url);
 	options->uri = gru_uri_parse(tmp_url, &status);
+	if (gru_status_error(&status)) {
+		fprintf(stderr, "%s\n", status.message);
+		return;
+	}
+
+	gru_config_read_string("maestro.url", file, tmp_url);
+	options->maestro_uri = gru_uri_parse(tmp_url, &status);
 	if (gru_status_error(&status)) {
 		fprintf(stderr, "%s\n", status.message);
 		return;

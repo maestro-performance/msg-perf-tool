@@ -38,6 +38,7 @@ extern "C" {
 
 typedef struct options_t_ {
 	gru_uri_t uri;
+	gru_uri_t maestro_uri;
 	uint64_t count;
 	char logdir[OPT_MAX_STR_SIZE];
 	uint16_t parallel_count;

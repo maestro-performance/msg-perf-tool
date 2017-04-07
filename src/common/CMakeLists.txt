@@ -1,5 +1,7 @@
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        set(PROBES_FILES probes/scheduler.c)
+        set(PROBES_FILES 
+                probes/scheduler.c
+                maestro/maestro_player.c)
 endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 add_library(
@@ -12,6 +14,7 @@ add_library(
         process_utils.c
 	msgdata.c
         bmic_utils.c
+        msg_content_data.c
         ${PROBES_FILES}
 )
 

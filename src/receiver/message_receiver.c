@@ -22,6 +22,13 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	const uint32_t tp_interval = 10;
 	uint64_t last_count = 0;
 
+	if (!maestro_player_start(options, &status)) {
+		fprintf(stderr, "Unable to connect to maestro broker: %s\n", 
+			status.message);
+
+		return;
+	}
+
 	stat_io_t *stat_io = statistics_init(RECEIVER, &status);
 	if (!stat_io) {
 		logger(FATAL, "Unable to initialize statistics engine: %s", status.message);
@@ -31,8 +38,12 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	}
 
 	msg_opt_t opt = {
-		.direction = MSG_DIRECTION_RECEIVER, .qos = MSG_QOS_AT_MOST_ONCE,
+		.direction = MSG_DIRECTION_RECEIVER, 
+		.qos = MSG_QOS_AT_MOST_ONCE, 
+		.statistics = MSG_STAT_DEFAULT,
 	};
+
+	opt.uri = options->uri;
 
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
 	if (!msg_ctxt) {
@@ -44,10 +55,9 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		goto err_exit;
 	}
 
-	msg_content_data_t content_storage;
-
-	content_storage.data = gru_alloc(options->message_size, &status);
-	if (!content_storage.data) {
+	msg_content_data_t content_storage = msg_content_data_new(options->message_size, 
+		&status);
+	if (!gru_status_success(&status)) {
 		goto err_exit;
 	}
 

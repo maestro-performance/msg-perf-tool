@@ -24,7 +24,6 @@
 
 #include <common/gru_portable.h>
 
-#include "contrib/options.h"
 #include "mpt-debug.h"
 #include "msgctxt.h"
 #include "proton-context.h"
