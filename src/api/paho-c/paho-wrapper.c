@@ -54,7 +54,8 @@ msg_ctxt_t *paho_init(
 	const char *connect_url =
 		gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE, status);
 
-	logger(DEBUG, "Creating a client to %s", connect_url);
+	logger(DEBUG, "Creating a client to %s from url %s ", connect_url, 
+            paho_ctxt->uri.path);
 	int rc = 0;
 	if (opt.direction == MSG_DIRECTION_SENDER) {
 		rc = MQTTClient_create(&paho_ctxt->client,
@@ -200,11 +201,10 @@ vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 
 	logger_t logger = gru_logger_get();
 
-	// Just a small hack to ignore the trailing / from the default-parsed URI
-	logger(DEBUG, "Subscribing to %s", &paho_ctxt->uri.path[1]);
+	logger(DEBUG, "Subscribing to %s", paho_ctxt->uri.path);
 
 	int rc = MQTTClient_subscribe(
-		paho_ctxt->client, &paho_ctxt->uri.path[1], QOS_AT_MOST_ONCE);
+		paho_ctxt->client, paho_ctxt->uri.path, QOS_AT_MOST_ONCE);
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS:
