@@ -333,11 +333,12 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 
 static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t *status) {
 	const int limit = 1024;
+
 	mpt_trace("Receiving at most %i messages", limit);
 	int ret = pn_messenger_recv(messenger, limit);
-	if (ret == 0) {
+	if (ret != 0) {
 		if (failed(messenger)) {
-		        mpt_trace("Error receiving messages");
+			mpt_trace("Error receiving messages");
 			pn_error_t *error = pn_messenger_error(messenger);
 
 			const char *protonErrorText = pn_error_text(error);
@@ -346,8 +347,8 @@ static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t 
 			return VMSL_ERROR;
 		}
 		else {
-            mpt_trace("No messages to receive");
-            return VMSL_SUCCESS | VMSL_NO_DATA;
+			mpt_trace("No messages to receive");
+			return VMSL_SUCCESS | VMSL_NO_DATA;
 		}
 	}
 
