@@ -338,10 +338,10 @@ static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t 
 	int ret = pn_messenger_recv(messenger, limit);
 	if (ret != 0) {
 		if (failed(messenger)) {
-			mpt_trace("Error receiving messages");
 			pn_error_t *error = pn_messenger_error(messenger);
 
 			const char *protonErrorText = pn_error_text(error);
+			mpt_trace("Error receiving messages: %s", protonErrorText);
 
 			gru_status_set(status, GRU_FAILURE, protonErrorText);
 			return VMSL_ERROR;
