@@ -38,10 +38,10 @@ typedef struct maestro_player_t_ {
 	bool cancel;
 } maestro_player_t;
 
-maestro_player_t maestro_player_new() {
-	maestro_player_t ret = {0};
+maestro_player_t *maestro_player_new() {
+	maestro_player_t *ret = gru_alloc(sizeof(maestro_player_t), NULL);
 
-	ret.mmsl = vmsl_init();
+	ret->mmsl = vmsl_init();
 	
 	return ret;
 }

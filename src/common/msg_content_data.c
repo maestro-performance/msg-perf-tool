@@ -16,7 +16,7 @@
 #include "msg_content_data.h"
 
 msg_content_data_t msg_content_data_new(size_t size, gru_status_t *status) {
-	msg_content_data_t content_storage;
+	msg_content_data_t content_storage = {0};
 
 	content_storage.data = gru_alloc(size, status);
 	if (!content_storage.data) {

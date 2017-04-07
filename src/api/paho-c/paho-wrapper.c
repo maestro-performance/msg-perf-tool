@@ -259,6 +259,8 @@ vmsl_stat_t paho_receive(
 		gru_timestamp_t created = gru_time_read_str(header);
 		statistics_latency(ctxt->stat_io, created, now);
 	}
+
+	memcpy(content->data, msg->payload, content->size);
 	
 	content->count++;
 

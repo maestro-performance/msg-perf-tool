@@ -33,6 +33,8 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 		return false;
 	}
 
+	player->mmsl.subscribe(player->ctxt, NULL, status);
+
 	return true;
 }
 
@@ -41,8 +43,7 @@ static void *maestro_player_run(void *player) {
 	maestro_player_t *maestro_player = (maestro_player_t *) player;
 	logger_t logger = gru_logger_get();
 
-	msg_content_data_t data = msg_content_data_new(16, 
-			&status);
+	msg_content_data_t data = msg_content_data_new(16, &status);
 	if (!gru_status_success(&status)) {
 		return NULL;
 	}
@@ -50,10 +51,16 @@ static void *maestro_player_run(void *player) {
 	logger(INFO, "Maestro player is running");
 	while (!maestro_player->cancel) {
 		
-		// maestro_player->mmsl.receive(maestro_player->ctxt, &data, &status);
-		// if (gru_status_success(&status)) {
-		// 	logger(DEBUG, "Received maestro data");
-		// }
+		vmsl_stat_t rstat = maestro_player->mmsl.receive(maestro_player->ctxt, &data, 
+			&status);
+		if (unlikely(vmsl_stat_error(rstat))) {
+			logger(DEBUG, "Error receiving maestro data");
+		}
+		else {
+			if (!(rstat & VMSL_NO_DATA)) {
+				logger(DEBUG, "Received maestro data: %s", (char *) data.data);
+			}
+		}
 
 		sleep(1);
 	}
@@ -64,15 +71,15 @@ static void *maestro_player_run(void *player) {
 
 bool maestro_player_start(const options_t *options, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	maestro_player_t maestro_player = maestro_player_new();
+	maestro_player_t *maestro_player = maestro_player_new();
 
 	logger(INFO, "Connecting to maestro URL %s", options->maestro_uri.scheme);
-	maestro_player.uri = gru_uri_clone(options->maestro_uri, status);
+	maestro_player->uri = gru_uri_clone(options->maestro_uri, status);
 	if (!gru_status_success(status)) {
 		return false;
 	}
 
-	if (!vmsl_assign_by_url(&options->maestro_uri, &maestro_player.mmsl)) {
+	if (!vmsl_assign_by_url(&options->maestro_uri, &maestro_player->mmsl)) {
 		gru_status_set(status, GRU_FAILURE, 
 			"Unable to assign a VMSL for the maestro player");
 
@@ -80,17 +87,17 @@ bool maestro_player_start(const options_t *options, gru_status_t *status) {
 	}
 
 	
-	if (!maestro_player_connect(&maestro_player, status)) {
+	if (!maestro_player_connect(maestro_player, status)) {
 		logger(ERROR, "Unable to connect to maestro broker at %s: %s", 
-			maestro_player.uri.host, status->message);
+			maestro_player->uri.host, status->message);
 
 		goto err_exit;
 	}
 	
 
 	logger(DEBUG, "Creating maestro player thread");
-	int ret = pthread_create(&maestro_player.thread, NULL, maestro_player_run, 
-		&maestro_player);
+	int ret = pthread_create(&maestro_player->thread, NULL, maestro_player_run, 
+		maestro_player);
 	if (ret != 0) {
 		logger(ERROR, "Unable to create maestro player thread");
 
@@ -101,6 +108,6 @@ bool maestro_player_start(const options_t *options, gru_status_t *status) {
 
 	err_exit:
 
-	gru_uri_cleanup(&maestro_player.uri);
+	gru_uri_cleanup(&maestro_player->uri);
 	return false;
 }
