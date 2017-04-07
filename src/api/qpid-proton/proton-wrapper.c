@@ -331,21 +331,27 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 	return VMSL_SUCCESS;
 }
 
-static int proton_receive_local(pn_messenger_t *messenger, gru_status_t *status) {
+static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t *status) {
 	const int limit = 1024;
 	mpt_trace("Receiving at most %i messages", limit);
-	pn_messenger_recv(messenger, limit);
-	if (failed(messenger)) {
-		pn_error_t *error = pn_messenger_error(messenger);
+	int ret = pn_messenger_recv(messenger, limit);
+	if (ret == 0) {
+		if (failed(messenger)) {
+		        mpt_trace("Error receiving messages");
+			pn_error_t *error = pn_messenger_error(messenger);
 
-		const char *protonErrorText = pn_error_text(error);
+			const char *protonErrorText = pn_error_text(error);
 
-		gru_status_set(status, GRU_FAILURE, protonErrorText);
-
-		return -1;
+			gru_status_set(status, GRU_FAILURE, protonErrorText);
+			return VMSL_ERROR;
+		}
+		else {
+            mpt_trace("No messages to receive");
+            return VMSL_SUCCESS | VMSL_NO_DATA;
+		}
 	}
 
-	return 0;
+	return VMSL_SUCCESS;
 }
 
 static int proton_do_receive(
@@ -401,9 +407,15 @@ vmsl_stat_t proton_receive(
 	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-	if (proton_receive_local(proton_ctxt->messenger, status) < 0) {
-		return VMSL_ERROR;
+    vmsl_stat_t local_ret = proton_receive_local(proton_ctxt->messenger, status);
+	if (local_ret & VMSL_ERROR) {
+		return local_ret;
 	}
+    else {
+        if (local_ret & VMSL_NO_DATA) {
+            return local_ret;
+        }
+    }
 
 	int nmsgs = 0;
 	int last = 0;
