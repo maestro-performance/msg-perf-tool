@@ -126,7 +126,7 @@ uint32_t tune_calc_approximate(perf_stats_t stats, bmic_queue_stat_t qstat,
 }
 
 
-int tune_start(const vmsl_t *vmsl, const options_t *options) {
+int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	gru_status_t status = gru_status_new();
 	logger_t logger = gru_logger_get();
 

@@ -15,7 +15,7 @@
  */
 #include "perf_worker.h"
 
-void sender_start(const vmsl_t *vmsl, const options_t *options) {
+void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 	const uint32_t tp_interval = 10;

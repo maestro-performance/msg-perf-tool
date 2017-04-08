@@ -191,7 +191,7 @@ int perf_main(int argc, char **argv) {
 					}
 				}
 
-				sender_start(&vmsl, options);
+				perf_worker_start(&vmsl, options);
 				goto success_exit;
 			} else {
 				if (child > 0) {
@@ -226,7 +226,7 @@ int perf_main(int argc, char **argv) {
 #ifdef LINUX_BUILD
 		probe_scheduler_start(&status);
 #endif // LINUX_BUILD
-		sender_start(&vmsl, options);
+		perf_worker_start(&vmsl, options);
 
 #ifdef LINUX_BUILD
 		probe_scheduler_stop();

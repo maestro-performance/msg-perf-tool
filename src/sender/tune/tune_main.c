@@ -120,7 +120,7 @@ int tune_main(int argc, char **argv) {
 
 	logger_t logger = gru_logger_get();
 
-	tune_start(&vmsl, options);
+	tune_worker_start(&vmsl, options);
 
 	logger(INFO, "Tune execution terminated successfully");
 

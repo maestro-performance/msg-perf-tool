@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-void sender_start(const vmsl_t *vmsl, const options_t *options);
+void perf_worker_start(const vmsl_t *vmsl, const options_t *options);
 
 #ifdef __cplusplus
 }
