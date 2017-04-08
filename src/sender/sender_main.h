@@ -21,8 +21,8 @@
 
 #include <cli/gru_cli_opt.h>
 
-#include "perf_main.h"
-#include "tune_main.h"
+#include "perf/perf_main.h"
+#include "tune/tune_main.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -13,29 +13,41 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef SENDER_WORKER_H
-#define SENDER_WORKER_H
+#ifndef PERF_MAIN_H
+#define PERF_MAIN_H
 
-#include "contrib/options.h"
-#include "msgctxt.h"
-#include "msgdata.h"
-#include "process_utils.h"
-#include "statistics.h"
-#include "vmsl.h"
-
-#include <inttypes.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
-#include <common/gru_status.h>
+#include <getopt.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <sys/wait.h>
+
+#include <time/gru_time_utils.h>
+
+#include "contrib/options.h"
+
+#include <cli/gru_cli_opt.h>
+#include <common/gru_base.h>
+#include <config/gru_config.h>
+#include <log/gru_logger.h>
+
+#include "config.h"
+#include "perf_worker.h"
+#include "probes/scheduler.h"
+#include "process_utils.h"
+#include "vmsl.h"
+#include "vmsl_assign.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void sender_start(const vmsl_t *vmsl, const options_t *options);
+int perf_main(int argc, char **argv);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SENDER_WORKER_H */
+#endif /* PERF_MAIN_H */
