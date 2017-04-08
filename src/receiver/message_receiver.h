@@ -25,6 +25,7 @@ extern "C" {
 #include "process_utils.h"
 #include "vmsl.h"
 #include "msg_content_data.h"
+#include "maestro/maestro_player.h"
 
 #include <inttypes.h>
 #include <signal.h>

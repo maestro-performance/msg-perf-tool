@@ -21,6 +21,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	gru_status_t status = gru_status_new();
 	const uint32_t tp_interval = 10;
 	uint64_t last_count = 0;
+	msg_content_data_t content_storage = {0}; 
 
 	if (!maestro_player_start(options, &status)) {
 		fprintf(stderr, "Unable to connect to maestro broker: %s\n", 
@@ -55,15 +56,10 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		goto err_exit;
 	}
 
-	msg_content_data_t content_storage = msg_content_data_new(options->message_size, 
-		&status);
+	msg_content_data_init(&content_storage, options->message_size, &status);
 	if (!gru_status_success(&status)) {
 		goto err_exit;
 	}
-
-	content_storage.capacity = options->message_size;
-	content_storage.count = 0;
-	content_storage.errors = 0;
 
 	gru_timestamp_t last;
 	gru_timestamp_t start = gru_time_now();
@@ -120,12 +116,13 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		rate);
 	logger(INFO, "Errors: received %" PRIu64, content_storage.errors);
 
-	free(content_storage.data);
+	msg_content_data_release(&content_storage);
 	return;
 
 err_exit:
 	fprintf(stderr, "%s", status.message);
 	statistics_destroy(&stat_io);
+	msg_content_data_release(&content_storage);
 
 	if (msg_ctxt) {
 		vmsl->destroy(msg_ctxt, &status);

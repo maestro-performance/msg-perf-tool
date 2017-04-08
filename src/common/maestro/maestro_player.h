@@ -22,12 +22,13 @@
 
 #include <collection/gru_list.h>
 #include <common/gru_status.h>
+#include <common/gru_alloc.h>
 #include <log/gru_logger.h>
 #include <contrib/options.h>
 
 #include "vmsl.h"
 
-extern bool vmsl_assign_by_url(gru_uri_t *uri, vmsl_t *vmsl);
+extern bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl);
 
 typedef struct maestro_player_t_ {
 	pthread_t thread;
@@ -38,14 +39,7 @@ typedef struct maestro_player_t_ {
 	bool cancel;
 } maestro_player_t;
 
-maestro_player_t *maestro_player_new() {
-	maestro_player_t *ret = gru_alloc(sizeof(maestro_player_t), NULL);
-
-	ret->mmsl = vmsl_init();
-	
-	return ret;
-}
-
+maestro_player_t *maestro_player_new();
 bool maestro_player_start(const options_t *options, gru_status_t *status);
 
 #endif /* MAESTRO_PLAYER_H */

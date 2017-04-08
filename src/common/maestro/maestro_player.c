@@ -15,6 +15,14 @@
  */
 #include "maestro_player.h"
 
+maestro_player_t *maestro_player_new() {
+	maestro_player_t *ret = gru_alloc(sizeof(maestro_player_t), NULL);
+
+	ret->mmsl = vmsl_init();
+	
+	return ret;
+}
+
 static bool maestro_player_connect(maestro_player_t *player, gru_status_t *status) {
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_SENDER, 
@@ -43,22 +51,22 @@ static void *maestro_player_run(void *player) {
 	maestro_player_t *maestro_player = (maestro_player_t *) player;
 	logger_t logger = gru_logger_get();
 
-	msg_content_data_t data = msg_content_data_new(16, &status);
+	msg_content_data_t *mdata = msg_content_data_new(16, &status);
 	if (!gru_status_success(&status)) {
 		return NULL;
 	}
 	
 	logger(INFO, "Maestro player is running");
 	while (!maestro_player->cancel) {
-		
-		vmsl_stat_t rstat = maestro_player->mmsl.receive(maestro_player->ctxt, &data, 
+		vmsl_stat_t rstat = maestro_player->mmsl.receive(maestro_player->ctxt, mdata, 
 			&status);
+			
 		if (unlikely(vmsl_stat_error(rstat))) {
 			logger(DEBUG, "Error receiving maestro data");
 		}
 		else {
 			if (!(rstat & VMSL_NO_DATA)) {
-				logger(DEBUG, "Received maestro data: %s", (char *) data.data);
+				logger(DEBUG, "Received maestro data: %s", (char *) mdata->data);
 			}
 		}
 

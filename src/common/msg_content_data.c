@@ -15,17 +15,58 @@
  */
 #include "msg_content_data.h"
 
-msg_content_data_t msg_content_data_new(size_t size, gru_status_t *status) {
-	msg_content_data_t content_storage = {0};
-
-	content_storage.data = gru_alloc(size, status);
-	if (!content_storage.data) {
-		content_storage.data = NULL;
-
-		return content_storage;
+msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status) {
+	// msg_content_data_t *ret = gru_alloc(sizeof(msg_content_data_t), status);
+	msg_content_data_t *ret = malloc(sizeof(msg_content_data_t));
+	
+	if (!ret) {
+		return NULL;
 	}
 
-	content_storage.capacity = size;
-	content_storage.count = 0;
-	content_storage.errors = 0;
+	ret->data = gru_alloc(size, status);
+	if (!ret->data) {
+		gru_dealloc((msg_content_data_t **) &ret);
+
+		return NULL;
+	}
+
+	ret->capacity = size;
+	ret->count = 0;
+	ret->errors = 0;
+}
+
+
+ void msg_content_data_init(msg_content_data_t *mdata, size_t size, gru_status_t *status) {
+	mdata->data = gru_alloc(size, status);
+
+	if (!mdata->data) {
+		mdata->data = NULL;
+
+		return;
+	}
+
+	mdata->capacity = size;
+	mdata->count = 0;
+	mdata->errors = 0;
+}
+
+
+void msg_content_data_release(msg_content_data_t *mdata) {
+	if (!mdata) {
+		return;
+	}
+
+	gru_dealloc(&mdata->data);
+	mdata->capacity = 0;
+	mdata->size = 0;
+}
+ 
+void msg_content_data_destroy(msg_content_data_t **data) {
+	msg_content_data_t *ptr = *data;
+	if (!ptr) {
+		return;
+	}
+
+	msg_content_data_release(ptr);
+	gru_dealloc((msg_content_data_t **) data);
 }

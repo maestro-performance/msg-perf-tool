@@ -39,7 +39,7 @@ extern "C" {
  * @param vmsl
  * @return
  */
-bool vmsl_assign_by_url(gru_uri_t *uri, vmsl_t *vmsl);
+bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl);
 
 #ifdef __cplusplus
 }

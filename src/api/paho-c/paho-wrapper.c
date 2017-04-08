@@ -260,7 +260,12 @@ vmsl_stat_t paho_receive(
 		statistics_latency(ctxt->stat_io, created, now);
 	}
 
-	memcpy(content->data, msg->payload, content->size);
+	if (msg->payloadlen > content->capacity) {
+		memcpy(content->data, msg->payload, content->capacity - 1);
+	}
+	else {
+		memcpy(content->data, msg->payload, msg->payloadlen);
+	}
 	
 	content->count++;
 

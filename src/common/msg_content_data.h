@@ -20,15 +20,20 @@
 #include <stdlib.h>
 
 #include <common/gru_status.h>
+#include <common/gru_alloc.h>
 
 typedef struct msg_content_data_t_ {
+	void *data;
 	uint64_t count;
 	uint64_t errors;
 	size_t capacity;
 	size_t size;
-	void *data;
 } msg_content_data_t;
 
-msg_content_data_t msg_content_data_new(size_t size, gru_status_t *status);
+msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status);
+
+void msg_content_data_init(msg_content_data_t *ptr, size_t size, gru_status_t *status);
+void msg_content_data_release(msg_content_data_t *data);
+void msg_content_data_destroy(msg_content_data_t **data);
 
 #endif /* MSG_CONTENT_DATA_H */

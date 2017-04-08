@@ -40,7 +40,7 @@ extern bool litestomp_vmsl_assign(vmsl_t *vmsl);
 	vmsl_assign_none(litestomp_vmsl_assign, "STOMP")
 #endif
 
-bool vmsl_assign_by_url(gru_uri_t *uri, vmsl_t *vmsl) {
+bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
 	if (strncmp(uri->scheme, "amqp", 4) == 0) {
