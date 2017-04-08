@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#include "message_receiver.h"
+#include "receiver_worker.h"
 #include "vmsl.h"
 
 void receiver_start(const vmsl_t *vmsl, const options_t *options) {

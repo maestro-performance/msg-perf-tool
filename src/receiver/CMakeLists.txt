@@ -1,7 +1,7 @@
 add_executable(
 	mpt-receiver
 	receiver_main.c
-  message_receiver.c
+  receiver_worker.c
 )
 
 target_link_libraries(

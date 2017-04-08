@@ -33,7 +33,7 @@ extern "C" {
 #include "contrib/options.h"
 #include "process_utils.h"
 
-#include "message_receiver.h"
+#include "receiver_worker.h"
 #include "statistics.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"

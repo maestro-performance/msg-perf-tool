@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef MESSAGE_RECEIVER_H
-#define MESSAGE_RECEIVER_H
+#ifndef RECEIVER_WORKER_H
+#define RECEIVER_WORKER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,4 +39,4 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options);
 }
 #endif
 
-#endif /* MESSAGE_RECEIVER_H */
+#endif /* RECEIVER_WORKER_H */
