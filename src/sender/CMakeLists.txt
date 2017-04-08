@@ -3,8 +3,8 @@ add_executable(
     sender_main.c
     sender_perf_main.c
     sender_tune_main.c
-    message_sender.c
-    tune_sender.c
+    sender_worker.c
+    tune_worker.c
 )
 
 target_link_libraries(

@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef MESSAGE_SENDER_H
-#define MESSAGE_SENDER_H
+#ifndef SENDER_WORKER_H
+#define SENDER_WORKER_H
 
 #include "contrib/options.h"
 #include "msgctxt.h"
@@ -38,4 +38,4 @@ void sender_start(const vmsl_t *vmsl, const options_t *options);
 }
 #endif
 
-#endif /* MESSAGE_SENDER_H */
+#endif /* SENDER_WORKER_H */

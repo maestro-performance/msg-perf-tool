@@ -38,7 +38,7 @@
 #include "vmsl.h"
 #include "vmsl_assign.h"
 
-#include "tune_sender.h"
+#include "tune_worker.h"
 
 #ifdef __cplusplus
 extern "C" {

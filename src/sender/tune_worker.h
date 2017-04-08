@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef TUNE_SENDER_H
-#define TUNE_SENDER_H
+#ifndef TUNE_WORKER_H
+#define TUNE_WORKER_H
 
 #include <inttypes.h>
 #include <signal.h>
@@ -47,4 +47,4 @@ int tune_start(const vmsl_t *vmsl, const options_t *options);
 }
 #endif
 
-#endif /* TUNE_SENDER_H */
+#endif /* TUNE_WORKER_H */

@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#include "message_sender.h"
+#include "sender_worker.h"
 
 void sender_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
