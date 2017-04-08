@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#include "sender_tune_main.h"
+#include "tune_main.h"
 
 static void show_help(char **argv) {
 	gru_cli_program_usage("mpt-sender", argv[0]);

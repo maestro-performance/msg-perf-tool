@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef SENDER_TUNE_MAIN_H
-#define SENDER_TUNE_MAIN_H
+#ifndef PERF_MAIN_H
+#define PERF_MAIN_H
 
 #include <sys/wait.h>
 #include <unistd.h>
@@ -24,30 +24,30 @@
 #include <stdio.h>
 #include <sys/wait.h>
 
-#include <cli/gru_cli_opt.h>
 #include <time/gru_time_utils.h>
 
 #include "contrib/options.h"
 
+#include <cli/gru_cli_opt.h>
 #include <common/gru_base.h>
 #include <config/gru_config.h>
 #include <log/gru_logger.h>
 
 #include "config.h"
+#include "sender_worker.h"
+#include "probes/scheduler.h"
 #include "process_utils.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
-
-#include "tune_worker.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int tune_main(int argc, char **argv);
+int perf_main(int argc, char **argv);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* SENDER_TUNE_MAIN_H */
+#endif /* PERF_MAIN_H */

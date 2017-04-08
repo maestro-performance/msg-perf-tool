@@ -15,7 +15,7 @@
  */
 #include <network/gru_uri.h>
 
-#include "sender_perf_main.h"
+#include "perf_main.h"
 
 static void show_help(char **argv) {
 	gru_cli_program_usage("mpt-sender", argv[0]);

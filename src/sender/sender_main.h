@@ -13,16 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#ifndef SENDER_H
-#define SENDER_H
+#ifndef SENDER_MAIN_H
+#define SENDER_MAIN_H
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <cli/gru_cli_opt.h>
 
-#include "sender_perf_main.h"
-#include "sender_tune_main.h"
+#include "perf_main.h"
+#include "tune_main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,4 +32,4 @@ extern "C" {
 }
 #endif
 
-#endif /* SENDER_H */
+#endif /* SENDER_MAIN_H */
