@@ -66,7 +66,7 @@ static void *maestro_player_run(void *player) {
 		}
 		else {
 			if (!(rstat & VMSL_NO_DATA)) {
-				logger(DEBUG, "Received maestro data: %s", (char *) mdata->data);
+				maestro_sheet_play(maestro_player->sheet, mdata->data, NULL, &status);
 			}
 		}
 
@@ -77,9 +77,12 @@ static void *maestro_player_run(void *player) {
 	return NULL;
 }
 
-bool maestro_player_start(const options_t *options, gru_status_t *status) {
+bool maestro_player_start(const options_t *options, maestro_sheet_t *sheet, 
+	gru_status_t *status) 
+{
 	logger_t logger = gru_logger_get();
 	maestro_player_t *maestro_player = maestro_player_new();
+	maestro_player->sheet = sheet;
 
 	logger(INFO, "Connecting to maestro URL %s", options->maestro_uri.scheme);
 	maestro_player->uri = gru_uri_clone(options->maestro_uri, status);
@@ -87,7 +90,9 @@ bool maestro_player_start(const options_t *options, gru_status_t *status) {
 		return false;
 	}
 
-	if (!vmsl_assign_by_url(&options->maestro_uri, &maestro_player->mmsl)) {
+	gru_uri_set_path(&maestro_player->uri, sheet->location);
+
+	if (!vmsl_assign_by_url(&maestro_player->uri, &maestro_player->mmsl)) {
 		gru_status_set(status, GRU_FAILURE, 
 			"Unable to assign a VMSL for the maestro player");
 

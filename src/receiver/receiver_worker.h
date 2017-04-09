@@ -26,10 +26,12 @@ extern "C" {
 #include "vmsl.h"
 #include "msg_content_data.h"
 #include "maestro/maestro_player.h"
+#include "maestro/maestro_sheet.h"
 
 #include <inttypes.h>
 #include <signal.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include <common/gru_status.h>
 

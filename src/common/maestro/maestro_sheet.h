@@ -13,37 +13,32 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef MAESTRO_PLAYER_H
-#define MAESTRO_PLAYER_H
 
-#include <dlfcn.h>
-#include <pthread.h>
-#include <stdio.h>
+#ifndef MAESTRO_SHEET_H
+#define MAESTRO_SHEET_H
 
-#include <collection/gru_list.h>
+
 #include <common/gru_status.h>
-#include <common/gru_alloc.h>
+#include <collection/gru_list.h>
 #include <log/gru_logger.h>
-#include <contrib/options.h>
 
-#include "vmsl.h"
-#include "maestro_sheet.h"
-
-extern bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl);
+#include "maestro_note.h"
+#include "maestro_instrument.h"
 
 
-typedef struct maestro_player_t_ {
-	pthread_t thread;
-	gru_uri_t uri;
-	vmsl_t mmsl; // maestro messaging system layer
-	msg_ctxt_t *ctxt; // maestro messaging context
-	maestro_sheet_t *sheet;
+typedef struct maestro_sheet_t_ {
+	char *location; /** Sheet location (ie.: /mpt/sender/<ppid>) **/
+	gru_list_t *instruments; /** A list of instruments */ 
+} maestro_sheet_t;
 
-	bool cancel;
-} maestro_player_t;
+maestro_sheet_t *maestro_sheet_new(const char *location, gru_status_t *status);
 
-maestro_player_t *maestro_player_new();
-bool maestro_player_start(const options_t *options, maestro_sheet_t *sheet, 
+void maestro_sheet_add_instrument(maestro_sheet_t *sheet, 
+	maestro_instrument_t *instrument);
+
+void maestro_sheet_play(const maestro_sheet_t *sheet, const void *req, void *resp, 
 	gru_status_t *status);
 
-#endif /* MAESTRO_PLAYER_H */
+
+
+#endif /* MAESTRO_SHEET_H */

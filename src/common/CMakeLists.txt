@@ -1,6 +1,9 @@
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         set(PROBES_FILES 
                 probes/scheduler.c
+                maestro/maestro_note.c
+                maestro/maestro_instrument.c
+                maestro/maestro_sheet.c
                 maestro/maestro_player.c)
 endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 

@@ -13,37 +13,23 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef MAESTRO_PLAYER_H
-#define MAESTRO_PLAYER_H
+#ifndef MAESTRO_INSTRUMENT_H
+#define MAESTRO_INSTRUMENT_H
 
-#include <dlfcn.h>
-#include <pthread.h>
-#include <stdio.h>
-
-#include <collection/gru_list.h>
 #include <common/gru_status.h>
 #include <common/gru_alloc.h>
-#include <log/gru_logger.h>
-#include <contrib/options.h>
 
-#include "vmsl.h"
-#include "maestro_sheet.h"
+#include "maestro_note.h"
 
-extern bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl);
+typedef void *(*maestro_play_t)(maestro_note_t *note, gru_status_t *status);
 
+typedef struct maestro_instrument_t_ {
+	maestro_note_t tessitura; /** What it can play */
+	maestro_play_t play;
+} maestro_instrument_t; 
 
-typedef struct maestro_player_t_ {
-	pthread_t thread;
-	gru_uri_t uri;
-	vmsl_t mmsl; // maestro messaging system layer
-	msg_ctxt_t *ctxt; // maestro messaging context
-	maestro_sheet_t *sheet;
-
-	bool cancel;
-} maestro_player_t;
-
-maestro_player_t *maestro_player_new();
-bool maestro_player_start(const options_t *options, maestro_sheet_t *sheet, 
+maestro_instrument_t *maestro_instrument_new(const char *note, maestro_play_t play, 
 	gru_status_t *status);
 
-#endif /* MAESTRO_PLAYER_H */
+
+#endif /* MAESTRO_INSTRUMENT_H */

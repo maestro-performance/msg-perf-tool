@@ -16,6 +16,33 @@
 #include "receiver_worker.h"
 #include "vmsl.h"
 
+static void *receiver_handle_start(maestro_note_t *note, gru_status_t *status) {
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Just received a start request");
+	return NULL;
+}
+
+static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
+	//char *location = NULL;
+	//asprintf(&location, "/mpt/receiver/%d", getpid());
+
+	maestro_sheet_t *ret = maestro_sheet_new("/mpt/receiver", status);
+	// gru_dealloc_string(&location);
+
+	if (!ret) {	
+		return NULL;
+	}
+
+	maestro_instrument_t *instrument = maestro_instrument_new(MAESTRO_NOTE_START, 
+		receiver_handle_start, status);
+
+	maestro_sheet_add_instrument(ret, instrument);
+
+	return ret;
+}
+
+
 void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
@@ -23,7 +50,9 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	uint64_t last_count = 0;
 	msg_content_data_t content_storage = {0}; 
 
-	if (!maestro_player_start(options, &status)) {
+	maestro_sheet_t *sheet = new_receiver_sheet(&status);
+
+	if (!maestro_player_start(options, sheet, &status)) {
 		fprintf(stderr, "Unable to connect to maestro broker: %s\n", 
 			status.message);
 
