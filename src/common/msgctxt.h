@@ -33,7 +33,8 @@ typedef void (*msg_content_loader)(msg_content_data_t *content_data);
 
 typedef enum msg_direction_t_ {
 	MSG_DIRECTION_SENDER,
-	MSG_DIRECTION_RECEIVER
+	MSG_DIRECTION_RECEIVER,
+	MSG_DIRECTION_BOTH,
 } msg_direction_t;
 
 typedef enum msg_qos_t_ {
