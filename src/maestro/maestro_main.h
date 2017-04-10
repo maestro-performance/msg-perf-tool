@@ -25,23 +25,13 @@ extern "C" {
 #include <stdio.h>
 #include <sys/wait.h>
 
-#include <readline/readline.h>
-#include <readline/history.h>
-
 #include <cli/gru_cli_opt.h>
 #include <config/gru_config.h>
 #include <log/gru_logger.h>
 #include <time/gru_time_utils.h>
 
 #include "contrib/options.h"
-#include "process_utils.h"
-
-#include "statistics.h"
-#include "vmsl.h"
-#include "vmsl_assign.h"
 #include "config.h"
-
-#include "process_utils.h"
 
 #ifdef __cplusplus
 }

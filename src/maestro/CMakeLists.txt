@@ -1,6 +1,8 @@
 add_executable(
     mpt-maestro
-    maestro_main.c   
+    maestro_main.c
+    maestro_loop.c
+    maestro_command.c
 )
 
 # Readline
