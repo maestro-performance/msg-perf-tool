@@ -24,11 +24,6 @@ static void show_help(char **argv) {
 
 static char *start = "001";
 
-static void start_content(msg_content_data_t *content_data) {
-	content_data->data = start;
-	content_data->size = 3;
-	content_data->capacity = 3;
-}
 
 int main(int argc, char **argv) {
 	int c;
@@ -136,7 +131,13 @@ int main(int argc, char **argv) {
 		}
 
 		if (strcmp(command, "start") == 0) {
-			vmsl.send(ctxt, start_content, &status);
+			msg_content_data_t req = {0};
+
+			msg_content_data_init(&req, 3, NULL);
+			req.data = strdup("001");
+			req.size = 3;
+			
+			vmsl.send(ctxt, &req, &status);
 		}
 
 		

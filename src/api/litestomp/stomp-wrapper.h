@@ -37,8 +37,7 @@ msg_ctxt_t *litestomp_init(
 void litestomp_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 
-vmsl_stat_t litestomp_send(
-	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
+vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status);
 vmsl_stat_t litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
 vmsl_stat_t litestomp_receive(
 	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);

@@ -123,14 +123,14 @@ struct paho_perf_pl {
 	int size;
 };
 
-static struct paho_perf_pl paho_serialize_content(msg_content_data_t msg_content) {
+static struct paho_perf_pl paho_serialize_latency_info(msg_content_data_t *msg_content) {
 	struct paho_perf_pl ret = {0};
 	gru_timestamp_t ts = gru_time_now();
 
 	char *formatted_ts = gru_time_write_str(&ts);
 
-	asprintf(&ret.data, "%18s%s", formatted_ts, (char *) msg_content.data);
-	ret.size = 18 + msg_content.size;
+	asprintf(&ret.data, "%18s%s", formatted_ts, (char *) msg_content->data);
+	ret.size = 18 + msg_content->size;
 	gru_dealloc_string(&formatted_ts);
 	return ret;
 }
@@ -140,34 +140,44 @@ static void paho_serialize_clean(struct paho_perf_pl *pl) {
 	pl->size = 0;
 }
 
-vmsl_stat_t paho_send(
-	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
+vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status) {
 	MQTTClient_deliveryToken token;
 	MQTTClient_message pubmsg = MQTTClient_message_initializer;
-	static bool cached = false;
-	static msg_content_data_t msg_content;
-
-	if (!cached) {
-		content_loader(&msg_content);
-		cached = true;
-	}
-
-	struct paho_perf_pl pl = paho_serialize_content(msg_content);
-
-	pubmsg.payload = pl.data;
-	pubmsg.payloadlen = pl.size;
+	
+	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
 	// QoS0, At most once:
 	pubmsg.qos = 0;
 	pubmsg.retained = false;
+	int rc = 0;
 
-	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
+	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) { 
+		struct paho_perf_pl pl = paho_serialize_latency_info(data);
 
-	mpt_trace("Sending message '%s' to %s", pl.data, paho_ctxt->uri.path);
+		pubmsg.payload = pl.data;
+		pubmsg.payloadlen = pl.size;
 
-	int rc = MQTTClient_publishMessage(
-		paho_ctxt->client, paho_ctxt->uri.path, &pubmsg, &token);
-	paho_serialize_clean(&pl);
+		// mpt_trace("Sending message '%s' to %s", pl.data, paho_ctxt->uri.path);
+
+	logger_t logger = gru_logger_get();
+		logger(DEBUG, "Sending message with latency '%s' to %s", data->data, paho_ctxt->uri.path);
+
+		rc = MQTTClient_publishMessage(
+			paho_ctxt->client, paho_ctxt->uri.path, &pubmsg, &token);
+		paho_serialize_clean(&pl);
+	}
+	else {
+		// mpt_trace("Sending message '%s' to %s", data->data, paho_ctxt->uri.path);
+		logger_t logger = gru_logger_get();
+
+		logger(DEBUG, "Sending message '%s' to %s", data->data, paho_ctxt->uri.path);
+
+		pubmsg.payload = data->data;
+		pubmsg.payloadlen = data->size;
+
+		rc = MQTTClient_publishMessage(
+			paho_ctxt->client, paho_ctxt->uri.path, &pubmsg, &token);
+	}
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS:
@@ -194,6 +204,7 @@ vmsl_stat_t paho_send(
 	mpt_trace("Delivered message %d", token);
 	return VMSL_SUCCESS;
 }
+
 
 vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);

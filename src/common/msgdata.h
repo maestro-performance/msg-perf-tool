@@ -30,9 +30,9 @@
 extern "C" {
 #endif
 
-const char *load_message_data(const options_t *options, gru_status_t *status);
-void unload_message_data();
-void content_loader(msg_content_data_t *content_data);
+// const char *load_message_data(const options_t *options, gru_status_t *status);
+// void unload_message_data();
+// void content_loader(msg_content_data_t *content_data);
 
 #ifdef __cplusplus
 }

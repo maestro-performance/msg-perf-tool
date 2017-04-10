@@ -224,22 +224,6 @@ static void proton_set_message_properties(
 	pn_message_set_creation_time(message, proton_now(status));
 }
 
-static void proton_set_message_data(
-	pn_message_t *message, msg_content_loader content_loader) {
-	static bool cached = false;
-	static msg_content_data_t msg_content;
-
-	mpt_trace("Formatting message body");
-
-	pn_data_t *body = pn_message_body(message);
-	if (!cached) {
-		content_loader(&msg_content);
-		cached = true;
-	}
-
-	pn_data_put_string(body, pn_bytes(msg_content.capacity, msg_content.data));
-}
-
 static vmsl_stat_t proton_do_send(
 	pn_messenger_t *messenger, pn_message_t *message, gru_status_t *status) {
 	mpt_trace("Putting message");
@@ -265,15 +249,16 @@ static vmsl_stat_t proton_do_send(
 	return VMSL_SUCCESS;
 }
 
-vmsl_stat_t proton_send(
-	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
+vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status) {
 	vmsl_stat_t ret = {0};
 
 	mpt_trace("Creating message object");
 	pn_message_t *message = pn_message();
 
 	proton_set_message_properties(ctxt, message, status);
-	proton_set_message_data(message, content_loader);
+
+	pn_data_t *body = pn_message_body(message);
+	pn_data_put_string(body, pn_bytes(data->capacity, data->data));
 
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 

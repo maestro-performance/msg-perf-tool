@@ -63,7 +63,7 @@ static void maestro_sheet_do_play(const void *nodedata, void *payload) {
 		instrument->play(NULL, NULL);
 	}
 	else {
-		logger(INFO, "Request %s is unkown, therefore ignoring (current = %s)", req, 
+		logger(INFO, "Request %03s is unkown, therefore ignoring (current = %s)", req, 
 			instrument->tessitura.value);
 	}
 

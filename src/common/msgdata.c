@@ -15,35 +15,31 @@
  */
 #include "msgdata.h"
 
-static char *data = NULL;
-static size_t capacity;
+// static char *data = NULL;
+// static size_t capacity;
 
-const char *load_message_data(const options_t *options, gru_status_t *status) {
-	data = gru_alloc(options->message_size, status);
-	gru_alloc_check(data, NULL);
+// const char *load_message_data(const options_t *options, gru_status_t *status) {
+// 	size_t i = options->message_size - 1;
+// 	for (; 0 < i; i--) {
+// 		data[i] = 'c';
+// 	}
+// 	data[0] = 'c';
 
-	logger_t logger = gru_logger_get();
+// 	capacity = options->message_size;
+// 	logger(DEBUG, "Loaded message data: %s", data);
+// 	return data;
+// }
 
-	logger(INFO, "Loading %d bytes for message data", options->message_size);
-
-	size_t i = options->message_size - 1;
-	for (; 0 < i; i--) {
-		data[i] = 'c';
-	}
-	data[0] = 'c';
-
-	capacity = options->message_size;
-	logger(DEBUG, "Loaded message data: %s", data);
-	return data;
-}
-
+/*
 void unload_message_data() {
 	free(data);
 	capacity = 0;
 }
+
 
 void content_loader(msg_content_data_t *content_data) {
 	content_data->capacity = capacity;
 	content_data->size = capacity;
 	content_data->data = data;
 }
+*/

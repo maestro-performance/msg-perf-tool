@@ -35,5 +35,6 @@ msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status);
 void msg_content_data_init(msg_content_data_t *ptr, size_t size, gru_status_t *status);
 void msg_content_data_release(msg_content_data_t *data);
 void msg_content_data_destroy(msg_content_data_t **data);
+void msg_content_data_fill(msg_content_data_t *data, char v);
 
 #endif /* MSG_CONTENT_DATA_H */

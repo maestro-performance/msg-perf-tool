@@ -104,8 +104,8 @@ void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	}
 }
 
-vmsl_stat_t litestomp_send(
-	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status) {
+vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status) 
+{
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 	logger_t logger = gru_logger_get();
 
@@ -123,10 +123,6 @@ vmsl_stat_t litestomp_send(
 		return VMSL_ERROR;
 	}
 
-	msg_content_data_t msg_content;
-
-	content_loader(&msg_content);
-
 	/*
 	 * Formats the message
 	 */
@@ -141,7 +137,7 @@ vmsl_stat_t litestomp_send(
 		return VMSL_ERROR;
 	}
 
-	stomp_message_format(message, msg_content.data, msg_content.size);
+	stomp_message_format(message, data->data, data->size);
 
 	stomp_send_header_t send_header = {0};
 

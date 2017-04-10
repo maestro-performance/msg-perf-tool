@@ -16,10 +16,13 @@
 #include "receiver_worker.h"
 #include "vmsl.h"
 
+bool can_start = false;
+
 static void *receiver_handle_start(maestro_note_t *note, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
+	can_start = true;
 	return NULL;
 }
 
@@ -57,6 +60,11 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			status.message);
 
 		return;
+	}
+
+	while (!can_start) {
+		logger(INFO, "Waiting for the start signal");
+		sleep(1);
 	}
 
 	stat_io_t *stat_io = statistics_init(RECEIVER, &status);

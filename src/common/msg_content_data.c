@@ -70,3 +70,14 @@ void msg_content_data_destroy(msg_content_data_t **data) {
 	msg_content_data_release(ptr);
 	gru_dealloc((msg_content_data_t **) data);
 }
+
+
+void msg_content_data_fill(msg_content_data_t *content, char v) {
+	size_t i = content->capacity - 1;
+
+	for (; 0 < i; i--) {
+		((char *) content->data)[i] = v;
+	}
+
+	((char *) content->data)[0] = v;
+}

@@ -17,6 +17,18 @@
 
 typedef struct perf_stats_t_ { uint64_t sent; } perf_stats_t;
 
+static bool tune_worker_init_data(msg_content_data_t *data, size_t size, gru_status_t *status) {
+	msg_content_data_init(data, size, status);
+	if (!gru_status_success(status)) {
+		msg_content_data_release(data);
+
+		return;
+	}
+
+	msg_content_data_fill(data, 'e');
+	return true;
+}
+
 static bool tune_can_continue(gru_duration_t duration) {
 	struct timeval now;
 
@@ -86,8 +98,13 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	register uint64_t sent = 0;
 	register uint64_t round = 0;
 
+	msg_content_data_t data = {0};
+	if (!tune_worker_init_data(&data, options->message_size, &status)) {
+		return ret;
+	}
+
 	while (tune_can_continue(duration)) {
-		vmsl_stat_t sstat = vmsl->send(msg_ctxt, content_loader, &status);
+		vmsl_stat_t sstat = vmsl->send(msg_ctxt, &data, &status);
 
 		if (vmsl_stat_error(sstat)) {
 			fprintf(stderr, "%s", status.message);
@@ -107,6 +124,8 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 			}
 		}
 	}
+
+	msg_content_data_release(&data);
 
 	vmsl->stop(msg_ctxt, &status);
 	vmsl->destroy(msg_ctxt, &status);

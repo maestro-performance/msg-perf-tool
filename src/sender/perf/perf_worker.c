@@ -15,6 +15,18 @@
  */
 #include "perf_worker.h"
 
+static bool perf_worker_init_data(msg_content_data_t *data, size_t size, gru_status_t *status) {
+	msg_content_data_init(data, size, status);
+	if (!gru_status_success(status)) {
+		msg_content_data_release(data);
+
+		return;
+	}
+
+	msg_content_data_fill(data, 'd');
+	return true;
+}
+
 void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
@@ -42,8 +54,7 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 
 	install_timer(1);
 	install_interrupt_handler();
-	load_message_data(options, &status);
-
+	
 	gru_timestamp_t last;
 	gru_timestamp_t start = gru_time_now();
 
@@ -56,8 +67,15 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	time_t last_calc = 0;
 
 	statistics_throughput_header(stat_io);
+	
+	// Initialize data to be sent
+	msg_content_data_t data = {0};
+	if (!perf_worker_init_data(&data, options->message_size, &status)) {
+		return;
+	}
+
 	while (can_continue(options, sent)) {
-		vmsl_stat_t ret = vmsl->send(msg_ctxt, content_loader, &status);
+		vmsl_stat_t ret = vmsl->send(msg_ctxt, &data, &status);
 		if (vmsl_stat_error(ret)) {
 			fprintf(stderr, "Unable to send message: %s\n", status.message);
 
@@ -86,10 +104,10 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		}
 	}
 
+	msg_content_data_release(&data);
+
 	vmsl->stop(msg_ctxt, &status);
 	vmsl->destroy(msg_ctxt, &status);
-
-	unload_message_data();
 
 	statistics_destroy(&stat_io);
 

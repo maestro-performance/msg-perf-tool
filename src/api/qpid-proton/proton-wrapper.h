@@ -39,8 +39,7 @@ msg_ctxt_t *proton_init(
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 
-vmsl_stat_t proton_send(
-	msg_ctxt_t *ctxt, msg_content_loader content_loader, gru_status_t *status);
+vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status);
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
 vmsl_stat_t proton_receive(
 	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
