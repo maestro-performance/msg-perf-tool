@@ -163,7 +163,7 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 		logger(DEBUG, "Sending message with latency '%s' to %s", data->data, paho_ctxt->uri.path);
 
 		rc = MQTTClient_publishMessage(
-			paho_ctxt->client, paho_ctxt->uri.path, &pubmsg, &token);
+			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
 		paho_serialize_clean(&pl);
 	}
 	else {
@@ -176,7 +176,7 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 		pubmsg.payloadlen = data->size;
 
 		rc = MQTTClient_publishMessage(
-			paho_ctxt->client, paho_ctxt->uri.path, &pubmsg, &token);
+			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
 	}
 
 	switch (rc) {
