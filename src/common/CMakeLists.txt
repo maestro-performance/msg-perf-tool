@@ -15,7 +15,6 @@ add_library(
         msgctxt.c
         statistics.c
         process_utils.c
-	msgdata.c
         bmic_utils.c
         msg_content_data.c
         ${PROBES_FILES}

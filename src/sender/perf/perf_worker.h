@@ -18,7 +18,7 @@
 
 #include "contrib/options.h"
 #include "msgctxt.h"
-#include "msgdata.h"
+#include "msg_content_data.h"
 #include "process_utils.h"
 #include "statistics.h"
 #include "vmsl.h"
