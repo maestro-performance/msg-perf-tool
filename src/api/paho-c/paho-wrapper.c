@@ -243,6 +243,8 @@ vmsl_stat_t paho_receive(
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS: {
 			if (!msg) {
+				// No data received, so send a ping to prevent remote disconnect
+				MQTTClient_yield(); 
 				return VMSL_SUCCESS | VMSL_NO_DATA;
 			}
 
