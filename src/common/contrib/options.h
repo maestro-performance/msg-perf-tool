@@ -49,14 +49,11 @@ typedef struct options_t_ {
 	uint32_t throttle;
 	bool probing;
 	gru_list_t *probes;
-
-	gru_config_t *config; // A pointer to the configuration file/object
+	char *iface;
 } options_t;
 
 options_t *options_new();
 void options_destroy(options_t **obj);
-
-void options_set_defaults(options_t *ret);
 
 void set_options_object(options_t *ojb);
 const options_t *get_options_object(void);

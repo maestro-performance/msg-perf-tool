@@ -17,31 +17,7 @@
 
 static options_t *options = NULL;
 
-options_t *options_new() {
-	options_t *ret = (options_t *) calloc(1, sizeof(options_t));
-
-	if (!ret) {
-		fprintf(stderr, "Not enough memory to allocate for options object\n");
-
-		return NULL;
-	}
-
-	bzero(ret->logdir, sizeof(ret->logdir));
-	ret->daemon = false;
-
-	return ret;
-}
-
-void options_destroy(options_t **obj) {
-	options_t *opt = (*obj);
-
-	gru_config_destroy(&opt->config);
-
-	free(opt);
-	*obj = NULL;
-}
-
-void options_set_defaults(options_t *ret) {
+static void options_set_defaults(options_t *ret) {
 	gru_status_t status = gru_status_new();
 
 	ret->uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", &status);
@@ -66,6 +42,36 @@ void options_set_defaults(options_t *ret) {
 	ret->daemon = false;
 	ret->probing = true;
 	ret->throttle = 0;
+	ret->iface = strdup("eth0");
+	ret->probes = gru_split("net,bmic", ',', &status);
+}
+
+options_t *options_new() {
+	options_t *ret = (options_t *) calloc(1, sizeof(options_t));
+
+	if (!ret) {
+		fprintf(stderr, "Not enough memory to allocate for options object\n");
+
+		return NULL;
+	}
+
+	bzero(ret->logdir, sizeof(ret->logdir));
+	ret->daemon = false;
+
+	return ret;
+}
+
+void options_destroy(options_t **obj) {
+	options_t *opt = (*obj);
+
+	if (!opt) {
+		return;
+	}
+
+	free(opt->iface);
+
+	free(opt);
+	*obj = NULL;
 }
 
 void set_options_object(options_t *obj) {

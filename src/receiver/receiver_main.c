@@ -41,6 +41,8 @@ int main(int argc, char **argv) {
 	int option_index = 0;
 
 	options_t *options = options_new();
+	set_options_object(options);
+
 	gru_status_t status = gru_status_new();
 
 	if (!options) {
@@ -49,16 +51,6 @@ int main(int argc, char **argv) {
 
 	if (argc < 2) {
 		show_help(argv);
-
-		return EXIT_FAILURE;
-	}
-
-	set_options_object(options);
-
-	const char *apphome = gru_base_app_home("mpt");
-	config_init(options, apphome, "mpt-receiver.ini", &status);
-	if (gru_status_error(&status)) {
-		fprintf(stderr, "%s\n", status.message);
 
 		return EXIT_FAILURE;
 	}

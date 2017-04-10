@@ -17,7 +17,7 @@
 
 static FILE *report;
 static const char *name = "net";
-static char device[4096] = {0};
+static char *device = NULL;
 
 probe_entry_t *net_entry(gru_status_t *status) {
 	probe_entry_t *ret = gru_alloc(sizeof(probe_entry_t), status);
@@ -84,8 +84,7 @@ static FILE *net_open_rx_file(const char *devname, gru_status_t *status) {
 bool net_init(const options_t *options, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	gru_config_read_string("probes.net.device", options->config->file, device);
-
+	device = options->iface;
 	logger(INFO, "Reading device %s", device);
 
 	char filename[64] = {0};

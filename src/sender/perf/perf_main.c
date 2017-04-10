@@ -40,6 +40,9 @@ static void show_help(char **argv) {
 		"t",
 		"sets a fixed rate of messages (in messages per second per connection)");
 	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
+	gru_cli_option_help("interface", "i", "network interface for the network probe");
+	gru_cli_option_help("probes", "P", 
+		"comma-separated list of probes to enable (default: net,bmic)");
 }
 
 int perf_main(int argc, char **argv) {
@@ -53,19 +56,11 @@ int perf_main(int argc, char **argv) {
 	}
 
 	options_t *options = options_new();
+	set_options_object(options);
+
 	gru_status_t status = gru_status_new();
 
 	if (!options) {
-		return EXIT_FAILURE;
-	}
-
-	set_options_object(options);
-
-	const char *apphome = gru_base_app_home("mpt");
-	config_init(options, apphome, "mpt-sender.ini", &status);
-	if (gru_status_error(&status)) {
-		fprintf(stderr, "%s\n", status.message);
-
 		return EXIT_FAILURE;
 	}
 
@@ -84,11 +79,13 @@ int perf_main(int argc, char **argv) {
 			{"throttle", true, 0, 't'},
 			{"daemon", false, 0, 'D'},
 			{"no-probes", false, 0, 'N'},
+			{"interface", true, 0, 'i'},
 			{"maestro-url", true, 0, 'm'},
+			{"probes", true, 0, 'P'},
 			{"help", false, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:DNm:h", long_options, &option_index);
+		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:DNi:m:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -128,6 +125,15 @@ int perf_main(int argc, char **argv) {
 				break;
 			case 'N':
 				options->probing = false;
+				break;
+			case 'i':
+				options->iface = strdup(optarg);
+				break;
+			case 'P':
+				if (options->probes) {
+					gru_list_destroy(&options->probes);
+				}
+				options->probes = gru_split(optarg, ',', &status);
 				break;
 			case 'm':
 				options->maestro_uri = gru_uri_parse(optarg, &status);

@@ -41,19 +41,11 @@ int tune_main(int argc, char **argv) {
 	}
 
 	options_t *options = options_new();
+	set_options_object(options);
+	
 	gru_status_t status = gru_status_new();
 
 	if (!options) {
-		return EXIT_FAILURE;
-	}
-
-	set_options_object(options);
-
-	const char *apphome = gru_base_app_home("mpt");
-	config_init(options, apphome, "mpt-sender.ini", &status);
-	if (gru_status_error(&status)) {
-		fprintf(stderr, "%s\n", status.message);
-
 		return EXIT_FAILURE;
 	}
 

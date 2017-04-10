@@ -30,6 +30,8 @@ int main(int argc, char **argv) {
 	int option_index = 0;
 
 	options_t *options = options_new();
+	set_options_object(options);
+	
 	gru_status_t status = gru_status_new();
 
 	if (!options) {
@@ -42,19 +44,8 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	set_options_object(options);
-
-	const char *apphome = gru_base_app_home("mpt");
-	config_init(options, apphome, "mpt-maestro.ini", &status);
-	if (gru_status_error(&status)) {
-		fprintf(stderr, "%s\n", status.message);
-
-		return EXIT_FAILURE;
-	}
-
 	gru_logger_set(gru_logger_default_printer);
 
-	options->parallel_count = 1;
 	while (1) {
 
 		static struct option long_options[] = {
