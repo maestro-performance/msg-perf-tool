@@ -279,6 +279,7 @@ vmsl_stat_t paho_receive(
 	else {
 		memcpy(content->data, msg->payload, msg->payloadlen);
 	}
+	content->size = msg->payloadlen;
 	
 	content->count++;
 
