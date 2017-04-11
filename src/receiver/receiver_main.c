@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
 
 	gru_logger_set(gru_logger_default_printer);
 
-	options->parallel_count = 1;
 	while (1) {
 
 		static struct option long_options[] = {

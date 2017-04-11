@@ -17,7 +17,7 @@
 
 static options_t *options = NULL;
 
-static void options_set_defaults(options_t *ret) {
+void options_set_defaults(options_t *ret) {
 	gru_status_t status = gru_status_new();
 
 	ret->uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", &status);
@@ -34,7 +34,7 @@ static void options_set_defaults(options_t *ret) {
 
 	strcpy(ret->logdir, ".");
 
-	ret->parallel_count = 2;
+	ret->parallel_count = 1;
 	ret->count = 0;
 	ret->log_level = INFO;
 	ret->message_size = 32;
@@ -56,7 +56,7 @@ options_t *options_new() {
 	}
 
 	bzero(ret->logdir, sizeof(ret->logdir));
-	ret->daemon = false;
+	options_set_defaults(ret);
 
 	return ret;
 }
