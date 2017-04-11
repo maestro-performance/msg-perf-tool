@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
 		goto err_exit;
 	}
 
-	int childs[5];
+	int childs[32];
 	int child = 0;
 	logger_t logger = gru_logger_get();
 
