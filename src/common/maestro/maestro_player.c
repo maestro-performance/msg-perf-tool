@@ -51,7 +51,7 @@ static void *maestro_player_run(void *player) {
 	maestro_player_t *maestro_player = (maestro_player_t *) player;
 	logger_t logger = gru_logger_get();
 
-	msg_content_data_t *mdata = msg_content_data_new(16, &status);
+	msg_content_data_t *mdata = msg_content_data_new(MAESTRO_NOTE_SIZE, &status);
 	if (!gru_status_success(&status)) {
 		return NULL;
 	}
@@ -66,7 +66,24 @@ static void *maestro_player_run(void *player) {
 		}
 		else {
 			if (!(rstat & VMSL_NO_DATA)) {
-				maestro_sheet_play(maestro_player->sheet, mdata->data, NULL, &status);
+				msg_content_data_t resp = {0};
+				maestro_sheet_play(maestro_player->sheet, mdata, &resp, &status);
+				if (!gru_status_success(&status)) {
+					logger(WARNING, "Maestro request failed: %s", status.message);
+				}
+
+				if (resp.data != NULL) {
+					gru_uri_set_path(&maestro_player->ctxt->msg_opts.uri, "/mpt/maestro");
+					
+					vmsl_stat_t ret = maestro_player->mmsl.send(maestro_player->ctxt, &resp, 
+						&status);
+					if (ret != VMSL_SUCCESS) {
+						logger(ERROR, "Unable to write maestro reply: %s", status.message);
+					}
+					
+
+					msg_content_data_release(&resp);
+				}
 			}
 		}
 

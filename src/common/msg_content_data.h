@@ -37,4 +37,7 @@ void msg_content_data_release(msg_content_data_t *data);
 void msg_content_data_destroy(msg_content_data_t **data);
 void msg_content_data_fill(msg_content_data_t *data, char v);
 
+bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_list ap);
+bool msg_content_data_serialize(msg_content_data_t *cont, const char *fmt, ...);
+
 #endif /* MSG_CONTENT_DATA_H */

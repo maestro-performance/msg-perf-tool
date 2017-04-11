@@ -16,16 +16,42 @@
 #ifndef MAESTRO_NOTE_H
 #define MAESTRO_NOTE_H
 
-#define MAESTRO_NOTE_START "001"
-#define MAESTRO_NOTE_STOP "002"
-#define MAESTRO_NOTE_PING "010"
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include <common/gru_status.h>
+
+#include "msg_content_data.h"
+
+#define MAESTRO_NOTE_TYPE_LENGTH 1
+#define MAESTRO_NOTE_CMD_LENGTH 2
+#define MAESTRO_NOTE_PAYLOAD_MAX_LENGTH 252
+
+#define MAESTRO_HEADER_SIZE (MAESTRO_NOTE_TYPE_LENGTH + MAESTRO_NOTE_CMD_LENGTH)
+#define MAESTRO_NOTE_SIZE (MAESTRO_NOTE_TYPE_LENGTH + MAESTRO_NOTE_CMD_LENGTH + MAESTRO_NOTE_PAYLOAD_MAX_LENGTH)
+
+#define MAESTRO_TYPE_REQUEST "0"
+#define MAESTRO_TYPE_RESPONSE "1"
+
+#define maestro_request(maestro_note__) (MAESTRO_TYPE_REQUEST maestro_note__)
+#define maestro_response(maestro_note__) (MAESTRO_TYPE_RESPONSE maestro_note__)
+
+#define MAESTRO_NOTE_START "01"
+#define MAESTRO_NOTE_STOP "02"
+#define MAESTRO_NOTE_PING "10"
+#define MAESTRO_NOTE_PROTOCOL_ERROR "F0"
 
 typedef struct maestro_note_t_ {
-	char value[4]; 
+	char type;
+	char command[3]; 
 	void *payload;
 } maestro_note_t;
 
-maestro_note_t *maestro_note_new();
+bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note, 
+	gru_status_t *status);
+bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd);
+
+
 
 
 #endif /* MAESTRO_NOTE_H */

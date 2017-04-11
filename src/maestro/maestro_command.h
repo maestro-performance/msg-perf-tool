@@ -20,6 +20,8 @@
 #include "msgctxt.h"
 #include "vmsl_assign.h"
 
+#include "maestro/maestro_note.h"
+
 typedef struct maestro_cmd_ctxt_t_ {
 	vmsl_t vmsl;
 	msg_ctxt_t *msg_ctxt;

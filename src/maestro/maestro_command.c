@@ -69,9 +69,11 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 	
 	msg_content_data_t req = {0};
 
-	msg_content_data_init(&req, 3, NULL);
-	req.data = strdup("001");
-	req.size = 3;
+	maestro_note_serialize(&req, maestro_request(MAESTRO_NOTE_START));
+
+	// msg_content_data_init(&req, MAESTRO_HEADER_SIZE, NULL);
+	// req.data = maestro_request(MAESTRO_NOTE_START);
+	// req.size = MAESTRO_HEADER_SIZE;
 	
 	cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	ret = maestro_cmd_disconnect(cmd_ctxt, status);

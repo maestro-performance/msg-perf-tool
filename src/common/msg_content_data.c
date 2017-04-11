@@ -81,3 +81,25 @@ void msg_content_data_fill(msg_content_data_t *content, char v) {
 
 	((char *) content->data)[0] = v;
 }
+
+bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_list ap) {
+	cont->size = vasprintf(&cont->data, fmt, ap); 
+	
+	if (cont->size == -1) {
+		return false;
+	}
+	cont->capacity = cont->size;
+	
+	
+	return true;
+}
+
+bool msg_content_data_serialize(msg_content_data_t *cont, const char *fmt, ...) {	
+	va_list ap;
+
+	va_start(ap, fmt);
+	bool ret = msg_content_data_vserialize(cont, fmt, ap);
+	va_end(ap);
+	
+	return ret;
+}

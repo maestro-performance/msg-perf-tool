@@ -13,18 +13,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "maestro_instrument.h"
+#ifndef RECEIVERD_WORKER_H
+#define RECEIVERD_WORKER_H
 
-maestro_instrument_t *maestro_instrument_new(const char *note, maestro_play_t play, 
-	gru_status_t *status) 
-{
-	maestro_instrument_t *ret = gru_alloc(sizeof(maestro_instrument_t), status);
-	gru_alloc_check(ret, NULL);
+#include <inttypes.h>
+#include <signal.h>
+#include <unistd.h>
+#include <stdio.h>
 
-	ret->play = play;
+#include <common/gru_status.h>
 
-	strlcpy(ret->tessitura.command, note, sizeof(ret->tessitura.command));
-	ret->tessitura.payload = NULL;
-	
-	return ret;
-}
+#include "contrib/options.h"
+#include "msgctxt.h"
+#include "process_utils.h"
+#include "vmsl.h"
+#include "msg_content_data.h"
+#include "maestro/maestro_player.h"
+#include "maestro/maestro_sheet.h"
+
+
+int receiverd_start(const options_t *options);
+
+#endif /* RECEIVERD_WORKER_H */

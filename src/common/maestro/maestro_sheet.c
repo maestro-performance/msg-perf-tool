@@ -51,32 +51,47 @@ static void maestro_sheet_parse(const void *req) {
 
 }
 
+typedef struct maestro_exchange_t_ {
+	maestro_note_t request;
+	maestro_note_t response;
+} maestro_exchange_t;
+
 static void maestro_sheet_do_play(const void *nodedata, void *payload) {
 	logger_t logger = gru_logger_get();
-	char *req = (char *) payload; 
+	
+	maestro_exchange_t *exchange = (maestro_exchange_t *) payload;
 	maestro_instrument_t *instrument = (maestro_instrument_t *) nodedata;
 
-	if (strncmp(instrument->tessitura.value, req, 3) == 0) {
-		logger_t logger = gru_logger_get();
-
+	if (strncmp(instrument->tessitura.command, exchange->request.command, MAESTRO_NOTE_CMD_LENGTH) == 0) {
 		logger(INFO, "Request and tessitura match, calling function");
-		instrument->play(NULL, NULL);
+
+		instrument->play(&exchange->request, &exchange->response);
 	}
 	else {
-		logger(INFO, "Request %03s is unkown, therefore ignoring (current = %s)", req, 
-			instrument->tessitura.value);
+		logger(INFO, "Request %03s is unkown, therefore ignoring (current = %s)", 
+			exchange->request.command, instrument->tessitura.command);
 	}
 
 }
 
-void maestro_sheet_play(const maestro_sheet_t *sheet, const void *req, void *resp, 
-	gru_status_t *status)
+void maestro_sheet_play(const maestro_sheet_t *sheet, const msg_content_data_t *req, 
+	msg_content_data_t *resp, gru_status_t *status)
 {
 	logger_t logger = gru_logger_get();
 
-	char *data = (char *) req; 
+	logger(DEBUG, "Received maestro data: %s", (char *) req->data);
 
-	logger(DEBUG, "Received maestro data: %s", (char *) req);
-	gru_list_for_each(sheet->instruments, maestro_sheet_do_play, req);
+	maestro_exchange_t exchange = {0};
+
+	if (!maestro_note_parse(req->data, req->size, &exchange.request, status)) {
+		logger(ERROR, "Unable to parse request %s: %s", (char *) req->data, 
+			status->message);
+
+		maestro_note_serialize(resp, maestro_response(MAESTRO_NOTE_PROTOCOL_ERROR));
+		
+		return;
+	}
+	
+	gru_list_for_each(sheet->instruments, maestro_sheet_do_play, &exchange);
 	
 }

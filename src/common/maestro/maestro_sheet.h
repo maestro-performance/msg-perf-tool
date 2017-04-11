@@ -22,6 +22,8 @@
 #include <collection/gru_list.h>
 #include <log/gru_logger.h>
 
+#include "msg_content_data.h"
+
 #include "maestro_note.h"
 #include "maestro_instrument.h"
 
@@ -36,8 +38,8 @@ maestro_sheet_t *maestro_sheet_new(const char *location, gru_status_t *status);
 void maestro_sheet_add_instrument(maestro_sheet_t *sheet, 
 	maestro_instrument_t *instrument);
 
-void maestro_sheet_play(const maestro_sheet_t *sheet, const void *req, void *resp, 
-	gru_status_t *status);
+void maestro_sheet_play(const maestro_sheet_t *sheet, const msg_content_data_t *cont, 
+	msg_content_data_t *resp, gru_status_t *status);
 
 
 
