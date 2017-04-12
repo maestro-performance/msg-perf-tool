@@ -207,8 +207,8 @@ function run_by_duration() {
   # Sleeps for a little longer than the test duration so that it gives some time
   # for the program to finish and flush data
 
-  echo "Sleeping for ${DURATION}15s"
-  sleep "${DURATION}" 15s
+  echo "Sleeping for ${DURATION}m + 15s"
+  sleep "${DURATION}m" 15s
 }
 
 
