@@ -195,10 +195,11 @@ int perf_main(int argc, char **argv) {
 		if (child > 0) {
 			setsid();
 			int rc = 0;
+			pid_t child_pid;
 			for (uint16_t i = 0; i < options->parallel_count; i++) {
-				waitpid(childs[i], &rc, 0);
+				child_pid = waitpid(-1, &rc, 0);
 
-				logger(INFO, "Child process %d terminated with status %d", childs[i], rc);
+				logger(INFO, "Child process %d terminated with status %d", child_pid, rc);
 			}
 		}
 
