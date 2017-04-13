@@ -95,7 +95,12 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 			}
 		}
 		else {
-			fprintf(stdout, "Just read: %s\n", buf);
+			maestro_note_t note = {0};
+
+			maestro_note_parse(buf, ret, &note, status);
+			if (strcmp(note.command, MAESTRO_NOTE_PROTOCOL_ERROR) == 0) {
+				fprintf(stderr, "Protocol error\n");
+			}
 		}
 	}
 
