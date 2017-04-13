@@ -27,15 +27,13 @@ extern "C" {
 #include <log/gru_logger.h>
 
 #include "statistics.h"
+#include "msg_direction.h"
+#include "msg_conn_info.h"
 #include "msg_content_data.h"
 
 typedef void (*msg_content_loader)(msg_content_data_t *content_data);
 
-typedef enum msg_direction_t_ {
-	MSG_DIRECTION_SENDER,
-	MSG_DIRECTION_RECEIVER,
-	MSG_DIRECTION_BOTH,
-} msg_direction_t;
+
 
 typedef enum msg_qos_t_ {
 	MSG_QOS_AT_MOST_ONCE,
@@ -57,6 +55,7 @@ typedef struct msg_opt_t_ {
 	msg_direction_t direction;
 	msg_qos_t qos;
 	msg_stat_opt_t statistics;
+	msg_conn_info_t conn_info;
 	gru_uri_t uri;
 } msg_opt_t;
 
