@@ -15,6 +15,7 @@ add_library(
         contrib/options.c
         config.c
         vmsl.c
+        msg_conn_info.c
         msgctxt.c
         statistics.c
         process_utils.c
