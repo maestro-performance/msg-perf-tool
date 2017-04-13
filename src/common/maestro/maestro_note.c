@@ -69,6 +69,8 @@ bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note,
 	else {
 		note->payload = NULL;
 	}
+
+	return true;
 }
 
 
