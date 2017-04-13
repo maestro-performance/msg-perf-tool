@@ -56,19 +56,11 @@ msg_ctxt_t *paho_init(
 	logger(DEBUG, "Creating a client to %s with path %s ", connect_url, 
             paho_ctxt->uri.path);
 	int rc = 0;
-	if (opt.direction == MSG_DIRECTION_SENDER) {
-		rc = MQTTClient_create(&paho_ctxt->client,
+	rc = MQTTClient_create(&paho_ctxt->client,
 			connect_url,
-			"msg-perf-tool-sender",
+			opt.conn_info.id,
 			MQTTCLIENT_PERSISTENCE_NONE,
 			NULL);
-	} else {
-		rc = MQTTClient_create(&paho_ctxt->client,
-			connect_url,
-			"msg-perf-tool-receiver",
-			MQTTCLIENT_PERSISTENCE_NONE,
-			NULL);
-	}
 
 	if (rc != MQTTCLIENT_SUCCESS) {
 		logger(FATAL, "Unable to create MQTT client handle: %d", rc);
@@ -96,8 +88,10 @@ msg_ctxt_t *paho_init(
 }
 
 void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
+	
+	
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
-
+	
 	int rc = MQTTClient_disconnect(paho_ctxt->client, 10000);
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS:
@@ -159,8 +153,8 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 
 		// mpt_trace("Sending message '%s' to %s", pl.data, paho_ctxt->uri.path);
 
-	logger_t logger = gru_logger_get();
-		logger(DEBUG, "Sending message with latency '%s' to %s", data->data, paho_ctxt->uri.path);
+		logger_t logger = gru_logger_get();
+		logger(DEBUG, "Sending message with latency '%s' to %s", data->data, ctxt->msg_opts.uri.path);
 
 		rc = MQTTClient_publishMessage(
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
@@ -170,7 +164,7 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 		// mpt_trace("Sending message '%s' to %s", data->data, paho_ctxt->uri.path);
 		logger_t logger = gru_logger_get();
 
-		logger(DEBUG, "Sending message '%s' to %s", data->data, paho_ctxt->uri.path);
+		logger(DEBUG, "Sending message '%s' to %s", data->data, ctxt->msg_opts.uri.path);
 
 		pubmsg.payload = data->data;
 		pubmsg.payloadlen = data->size;

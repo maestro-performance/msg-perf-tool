@@ -27,6 +27,7 @@
 #include <contrib/options.h>
 
 #include "vmsl.h"
+#include "msg_conn_info.h"
 #include "maestro_sheet.h"
 
 extern bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl);

@@ -81,6 +81,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		.statistics = MSG_STAT_DEFAULT,
 	};
 
+	msg_conn_info_gen_id(&opt.conn_info);
 	opt.uri = options->uri;
 
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);

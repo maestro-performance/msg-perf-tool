@@ -30,6 +30,7 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 		.statistics = MSG_STAT_NONE,
 	};
 
+	msg_conn_info_gen_id(&opt.conn_info);
 	opt.uri = player->uri;
 
 	player->ctxt = player->mmsl.init(NULL, opt, NULL, status);
