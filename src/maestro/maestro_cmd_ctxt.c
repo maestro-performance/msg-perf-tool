@@ -13,23 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef MAESTRO_LOOP_H
-#define MAESTRO_LOOP_H
+ #include "maestro_cmd_ctxt.h"
 
-#include <stdint.h>
-#include <stdio.h>
+maestro_cmd_ctxt_t *maestro_cmd_ctxt_init(const gru_uri_t *uri, gru_status_t *status) {
+	maestro_cmd_ctxt_t *ret = gru_alloc(sizeof(maestro_cmd_ctxt_t), status);
+	gru_alloc_check(ret, NULL);
 
-#include <readline/readline.h>
-#include <readline/history.h>
+	ret->vmsl = vmsl_init();
 
-#include <common/gru_colors.h>
+	if (!vmsl_assign_by_url(uri, &ret->vmsl)) {
+		return NULL;
+	}
 
-#include "maestro_cmd_ctxt.h"
-#include "maestro_command.h"
-#include "maestro_forward_queue.h"
+	return ret;
+}
 
+void maestro_cmd_ctxt_destroy(maestro_cmd_ctxt_t **ptr) {
+	maestro_cmd_ctxt_t *ctxt = *ptr;
 
-int maestro_loop(gru_status_t *status);
-void maestro_loop_reply(const options_t *options, gru_status_t *status);
+	if (!ctxt) {
+		return;
+	}
 
-#endif /* MAESTRO_LOOP_H */
+	gru_status_t tmp = gru_status_new();
+	ctxt->vmsl.stop(ctxt->msg_ctxt, &tmp);
+
+	gru_dealloc((void **) ptr);
+}

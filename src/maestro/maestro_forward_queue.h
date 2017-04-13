@@ -13,23 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef MAESTRO_LOOP_H
-#define MAESTRO_LOOP_H
+#ifndef MAESTRO_FORWARD_QUEUE_H
+#define MAESTRO_FORWARD_QUEUE_H
 
-#include <stdint.h>
-#include <stdio.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
 
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <common/gru_status.h>
 
-#include <common/gru_colors.h>
+#include "process_utils.h"
 
-#include "maestro_cmd_ctxt.h"
-#include "maestro_command.h"
-#include "maestro_forward_queue.h"
+int create_foward_queue(gru_status_t *status);
 
-
-int maestro_loop(gru_status_t *status);
-void maestro_loop_reply(const options_t *options, gru_status_t *status);
-
-#endif /* MAESTRO_LOOP_H */
+#endif /* MAESTRO_FORWARD_QUEUE_H */

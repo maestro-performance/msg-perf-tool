@@ -20,6 +20,10 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <string.h>
+
+#include <sys/types.h>
+#include <sys/ipc.h>
 
 #include <common/gru_status.h>
 #include <io/gru_ioutils.h>
@@ -39,6 +43,13 @@ bool can_continue(const options_t *options, uint64_t sent);
 
 void install_timer(time_t sec);
 void install_interrupt_handler();
+
+/**
+ * Does the obvious: creates a POSIX queue
+ * @param key
+ * @return
+ */
+int create_queue(key_t key, gru_status_t *status);
 
 #ifdef __cplusplus
 }

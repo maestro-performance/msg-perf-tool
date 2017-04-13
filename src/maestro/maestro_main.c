@@ -20,6 +20,8 @@ static void show_help(char **argv) {
 
 	gru_cli_option_help("help", "h", "show this help");
     gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
+	gru_cli_option_help("log-level",
+		"l", "runs in the given verbose (info, debug, trace, etc) level mode");
 }
 
 static char *start = "001";
@@ -50,10 +52,11 @@ int main(int argc, char **argv) {
 
 		static struct option long_options[] = {
 			{"maestro-url", true, 0, 'm'},
+			{"log-level", true, 0, 'l'},
 			{"help", false, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "m:h", long_options, &option_index);
+		c = getopt_long(argc, argv, "m:l:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -66,6 +69,10 @@ int main(int argc, char **argv) {
 					goto err_exit;
 				}
 				break;
+			case 'l':
+				options->log_level = gru_logger_get_level(optarg);
+				gru_logger_set_mininum(options->log_level);
+				break;
 			case 'h':
 				show_help(argv);
 				return EXIT_SUCCESS;
@@ -75,9 +82,26 @@ int main(int argc, char **argv) {
 				return EXIT_SUCCESS;
 		}
 	}
-	
-	if (maestro_loop(&status) != 0) {
-		goto err_exit;
+
+	int child = fork();
+
+	if (child == 0) {
+		maestro_forward_daemon_run(options);
+	}
+	else {
+		if (child > 0) {
+			fprintf(stdout, "Forward daemon started\n");
+			if (maestro_loop(&status) != 0) {
+				goto err_exit;
+			}
+
+			int rc = 0;
+			waitpid(child, &rc, 0);
+		}
+		else {
+			fprintf(stderr, "Unable to launch child process");
+			goto err_exit;
+		}
 	}
 
 	options_destroy(&options);

@@ -21,7 +21,15 @@ int maestro_loop(gru_status_t *status) {
 
 	const options_t *options = get_options_object();
 
-	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_init_ctxt(options, status);
+	// int create_foward_queue(gru_status_t *status);
+	int queue = create_foward_queue(status);
+	if (queue < 0) {
+		fprintf(stderr, "Unable to initialize forward queue: %s\n", status->message);
+		
+		return 1;
+	}
+
+	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_ctxt_init(&options->maestro_uri, status);
 	if (!cmd_ctxt) {
 		fprintf(stderr, "Unable to initialize command processor: %s\n", status->message);
 		
@@ -41,17 +49,14 @@ int maestro_loop(gru_status_t *status) {
 
 		if (strcmp(command, "start-receiver") == 0) {
 			maestro_cmd_start_receiver(cmd_ctxt, status);
-			// msg_content_data_t req = {0};
-
-			// msg_content_data_init(&req, 3, NULL);
-			// req.data = strdup("001");
-			// req.size = 3;
-			
-			// vmsl.send(ctxt, &req, &status);
 		}
 
-		
+		if (strcmp(command, "collect") == 0) {
+			maestro_cmd_collect(cmd_ctxt, queue, status);
+		}
 	} while (true);
 
 	return 0;
 }
+
+

@@ -50,6 +50,15 @@ msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status) {
 	mdata->errors = 0;
 }
 
+void msg_content_data_reset(msg_content_data_t *mdata) {
+	if (!mdata) {
+		return;
+	}
+
+	bzero(mdata->data, mdata->capacity);
+	mdata->size = 0;
+}
+
 
 void msg_content_data_release(msg_content_data_t *mdata) {
 	if (!mdata) {

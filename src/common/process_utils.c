@@ -136,3 +136,18 @@ bool can_continue(const options_t *options, uint64_t sent) {
 
 	return false;
 }
+
+
+int create_queue(key_t key, gru_status_t *status) {
+	int msg_flag = IPC_CREAT | 0666;
+	
+	int queue_id = msgget(key, msg_flag);
+	if (queue_id < 0) {
+		gru_status_set(status, GRU_FAILURE, 
+			"Unable to create a POSIX queue: %s", strerror(errno));
+
+		return -1;
+	}
+
+	return queue_id;
+}

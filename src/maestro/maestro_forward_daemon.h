@@ -13,11 +13,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef MAESTRO_LOOP_H
-#define MAESTRO_LOOP_H
+#ifndef MAESTRO_FORWARD_DAEMON_H
+#define MAESTRO_FORWARD_DAEMON_H
 
 #include <stdint.h>
 #include <stdio.h>
+
+#include <sys/types.h>
+#include <sys/ipc.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -26,10 +29,7 @@
 
 #include "maestro_cmd_ctxt.h"
 #include "maestro_command.h"
-#include "maestro_forward_queue.h"
 
+int maestro_forward_daemon_run(const options_t *options);
 
-int maestro_loop(gru_status_t *status);
-void maestro_loop_reply(const options_t *options, gru_status_t *status);
-
-#endif /* MAESTRO_LOOP_H */
+#endif /* MAESTRO_FORWARDD_H_DAEMON*/

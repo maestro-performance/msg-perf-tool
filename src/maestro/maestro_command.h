@@ -16,18 +16,23 @@
 #ifndef MAESTRO_COMMAND_H
 #define MAESTRO_COMMAND_H
 
+#include <stdio.h>
+
+#include <sys/types.h>
+#include <sys/ipc.h>
+
 #include "vmsl.h"
 #include "msgctxt.h"
 #include "vmsl_assign.h"
 
+#include "maestro_cmd_ctxt.h"
+
 #include "maestro/maestro_note.h"
 
-typedef struct maestro_cmd_ctxt_t_ {
-	vmsl_t vmsl;
-	msg_ctxt_t *msg_ctxt;
-} maestro_cmd_ctxt_t;
 
-int maestro_cmd_start_receiver();
+
+int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
+int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *status);
 
 
 #endif /* MAESTRO_COMMAND_H */

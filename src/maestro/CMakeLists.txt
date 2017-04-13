@@ -2,7 +2,10 @@ add_executable(
     mpt-maestro
     maestro_main.c
     maestro_loop.c
+    maestro_cmd_ctxt.c
     maestro_command.c
+    maestro_forward_queue.c
+    maestro_forward_daemon.c
 )
 
 # Readline
@@ -16,6 +19,7 @@ target_link_libraries(
 	mpt-common
         mpt-api-common
         ${READLINE_LIB}
+        pthread
 )
 
 install(TARGETS
