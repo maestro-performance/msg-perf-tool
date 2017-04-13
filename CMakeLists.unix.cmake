@@ -57,3 +57,8 @@ find_library(URIPARSER_LIB NAMES uriparser liburiparser)
 message(STATUS "URIParser found on ${URIPARSER_INCLUDE_DIR}")
 message(STATUS "URIParser library found at ${URIPARSER_LIB}")
 
+find_path(UUID_INCLUDE_DIR uuid/uuid.h)
+find_library(UUID_LIB NAMES uuid libuuid)
+
+message(STATUS "UUID headers found on ${UUID_INCLUDE_DIR}")
+message(STATUS "UUID library found at ${UUID_LIB}")

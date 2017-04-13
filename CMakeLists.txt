@@ -40,7 +40,9 @@ link_libraries(${MATH_LIB}
     ${BMIC_BASE_LIB} 
     ${BMIC_MANAGEMENT_LIB} 
     ${BMIC_PRODUCT_LIB} 
-    ${URIPARSER_LIB})
+    ${URIPARSER_LIB}
+    ${UUID_LIB}
+    )
 
 include_directories(src/common)
 add_subdirectory(src/common objs/common)
