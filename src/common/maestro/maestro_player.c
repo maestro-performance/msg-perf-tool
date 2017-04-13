@@ -101,7 +101,7 @@ bool maestro_player_start(const options_t *options, maestro_sheet_t *sheet,
 	maestro_player_t *maestro_player = maestro_player_new();
 	maestro_player->sheet = sheet;
 
-	logger(INFO, "Connecting to maestro URL %s", options->maestro_uri.scheme);
+	logger(INFO, "Connecting to maestro host %s", options->maestro_uri.host);
 	maestro_player->uri = gru_uri_clone(options->maestro_uri, status);
 	if (!gru_status_success(status)) {
 		return false;
