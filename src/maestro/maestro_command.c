@@ -101,7 +101,38 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 			if (strcmp(note.command, MAESTRO_NOTE_PROTOCOL_ERROR) == 0) {
 				fprintf(stderr, "Protocol error\n");
 			}
+			else {
+				fprintf(stderr, "Received OK: %s\n", buf);
+			}
 		}
+	}
+
+	return 0;
+}
+
+
+int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	const options_t *options = get_options_object();
+
+	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
+	if (ret != 0) {
+		return ret;
+	}
+
+	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
+	
+	msg_content_data_t req = {0};
+
+	maestro_note_serialize(&req, maestro_request(MAESTRO_NOTE_FLUSH));
+
+	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
+	if (rstat != VMSL_SUCCESS) {
+		fprintf(stderr, "Failed to send command");
+	}
+
+	ret = maestro_cmd_disconnect(cmd_ctxt, status);
+	if (ret != 0) {
+		fprintf(stderr, "Warning error during disconnect");
 	}
 
 	return 0;

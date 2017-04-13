@@ -94,6 +94,10 @@ int main(int argc, char **argv) {
 			if (maestro_loop(&status) != 0) {
 				goto err_exit;
 			}
+
+			kill(child, SIGTERM);
+			int rc = 0;
+			waitpid(child, &rc, 0);
 		}
 		else {
 			fprintf(stderr, "Unable to launch child process");

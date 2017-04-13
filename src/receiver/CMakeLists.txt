@@ -19,6 +19,7 @@ install(TARGETS
 add_executable(
 	mpt-receiver-daemon
 	receiverd_main.c
+	receiverd_worker.c
 )
 
 target_link_libraries(

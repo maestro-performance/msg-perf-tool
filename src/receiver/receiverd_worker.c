@@ -15,7 +15,16 @@
  */
 #include "receiverd_worker.h"
 
-static void *receiverd_handle_ping(maestro_note_t *note, gru_status_t *status) {
+bool can_start = false;
+
+static void *receiverd_handle_flush(maestro_note_t *request, maestro_note_t *response) {
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Flushing all buffers as requested");
+	fflush(NULL);
+}
+
+static void *receiverd_handle_ping(maestro_note_t *request, maestro_note_t *response) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a ping request");
@@ -24,7 +33,7 @@ static void *receiverd_handle_ping(maestro_note_t *note, gru_status_t *status) {
 	return NULL;
 }
 
-static void *receiverd_handle_start(maestro_note_t *note, gru_status_t *status) {
+static void *receiverd_handle_start(maestro_note_t *request, maestro_note_t *response) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
@@ -39,15 +48,21 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 		return NULL;
 	}
 
-	maestro_instrument_t *instrument = maestro_instrument_new(MAESTRO_NOTE_START, 
-		receiver_handle_start, status);
+	maestro_instrument_t *start_instrument = maestro_instrument_new(MAESTRO_NOTE_START, 
+		receiverd_handle_start, status);
 
-	maestro_sheet_add_instrument(ret, instrument);
+	maestro_sheet_add_instrument(ret, start_instrument);
+
+	maestro_instrument_t *flush_instrument = maestro_instrument_new(MAESTRO_NOTE_FLUSH, 
+		receiverd_handle_flush, status);
+
+	maestro_sheet_add_instrument(ret, flush_instrument);
 
 	return ret;
 }
 
-int receiverd_start(const options_t *options) {
+int receiverd_worker_start(const options_t *options) {
+	gru_status_t status = gru_status_new();
 	maestro_sheet_t *sheet = new_receiver_sheet(&status);
 
 	if (!maestro_player_start(options, sheet, &status)) {
@@ -57,6 +72,7 @@ int receiverd_start(const options_t *options) {
 		return;
 	}
 
-	while 
-
+	while (true) {
+		sleep(1);
+	}
 }

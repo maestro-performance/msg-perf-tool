@@ -32,6 +32,6 @@
 #include "maestro/maestro_sheet.h"
 
 
-int receiverd_start(const options_t *options);
+int receiverd_worker_start(const options_t *options);
 
 #endif /* RECEIVERD_WORKER_H */

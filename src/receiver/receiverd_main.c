@@ -84,62 +84,7 @@ int main(int argc, char **argv) {
 	}
 
 	init_controller(true, options->logdir, "mpt-receiver-daemon");
-
-	// vmsl_t vmsl = vmsl_init();
-
-	// if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
-	// 	goto err_exit;
-	// }
-
-	// int childs[5];
-	// int child = 0;
-	// logger_t logger = gru_logger_get();
-
-	// if (options->parallel_count > 1) {
-	// 	logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-	// 	for (uint16_t i = 0; i < options->parallel_count; i++) {
-	// 		child = fork();
-
-	// 		if (child == 0) {
-	// 			if (strlen(options->logdir) > 0) {
-	// 				remap_log(options->logdir,
-	// 					"mpt-receiver",
-	// 					getppid(),
-	// 					getpid(),
-	// 					stderr,
-	// 					&status);
-	// 			}
-
-	// 			receiver_start(&vmsl, options);
-	// 			goto success_exit;
-	// 		} else {
-	// 			if (child > 0) {
-	// 				childs[i] = child;
-	// 			} else {
-	// 				printf("Error\n");
-	// 			}
-	// 		}
-	// 	}
-
-	// 	if (child > 0) {
-	// 		int rc = 0;
-	// 		for (uint16_t i = 0; i < options->parallel_count; i++) {
-	// 			waitpid(childs[i], &rc, 0);
-
-	// 			logger(INFO, "Child process %d terminated with status %d", childs[i], rc);
-	// 		}
-	// 	}
-	// } else {
-	// 	if (strlen(options->logdir) > 0 && options->daemon) {
-
-	// 		remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, &status);
-	// 	}
-
-	// 	logger(INFO, "Starting test");
-	// 	receiver_start(&vmsl, options);
-	// }
-
-	// logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
+	receiverd_worker_start(options);
 
 success_exit:
 	options_destroy(&options);

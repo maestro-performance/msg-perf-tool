@@ -23,6 +23,7 @@ extern "C" {
 #include <getopt.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <signal.h>
 #include <sys/wait.h>
 
 #include <cli/gru_cli_opt.h>
