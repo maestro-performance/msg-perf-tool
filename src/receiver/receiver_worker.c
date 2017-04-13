@@ -18,7 +18,7 @@
 
 bool can_start = false;
 
-static void *receiver_handle_start(maestro_note_t *note, gru_status_t *status) {
+static void *receiver_handle_start(maestro_note_t *request, maestro_note_t *response) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");

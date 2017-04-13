@@ -91,7 +91,8 @@ void maestro_sheet_play(const maestro_sheet_t *sheet, const msg_content_data_t *
 		
 		return;
 	}
-	
+		
 	gru_list_for_each(sheet->instruments, maestro_sheet_do_play, &exchange);
-	
+
+	maestro_note_serialize(resp, maestro_response(MAESTRO_NOTE_OK));	
 }

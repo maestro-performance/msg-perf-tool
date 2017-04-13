@@ -36,10 +36,21 @@
 #define maestro_request(maestro_note__) (MAESTRO_TYPE_REQUEST maestro_note__)
 #define maestro_response(maestro_note__) (MAESTRO_TYPE_RESPONSE maestro_note__)
 
+
+
+/** Start execution */
 #define MAESTRO_NOTE_START "01"
+/** Stop execution **/
 #define MAESTRO_NOTE_STOP "02"
+/** Flush all buffers */
+#define MAESTRO_NOTE_FLUSH "03" 
+
 #define MAESTRO_NOTE_PING "10"
+
+#define MAESTRO_NOTE_OK "E0"
+
 #define MAESTRO_NOTE_PROTOCOL_ERROR "F0"
+
 
 typedef struct maestro_note_t_ {
 	char type;

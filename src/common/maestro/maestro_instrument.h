@@ -21,7 +21,7 @@
 
 #include "maestro_note.h"
 
-typedef void *(*maestro_play_t)(maestro_note_t *note, gru_status_t *status);
+typedef void *(*maestro_play_t)(maestro_note_t *request, maestro_note_t *response);
 
 typedef struct maestro_instrument_t_ {
 	maestro_note_t tessitura; /** What it can play */
