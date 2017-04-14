@@ -79,3 +79,25 @@ bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd) {
 	
 	return ret;
 }
+
+bool maestro_note_protocol_error_response(msg_content_data_t *cont) {
+	bool ret = msg_content_data_serialize(cont, "%03s", 
+		maestro_response(MAESTRO_NOTE_PROTOCOL_ERROR));
+	
+	return ret;
+}
+
+
+bool maestro_note_ok_response(msg_content_data_t *cont) {
+	bool ret = msg_content_data_serialize(cont, "%03s", 
+		maestro_response(MAESTRO_NOTE_OK));
+	
+	return ret;
+}
+
+bool maestro_note_set_request(msg_content_data_t *cont, const char *opt, const char *val) {
+	bool ret = msg_content_data_serialize(cont, "%03s%02s%.250s", 
+		maestro_request(MAESTRO_NOTE_SET), opt, val);
+	
+	return ret;
+}

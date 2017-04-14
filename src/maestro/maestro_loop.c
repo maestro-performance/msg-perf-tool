@@ -17,7 +17,7 @@
 
 
 int maestro_loop(gru_status_t *status) {
-	char *command = NULL;
+	char *line = NULL;
 
 	const options_t *options = get_options_object();
 
@@ -36,28 +36,49 @@ int maestro_loop(gru_status_t *status) {
 		return 1;
 	}
 	
+	gru_list_t *strings = NULL;
 	do  { 
-		command = readline(RED "maestro" LIGHT_WHITE "> " RESET);
-		if (command == NULL) {
+		line = readline(RED "maestro" LIGHT_WHITE "> " RESET);
+		if (line == NULL) {
 			break;
 		}
 
-		add_history(command);
+		gru_split_clean(strings);
+		gru_list_destroy(&strings);
+		strings = gru_split(line, ' ', status);
+		if (!strings) {
+			fprintf(stderr, "Unable to split command: %s\n", status->message);
+		}
+
+		const gru_node_t *node = gru_list_get(strings, 0);
+		char *command = gru_node_get_data_ptr(char, node);
+
+		add_history(line);
 		if (strcmp(command, "quit") == 0 || strcmp(command, "exit") == 0) {
 			break;
 		}
 
 		if (strcmp(command, "start-receiver") == 0) {
 			maestro_cmd_start_receiver(cmd_ctxt, status);
+			continue;
 		}
 
 		if (strcmp(command, "collect") == 0) {
 			maestro_cmd_collect(cmd_ctxt, queue, status);
+			continue;
 		}
 
 		if (strcmp(command, "flush") == 0) {
-			maestro_cmd_flush(cmd_ctxt, queue);
+			maestro_cmd_flush(cmd_ctxt, status);
+			continue;
 		}
+
+		if (strcmp(command, "set") == 0) {
+			maestro_cmd_set_opt(cmd_ctxt, strings, status);
+			continue;
+		}
+
+		fprintf(stderr, "Unknown command: %s\n", command);
 	} while (true);
 
 	return 0;

@@ -17,6 +17,16 @@
 
 bool can_start = false;
 
+static void *receiverd_handle_set(maestro_note_t *request, maestro_note_t *response) {
+	logger_t logger = gru_logger_get();
+
+	maestro_note_body_set_t *body = request->payload;
+
+	logger(INFO, "Setting option: %s to %s", body->opt, body->value);
+	fflush(NULL);
+}
+
+
 static void *receiverd_handle_flush(maestro_note_t *request, maestro_note_t *response) {
 	logger_t logger = gru_logger_get();
 
@@ -55,6 +65,11 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 
 	maestro_instrument_t *flush_instrument = maestro_instrument_new(MAESTRO_NOTE_FLUSH, 
 		receiverd_handle_flush, status);
+
+	maestro_sheet_add_instrument(ret, flush_instrument);
+
+	maestro_instrument_t *set_instrument = maestro_instrument_new(MAESTRO_NOTE_SET, 
+		receiverd_handle_set, status);
 
 	maestro_sheet_add_instrument(ret, flush_instrument);
 

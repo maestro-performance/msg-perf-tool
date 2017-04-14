@@ -36,20 +36,35 @@
 #define maestro_request(maestro_note__) (MAESTRO_TYPE_REQUEST maestro_note__)
 #define maestro_response(maestro_note__) (MAESTRO_TYPE_RESPONSE maestro_note__)
 
-
-
 /** Start execution */
 #define MAESTRO_NOTE_START "01"
 /** Stop execution **/
 #define MAESTRO_NOTE_STOP "02"
 /** Flush all buffers */
-#define MAESTRO_NOTE_FLUSH "03" 
+#define MAESTRO_NOTE_FLUSH "03"
+
+/** Set options */
+#define MAESTRO_NOTE_SET "04"
+
+/** Lengh of the opt field in a set note */
+#define MAESTRO_NOTE_OPT_LEN 2
+
+/** Lengh of the value field in a set note */
+#define MAESTRO_NOTE_OPT_VALUE_LEN (MAESTRO_NOTE_PAYLOAD_MAX_LENGTH - MAESTRO_NOTE_OPT_LEN)
 
 #define MAESTRO_NOTE_PING "10"
 
 #define MAESTRO_NOTE_OK "E0"
 
 #define MAESTRO_NOTE_PROTOCOL_ERROR "F0"
+
+// Set options
+#define MAESTRO_NOTE_OPT_SET_BROKER "00"
+
+typedef struct maestro_note_body_set_t_ {
+	char opt[MAESTRO_NOTE_OPT_LEN];
+	char value[MAESTRO_NOTE_OPT_VALUE_LEN];
+} maestro_note_body_set_t;
 
 
 typedef struct maestro_note_t_ {
@@ -62,6 +77,9 @@ bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note,
 	gru_status_t *status);
 bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd);
 
+bool maestro_note_protocol_error_response(msg_content_data_t *cont);
+bool maestro_note_ok_response(msg_content_data_t *cont);
+bool maestro_note_set_request(msg_content_data_t *cont, const char *opt, const char *val);
 
 
 

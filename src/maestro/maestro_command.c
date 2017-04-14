@@ -36,9 +36,6 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt, gru_uri_t uri, gru_
 		return 1;
 	}
 
-	// gru_uri_set_path(&opt.uri, "/mpt/maestro");
-	// cmd_ctxt->vmsl.subscribe(cmd_ctxt->msg_ctxt, NULL, status);
-
 	return 0;
 }
 
@@ -67,11 +64,15 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
 		fprintf(stderr, "Failed to send command");
+
+		return 1;
 	}
 
 	ret = maestro_cmd_disconnect(cmd_ctxt, status);
 	if (ret != 0) {
 		fprintf(stderr, "Warning error during disconnect");
+
+		return 1;
 	}
 
 	return 0;
@@ -80,7 +81,7 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 
 
 int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *status) {
-	int ret = 0;
+	ssize_t ret = 0;
 	while (ret == 0) {
 		char buf[MAESTRO_NOTE_SIZE] = {0};
 
@@ -100,9 +101,13 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 			maestro_note_parse(buf, ret, &note, status);
 			if (strcmp(note.command, MAESTRO_NOTE_PROTOCOL_ERROR) == 0) {
 				fprintf(stderr, "Protocol error\n");
+
+				return 1;
 			}
 			else {
 				fprintf(stderr, "Received OK: %s\n", buf);
+
+				return 1;
 			}
 		}
 	}
@@ -128,6 +133,58 @@ int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
 		fprintf(stderr, "Failed to send command");
+		return 1;
+	}
+
+	ret = maestro_cmd_disconnect(cmd_ctxt, status);
+	if (ret != 0) {
+		fprintf(stderr, "Warning error during disconnect");
+
+		return 1;
+	}
+
+	return 0;
+}
+
+
+int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_status_t *status) {
+	const options_t *options = get_options_object();
+
+
+	const gru_node_t *node = gru_list_get(strings, 1);
+	if (!node) {
+		gru_status_set(status, GRU_FAILURE, "Missing option name");
+		return 1;
+	}
+
+	char *opt = gru_node_get_data_ptr(char, node);
+
+	if (!node->next) { 
+		gru_status_set(status, GRU_FAILURE, "Missing option value");
+		return 1;
+	}
+	
+	char *val = gru_node_get_data_ptr(char, node->next);
+	if (!val) {
+		gru_status_set(status, GRU_FAILURE, "Missing option value");
+		return 1;
+	}
+
+	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
+	if (ret != 0) {
+		return ret;
+	}
+
+	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
+	
+	msg_content_data_t req = {0};
+
+	maestro_note_set_request(&req, opt, val);
+
+	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
+	if (rstat != VMSL_SUCCESS) {
+		fprintf(stderr, "Failed to send command");
+		return 1;
 	}
 
 	ret = maestro_cmd_disconnect(cmd_ctxt, status);
