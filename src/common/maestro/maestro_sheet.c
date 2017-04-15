@@ -63,7 +63,7 @@ static void maestro_sheet_do_play(const void *nodedata, void *payload) {
 	maestro_instrument_t *instrument = (maestro_instrument_t *) nodedata;
 
 	if (strncmp(instrument->tessitura.command, exchange->request.command, MAESTRO_NOTE_CMD_LENGTH) == 0) {
-		logger(INFO, "Request and tessitura match, calling function");
+		mpt_trace("Request and tessitura match, calling function");
 
 		instrument->play(&exchange->request, &exchange->response);
 	}

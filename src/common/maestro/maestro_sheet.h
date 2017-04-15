@@ -23,6 +23,7 @@
 #include <log/gru_logger.h>
 
 #include "msg_content_data.h"
+#include "mpt-debug.h"
 
 #include "maestro_note.h"
 #include "maestro_instrument.h"
