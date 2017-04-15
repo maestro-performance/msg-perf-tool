@@ -54,12 +54,27 @@
 
 #define MAESTRO_NOTE_PING "10"
 
+/** Response OK */
 #define MAESTRO_NOTE_OK "E0"
 
+/** Protocol error response */
 #define MAESTRO_NOTE_PROTOCOL_ERROR "F0"
 
-// Set options
+/** Set broker address */
 #define MAESTRO_NOTE_OPT_SET_BROKER "00"
+
+/** Set duration type (count or duration). Values are defined as parameters to the message */
+#define MAESTRO_NOTE_OPT_SET_DURATION_TYPE "01"
+
+/** Set the log level */
+#define MAESTRO_NOTE_OPT_SET_LOG_LEVEL "02"
+
+/** Set the parallel count */
+#define MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT "03"
+
+/** Set a fixed message size */
+#define MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE "00"
+
 
 typedef struct maestro_note_body_set_t_ {
 	char opt[MAESTRO_NOTE_OPT_LEN];
