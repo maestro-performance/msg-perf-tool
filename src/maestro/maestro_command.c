@@ -147,6 +147,41 @@ int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 }
 
 
+static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt, const char *val) {
+	if (strcmp(opt, "broker") == 0) {
+		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_BROKER, val);
+		
+		return 0;
+	}
+
+	if (strcmp(opt, "duration") == 0) {
+		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, val);
+		
+		return 0;
+	}
+
+	if (strcmp(opt, "log-level") == 0) {
+		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, val);
+		
+		return 0;
+	}
+
+	if (strcmp(opt, "parallel-count") == 0) {
+		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, val);
+		
+		return 0;
+	}
+
+	if (strcmp(opt, "message-size") == 0) {
+		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, val);
+		
+		return 0;
+	}
+
+	return -1;
+}
+
+
 int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_status_t *status) {
 	const options_t *options = get_options_object();
 
@@ -178,8 +213,11 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_s
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
 	
 	msg_content_data_t req = {0};
+	if (maestro_cmd_set_opt_by_name(&req, opt, val) == -1)  {
+		gru_status_set(status, GRU_FAILURE, "Invalid option: %s", opt);
 
-	maestro_note_set_request(&req, opt, val);
+		return 1;
+	}
 
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
