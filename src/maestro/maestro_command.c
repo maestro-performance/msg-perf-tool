@@ -160,13 +160,13 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_s
 	char *opt = gru_node_get_data_ptr(char, node);
 
 	if (!node->next) { 
-		gru_status_set(status, GRU_FAILURE, "Missing option value");
+		gru_status_set(status, GRU_FAILURE, "Missing option value: parser error");
 		return 1;
 	}
 	
 	char *val = gru_node_get_data_ptr(char, node->next);
 	if (!val) {
-		gru_status_set(status, GRU_FAILURE, "Missing option value");
+		gru_status_set(status, GRU_FAILURE, "Missing option value: invalid CLI data");
 		return 1;
 	}
 
