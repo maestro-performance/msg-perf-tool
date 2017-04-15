@@ -22,8 +22,37 @@ static void *receiverd_handle_set(maestro_note_t *request, maestro_note_t *respo
 
 	maestro_note_body_set_t *body = request->payload;
 
-	logger(INFO, "Setting option: %s to %s", body->opt, body->value);
-	fflush(NULL);
+	logger(INFO, "Setting option: %02s to %s", body->opt, body->value);
+
+	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_BROKER, MAESTRO_NOTE_OPT_LEN) == 0) {
+		logger(INFO, "Setting broker option");
+		return 0;
+	}
+
+	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, MAESTRO_NOTE_OPT_LEN) == 0) {
+		logger(INFO, "Setting duration option");
+		return 0;
+	}
+
+	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, MAESTRO_NOTE_OPT_LEN) == 0) {
+		logger(INFO, "Setting log-level option");
+		return 0;
+	}
+
+	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, MAESTRO_NOTE_OPT_LEN) == 0) {
+		logger(INFO, "Setting parallel count option");
+		return 0;
+	}
+
+	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, MAESTRO_NOTE_OPT_LEN) == 0) {
+		logger(INFO, "Setting message size option");
+		
+		return 0;
+	}
+
+
+	logger(ERROR, "Invalid option to set: %02s", body->opt);
+	return -1;
 }
 
 
@@ -71,7 +100,7 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	maestro_instrument_t *set_instrument = maestro_instrument_new(MAESTRO_NOTE_SET, 
 		receiverd_handle_set, status);
 
-	maestro_sheet_add_instrument(ret, flush_instrument);
+	maestro_sheet_add_instrument(ret, set_instrument);
 
 	return ret;
 }
