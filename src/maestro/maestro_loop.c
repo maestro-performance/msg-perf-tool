@@ -36,8 +36,11 @@ int maestro_loop(gru_status_t *status) {
 		return 1;
 	}
 	
+	
 	gru_list_t *strings = NULL;
 	do  { 
+		int ret = -1;
+
 		line = readline(RED "maestro" LIGHT_WHITE "> " RESET);
 		if (line == NULL) {
 			break;
@@ -59,26 +62,35 @@ int maestro_loop(gru_status_t *status) {
 		}
 
 		if (strcmp(command, "start-receiver") == 0) {
-			maestro_cmd_start_receiver(cmd_ctxt, status);
-			continue;
+			ret = maestro_cmd_start_receiver(cmd_ctxt, status);
 		}
 
 		if (strcmp(command, "collect") == 0) {
-			maestro_cmd_collect(cmd_ctxt, queue, status);
-			continue;
+			ret = maestro_cmd_collect(cmd_ctxt, queue, status);
+			
 		}
 
 		if (strcmp(command, "flush") == 0) {
-			maestro_cmd_flush(cmd_ctxt, status);
-			continue;
+			ret = maestro_cmd_flush(cmd_ctxt, status);
 		}
 
 		if (strcmp(command, "set") == 0) {
-			maestro_cmd_set_opt(cmd_ctxt, strings, status);
-			continue;
+			ret = maestro_cmd_set_opt(cmd_ctxt, strings, status);
+			
 		}
 
-		fprintf(stderr, "Unknown command: %s\n", command);
+		if (ret == 0) {
+			continue;
+		}
+		else {
+			if (ret == -1) {
+				fprintf(stderr, "Unknown command: %s\n", command);
+			}
+			else {
+				fprintf(stderr, "%s\n", status->message);
+			}
+		}
+		
 	} while (true);
 
 	return 0;
