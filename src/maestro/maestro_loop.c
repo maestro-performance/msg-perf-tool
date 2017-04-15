@@ -17,7 +17,7 @@
 
 
 int maestro_loop(gru_status_t *status) {
-	char *line = NULL;
+	
 
 	const options_t *options = get_options_object();
 
@@ -39,12 +39,23 @@ int maestro_loop(gru_status_t *status) {
 	
 	gru_list_t *strings = NULL;
 	do  { 
+		char *raw_line = NULL;
 		int ret = -1;
 
-		line = readline(RED "maestro" LIGHT_WHITE "> " RESET);
-		if (line == NULL) {
+		raw_line = readline(RED "maestro" LIGHT_WHITE "> " RESET);
+		if (raw_line == NULL) {
 			break;
 		}
+
+		if (strlen(raw_line) == 0) {
+			continue;
+		}
+
+		
+		char *line = gru_trim(raw_line, strlen(raw_line));
+		add_history(line);
+		
+		
 
 		gru_split_clean(strings);
 		gru_list_destroy(&strings);
@@ -52,12 +63,14 @@ int maestro_loop(gru_status_t *status) {
 		if (!strings) {
 			fprintf(stderr, "Unable to split command: %s\n", status->message);
 		}
+		
 
 		const gru_node_t *node = gru_list_get(strings, 0);
 		char *command = gru_node_get_data_ptr(char, node);
 
-		add_history(line);
+		
 		if (strcmp(command, "quit") == 0 || strcmp(command, "exit") == 0) {
+			free(raw_line);
 			break;
 		}
 
@@ -79,7 +92,9 @@ int maestro_loop(gru_status_t *status) {
 			
 		}
 
+
 		if (ret == 0) {
+			free(raw_line);
 			continue;
 		}
 		else {
@@ -89,6 +104,8 @@ int maestro_loop(gru_status_t *status) {
 			else {
 				fprintf(stderr, "%s\n", status->message);
 			}
+
+			free(raw_line);
 		}
 		
 	} while (true);
