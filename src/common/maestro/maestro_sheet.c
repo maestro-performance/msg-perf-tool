@@ -68,7 +68,7 @@ static void maestro_sheet_do_play(const void *nodedata, void *payload) {
 		instrument->play(&exchange->request, &exchange->response);
 	}
 	else {
-		logger(INFO, "Request %03s is unkown, therefore ignoring (current = %s)", 
+		mpt_trace("Request %03s is unkown, therefore ignoring (current = %s)", 
 			exchange->request.command, instrument->tessitura.command);
 	}
 
