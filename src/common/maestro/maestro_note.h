@@ -73,7 +73,7 @@
 #define MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT "03"
 
 /** Set a fixed message size */
-#define MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE "00"
+#define MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE "04"
 
 
 typedef struct maestro_note_body_set_t_ {
