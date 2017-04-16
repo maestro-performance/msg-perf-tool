@@ -17,6 +17,8 @@
 #include "paho-context.h"
 #include "vmsl.h"
 
+const static int TS_SIZE = 18;
+
 static inline paho_ctxt_t *paho_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (paho_ctxt_t *) ctxt->api_context;
 }
@@ -120,11 +122,12 @@ struct paho_perf_pl {
 static struct paho_perf_pl paho_serialize_latency_info(msg_content_data_t *msg_content) {
 	struct paho_perf_pl ret = {0};
 	gru_timestamp_t ts = gru_time_now();
+	
 
 	char *formatted_ts = gru_time_write_str(&ts);
 
 	asprintf(&ret.data, "%18s%s", formatted_ts, (char *) msg_content->data);
-	ret.size = 18 + msg_content->size;
+	ret.size = TS_SIZE + (int) msg_content->size;
 	gru_dealloc_string(&formatted_ts);
 	return ret;
 }
@@ -145,13 +148,19 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 	pubmsg.retained = false;
 	int rc = 0;
 
-	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) { 
+	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) {
+		if (unlikely((data->size + TS_SIZE) > INT_MAX)) {
+			gru_status_set(status, GRU_FAILURE, 
+				"Data to big to serialize on MQTT protocol: max %d / size: %ld", 
+					INT_MAX, data->size);
+
+			return VMSL_ERROR;
+		}
+		
 		struct paho_perf_pl pl = paho_serialize_latency_info(data);
 
 		pubmsg.payload = pl.data;
 		pubmsg.payloadlen = pl.size;
-
-		// mpt_trace("Sending message '%s' to %s", pl.data, paho_ctxt->uri.path);
 
 		logger_t logger = gru_logger_get();
 		logger(DEBUG, "Sending message with latency '%s' to %s", data->data, ctxt->msg_opts.uri.path);
@@ -161,13 +170,21 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 		paho_serialize_clean(&pl);
 	}
 	else {
-		// mpt_trace("Sending message '%s' to %s", data->data, paho_ctxt->uri.path);
 		logger_t logger = gru_logger_get();
 
 		logger(DEBUG, "Sending message '%s' to %s", data->data, ctxt->msg_opts.uri.path);
 
 		pubmsg.payload = data->data;
-		pubmsg.payloadlen = data->size;
+		
+		if (unlikely(data->size > INT_MAX)) {
+			gru_status_set(status, GRU_FAILURE, 
+				"Data to big to serialize on MQTT protocol: max %d / size: %ld", 
+					INT_MAX, data->size);
+
+			return VMSL_ERROR;
+		}
+
+		pubmsg.payloadlen = (int) data->size;
 
 		rc = MQTTClient_publishMessage(
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
@@ -261,7 +278,7 @@ vmsl_stat_t paho_receive(
 		gru_timestamp_t now = gru_time_now();
 
 		char header[18] = {0};
-		sscanf(msg->payload, "%17s", &header);
+		sscanf(msg->payload, "%17s", header);
 
 		gru_timestamp_t created = gru_time_read_str(header);
 		statistics_latency(ctxt->stat_io, created, now);

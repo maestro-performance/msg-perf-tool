@@ -17,6 +17,8 @@
 #ifndef PAHO_WRAPPER_H
 #define PAHO_WRAPPER_H
 
+#include <limits.h>
+
 #include <network/gru_uri.h>
 
 #include "mpt-debug.h"
