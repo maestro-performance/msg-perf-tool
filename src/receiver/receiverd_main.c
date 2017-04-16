@@ -90,7 +90,6 @@ int main(int argc, char **argv) {
 	init_controller(true, options->logdir, "mpt-receiver-daemon");
 	receiverd_worker_start(options);
 
-success_exit:
 	options_destroy(&options);
 	return EXIT_SUCCESS;
 
