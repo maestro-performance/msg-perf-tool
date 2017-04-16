@@ -33,7 +33,6 @@
 #include <config/gru_config.h>
 #include <log/gru_logger.h>
 
-#include "config.h"
 #include "perf_worker.h"
 #include "probes/scheduler.h"
 #include "process_utils.h"

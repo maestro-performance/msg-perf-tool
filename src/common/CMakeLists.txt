@@ -13,7 +13,6 @@ endif (UNIX)
 add_library(
 	mpt-common SHARED
         contrib/options.c
-        config.c
         vmsl.c
         msg_conn_info.c
         msgctxt.c

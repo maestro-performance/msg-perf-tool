@@ -32,7 +32,6 @@ extern "C" {
 #include <time/gru_time_utils.h>
 
 #include "contrib/options.h"
-#include "config.h"
 
 #include "maestro_forward_daemon.h"
 #include "maestro_loop.h"

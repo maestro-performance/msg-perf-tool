@@ -33,7 +33,6 @@
 #include <config/gru_config.h>
 #include <log/gru_logger.h>
 
-#include "config.h"
 #include "process_utils.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
