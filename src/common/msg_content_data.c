@@ -16,16 +16,15 @@
 #include "msg_content_data.h"
 
 msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status) {
-	// msg_content_data_t *ret = gru_alloc(sizeof(msg_content_data_t), status);
-	msg_content_data_t *ret = malloc(sizeof(msg_content_data_t));
-	
+	msg_content_data_t *ret = gru_alloc(sizeof(msg_content_data_t), status);
+		
 	if (!ret) {
 		return NULL;
 	}
 
 	ret->data = gru_alloc(size, status);
 	if (!ret->data) {
-		gru_dealloc((msg_content_data_t **) &ret);
+		gru_dealloc((void **) &ret);
 
 		return NULL;
 	}
@@ -33,6 +32,8 @@ msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status) {
 	ret->capacity = size;
 	ret->count = 0;
 	ret->errors = 0;
+
+	return ret;
 }
 
 
@@ -77,7 +78,7 @@ void msg_content_data_destroy(msg_content_data_t **data) {
 	}
 
 	msg_content_data_release(ptr);
-	gru_dealloc((msg_content_data_t **) data);
+	gru_dealloc((void **) data);
 }
 
 
@@ -92,7 +93,7 @@ void msg_content_data_fill(msg_content_data_t *content, char v) {
 }
 
 bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_list ap) {
-	cont->size = vasprintf(&cont->data, fmt, ap); 
+	cont->size = vasprintf((char **) &cont->data, fmt, ap); 
 	
 	if (cont->size == -1) {
 		return false;
