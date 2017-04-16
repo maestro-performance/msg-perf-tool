@@ -24,9 +24,6 @@ static void show_help(char **argv) {
 		"l", "runs in the given verbose (info, debug, trace, etc) level mode");
 }
 
-static char *start = "001";
-
-
 int main(int argc, char **argv) {
 	int c;
 	int option_index = 0;

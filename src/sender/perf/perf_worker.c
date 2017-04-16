@@ -20,7 +20,7 @@ static bool perf_worker_init_data(msg_content_data_t *data, size_t size, gru_sta
 	if (!gru_status_success(status)) {
 		msg_content_data_release(data);
 
-		return;
+		return false;
 	}
 
 	msg_content_data_fill(data, 'd');

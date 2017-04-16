@@ -160,10 +160,7 @@ int perf_main(int argc, char **argv) {
 		goto err_exit;
 	}
 
-	/**
-	 * TODO: fix this
-	 */
-	int childs[32];
+	
 	int child = 0;
 
 	logger_t logger = gru_logger_get();
@@ -200,9 +197,7 @@ int perf_main(int argc, char **argv) {
 				perf_worker_start(&vmsl, options);
 				goto success_exit;
 			} else {
-				if (child > 0) {
-					childs[i] = child;
-				} else {
+				if (child < 0) {
 					printf("Error\n");
 				}
 			}

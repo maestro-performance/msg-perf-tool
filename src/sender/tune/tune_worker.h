@@ -41,7 +41,7 @@
 extern "C" {
 #endif
 
-int tune_start(const vmsl_t *vmsl, const options_t *options);
+int tune_worker_start(const vmsl_t *vmsl, const options_t *options);
 
 #ifdef __cplusplus
 }
