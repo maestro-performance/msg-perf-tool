@@ -26,33 +26,33 @@ static void *receiverd_handle_set(maestro_note_t *request, maestro_note_t *respo
 
 	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_BROKER, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting broker option");
-		return 0;
+		return NULL;
 	}
 
 	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting duration option");
-		return 0;
+		return NULL;
 	}
 
 	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting log-level option");
-		return 0;
+		return NULL;
 	}
 
 	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting parallel count option");
-		return 0;
+		return NULL;
 	}
 
 	if (strncmp(body->opt, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting message size option");
 		
-		return 0;
+		return NULL;
 	}
 
 
 	logger(ERROR, "Invalid option to set: %02s", body->opt);
-	return -1;
+	return NULL;
 }
 
 
@@ -61,6 +61,8 @@ static void *receiverd_handle_flush(maestro_note_t *request, maestro_note_t *res
 
 	logger(INFO, "Flushing all buffers as requested");
 	fflush(NULL);
+
+	return NULL;
 }
 
 static void *receiverd_handle_ping(maestro_note_t *request, maestro_note_t *response) {
@@ -113,10 +115,12 @@ int receiverd_worker_start(const options_t *options) {
 		fprintf(stderr, "Unable to connect to maestro broker: %s\n", 
 			status.message);
 
-		return;
+		return 1;
 	}
 
 	while (true) {
 		sleep(1);
 	}
+
+	return 0;
 }
