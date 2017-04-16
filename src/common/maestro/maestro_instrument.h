@@ -18,6 +18,7 @@
 
 #include <common/gru_status.h>
 #include <common/gru_alloc.h>
+#include <string/gru_alt.h>
 
 #include "maestro_note.h"
 

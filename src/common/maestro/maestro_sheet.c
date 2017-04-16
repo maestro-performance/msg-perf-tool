@@ -47,18 +47,12 @@ void maestro_sheet_add_instrument(maestro_sheet_t *sheet,
 
 }
 
-static void maestro_sheet_parse(const void *req) {
-
-}
-
 typedef struct maestro_exchange_t_ {
 	maestro_note_t request;
 	maestro_note_t response;
 } maestro_exchange_t;
 
 static void maestro_sheet_do_play(const void *nodedata, void *payload) {
-	logger_t logger = gru_logger_get();
-	
 	maestro_exchange_t *exchange = (maestro_exchange_t *) payload;
 	maestro_instrument_t *instrument = (maestro_instrument_t *) nodedata;
 
