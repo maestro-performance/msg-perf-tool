@@ -22,6 +22,7 @@
 #include "vmsl.h"
 #include "msgctxt.h"
 #include "contrib/options.h"
+#include "vmsl_assign.h"
 
 
 typedef struct maestro_cmd_ctxt_t_ {

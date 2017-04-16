@@ -34,6 +34,9 @@ extern "C" {
 #include "contrib/options.h"
 #include "config.h"
 
+#include "maestro_forward_daemon.h"
+#include "maestro_loop.h"
+
 #ifdef __cplusplus
 }
 #endif
