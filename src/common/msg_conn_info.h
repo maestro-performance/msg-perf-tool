@@ -21,6 +21,7 @@
 
 #include <uuid/uuid.h>
 
+#include <common/gru_alloc.h>
 #include <log/gru_logger.h>
 
 #include "msg_direction.h"
