@@ -128,7 +128,6 @@ int main(int argc, char **argv) {
 		goto err_exit;
 	}
 
-	int childs[32];
 	int child = 0;
 	logger_t logger = gru_logger_get();
 
@@ -150,10 +149,8 @@ int main(int argc, char **argv) {
 				receiver_start(&vmsl, options);
 				goto success_exit;
 			} else {
-				if (child > 0) {
-					childs[i] = child;
-				} else {
-					printf("Error\n");
+				if (child < 0) {
+					printf("Error launching child process: %s\n", strerror(errno));
 				}
 			}
 		}

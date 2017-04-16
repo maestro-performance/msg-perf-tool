@@ -198,7 +198,7 @@ int perf_main(int argc, char **argv) {
 				goto success_exit;
 			} else {
 				if (child < 0) {
-					printf("Error\n");
+					printf("Error launching child process: %s\n", strerror(errno));
 				}
 			}
 		}
