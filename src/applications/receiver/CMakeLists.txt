@@ -8,6 +8,7 @@ target_link_libraries(
 	mpt-receiver
 	mpt-common
 	mpt-api-common
+	mpt-orchestration-maestro
 )
 
 install(TARGETS
@@ -26,6 +27,7 @@ target_link_libraries(
 	mpt-receiver-daemon
 	mpt-common
 	mpt-api-common
+	mpt-orchestration-maestro
 )
 
 install(TARGETS

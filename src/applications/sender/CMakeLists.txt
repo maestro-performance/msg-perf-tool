@@ -11,6 +11,7 @@ target_link_libraries(
 	mpt-sender
 	mpt-common
         mpt-api-common
+        mpt-orchestration-maestro
 )
 
 install(TARGETS

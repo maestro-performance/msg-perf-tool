@@ -18,6 +18,7 @@ target_link_libraries(
 	mpt-maestro
 	mpt-common
         mpt-api-common
+        mpt-orchestration-maestro
         ${READLINE_LIB}
         pthread
 )

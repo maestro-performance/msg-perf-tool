@@ -2,14 +2,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         set(PROBES_FILES probes/scheduler.c)
 endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
-if (UNIX)
-        set(MAESTRO_FILES
-                maestro/maestro_note.c
-                maestro/maestro_instrument.c
-                maestro/maestro_sheet.c
-                maestro/maestro_player.c)
-endif (UNIX)
-
 add_library(
 	mpt-common SHARED
         contrib/options.c
@@ -21,7 +13,6 @@ add_library(
         bmic_utils.c
         msg_content_data.c
         ${PROBES_FILES}
-        ${MAESTRO_FILES}
 )
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")

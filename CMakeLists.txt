@@ -82,11 +82,13 @@ endif(${MQTT_SUPPORT})
 include_directories(src/api)
 add_subdirectory(src/api objs/api)
 
-add_subdirectory(src/receiver objs/receiver)
-add_subdirectory(src/sender objs/sender)
-add_subdirectory(src/runner objs/runner)
-add_subdirectory(src/loader objs/loader)
-add_subdirectory(src/maestro objs/maestro)
+include_directories(src/orchestration)
+add_subdirectory(src/orchestration objs/orchestration)
+add_subdirectory(src/applications/receiver objs/applications/receiver)
+add_subdirectory(src/applications/sender objs/applications/sender)
+add_subdirectory(src/applications/runner objs/applications/runner)
+add_subdirectory(src/applications/loader objs/applications/loader)
+add_subdirectory(src/applications/maestro objs/applications/maestro)
 
 add_custom_target(format
 	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/util/format.sh
