@@ -23,7 +23,7 @@ maestro_instrument_t *maestro_instrument_new(const char *note, maestro_play_t pl
 
 	ret->play = play;
 
-	strlcpy(ret->tessitura.command, note, sizeof(ret->tessitura.command));
+	maestro_note_set_cmd(&ret->tessitura, note);
 	ret->tessitura.payload = NULL;
 	
 	return ret;

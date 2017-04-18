@@ -98,7 +98,7 @@ typedef union maestro_payload_t_ {
 
 typedef struct maestro_note_t_ {
 	char type;
-	char command[3];
+	char command[2];
 	maestro_payload_t *payload;
 } maestro_note_t;
 
