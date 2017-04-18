@@ -77,7 +77,7 @@
 #define MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE "04"
 
 typedef struct maestro_payload_ping_reply_t_ {
-	char id[37];
+	char id[36];
 	char ts[18];
 } maestro_payload_ping_reply_t;
 

@@ -124,12 +124,17 @@ bool maestro_note_serialize_new(const maestro_note_t *note, msg_content_data_t *
 		maestro_note_ok_response(out);
 	}
 	else if (maestro_note_equals(note, MAESTRO_NOTE_PING)) {
-		maestro_note_ping_response(out, note->payload->response.ping.id, 
-			note->payload->response.ping.ts);
+			msg_content_data_serialize(out, "%c%.*s%.*s%.*s", 
+				note->type, 
+				sizeof(note->command), note->command, 
+				sizeof(note->payload->response.ping.id), note->payload->response.ping.id, 
+				sizeof(note->payload->response.ping.ts), note->payload->response.ping.ts);
 	}
 	else {
 		maestro_note_protocol_error_response(out);
 	}
+
+	return true;
 }
 
 

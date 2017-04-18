@@ -102,7 +102,7 @@ void maestro_sheet_play(const maestro_sheet_t *sheet, const maestro_player_info_
 	}
 	
 	if (maestro_sheet_do_play(sheet->instruments, pinfo, &request, &response)) {
-		maestro_note_set_type(&response, MAESTRO_TYPE_RESPONSE);
+		maestro_note_set_type(&response, '1');
 		maestro_note_serialize_new(&response, resp);
 	}
 	else {
