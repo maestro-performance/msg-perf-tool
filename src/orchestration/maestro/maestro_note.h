@@ -31,11 +31,8 @@
 #define MAESTRO_HEADER_SIZE (MAESTRO_NOTE_TYPE_LENGTH + MAESTRO_NOTE_CMD_LENGTH)
 #define MAESTRO_NOTE_SIZE (MAESTRO_HEADER_SIZE + MAESTRO_NOTE_PAYLOAD_MAX_LENGTH)
 
-#define MAESTRO_TYPE_REQUEST "0"
-#define MAESTRO_TYPE_RESPONSE "1"
-
-#define maestro_request(maestro_note__) (MAESTRO_TYPE_REQUEST maestro_note__)
-#define maestro_response(maestro_note__) (MAESTRO_TYPE_RESPONSE maestro_note__)
+#define MAESTRO_TYPE_REQUEST '0'
+#define MAESTRO_TYPE_RESPONSE '1'
 
 /** Start execution */
 #define MAESTRO_NOTE_START "01"
@@ -61,6 +58,9 @@
 /** Protocol error response */
 #define MAESTRO_NOTE_PROTOCOL_ERROR "F0"
 
+/** Internal server error */
+#define MAESTRO_NOTE_INTERNAL_ERROR "F1"
+
 /** Set broker address */
 #define MAESTRO_NOTE_OPT_SET_BROKER "00"
 
@@ -82,17 +82,17 @@ typedef struct maestro_payload_ping_reply_t_ {
 } maestro_payload_ping_reply_t;
 
 
-typedef struct maestro_note_body_set_t_ {
+typedef struct maestro_payload_set_t_ {
 	char opt[MAESTRO_NOTE_OPT_LEN];
 	char value[MAESTRO_NOTE_OPT_VALUE_LEN];
-} maestro_note_body_set_t;
+} maestro_payload_set_t;
 
 typedef union maestro_payload_t_ {
 	union {
 		maestro_payload_ping_reply_t ping;
 	} response;
 	union {
-		maestro_note_body_set_t set;
+		maestro_payload_set_t set;
 	} request;
 } maestro_payload_t;
 
@@ -112,17 +112,9 @@ void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts);
 void maestro_note_set_type(maestro_note_t *note, const char type);
 void maestro_note_set_cmd(maestro_note_t *note, const char *cmd);
 
-bool maestro_note_serialize_new(const maestro_note_t *note, msg_content_data_t *out);
+void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *value);
 
-// TODO: move to a serializer module
-bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd);
 
-bool maestro_note_protocol_error_response(msg_content_data_t *cont);
-bool maestro_note_ok_response(msg_content_data_t *cont);
-bool maestro_note_set_request(msg_content_data_t *cont, const char *opt, const char *val);
-
-bool maestro_note_ping_request(msg_content_data_t *cont);
-bool maestro_note_ping_response(msg_content_data_t *cont, const char *id, const char *ts);
 
 
 

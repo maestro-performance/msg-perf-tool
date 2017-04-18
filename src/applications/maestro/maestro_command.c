@@ -58,8 +58,7 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
 	
 	msg_content_data_t req = {0};
-
-	maestro_note_serialize(&req, maestro_request(MAESTRO_NOTE_START));
+	maestro_easy_request(&req, MAESTRO_NOTE_START);
 
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
@@ -127,8 +126,7 @@ int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
 	
 	msg_content_data_t req = {0};
-
-	maestro_note_serialize(&req, maestro_request(MAESTRO_NOTE_FLUSH));
+	maestro_easy_request(&req, MAESTRO_NOTE_FLUSH);
 
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
@@ -148,37 +146,34 @@ int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 
 
 static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt, const char *val) {
+	maestro_note_t note = {0};
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_REQUEST);
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_SET);
+
+	gru_status_t status = gru_status_new();
+	note.payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, &status); 
+	if (!note.payload) {
+		fprintf(stderr, "Unable to allocate memory for the set payload");
+		return -1;
+	}
+
 	if (strcmp(opt, "broker") == 0) {
-		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_BROKER, val);
-		
-		return 0;
+		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_BROKER, val);
+	} else if (strcmp(opt, "duration") == 0) {
+		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, val);
+	} else if  (strcmp(opt, "log-level") == 0) {
+		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, val);
+	} else if  (strcmp(opt, "parallel-count") == 0) {
+		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, val);
+	} else if  (strcmp(opt, "message-size") == 0) {
+		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, val);
+	} else {
+		return -1;
 	}
 
-	if (strcmp(opt, "duration") == 0) {
-		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, val);
-		
-		return 0;
-	}
-
-	if (strcmp(opt, "log-level") == 0) {
-		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, val);
-		
-		return 0;
-	}
-
-	if (strcmp(opt, "parallel-count") == 0) {
-		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, val);
-		
-		return 0;
-	}
-
-	if (strcmp(opt, "message-size") == 0) {
-		maestro_note_set_request(data, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, val);
-		
-		return 0;
-	}
-
-	return -1;
+	maestro_serialize_note(&note, data);
+	return 0;
 }
 
 
@@ -245,8 +240,7 @@ int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
 	
 	msg_content_data_t req = {0};
-
-	maestro_note_ping_request(&req);
+	maestro_easy_request(&req, MAESTRO_NOTE_PING);
 
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {

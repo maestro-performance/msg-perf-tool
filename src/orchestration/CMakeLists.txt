@@ -3,7 +3,9 @@ if (UNIX)
                 maestro/maestro_note.c
                 maestro/maestro_instrument.c
                 maestro/maestro_sheet.c
-                maestro/maestro_player.c)
+                maestro/maestro_player.c
+                maestro/maestro_serialize.c
+                maestro/maestro_easy.c)
 endif (UNIX)
 
 add_library(

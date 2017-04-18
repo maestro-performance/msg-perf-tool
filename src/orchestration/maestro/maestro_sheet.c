@@ -86,26 +86,26 @@ void maestro_sheet_play(const maestro_sheet_t *sheet, const maestro_player_info_
 
 	maestro_note_t request = {0};
 	maestro_note_t response = {0};
+
+	maestro_note_set_type(&response, MAESTRO_TYPE_RESPONSE);
 	
 	if (!maestro_note_parse(req->data, req->size, &request, status)) {
 		logger(ERROR, "Unable to parse request %s: %s", (char *) req->data, 
 			status->message);
 
-		maestro_note_protocol_error_response(resp);
+		maestro_note_set_cmd(&response, MAESTRO_NOTE_PROTOCOL_ERROR);
 		
-		return;
 	}
+	else { 
+		response.payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, status); 
+		if (!response.payload) {
+			maestro_note_set_cmd(&response, MAESTRO_NOTE_INTERNAL_ERROR);
+		}
 		
-	response.payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, status); 
-	if (!response.payload) {
-		return;
+		if (!maestro_sheet_do_play(sheet->instruments, pinfo, &request, &response)) {
+			maestro_note_set_cmd(&response, MAESTRO_NOTE_INTERNAL_ERROR);
+		}
 	}
-	
-	if (maestro_sheet_do_play(sheet->instruments, pinfo, &request, &response)) {
-		maestro_note_set_type(&response, '1');
-		maestro_note_serialize_new(&response, resp);
-	}
-	else {
-		maestro_note_protocol_error_response(resp);	
-	}
+
+	maestro_serialize_note(&response, resp);
 }

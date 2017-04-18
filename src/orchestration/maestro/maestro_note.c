@@ -119,67 +119,16 @@ void maestro_note_set_cmd(maestro_note_t *note, const char *cmd) {
 	note->command[1] = cmd[1];
 }
 
-bool maestro_note_serialize_new(const maestro_note_t *note, msg_content_data_t *out) {
-	if (maestro_note_equals(note, MAESTRO_NOTE_OK)) {
-		maestro_note_ok_response(out);
-	}
-	else if (maestro_note_equals(note, MAESTRO_NOTE_PING)) {
-			msg_content_data_serialize(out, "%c%.*s%.*s%.*s", 
-				note->type, 
-				sizeof(note->command), note->command, 
-				sizeof(note->payload->response.ping.id), note->payload->response.ping.id, 
-				sizeof(note->payload->response.ping.ts), note->payload->response.ping.ts);
-	}
-	else {
-		maestro_note_protocol_error_response(out);
-	}
 
-	return true;
+static void maestro_payload_set_opt(maestro_payload_set_t *pl, const char *opt) {
+	memcpy(pl->opt, opt, sizeof(pl->opt));
 }
 
-
-bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd) {
-	bool ret = msg_content_data_serialize(cont, "%03s", cmd);
-	
-	return ret;
+static void maestro_payload_set_value(maestro_payload_set_t *pl, const char *value) {
+	memcpy(pl->value, value, sizeof(pl->value));
 }
 
-bool maestro_note_protocol_error_response(msg_content_data_t *cont) {
-	bool ret = msg_content_data_serialize(cont, "%03s", 
-		maestro_response(MAESTRO_NOTE_PROTOCOL_ERROR));
-	
-	return ret;
-}
-
-
-bool maestro_note_ok_response(msg_content_data_t *cont) {
-	bool ret = msg_content_data_serialize(cont, "%03s", 
-		maestro_response(MAESTRO_NOTE_OK));
-	
-	return ret;
-}
-
-
-bool maestro_note_set_request(msg_content_data_t *cont, const char *opt, const char *val) {
-	bool ret = msg_content_data_serialize(cont, "%03s%02s%.250s", 
-		maestro_request(MAESTRO_NOTE_SET), " ", opt, val);
-	
-	return ret;
-}
-
-
-bool maestro_note_ping_request(msg_content_data_t *cont) {
-	bool ret = msg_content_data_serialize(cont, "%03s", 
-		maestro_request(MAESTRO_NOTE_PING));
-	
-	return ret;
-}
-
-
-
-bool maestro_note_ping_response(msg_content_data_t *cont, const char *id, const char *ts) {
-	bool ret = msg_content_data_serialize(cont, "%03s%37s%12s", 
-		maestro_response(MAESTRO_NOTE_PING), id, ts);
-	
-	return ret;
+void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *value) {
+	maestro_payload_set_opt(&note->payload->request.set, opt);
+	maestro_payload_set_value(&note->payload->request.set, value);
 }

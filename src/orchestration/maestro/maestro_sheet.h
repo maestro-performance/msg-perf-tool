@@ -27,6 +27,7 @@
 
 #include "maestro_note.h"
 #include "maestro_instrument.h"
+#include "maestro_serialize.h"
 
 
 typedef struct maestro_sheet_t_ {

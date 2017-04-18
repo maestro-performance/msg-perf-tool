@@ -21,38 +21,48 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	maestro_note_body_set_t body = request->payload->request.set;
+	maestro_payload_set_t body = request->payload->request.set;
 
 	logger(INFO, "Setting option: %02s to %s", body.opt, body.value);
 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_BROKER, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting broker option");
+
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting duration option");
+
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting log-level option");
+
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting parallel count option");
+
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting message size option");
-		
+
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
 
 
 	logger(ERROR, "Invalid option to set: %02s", body.opt);
+	maestro_note_set_cmd(response, MAESTRO_NOTE_PROTOCOL_ERROR);
 	return NULL;
 }
 
@@ -65,6 +75,7 @@ static void *receiverd_handle_flush(const maestro_note_t *request, maestro_note_
 	logger(INFO, "Flushing all buffers as requested");
 	fflush(NULL);
 
+	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 	return NULL;
 }
 

@@ -29,6 +29,8 @@
 #include "maestro_cmd_ctxt.h"
 
 #include "maestro/maestro_note.h"
+#include "maestro/maestro_serialize.h"
+#include "maestro/maestro_easy.h"
 
 
 
