@@ -21,8 +21,10 @@
 #include <string/gru_alt.h>
 
 #include "maestro_note.h"
+#include "maestro_player_info.h"
 
-typedef void *(*maestro_play_t)(maestro_note_t *request, maestro_note_t *response);
+typedef void *(*maestro_play_t)(const maestro_note_t *request, maestro_note_t *response, 
+	const maestro_player_info_t *pinfo);
 
 typedef struct maestro_instrument_t_ {
 	maestro_note_t tessitura; /** What it can play */
@@ -31,6 +33,8 @@ typedef struct maestro_instrument_t_ {
 
 maestro_instrument_t *maestro_instrument_new(const char *note, maestro_play_t play, 
 	gru_status_t *status);
+bool maestro_instrument_can_play(const maestro_instrument_t *instrument, 
+	const maestro_note_t *note);
 
 
 #endif /* MAESTRO_INSTRUMENT_H */

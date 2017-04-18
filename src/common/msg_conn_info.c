@@ -16,8 +16,7 @@
 #include "msg_conn_info.h"
 
 
-void msg_conn_info_gen_id(msg_conn_info_t *conn_info) 
-{
+void msg_conn_info_gen_id(msg_conn_info_t *conn_info) {
 	uuid_t id;
 	const size_t uuid_size = 37;
 
@@ -25,4 +24,15 @@ void msg_conn_info_gen_id(msg_conn_info_t *conn_info)
 
 	conn_info->id = gru_alloc(uuid_size, NULL);
 	uuid_unparse_lower(id, conn_info->id);
+}
+
+
+void msg_conn_info_gen_id_char(char **out) {
+	uuid_t id;
+	const size_t uuid_size = 37;
+
+	uuid_generate(id);
+
+	*out = gru_alloc(uuid_size, NULL);
+	uuid_unparse_lower(id, *out);
 }

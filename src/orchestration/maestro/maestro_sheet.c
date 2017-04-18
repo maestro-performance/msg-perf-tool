@@ -47,37 +47,47 @@ void maestro_sheet_add_instrument(maestro_sheet_t *sheet,
 
 }
 
-typedef struct maestro_exchange_t_ {
-	maestro_note_t request;
-	maestro_note_t response;
-} maestro_exchange_t;
+static bool maestro_sheet_do_play(const gru_list_t *list, 
+	const maestro_player_info_t *pinfo, const maestro_note_t *request, 
+	maestro_note_t *response) 
+{
+	bool ret = false;
+	gru_node_t *node = NULL;
 
-static void maestro_sheet_do_play(const void *nodedata, void *payload) {
-	maestro_exchange_t *exchange = (maestro_exchange_t *) payload;
-	maestro_instrument_t *instrument = (maestro_instrument_t *) nodedata;
-
-	if (strncmp(instrument->tessitura.command, exchange->request.command, MAESTRO_NOTE_CMD_LENGTH) == 0) {
-		mpt_trace("Request and tessitura match, calling function");
-
-		instrument->play(&exchange->request, &exchange->response);
-	}
-	else {
-		mpt_trace("Request %03s is unkown, therefore ignoring (current = %s)", 
-			exchange->request.command, instrument->tessitura.command);
+	if (list == NULL) {
+		return ret;
 	}
 
+	node = list->root;
+
+	while (node) {
+		maestro_instrument_t *instrument = gru_node_get_data_ptr(maestro_instrument_t, node);
+		if (maestro_instrument_can_play(instrument, request)) {
+			mpt_trace("Request and tessitura match, calling function");
+
+			instrument->play(request, response, pinfo);
+			
+			return true;
+		}
+		else {
+			node = node->next;
+		}
+	}
+
+	return false;
 }
 
-void maestro_sheet_play(const maestro_sheet_t *sheet, const msg_content_data_t *req, 
-	msg_content_data_t *resp, gru_status_t *status)
+void maestro_sheet_play(const maestro_sheet_t *sheet, const maestro_player_info_t *pinfo, 
+	const msg_content_data_t *req, msg_content_data_t *resp, gru_status_t *status)
 {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Received maestro data: %s", (char *) req->data);
 
-	maestro_exchange_t exchange = {0};
-
-	if (!maestro_note_parse(req->data, req->size, &exchange.request, status)) {
+	maestro_note_t request = {0};
+	maestro_note_t response = {0};
+	
+	if (!maestro_note_parse(req->data, req->size, &request, status)) {
 		logger(ERROR, "Unable to parse request %s: %s", (char *) req->data, 
 			status->message);
 
@@ -86,6 +96,16 @@ void maestro_sheet_play(const maestro_sheet_t *sheet, const msg_content_data_t *
 		return;
 	}
 		
-	gru_list_for_each(sheet->instruments, maestro_sheet_do_play, &exchange);
-	maestro_note_ok_response(resp);
+	response.payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, status); 
+	if (!response.payload) {
+		return;
+	}
+	
+	if (maestro_sheet_do_play(sheet->instruments, pinfo, &request, &response)) {
+		maestro_note_set_type(&response, MAESTRO_TYPE_RESPONSE);
+		maestro_note_serialize_new(&response, resp);
+	}
+	else {
+		maestro_note_protocol_error_response(resp);	
+	}
 }

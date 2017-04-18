@@ -29,9 +29,9 @@
 #include "vmsl.h"
 #include "msg_conn_info.h"
 #include "maestro_sheet.h"
+#include "maestro_player_info.h"
 
 extern bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl);
-
 
 typedef struct maestro_player_t_ {
 	pthread_t thread;
@@ -39,6 +39,7 @@ typedef struct maestro_player_t_ {
 	vmsl_t mmsl; // maestro messaging system layer
 	msg_ctxt_t *ctxt; // maestro messaging context
 	maestro_sheet_t *sheet;
+	maestro_player_info_t player_info;
 
 	bool cancel;
 } maestro_player_t;

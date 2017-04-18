@@ -18,7 +18,9 @@
 
 bool can_start = false;
 
-static void *receiver_handle_start(maestro_note_t *request, maestro_note_t *response) {
+static void *receiver_handle_start(const maestro_note_t *request, maestro_note_t *response, 
+	const maestro_player_info_t *pinfo) 
+{
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");

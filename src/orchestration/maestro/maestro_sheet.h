@@ -39,7 +39,8 @@ maestro_sheet_t *maestro_sheet_new(const char *location, gru_status_t *status);
 void maestro_sheet_add_instrument(maestro_sheet_t *sheet, 
 	maestro_instrument_t *instrument);
 
-void maestro_sheet_play(const maestro_sheet_t *sheet, const msg_content_data_t *cont, 
+void maestro_sheet_play(const maestro_sheet_t *sheet, const maestro_player_info_t *pinfo, 
+	const msg_content_data_t *cont, 
 	msg_content_data_t *resp, gru_status_t *status);
 
 

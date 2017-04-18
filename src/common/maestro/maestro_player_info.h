@@ -13,24 +13,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "maestro_instrument.h"
+#ifndef MAESTRO_PLAYER_INFO_H
+#define MAESTRO_PLAYER_INFO_H
 
-maestro_instrument_t *maestro_instrument_new(const char *note, maestro_play_t play, 
-	gru_status_t *status) 
-{
-	maestro_instrument_t *ret = gru_alloc(sizeof(maestro_instrument_t), status);
-	gru_alloc_check(ret, NULL);
+typedef struct maestro_player_info_t_ {
+	char *id;
+} maestro_player_info_t;
 
-	ret->play = play;
-
-	strlcpy(ret->tessitura.command, note, sizeof(ret->tessitura.command));
-	ret->tessitura.payload = NULL;
-	
-	return ret;
-}
-
-bool maestro_instrument_can_play(const maestro_instrument_t *instrument, 
-	const maestro_note_t *note)
-{
-	return maestro_note_equals(&instrument->tessitura, note->command);
-}
+#endif /* MAESTRO_PLAYER_INFO_H */

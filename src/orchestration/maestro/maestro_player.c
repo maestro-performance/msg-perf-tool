@@ -30,7 +30,7 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 		.statistics = MSG_STAT_NONE,
 	};
 
-	msg_conn_info_gen_id(&opt.conn_info);
+	opt.conn_info.id = player->player_info.id;
 	opt.uri = player->uri;
 
 	player->ctxt = player->mmsl.init(NULL, opt, NULL, status);
@@ -68,7 +68,8 @@ static void *maestro_player_run(void *player) {
 		else {
 			if (!(rstat & VMSL_NO_DATA)) {
 				msg_content_data_t resp = {0};
-				maestro_sheet_play(maestro_player->sheet, mdata, &resp, &status);
+				maestro_sheet_play(maestro_player->sheet, &maestro_player->player_info, mdata, 
+					&resp, &status);
 				if (!gru_status_success(&status)) {
 					logger(WARNING, "Maestro request failed: %s", status.message);
 				}
@@ -117,6 +118,12 @@ bool maestro_player_start(const options_t *options, maestro_sheet_t *sheet,
 		return false;
 	}
 
+	msg_conn_info_gen_id_char(&maestro_player->player_info.id);
+	if (!maestro_player->player_info.id) {
+		logger(ERROR, "Unable to generate a player ID");
+
+		goto err_exit;
+	}
 	
 	if (!maestro_player_connect(maestro_player, status)) {
 		logger(ERROR, "Unable to connect to maestro broker at %s: %s", 

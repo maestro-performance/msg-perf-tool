@@ -89,7 +89,10 @@ int maestro_loop(gru_status_t *status) {
 
 		if (strcmp(command, "set") == 0) {
 			ret = maestro_cmd_set_opt(cmd_ctxt, strings, status);
-			
+		}
+
+		if (strcmp(command, "ping") == 0) {
+			ret = maestro_cmd_ping(cmd_ctxt, status);
 		}
 
 

@@ -107,7 +107,7 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 			else {
 				fprintf(stderr, "Received OK: %s\n", buf);
 
-				return 1;
+				return 0;
 			}
 		}
 	}
@@ -228,6 +228,37 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_s
 	ret = maestro_cmd_disconnect(cmd_ctxt, status);
 	if (ret != 0) {
 		fprintf(stderr, "Warning error during disconnect");
+	}
+
+	return 0;
+}
+
+
+int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	const options_t *options = get_options_object();
+
+	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
+	if (ret != 0) {
+		return ret;
+	}
+
+	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
+	
+	msg_content_data_t req = {0};
+
+	maestro_note_ping_request(&req);
+
+	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
+	if (rstat != VMSL_SUCCESS) {
+		fprintf(stderr, "Failed to send command");
+		return 1;
+	}
+
+	ret = maestro_cmd_disconnect(cmd_ctxt, status);
+	if (ret != 0) {
+		fprintf(stderr, "Warning error during disconnect");
+
+		return 1;
 	}
 
 	return 0;
