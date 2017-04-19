@@ -77,6 +77,17 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 	return 0;
 }
 
+static void maestro_cmd_print_data(maestro_note_t *note) {
+	if (maestro_note_equals(note, MAESTRO_NOTE_PING)) {
+		printf("ID: %.*s Time: %.*s\n", 
+			sizeof(note->payload->response.ping.id), note->payload->response.ping.id, 
+			sizeof(note->payload->response.ping.elapsed), note->payload->response.ping.elapsed);
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_PROTOCOL_ERROR)) {
+		printf("One of more of the commands did not complete successfully\n");
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_OK)) {
+		printf("Peer reply OK\n");
+	}
+}
 
 
 int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *status) {
@@ -97,17 +108,16 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 		else {
 			maestro_note_t note = {0};
 
-			maestro_note_parse(buf, ret, &note, status);
-			if (strcmp(note.command, MAESTRO_NOTE_PROTOCOL_ERROR) == 0) {
-				fprintf(stderr, "Protocol error\n");
+			if (!maestro_note_parse(buf, ret, &note, status)) {
+				fprintf(stderr, "Unknown protocol data\n");
 
 				return 1;
 			}
 			else {
-				fprintf(stderr, "Received OK: %s\n", buf);
-
+				maestro_cmd_print_data(&note);
 				return 0;
 			}
+			
 		}
 	}
 
