@@ -44,8 +44,11 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_SENDER, 
 		.qos = MSG_QOS_AT_MOST_ONCE,
-		.conn_info.id = MSG_CONN_ID_DEFAULT_SENDER_ID
+		.conn_info.id = MSG_CONN_ID_DEFAULT_SENDER_ID,
+		.uri = options->uri
 	};
+
+
 
 	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
 	if (!msg_ctxt) {
