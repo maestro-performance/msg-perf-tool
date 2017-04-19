@@ -79,7 +79,7 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
 	if (maestro_note_equals(note, MAESTRO_NOTE_PING)) {
-		printf("ID: %.*s Time: %.*s\n", 
+		printf("ID: %.*s Time: %.*s ms\n", 
 			(int) sizeof(note->payload->response.ping.id), note->payload->response.ping.id, 
 			(int) sizeof(note->payload->response.ping.elapsed), note->payload->response.ping.elapsed);
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_PROTOCOL_ERROR)) {
