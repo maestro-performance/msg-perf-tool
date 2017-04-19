@@ -31,6 +31,26 @@
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
 
+typedef enum test_duration_type_t_ {
+	MESSAGE_COUNT, 
+	TEST_TIME,
+} test_duration_type_t;
+
+typedef struct worker_options_t_ {
+	gru_uri_t uri;
+
+	test_duration_type_t duration_type;
+	union { 
+		uint64_t count;
+		gru_duration_t time;
+	} duration;
+
+	log_level_t log_level;
+	uint16_t parallel_count;
+	size_t message_size;
+	uint32_t throttle;
+} worker_options_t;
+
 
 int receiverd_worker_start(const options_t *options);
 

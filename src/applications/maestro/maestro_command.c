@@ -59,7 +59,7 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 	
 	msg_content_data_t req = {0};
 	maestro_easy_request(&req, MAESTRO_NOTE_START);
-
+	
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
 		fprintf(stderr, "Failed to send command");

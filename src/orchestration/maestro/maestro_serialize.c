@@ -72,6 +72,12 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 	else if (maestro_note_equals(note, MAESTRO_NOTE_INTERNAL_ERROR)) {
 		ret = maestro_serialize_header_only(note, out);
 	}
+	else if (maestro_note_equals(note, MAESTRO_NOTE_START)) {
+		ret = maestro_serialize_header_only(note, out);
+	}
+	else if (maestro_note_equals(note, MAESTRO_NOTE_STOP)) {
+		ret = maestro_serialize_header_only(note, out);
+	}
 	else if (maestro_note_equals(note, MAESTRO_NOTE_SET) && note->type == MAESTRO_TYPE_REQUEST) {
 		ret = maestro_note_set_request(note, out);
 	}

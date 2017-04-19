@@ -16,31 +16,53 @@
 #include "receiverd_worker.h"
 
 bool can_start = false;
+worker_options_t worker_options = {0};
 
 static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t *response, 
-	const maestro_player_info_t *pinfo) {
+	const maestro_player_info_t *pinfo) 
+{
+	
+
 	logger_t logger = gru_logger_get();
+	gru_status_t status = gru_status_new();
 
 	maestro_payload_set_t body = request->payload->request.set;
 
-	logger(INFO, "Setting option: %02s to %s", body.opt, body.value);
+	logger(INFO, "Setting option: %.%s to %.*s", (int) sizeof(body.opt), body.opt, 
+		(int) sizeof(body.value), body.value);
+
+	char tmp_opt[MAESTRO_NOTE_OPT_LEN + 1] = {0};
+	char tmp_val[MAESTRO_NOTE_OPT_VALUE_LEN + 1] = {0};
+
+	strncpy(tmp_opt, body.opt, sizeof(body.opt));
+	strncpy(tmp_val, body.value, sizeof(body.value));
 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_BROKER, MAESTRO_NOTE_OPT_LEN) == 0) {
-		logger(INFO, "Setting broker option");
+		logger(INFO, "Setting broker to: %s", tmp_val);
+
+		worker_options.uri = gru_uri_parse(tmp_val, &status);
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+		
 		return NULL;
 	}
 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting duration option");
 
+		worker_options.duration_type = MESSAGE_COUNT;
+		worker_options.duration.count = atol(tmp_val);
+
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+
 		return NULL;
 	}
 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting log-level option");
+
+		worker_options.log_level = gru_logger_get_level(tmp_val);
+		gru_logger_set_mininum(worker_options.log_level);
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
@@ -49,6 +71,7 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting parallel count option");
 
+		worker_options.parallel_count = atoi(tmp_val);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
@@ -56,6 +79,7 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting message size option");
 
+		worker_options.message_size = atol(tmp_val);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
@@ -63,7 +87,9 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_THROTTLE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting throttle option");
 
+		worker_options.throttle = atol(tmp_val);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+		
 		return NULL;
 	}
 
@@ -114,6 +140,20 @@ static void *receiverd_handle_start(const maestro_note_t *request, maestro_note_
 
 	logger(INFO, "Just received a start request");
 	can_start = true;
+
+	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+	return NULL;
+}
+
+static void *receiverd_handle_stop(const maestro_note_t *request, maestro_note_t *response, 
+	const maestro_player_info_t *pinfo) 
+{
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Just received a stop request");
+	can_start = false;
+
+	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 	return NULL;
 }
 
@@ -128,6 +168,11 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 		receiverd_handle_start, status);
 
 	maestro_sheet_add_instrument(ret, start_instrument);
+
+	maestro_instrument_t *stop_instrument = maestro_instrument_new(MAESTRO_NOTE_STOP, 
+		receiverd_handle_stop, status);
+
+	maestro_sheet_add_instrument(ret, stop_instrument);
 
 	maestro_instrument_t *flush_instrument = maestro_instrument_new(MAESTRO_NOTE_FLUSH, 
 		receiverd_handle_flush, status);
@@ -159,8 +204,15 @@ int receiverd_worker_start(const options_t *options) {
 		return 1;
 	}
 
+	logger_t logger = gru_logger_get();
 	while (true) {
 		sleep(1);
+
+		if (can_start) {
+			
+			logger(INFO, "Ready to connect to %s and start sending %d messages", 
+				worker_options.uri.host, worker_options.duration.count);
+		}
 		fflush(NULL);
 	}
 
