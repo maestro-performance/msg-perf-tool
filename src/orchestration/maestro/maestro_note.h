@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #include <common/gru_status.h>
 
@@ -76,9 +77,13 @@
 /** Set a fixed message size */
 #define MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE "04"
 
+typedef struct maestro_payload_ping_request_t_ {
+	char ts[18];
+} maestro_payload_ping_request_t;
+
 typedef struct maestro_payload_ping_reply_t_ {
 	char id[36];
-	char ts[18];
+	char elapsed[18];
 } maestro_payload_ping_reply_t;
 
 
@@ -93,6 +98,7 @@ typedef union maestro_payload_t_ {
 	} response;
 	union {
 		maestro_payload_set_t set;
+		maestro_payload_ping_request_t ping;
 	} request;
 } maestro_payload_t;
 
@@ -108,6 +114,7 @@ bool maestro_note_equals(const maestro_note_t *note, const char *cmd);
 
 void maestro_note_ping_set_id(maestro_note_t *note, const char *id);
 void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts);
+void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t ts);
 
 void maestro_note_set_type(maestro_note_t *note, const char type);
 void maestro_note_set_cmd(maestro_note_t *note, const char *cmd);

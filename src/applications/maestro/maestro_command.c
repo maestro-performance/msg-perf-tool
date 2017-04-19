@@ -228,6 +228,26 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_s
 	return 0;
 }
 
+static void maestro_cmd_request_ping(msg_content_data_t *out, gru_status_t *status) {
+	maestro_note_t note = {0};
+
+	note.payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, status); 
+	if (!note.payload) {
+		return;
+	}
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_REQUEST);
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_PING);
+
+	gru_timestamp_t ts = gru_time_now();
+	char *formatted_ts = gru_time_write_str(&ts);
+	maestro_note_ping_set_ts(&note, formatted_ts);
+
+	maestro_serialize_note(&note, out);
+
+	gru_dealloc(&formatted_ts);
+	gru_dealloc(&note.payload);
+}
 
 int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	const options_t *options = get_options_object();
@@ -240,7 +260,10 @@ int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
 	
 	msg_content_data_t req = {0};
-	maestro_easy_request(&req, MAESTRO_NOTE_PING);
+	maestro_cmd_request_ping(&req, status);
+	if (!gru_status_success(status)) {
+		return 1;
+	}
 
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {

@@ -86,12 +86,16 @@ static void *receiverd_handle_ping(const maestro_note_t *request, maestro_note_t
 
 	logger(INFO, "Just received a ping request: %s", pinfo->id);
 
-	gru_timestamp_t ts = gru_time_now();
-	
-	char *formatted_ts = gru_time_write_str(&ts);
+	gru_timestamp_t now = gru_time_now();
 
+	char *safe_ts = strndup(request->payload->request.ping.ts, 
+		sizeof(request->payload->request.ping.ts));
+
+	gru_timestamp_t created = gru_time_read_str(safe_ts);
+	uint64_t diff = statistics_diff(created, now);
+	
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PING);
-	maestro_note_ping_set_ts(response, formatted_ts);
+	maestro_note_ping_set_elapsed(response, diff);
 	maestro_note_ping_set_id(response, pinfo->id);
 
 	return NULL;

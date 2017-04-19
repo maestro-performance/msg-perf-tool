@@ -83,10 +83,13 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 				note->type, 
 				sizeof(note->command), note->command, 
 				sizeof(note->payload->response.ping.id), note->payload->response.ping.id, 
-				sizeof(note->payload->response.ping.ts), note->payload->response.ping.ts);
+				sizeof(note->payload->response.ping.elapsed), note->payload->response.ping.elapsed);
 	}
 	else if (maestro_note_equals(note, MAESTRO_NOTE_PING) && note->type == MAESTRO_TYPE_REQUEST) {
-			ret = maestro_serialize_header_only(note, out);
+			ret = msg_content_data_serialize(out, "%c%.*s%.*s", 
+				note->type, 
+				sizeof(note->command), note->command, 
+				sizeof(note->payload->request.ping.ts), note->payload->request.ping.ts);
 	}
 	else {
 		ret = msg_content_data_serialize(out, "%c%.*s", note->type, 
