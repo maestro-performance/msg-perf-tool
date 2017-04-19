@@ -97,8 +97,7 @@ void maestro_sheet_play(const maestro_sheet_t *sheet, const maestro_player_info_
 		
 	}
 	else { 
-		response.payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, status); 
-		if (!response.payload) {
+		if (!maestro_note_payload_prepare(&response, status)) { 
 			maestro_note_set_cmd(&response, MAESTRO_NOTE_INTERNAL_ERROR);
 		}
 		
@@ -108,4 +107,7 @@ void maestro_sheet_play(const maestro_sheet_t *sheet, const maestro_player_info_
 	}
 
 	maestro_serialize_note(&response, resp);
+	maestro_note_payload_cleanup(&response);
+	maestro_note_payload_cleanup(&request);
+
 }

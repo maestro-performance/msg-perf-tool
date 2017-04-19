@@ -15,6 +15,21 @@
  */
 #include "maestro_note.h"
 
+bool maestro_note_payload_prepare(maestro_note_t *note, gru_status_t *status) {
+	note->payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, status);
+	gru_alloc_check(note->payload, false);
+
+	return true;
+}
+
+void maestro_note_payload_cleanup(maestro_note_t *note) {
+	if (!note || !note->payload) {
+		return;
+	}
+
+	gru_dealloc((void **) &note->payload);
+}
+
 bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note, 
 	gru_status_t *status)
 {
@@ -57,8 +72,7 @@ bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note,
 	size_t body_len = size - MAESTRO_HEADER_SIZE;
 
 	if (body_len > 0) {
-		note->payload = gru_alloc(body_len, status);
-		if (!note->payload) {
+		if (!maestro_note_payload_prepare(note, status)) {
 			gru_status_set(status, GRU_FAILURE, "Not enough memory to parse body");
 
 			return false;

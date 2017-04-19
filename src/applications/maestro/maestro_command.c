@@ -80,8 +80,8 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 static void maestro_cmd_print_data(maestro_note_t *note) {
 	if (maestro_note_equals(note, MAESTRO_NOTE_PING)) {
 		printf("ID: %.*s Time: %.*s\n", 
-			sizeof(note->payload->response.ping.id), note->payload->response.ping.id, 
-			sizeof(note->payload->response.ping.elapsed), note->payload->response.ping.elapsed);
+			(int) sizeof(note->payload->response.ping.id), note->payload->response.ping.id, 
+			(int) sizeof(note->payload->response.ping.elapsed), note->payload->response.ping.elapsed);
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_PROTOCOL_ERROR)) {
 		printf("One of more of the commands did not complete successfully\n");
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_OK)) {
@@ -115,7 +115,8 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 			else {
 				maestro_cmd_print_data(&note);
 			}
-			
+
+			maestro_note_payload_cleanup(&note);
 		}
 	}
 
@@ -153,16 +154,14 @@ int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 }
 
 
-static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt, const char *val) {
+static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt, 
+	const char *val, gru_status_t *status) {
 	maestro_note_t note = {0};
 
 	maestro_note_set_type(&note, MAESTRO_TYPE_REQUEST);
 	maestro_note_set_cmd(&note, MAESTRO_NOTE_SET);
 
-	gru_status_t status = gru_status_new();
-	note.payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, &status); 
-	if (!note.payload) {
-		fprintf(stderr, "Unable to allocate memory for the set payload");
+	if (!maestro_note_payload_prepare(&note, status)) {
 		return -1;
 	}
 
@@ -181,6 +180,7 @@ static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt
 	}
 
 	maestro_serialize_note(&note, data);
+	maestro_note_payload_cleanup(&note);
 	return 0;
 }
 
@@ -216,7 +216,7 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_s
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
 	
 	msg_content_data_t req = {0};
-	if (maestro_cmd_set_opt_by_name(&req, opt, val) == -1)  {
+	if (maestro_cmd_set_opt_by_name(&req, opt, val, status) == -1)  {
 		gru_status_set(status, GRU_FAILURE, "Invalid option: %s", opt);
 
 		return 1;
@@ -239,8 +239,7 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_s
 static void maestro_cmd_request_ping(msg_content_data_t *out, gru_status_t *status) {
 	maestro_note_t note = {0};
 
-	note.payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, status); 
-	if (!note.payload) {
+	if (!maestro_note_payload_prepare(&note, status)) {
 		return;
 	}
 
@@ -253,8 +252,8 @@ static void maestro_cmd_request_ping(msg_content_data_t *out, gru_status_t *stat
 
 	maestro_serialize_note(&note, out);
 
-	gru_dealloc(&formatted_ts);
-	gru_dealloc(&note.payload);
+	gru_dealloc_string(&formatted_ts);
+	maestro_note_payload_cleanup(&note);
 }
 
 int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {

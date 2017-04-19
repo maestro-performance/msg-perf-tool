@@ -108,6 +108,26 @@ typedef struct maestro_note_t_ {
 	maestro_payload_t *payload;
 } maestro_note_t;
 
+
+/** 
+ * Prepare a note for receiving a payload (ie.: allocate memory for the payload)
+ * @return true if successfull of false otherwise
+ */
+bool maestro_note_payload_prepare(maestro_note_t *note, gru_status_t *status);
+
+/**
+ * Frees memory used by a payload
+ */
+void maestro_note_payload_cleanup(maestro_note_t *note);
+
+/**
+ * Parse a note
+ * @param data data to parse 
+ * @param size data size 
+ * @param note output note 
+ * @param status status structure in case of error 
+ * @return true if successfully parsed or false otherwise
+ */
 bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note, 
 	gru_status_t *status);
 bool maestro_note_equals(const maestro_note_t *note, const char *cmd);
