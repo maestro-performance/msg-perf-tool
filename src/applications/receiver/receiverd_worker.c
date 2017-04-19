@@ -15,7 +15,7 @@
  */
 #include "receiverd_worker.h"
 
-bool can_start = false;
+bool started = false;
 worker_options_t worker_options = {0};
 
 static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t *response, 
@@ -139,7 +139,7 @@ static void *receiverd_handle_start(const maestro_note_t *request, maestro_note_
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
-	can_start = true;
+	started = true;
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 	return NULL;
@@ -151,7 +151,7 @@ static void *receiverd_handle_stop(const maestro_note_t *request, maestro_note_t
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a stop request");
-	can_start = false;
+	started = false;
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 	return NULL;
@@ -193,6 +193,115 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	return ret;
 }
 
+void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
+	logger_t logger = gru_logger_get();
+	gru_status_t status = gru_status_new();
+	const uint32_t tp_interval = 10;
+	uint64_t last_count = 0;
+	msg_content_data_t content_storage = {0}; 
+
+	stat_io_t *stat_io = statistics_init(RECEIVER, &status);
+	if (!stat_io) {
+		logger(FATAL, "Unable to initialize statistics engine: %s", status.message);
+		gru_status_reset(&status);
+
+		return;
+	}
+
+	msg_opt_t opt = {
+		.direction = MSG_DIRECTION_RECEIVER, 
+		.qos = MSG_QOS_AT_MOST_ONCE, 
+		.statistics = MSG_STAT_DEFAULT,
+	};
+
+	msg_conn_info_gen_id(&opt.conn_info);
+	opt.uri = options->uri;
+
+	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
+	if (!msg_ctxt) {
+		goto err_exit;
+	}
+
+	vmsl_stat_t ret = vmsl->subscribe(msg_ctxt, NULL, &status);
+	if (vmsl_stat_error(ret)) {
+		goto err_exit;
+	}
+
+	msg_content_data_init(&content_storage, options->message_size, &status);
+	if (!gru_status_success(&status)) {
+		goto err_exit;
+	}
+
+	gru_timestamp_t last;
+	gru_timestamp_t start = gru_time_now();
+	time_t last_calc = 0;
+
+	statistics_latency_header(stat_io);
+	statistics_throughput_header(stat_io);
+
+	install_interrupt_handler();
+
+	while (started) {
+		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
+		if (unlikely(vmsl_stat_error(rstat))) {
+			logger(ERROR, "Error receiving data: %s\n", status.message);
+
+			gru_status_reset(&status);
+			break;
+		}
+
+		last = gru_time_now();
+
+		if (last_calc <= (last.tv_sec - tp_interval)) {
+			uint64_t processed_count = content_storage.count - last_count;
+
+			statistics_throughput_partial(stat_io, last, tp_interval, processed_count);
+			
+			last_count = content_storage.count;
+			last_calc = last.tv_sec;
+		}
+	}
+
+	vmsl->stop(msg_ctxt, &status);
+	vmsl->destroy(msg_ctxt, &status);
+
+	statistics_destroy(&stat_io);
+
+	uint64_t elapsed = statistics_diff(start, last);
+	double rate = ((double) content_storage.count / (double) elapsed) * 1000;
+
+	uint64_t total_received = content_storage.count;
+
+	logger(STAT,
+		"summary;received;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
+		total_received,
+		elapsed,
+		rate);
+
+	logger(INFO,
+		"Summary: received %" PRIu64 " messages in %" PRIu64
+		" milliseconds (rate: %.2f msgs/sec)",
+		total_received,
+		elapsed,
+		rate);
+	logger(INFO, "Errors: received %" PRIu64, content_storage.errors);
+
+	msg_content_data_release(&content_storage);
+	return;
+
+err_exit:
+	fprintf(stderr, "%s", status.message);
+	statistics_destroy(&stat_io);
+	msg_content_data_release(&content_storage);
+
+	if (msg_ctxt) {
+		vmsl->destroy(msg_ctxt, &status);
+	}
+
+	gru_status_reset(&status);
+	return;
+}
+
 int receiverd_worker_start(const options_t *options) {
 	gru_status_t status = gru_status_new();
 	maestro_sheet_t *sheet = new_receiver_sheet(&status);
@@ -208,11 +317,25 @@ int receiverd_worker_start(const options_t *options) {
 	while (true) {
 		sleep(1);
 
-		if (can_start) {
-			
-			logger(INFO, "Ready to connect to %s and start sending %d messages", 
-				worker_options.uri.host, worker_options.duration.count);
+		if (started) {
+			vmsl_t vmsl = vmsl_init();
+
+			if (!vmsl_assign_by_url(&worker_options.uri, &vmsl)) {
+				char *uri = gru_uri_simple_format(&worker_options.uri, &status); 
+
+				if (!uri) {
+					logger(ERROR, "Unable to assign a VMSL: %s", status.message);
+				}
+				else { 
+					logger(ERROR, "Unable to assign a VMSL for the URI: %s", uri);
+					gru_dealloc_string(&uri);
+				}
+			}
+			else {
+				receiverd_run_test(&vmsl, &worker_options);
+			}
 		}
+
 		fflush(NULL);
 	}
 
