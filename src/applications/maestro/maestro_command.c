@@ -92,16 +92,17 @@ static void maestro_cmd_print_data(maestro_note_t *note) {
 
 int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *status) {
 	ssize_t ret = 0;
-	while (ret == 0) {
+	while (true) {
 		char buf[MAESTRO_NOTE_SIZE] = {0};
 
 		ret = msgrcv(queue, &buf, sizeof(buf), 0, IPC_NOWAIT);
 		if (ret < 0) {
 			if (errno == ENOMSG) { 
-				fprintf(stdout, "No data to collect\n");
+				break;
 			}
 			else {
 				fprintf(stdout, "Failed to read from the local forward queue\n");
+				
 				return 1;
 			}
 		}
@@ -110,12 +111,9 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 
 			if (!maestro_note_parse(buf, ret, &note, status)) {
 				fprintf(stderr, "Unknown protocol data\n");
-
-				return 1;
 			}
 			else {
 				maestro_cmd_print_data(&note);
-				return 0;
 			}
 			
 		}
