@@ -37,7 +37,7 @@ static void maestro_loop_reply_run(maestro_cmd_ctxt_t *cmd_ctxt, int queue,
 			continue;
 		}
 		
-		logger(DEBUG, "Forwarding: %d %s ", rstat, resp.data);
+		mpt_trace("Forwarding: %d %s ", rstat, resp.data);
 		
 		int ret = msgsnd(queue, resp.data, resp.size, IPC_NOWAIT);
 		if (ret < 0) {
