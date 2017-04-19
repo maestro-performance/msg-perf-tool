@@ -78,6 +78,10 @@ int maestro_loop(gru_status_t *status) {
 			ret = maestro_cmd_start_receiver(cmd_ctxt, status);
 		}
 
+		if (strcmp(command, "stop-receiver") == 0) {
+			ret = maestro_cmd_stop_receiver(cmd_ctxt, status);
+		}
+
 		if (strcmp(command, "collect") == 0) {
 			ret = maestro_cmd_collect(cmd_ctxt, queue, status);
 			

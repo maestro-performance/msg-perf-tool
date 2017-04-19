@@ -45,9 +45,7 @@ static int maestro_cmd_disconnect(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *st
 	return 0;
 }
 
-
-
-int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt, const char *cmd, gru_status_t *status) {
 	const options_t *options = get_options_object();
 
 	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
@@ -58,7 +56,7 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
 	
 	msg_content_data_t req = {0};
-	maestro_easy_request(&req, MAESTRO_NOTE_START);
+	maestro_easy_request(&req, cmd);
 	
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
@@ -75,6 +73,15 @@ int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *statu
 	}
 
 	return 0;
+}
+
+
+int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_START, status);
+}
+
+int maestro_cmd_stop_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STOP, status);
 }
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
@@ -125,32 +132,7 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 
 
 int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
-	const options_t *options = get_options_object();
-
-	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
-	if (ret != 0) {
-		return ret;
-	}
-
-	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
-	
-	msg_content_data_t req = {0};
-	maestro_easy_request(&req, MAESTRO_NOTE_FLUSH);
-
-	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
-	if (rstat != VMSL_SUCCESS) {
-		fprintf(stderr, "Failed to send command");
-		return 1;
-	}
-
-	ret = maestro_cmd_disconnect(cmd_ctxt, status);
-	if (ret != 0) {
-		fprintf(stderr, "Warning error during disconnect");
-
-		return 1;
-	}
-
-	return 0;
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_FLUSH, status);
 }
 
 
