@@ -60,6 +60,12 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 		return NULL;
 	}
 
+	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_THROTTLE, MAESTRO_NOTE_OPT_LEN) == 0) {
+		logger(INFO, "Setting throttle option");
+
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+		return NULL;
+	}
 
 	logger(ERROR, "Invalid option to set: %02s", body.opt);
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PROTOCOL_ERROR);

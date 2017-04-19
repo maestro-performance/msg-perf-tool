@@ -77,6 +77,9 @@
 /** Set a fixed message size */
 #define MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE "04"
 
+/** Set throtle */
+#define MAESTRO_NOTE_OPT_SET_THROTTLE "05"
+
 typedef struct maestro_payload_ping_request_t_ {
 	char ts[18];
 } maestro_payload_ping_request_t;

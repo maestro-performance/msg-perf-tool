@@ -175,6 +175,8 @@ static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, val);
 	} else if  (strcmp(opt, "message-size") == 0) {
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, val);
+	} else if  (strcmp(opt, "throttle") == 0) {
+		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_THROTTLE, val);
 	} else {
 		return -1;
 	}
