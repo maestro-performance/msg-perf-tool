@@ -27,7 +27,6 @@
 #include "mpt-debug.h"
 #include "msgctxt.h"
 #include "proton-context.h"
-#include "statistics.h"
 #include "vmsl.h"
 
 #ifdef __cplusplus

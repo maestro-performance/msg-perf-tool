@@ -24,7 +24,6 @@
 #include "mpt-debug.h"
 #include "msgctxt.h"
 #include "paho-context.h"
-#include "statistics.h"
 #include "vmsl.h"
 
 #define QOS_AT_MOST_ONCE 1

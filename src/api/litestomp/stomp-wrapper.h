@@ -23,7 +23,6 @@
 
 #include "contrib/options.h"
 #include "msgctxt.h"
-#include "statistics.h"
 #include "vmsl.h"
 
 #include "stomp-context.h"
