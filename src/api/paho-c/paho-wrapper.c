@@ -85,6 +85,7 @@ msg_ctxt_t *paho_init(
 	}
 
 	msg_ctxt->api_context = paho_ctxt;
+	msg_ctxt->msg_opts = opt;
 
 	return msg_ctxt;
 }
@@ -163,7 +164,8 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 		pubmsg.payloadlen = pl.size;
 
 		logger_t logger = gru_logger_get();
-		logger(DEBUG, "Sending message with latency '%s' to %s", data->data, ctxt->msg_opts.uri.path);
+		logger(DEBUG, "Sending message with latency information '%s' to %s", 
+			data->data, ctxt->msg_opts.uri.path);
 
 		rc = MQTTClient_publishMessage(
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
@@ -269,19 +271,15 @@ vmsl_stat_t paho_receive(
 		}
 		default: {
 			gru_status_set(status, GRU_FAILURE, "Unable to receive data: error %d", rc);
-			content->errors++;
 			return VMSL_ERROR;
 		}
 	}
 
 	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) { 
-		gru_timestamp_t now = gru_time_now();
-
 		char header[18] = {0};
 		sscanf(msg->payload, "%17s", header);
 
-		gru_timestamp_t created = gru_time_read_str(header);
-		statistics_latency(ctxt->stat_io, created, now);
+		content->created = gru_time_read_str(header);
 	}
 
 	if (msg->payloadlen > content->capacity) {
@@ -291,8 +289,6 @@ vmsl_stat_t paho_receive(
 		memcpy(content->data, msg->payload, msg->payloadlen);
 	}
 	content->size = msg->payloadlen;
-	
-	content->count++;
 
 	return VMSL_SUCCESS;
 }

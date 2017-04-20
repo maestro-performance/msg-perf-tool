@@ -389,85 +389,79 @@ static gru_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timest
 
 vmsl_stat_t proton_receive(
 	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
+	logger_t logger = gru_logger_get();
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
+	static int nmsgs = 0; // Number of messages in the local queue
+	static int cur = 0; // Current message being processed
+	static int last_ack = 0; // Last acknowledged/settled message
 
-    vmsl_stat_t local_ret = proton_receive_local(proton_ctxt->messenger, status);
-	if (local_ret == VMSL_ERROR) {
-		return local_ret;
-	}
-    else {
-        if (local_ret & VMSL_NO_DATA) {
-            return local_ret;
-        }
-    }
-
-	int nmsgs = 0;
-	int last = 0;
-	int cur = 0;
-	pn_message_t *message = pn_message();
-	while (nmsgs = pn_messenger_incoming(proton_ctxt->messenger)) {
-		cur++;
-		int ret = proton_do_receive(proton_ctxt->messenger, message, content);
-
-		if (ret == 0 && (ctxt->msg_opts.statistics & MSG_STAT_LATENCY)) {
-			pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
-
-			if (proton_ts > 0) {
-				gru_timestamp_t created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
-
-				pn_timestamp_t ts = proton_now(status);
-
-				if (likely(ts > 0)) {
-					gru_timestamp_t now = proton_timestamp_to_mpt_timestamp_t(ts);
-
-					statistics_latency(ctxt->stat_io, created, now);
-					content->count++;
-				} else {
-					logger_t logger = gru_logger_get();
-
-					logger(ERROR,
-						"Discarding message due to unable to "
-						"compute current time: %s",
-						status->message);
-					content->errors++;
-				}
-			} else {
-				content->errors++;
-			}
-
-			if ((last + window) == cur) {
-				mpt_trace("Acknowledging message %i of %i (%i / %i)",
-					cur,
-					nmsgs,
-					content->count,
-					content->errors);
-
-				proton_accept(proton_ctxt->messenger);
-				last = cur;
-			} else {
-				mpt_trace("Buffering message %i of %i for acknowledge (%i / %i)",
-					cur,
-					nmsgs,
-					content->count,
-					content->errors);
-			}
+	// First check if there are messages in the local buffer
+	nmsgs = pn_messenger_incoming(proton_ctxt->messenger);
+	if (nmsgs == 0) {
+		// If not, try to receive from the remote peer
+		vmsl_stat_t local_ret = proton_receive_local(proton_ctxt->messenger, status);
+		if (local_ret == VMSL_ERROR) {
+			return local_ret;
 		}
 		else {
-			if (ret == 0) {
-				content->count++;
+			if (local_ret & VMSL_NO_DATA) {
+				return local_ret;
 			}
 		}
+
+		nmsgs = pn_messenger_incoming(proton_ctxt->messenger);
+		cur = 0;
+		last_ack = 0;
 	}
 
-	if (cur > last) {
-		uint64_t delta = nmsgs - last;
-		content->count = content->count - delta;
-		mpt_trace("Possible delta for acknowledge: %i (%i / %i)", delta, nmsgs, last);
+	pn_message_t *message = pn_message();
+		
+	int ret = proton_do_receive(proton_ctxt->messenger, message, content);
+
+	if (ret == 0 && (ctxt->msg_opts.statistics & MSG_STAT_LATENCY)) {
+		
+		
+		pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
+
+		if (proton_ts > 0) {
+			logger(DEBUG, "Creation timestamp collected");
+			content->created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
+		} else {
+			logger(DEBUG, "Unable to collect creation timestamp");	
+			gru_status_set(status, GRU_FAILURE, "A timestamp was not set for a message");
+
+			goto err_exit;
+		}
+	}
+	else if (ret != 0) {
+		gru_status_set(status, GRU_FAILURE, "Error receiving a message");
+		goto err_exit;
+	}
+	cur++;
+
+	// Settles the messages after every 'window' count
+	if ((last_ack + window) == cur) {
+		mpt_trace("Acknowledging message: %i current (%i messages / %i last ack)", 
+			cur, nmsgs, last_ack);
 		proton_accept(proton_ctxt->messenger);
+		last_ack = cur;
+	}
+	else { 
+		// Otherwise, if at the end of the local buffer, settle the remaining
+		if (cur == nmsgs) {
+			int delta = nmsgs - last_ack;
+			mpt_trace("Possible delta for acknowledge: %i delta (%i messages / %i last ack)", 
+				delta, nmsgs, last_ack);
+			proton_accept(proton_ctxt->messenger);
+		}
 	}
 
 	pn_message_free(message);
 	return VMSL_SUCCESS;
+
+	err_exit:
+	pn_message_free(message);
+	return VMSL_ERROR;
 }
 
 bool proton_vmsl_assign(vmsl_t *vmsl) {

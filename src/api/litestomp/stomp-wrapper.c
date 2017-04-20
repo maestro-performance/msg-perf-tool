@@ -76,6 +76,7 @@ msg_ctxt_t *litestomp_init(
 
 	stomp_ctxt->messenger = messenger;
 	msg_ctxt->api_context = stomp_ctxt;
+	msg_ctxt->msg_opts = opt;
 
 	return msg_ctxt;
 
@@ -203,7 +204,7 @@ vmsl_stat_t litestomp_receive(
 	stomp_receive_header_t receive_header = {0};
 	stomp_status_code_t stat =
 		stomp_receive(stomp_ctxt->messenger, &receive_header, message);
-	if (stat != STOMP_SUCCESS) {
+	if (stomp_error(stat)) {
 		logger(ERROR,
 			"Unable to receive messages from the endpoint: %s",
 			stomp_ctxt->messenger->status.message);
@@ -211,18 +212,21 @@ vmsl_stat_t litestomp_receive(
 		stomp_message_destroy(&message);
 		return VMSL_ERROR;
 	}
+	else if (stat & STOMP_NO_DATA) {
+		stomp_message_destroy(&message);
+		return VMSL_SUCCESS | VMSL_NO_DATA;
+	}
 
-	gru_timestamp_t now = gru_time_now();
+	
+	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) { 
+		const char *ctime = stomp_exchange_get(
+			stomp_ctxt->messenger->exchange_properties, STOMP_CREATION_TIME);
 
-	const char *ctime = stomp_exchange_get(
-		stomp_ctxt->messenger->exchange_properties, STOMP_CREATION_TIME);
+		content->created = gru_time_from_milli_char(ctime);
+	}
 
-	gru_timestamp_t created = gru_time_from_milli_char(ctime);
-
-	content->count++;
-	statistics_latency(ctxt->stat_io, created, now);
 	stomp_message_destroy(&message);
-	return VMSL_ERROR;
+	return VMSL_SUCCESS;
 }
 
 bool litestomp_vmsl_assign(vmsl_t *vmsl) {

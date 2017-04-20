@@ -21,13 +21,13 @@
 
 #include <common/gru_status.h>
 #include <common/gru_alloc.h>
+#include <time/gru_time_utils.h>
 
 typedef struct msg_content_data_t_ {
 	void *data;
-	uint64_t count;
-	uint64_t errors;
 	size_t capacity;
 	size_t size;
+	gru_timestamp_t created;
 } msg_content_data_t;
 
 msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status);

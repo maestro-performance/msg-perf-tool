@@ -55,19 +55,19 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	uint64_t last_count = 0;
 	msg_content_data_t content_storage = {0}; 
 
-	maestro_sheet_t *sheet = new_receiver_sheet(&status);
+	// maestro_sheet_t *sheet = new_receiver_sheet(&status);
 
-	if (!maestro_player_start(options, sheet, &status)) {
-		fprintf(stderr, "Unable to connect to maestro broker: %s\n", 
-			status.message);
+	// if (!maestro_player_start(options, sheet, &status)) {
+	// 	fprintf(stderr, "Unable to connect to maestro broker: %s\n", 
+	// 		status.message);
 
-		return;
-	}
+	// 	return;
+	// }
 
-	while (!can_start) {
-		logger(INFO, "Waiting for the start signal");
-		sleep(1);
-	}
+	// while (!can_start) {
+	// 	logger(INFO, "Waiting for the start signal");
+	// 	sleep(1);
+	// }
 
 	stat_io_t *stat_io = statistics_init(RECEIVER, &status);
 	if (!stat_io) {
@@ -111,6 +111,8 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	// install_timer(30);
 	install_interrupt_handler();
 
+	register uint64_t count = 0;
+
 	while (can_continue(options, 0)) {
 		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
 		if (unlikely(vmsl_stat_error(rstat))) {
@@ -120,14 +122,22 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			break;
 		}
 
+		if (rstat & VMSL_NO_DATA) {
+			continue;
+		}
+
+		count++;
+
 		last = gru_time_now();
 
+		statistics_latency(stat_io, content_storage.created, last);
+
 		if (last_calc <= (last.tv_sec - tp_interval)) {
-			uint64_t processed_count = content_storage.count - last_count;
+			uint64_t processed_count = count - last_count;
 
 			statistics_throughput_partial(stat_io, last, tp_interval, processed_count);
 			
-			last_count = content_storage.count;
+			last_count = count;
 			last_calc = last.tv_sec;
 		}
 	}
@@ -138,9 +148,9 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	statistics_destroy(&stat_io);
 
 	uint64_t elapsed = statistics_diff(start, last);
-	double rate = ((double) content_storage.count / (double) elapsed) * 1000;
+	double rate = ((double) count / (double) elapsed) * 1000;
 
-	uint64_t total_received = content_storage.count;
+	uint64_t total_received = count;
 
 	logger(STAT,
 		"summary;received;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
@@ -154,7 +164,6 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		total_received,
 		elapsed,
 		rate);
-	logger(INFO, "Errors: received %" PRIu64, content_storage.errors);
 
 	msg_content_data_release(&content_storage);
 	return;

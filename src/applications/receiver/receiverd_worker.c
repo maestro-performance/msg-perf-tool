@@ -241,6 +241,8 @@ void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 
 	install_interrupt_handler();
 
+	register uint64_t count = 0;
+
 	while (started) {
 		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
 		if (unlikely(vmsl_stat_error(rstat))) {
@@ -249,15 +251,18 @@ void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 			gru_status_reset(&status);
 			break;
 		}
+		count++;
 
 		last = gru_time_now();
 
+		statistics_latency(stat_io, content_storage.created, last);
+
 		if (last_calc <= (last.tv_sec - tp_interval)) {
-			uint64_t processed_count = content_storage.count - last_count;
+			uint64_t processed_count = count - last_count;
 
 			statistics_throughput_partial(stat_io, last, tp_interval, processed_count);
 			
-			last_count = content_storage.count;
+			last_count = count;
 			last_calc = last.tv_sec;
 		}
 	}
@@ -268,9 +273,9 @@ void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 	statistics_destroy(&stat_io);
 
 	uint64_t elapsed = statistics_diff(start, last);
-	double rate = ((double) content_storage.count / (double) elapsed) * 1000;
+	double rate = ((double) count / (double) elapsed) * 1000;
 
-	uint64_t total_received = content_storage.count;
+	uint64_t total_received = count;
 
 	logger(STAT,
 		"summary;received;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
@@ -284,7 +289,6 @@ void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 		total_received,
 		elapsed,
 		rate);
-	logger(INFO, "Errors: received %" PRIu64, content_storage.errors);
 
 	msg_content_data_release(&content_storage);
 	return;

@@ -30,8 +30,6 @@ msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status) {
 	}
 
 	ret->capacity = size;
-	ret->count = 0;
-	ret->errors = 0;
 
 	return ret;
 }
@@ -47,8 +45,6 @@ msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status) {
 	}
 
 	mdata->capacity = size;
-	mdata->count = 0;
-	mdata->errors = 0;
 }
 
 void msg_content_data_reset(msg_content_data_t *mdata) {
