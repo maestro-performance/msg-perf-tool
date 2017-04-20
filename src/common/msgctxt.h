@@ -45,7 +45,7 @@ typedef enum msg_stat_opt_t_ {
 	MSG_STAT_NONE = 0, /** Disable statistics **/
 	MSG_STAT_LATENCY = 1, /** Enable latency statistics **/
 	MSG_STAT_THROUGHPUT = 2, /** Enable throughtput statistics **/
-	MSG_STAT_DEFAULT = (MSG_STAT_LATENCY & MSG_STAT_THROUGHPUT)
+	MSG_STAT_DEFAULT = (MSG_STAT_LATENCY | MSG_STAT_THROUGHPUT)
 } msg_stat_opt_t;
 
 /**
