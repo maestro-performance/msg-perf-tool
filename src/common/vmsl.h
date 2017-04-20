@@ -32,8 +32,7 @@ typedef enum vmsl_stat_t_ {
 	VMSL_NO_DATA = 2,
 } vmsl_stat_t;
 
-typedef msg_ctxt_t *(*msg_init)(
-	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status);
+typedef msg_ctxt_t *(*msg_init)(msg_opt_t opt, void *data, gru_status_t *status);
 typedef vmsl_stat_t (*msg_send)(msg_ctxt_t *ctxt, msg_content_data_t *data, 
 	gru_status_t *status);
 typedef vmsl_stat_t (*msg_subscribe)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);

@@ -25,8 +25,8 @@ extern "C" {
 
 #include <common/gru_alloc.h>
 #include <log/gru_logger.h>
+#include <network/gru_uri.h>
 
-#include "statistics.h"
 #include "msg_direction.h"
 #include "msg_conn_info.h"
 #include "msg_content_data.h"
@@ -61,11 +61,10 @@ typedef struct msg_opt_t_ {
 
 typedef struct msg_ctxt_t_ {
 	void *api_context;
-	stat_io_t *stat_io;
 	msg_opt_t msg_opts;
 } msg_ctxt_t;
 
-msg_ctxt_t *msg_ctxt_init(stat_io_t *stat_io, gru_status_t *status);
+msg_ctxt_t *msg_ctxt_init(gru_status_t *status);
 void msg_ctxt_destroy(msg_ctxt_t **ctxt);
 
 #ifdef __cplusplus

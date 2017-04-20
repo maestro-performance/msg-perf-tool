@@ -91,7 +91,7 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 		.uri = options->uri
 	};
 
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
+	msg_ctxt_t *msg_ctxt = vmsl->init(opt, NULL, &status);
 	if (!msg_ctxt) {
 		fprintf(stderr, "%s", status.message);
 

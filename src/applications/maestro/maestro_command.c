@@ -29,7 +29,7 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt, gru_uri_t uri, gru_
 	msg_conn_info_gen_id(&opt.conn_info);
 	opt.uri = uri;
 	
-	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(NULL, opt, NULL, status);
+	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(opt, NULL, status);
 
 	if (!cmd_ctxt->msg_ctxt) {
 		logger(ERROR, "Failed to initialize maestro connection: %s", status->message);

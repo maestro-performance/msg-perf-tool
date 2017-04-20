@@ -22,13 +22,12 @@ static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (stomp_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *litestomp_init(
-	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status) {
+msg_ctxt_t *litestomp_init(msg_opt_t opt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing stomp wrapper");
 
-	msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io, status);
+	msg_ctxt_t *msg_ctxt = msg_ctxt_init(status);
 	if (!msg_ctxt) {
 		return NULL;
 	}

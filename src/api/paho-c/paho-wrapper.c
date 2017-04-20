@@ -23,13 +23,12 @@ static inline paho_ctxt_t *paho_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (paho_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *paho_init(
-	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status) {
+msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing Paho wrapper");
 
-	msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io, status);
+	msg_ctxt_t *msg_ctxt = msg_ctxt_init(status);
 	if (!msg_ctxt) {
 		logger(FATAL, "Unable to initialize the messaging context");
 

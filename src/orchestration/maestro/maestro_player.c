@@ -33,7 +33,7 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 	opt.conn_info.id = player->player_info.id;
 	opt.uri = player->uri;
 
-	player->ctxt = player->mmsl.init(NULL, opt, NULL, status);
+	player->ctxt = player->mmsl.init(opt, NULL, status);
 
 	if (!player->ctxt) {
 		logger_t logger = gru_logger_get();

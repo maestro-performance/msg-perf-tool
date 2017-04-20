@@ -217,7 +217,7 @@ void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 	msg_conn_info_gen_id(&opt.conn_info);
 	opt.uri = options->uri;
 
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
+	msg_ctxt_t *msg_ctxt = vmsl->init(opt, NULL, &status);
 	if (!msg_ctxt) {
 		goto err_exit;
 	}

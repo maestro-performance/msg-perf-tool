@@ -71,13 +71,12 @@ static void proton_set_recv_options(pn_messenger_t *messenger, msg_opt_t opt) {
 	}
 }
 
-msg_ctxt_t *proton_init(
-	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status) {
+msg_ctxt_t *proton_init(msg_opt_t opt, void *data, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing proton wrapper");
 
-	msg_ctxt_t *msg_ctxt = msg_ctxt_init(stat_io, status);
+	msg_ctxt_t *msg_ctxt = msg_ctxt_init(status);
 	if (!msg_ctxt) {
 		return NULL;
 	}

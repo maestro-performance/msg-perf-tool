@@ -31,8 +31,7 @@
 extern "C" {
 #endif
 
-msg_ctxt_t *litestomp_init(
-	stat_io_t *stat_io, msg_opt_t opt, void *data, gru_status_t *status);
+msg_ctxt_t *litestomp_init(msg_opt_t opt, void *data, gru_status_t *status);
 void litestomp_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 

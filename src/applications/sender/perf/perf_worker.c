@@ -50,7 +50,7 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 
 
 
-	msg_ctxt_t *msg_ctxt = vmsl->init(stat_io, opt, NULL, &status);
+	msg_ctxt_t *msg_ctxt = vmsl->init(opt, NULL, &status);
 	if (!msg_ctxt) {
 		fprintf(stderr, "%s", status.message);
 

@@ -82,7 +82,7 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 	
 
 	logger(DEBUG, "Initializing VMSL");
-	cmd_ctxt->msg_ctxt =  cmd_ctxt->vmsl.init(NULL, opt, NULL, status);
+	cmd_ctxt->msg_ctxt =  cmd_ctxt->vmsl.init(opt, NULL, status);
 	if (!cmd_ctxt->msg_ctxt) {
 		gru_status_set(status, GRU_FAILURE, "Unable to initialize command context");
 		
