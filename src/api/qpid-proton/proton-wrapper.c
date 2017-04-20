@@ -292,6 +292,7 @@ static void proton_accept(pn_messenger_t *messenger) {
 
 static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) {
 	pn_messenger_set_incoming_window(messenger, window);
+	pn_messenger_set_blocking(messenger, false);
 }
 
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {

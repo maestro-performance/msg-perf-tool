@@ -123,6 +123,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		}
 
 		if (rstat & VMSL_NO_DATA) {
+			usleep(500);
 			continue;
 		}
 

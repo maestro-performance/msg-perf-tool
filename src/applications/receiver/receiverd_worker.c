@@ -251,6 +251,12 @@ void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 			gru_status_reset(&status);
 			break;
 		}
+
+		if (rstat & VMSL_NO_DATA) {
+			usleep(500);
+			continue;
+		}
+
 		count++;
 
 		last = gru_time_now();
