@@ -5,6 +5,8 @@ endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 add_library(
 	mpt-common SHARED
         contrib/options.c
+        statistics/calculator.c
+        statistics/csv_writer.c
         vmsl.c
         msg_conn_info.c
         msgctxt.c

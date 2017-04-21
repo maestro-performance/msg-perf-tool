@@ -23,7 +23,7 @@ void calc_latency(stat_latency_t *out, gru_timestamp_t start, gru_timestamp_t en
 }
 
 
-void calc_throughput(stat_througput_t *out, gru_timestamp_t start, gru_timestamp_t end, 
+void calc_throughput(stat_throughput_t *out, gru_timestamp_t start, gru_timestamp_t end, 
 	uint64_t count)
 {
 	out->duration.start = start;

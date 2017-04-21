@@ -20,20 +20,27 @@
 extern "C" {
 #endif
 
-#include "contrib/options.h"
-#include "msgctxt.h"
-#include "process_utils.h"
-#include "vmsl.h"
-#include "msg_content_data.h"
-#include "maestro/maestro_player.h"
-#include "maestro/maestro_sheet.h"
-
 #include <inttypes.h>
 #include <signal.h>
 #include <unistd.h>
 #include <stdio.h>
 
 #include <common/gru_status.h>
+
+#include "contrib/options.h"
+#include "msgctxt.h"
+#include "process_utils.h"
+#include "vmsl.h"
+#include "msg_content_data.h"
+
+#include "statistics/stats_types.h"
+#include "statistics/calculator.h"
+#include "statistics/stats_writer.h"
+#include "statistics/csv_writer.h"
+#include "maestro/maestro_player.h"
+#include "maestro/maestro_sheet.h"
+
+
 
 void receiver_start(const vmsl_t *vmsl, const options_t *options);
 

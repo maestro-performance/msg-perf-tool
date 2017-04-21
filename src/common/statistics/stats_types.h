@@ -33,11 +33,11 @@ typedef struct stat_latency_t_ {
 /**
  * A place holder for the throughput information
  */
-typedef struct stat_througput_t_ {
+typedef struct stat_throughput_t_ {
 	gru_duration_t duration;
 	uint64_t count;
 	double rate;
-} stat_througput_t;
+} stat_throughput_t;
 
 
 #endif /* STATS_TYPES_H */
