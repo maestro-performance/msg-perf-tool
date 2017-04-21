@@ -317,7 +317,7 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t *status) {
 	const int limit = 1024;
 
-	mpt_trace("Receiving at most %i messages", limit);
+	// mpt_trace("Receiving at most %i messages", limit);
 	int ret = pn_messenger_recv(messenger, limit);
 	if (ret != 0) {
 		if (failed(messenger)) {
@@ -330,7 +330,7 @@ static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t 
 			return VMSL_ERROR;
 		}
 		else {
-			mpt_trace("No messages to receive");
+			// mpt_trace("No messages to receive");
 			return VMSL_SUCCESS | VMSL_NO_DATA;
 		}
 	}
@@ -392,8 +392,8 @@ vmsl_stat_t proton_receive(
 	logger_t logger = gru_logger_get();
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 	static int nmsgs = 0; // Number of messages in the local queue
-	static int cur = 0; // Current message being processed
-	static int last_ack = 0; // Last acknowledged/settled message
+	static int cur = 0; // Current message being processed in the batch
+	static int last_ack = 0; // Last acknowledged/settled message in the batch
 
 	// First check if there are messages in the local buffer
 	nmsgs = pn_messenger_incoming(proton_ctxt->messenger);
@@ -419,12 +419,10 @@ vmsl_stat_t proton_receive(
 	int ret = proton_do_receive(proton_ctxt->messenger, message, content);
 
 	if (ret == 0 && (ctxt->msg_opts.statistics & MSG_STAT_LATENCY)) {
-		
-		
 		pn_timestamp_t proton_ts = pn_message_get_creation_time(message);
 
 		if (proton_ts > 0) {
-			logger(DEBUG, "Creation timestamp collected");
+			mpt_trace("Creation timestamp collected");
 			content->created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
 		} else {
 			logger(DEBUG, "Unable to collect creation timestamp");	
@@ -444,15 +442,18 @@ vmsl_stat_t proton_receive(
 		mpt_trace("Acknowledging message: %i current (%i messages / %i last ack)", 
 			cur, nmsgs, last_ack);
 		proton_accept(proton_ctxt->messenger);
-		last_ack = cur;
+		cur = 0;
+		last_ack = 0;
 	}
 	else { 
 		// Otherwise, if at the end of the local buffer, settle the remaining
-		if (cur == nmsgs) {
-			int delta = nmsgs - last_ack;
-			mpt_trace("Possible delta for acknowledge: %i delta (%i messages / %i last ack)", 
-				delta, nmsgs, last_ack);
+		if (nmsgs == 1) {
+			mpt_trace("Acknowledging remaining messages on the batch: %i current (%i messages / %i last ack)", 
+				cur, nmsgs, last_ack);
 			proton_accept(proton_ctxt->messenger);
+
+			cur = 0;
+			last_ack = 0;
 		}
 	}
 
