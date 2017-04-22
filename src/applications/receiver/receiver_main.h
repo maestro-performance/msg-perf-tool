@@ -34,7 +34,6 @@ extern "C" {
 #include "process_utils.h"
 
 #include "receiver_worker.h"
-#include "statistics.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
 

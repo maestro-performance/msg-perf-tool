@@ -81,9 +81,6 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	perf_stats_t ret = {0};
 	gru_status_t status = gru_status_new();
 
-	// Open stdout ... never FAIL.
-	stat_io_t *stat_io = statistics_init_stdout(SENDER, NULL);
-
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_SENDER, 
 		.qos = MSG_QOS_AT_MOST_ONCE,

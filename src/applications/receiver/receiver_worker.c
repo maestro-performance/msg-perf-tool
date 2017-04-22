@@ -101,14 +101,6 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	// 	sleep(1);
 	// }
 
-	// stat_io_t *stat_io = statistics_init(RECEIVER, &status);
-	// if (!stat_io) {
-	// 	logger(FATAL, "Unable to initialize statistics engine: %s", status.message);
-	// 	gru_status_reset(&status);
-
-	// 	return;
-	// }
-
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_RECEIVER, 
 		.qos = MSG_QOS_AT_MOST_ONCE, 

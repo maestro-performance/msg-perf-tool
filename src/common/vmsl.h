@@ -20,7 +20,6 @@
 #include <log/gru_logger.h>
 
 #include "msgctxt.h"
-#include "statistics.h"
 
 #ifdef __cplusplus
 extern "C" {

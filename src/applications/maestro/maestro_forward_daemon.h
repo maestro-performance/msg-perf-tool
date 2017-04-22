@@ -27,6 +27,7 @@
 
 #include <common/gru_colors.h>
 
+#include "mpt-debug.h"
 #include "maestro_cmd_ctxt.h"
 #include "maestro_command.h"
 #include "maestro_forward_queue.h"

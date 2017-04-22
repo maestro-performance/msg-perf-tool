@@ -57,12 +57,6 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	const uint32_t sample_interval = 10; // sampling interval
 	uint64_t last_count = 0;
 
-	stat_io_t *stat_io = statistics_init(SENDER, &status);
-	if (!stat_io) {
-		logger(FATAL, "Unable to initialize statistics engine: %s", status.message);
-
-		return;
-	}
 	logger(TRACE, "Initializing test execution");
 
 	msg_opt_t opt = {

@@ -10,7 +10,6 @@ add_library(
         vmsl.c
         msg_conn_info.c
         msgctxt.c
-        statistics.c
         process_utils.c
         bmic_utils.c
         msg_content_data.c
