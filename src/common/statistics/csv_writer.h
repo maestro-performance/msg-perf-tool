@@ -16,11 +16,15 @@
 #ifndef CSV_WRITER_H
 #define CSV_WRITER_H
 
-#include "stats_types.h"
-#include "stats_writer.h"
+#include <stdio.h>
 
 #include <common/gru_status.h>
 #include <io/gru_ioutils.h>
+
+#include "stats_types.h"
+#include "stats_writer.h"
+
+
 
 
 /**
@@ -88,12 +92,12 @@ bool csv_tp_writer_finalize(gru_status_t *status);
 /** 
  * Latency writer I/O assignment
  */
-bool csv_writer_latency_assign(latency_writer_t *writer);
+void csv_writer_latency_assign(latency_writer_t *writer);
 
 
 /**
  * Throghput writer I/O assignment
  */
-bool csv_writer_throughput_assign(throughput_writer_t *writer);
+void csv_writer_throughput_assign(throughput_writer_t *writer);
 
 #endif /* CSV_WRITER_H */

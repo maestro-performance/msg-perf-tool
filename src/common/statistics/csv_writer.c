@@ -146,14 +146,14 @@ bool csv_tp_writer_finalize(gru_status_t *status) {
 }
 
 
-bool csv_writer_latency_assign(latency_writer_t *writer) {
+void csv_writer_latency_assign(latency_writer_t *writer) {
 	writer->initialize = csv_lat_writer_initialize;
 	writer->write = csv_lat_writer_write;
 	writer->flush = csv_lat_writer_flush;
 	writer->finalize = csv_lat_writer_finalize;
 }
 
-bool csv_writer_throughput_assign(throughput_writer_t *writer) {
+void csv_writer_throughput_assign(throughput_writer_t *writer) {
 	writer->initialize = csv_tp_writer_initialize;
 	writer->write = csv_tp_writer_write;
 	writer->flush = csv_tp_writer_flush;
