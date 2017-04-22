@@ -106,6 +106,12 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 		return ret;
 	}
 
+	useconds_t idle_usec = 0;
+	if (options->throttle) {
+		idle_usec = 1000000 / options->throttle;
+	}
+
+
 	while (tune_can_continue(duration)) {
 		vmsl_stat_t sstat = vmsl->send(msg_ctxt, &data, &status);
 
@@ -117,14 +123,7 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 		sent++;
 
 		if (throttle > 0) {
-			gru_timestamp_t now = gru_time_now();
-
-			round++;
-
-			if (round == throttle) {
-				round = 0;
-				usleep(1000000 - now.tv_usec);
-			}
+			usleep(idle_usec);
 		}
 	}
 
