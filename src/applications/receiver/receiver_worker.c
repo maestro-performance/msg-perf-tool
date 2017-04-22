@@ -178,7 +178,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		}
 		
 
-		if (gru_time_elapsed_secs(last_sample_ts, now) <= sample_interval) {
+		if (gru_time_elapsed_secs(last_sample_ts, now) >= sample_interval) {
 			uint64_t processed_count = count - last_count;
 			
 			calc_throughput(&tp_out, last_sample_ts, now, processed_count);
