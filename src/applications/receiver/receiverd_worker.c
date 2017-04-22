@@ -124,7 +124,7 @@ static void *receiverd_handle_ping(const maestro_note_t *request, maestro_note_t
 		sizeof(request->payload->request.ping.ts));
 
 	gru_timestamp_t created = gru_time_read_str(safe_ts);
-	uint64_t diff = statistics_diff(created, now);
+	uint64_t diff = gru_time_elapsed_milli(created, now);
 	
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PING);
 	maestro_note_ping_set_elapsed(response, diff);
@@ -193,20 +193,49 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	return ret;
 }
 
+static void receiverd_csv_name(const char *prefix, char *name, size_t len) 
+{
+	snprintf(name, len - 1, "%s-%d.csv", prefix, getpid());
+}
+
+bool receiverd_initialize_writer(stats_writer_t *writer, const options_t *options, 
+	gru_status_t *status) 
+{
+	csv_writer_latency_assign(&writer->latency);
+	csv_writer_throughput_assign(&writer->throughput);
+
+	char lat_fname[64] = {0};
+	receiverd_csv_name("receiver-latency", lat_fname, sizeof(lat_fname));
+
+	stat_io_info_t lat_io_info = {0};
+	lat_io_info.dest.name = lat_fname;
+	lat_io_info.dest.location = (char *) options->logdir;
+
+	if (!writer->latency.initialize(&lat_io_info, status)) {
+		return false;
+	}
+
+	char tp_fname[64] = {0};
+	receiverd_csv_name("receiver-throughput", tp_fname, sizeof(tp_fname));
+
+	stat_io_info_t tp_io_info = {0};
+	tp_io_info.dest.name = tp_fname;
+	tp_io_info.dest.location = (char *) options->logdir;
+
+	if (!writer->throughput.initialize(&tp_io_info, status)) {
+		return false;
+	}
+	
+	return true;
+}
+
+
 void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
-	const uint32_t tp_interval = 10;
+	const uint32_t sample_interval = 10;
 	uint64_t last_count = 0;
 	msg_content_data_t content_storage = {0}; 
-
-	stat_io_t *stat_io = statistics_init(RECEIVER, &status);
-	if (!stat_io) {
-		logger(FATAL, "Unable to initialize statistics engine: %s", status.message);
-		gru_status_reset(&status);
-
-		return;
-	}
 
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_RECEIVER, 
@@ -232,16 +261,23 @@ void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 		goto err_exit;
 	}
 
-	gru_timestamp_t last;
-	gru_timestamp_t start = gru_time_now();
-	time_t last_calc = 0;
+	stats_writer_t writer = {0};
+	if (!receiverd_initialize_writer(&writer, options, &status)) {
+		logger(ERROR, "Unable to initialize writer: %s", status.message);
+		
+		goto err_exit;
+	}
 
-	statistics_latency_header(stat_io);
-	statistics_throughput_header(stat_io);
+	gru_timestamp_t start = gru_time_now();
+	gru_timestamp_t now = start;
+	gru_timestamp_t last_sample_ts = start; // Last sampling timestamp
+
 
 	install_interrupt_handler();
 
 	register uint64_t count = 0;
+	stat_latency_t lat_out = {0};
+	stat_throughput_t tp_out = {0};
 
 	while (started) {
 		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
@@ -259,49 +295,52 @@ void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
 
 		count++;
 
-		last = gru_time_now();
+		now = gru_time_now();
 
-		statistics_latency(stat_io, content_storage.created, last);
+		calc_latency(&lat_out, content_storage.created, now);
+		if (unlikely(!writer.latency.write(&lat_out, &status))) {
+			logger(ERROR, "Unable to write latency data: %s", status.message);
 
-		if (last_calc <= (last.tv_sec - tp_interval)) {
+			gru_status_reset(&status);
+			break;
+		}
+
+		if (gru_time_elapsed_secs(last_sample_ts, now) >= sample_interval) {
 			uint64_t processed_count = count - last_count;
-
-			statistics_throughput_partial(stat_io, last, tp_interval, processed_count);
 			
-			last_count = count;
-			last_calc = last.tv_sec;
+			calc_throughput(&tp_out, last_sample_ts, now, processed_count);
+
+			if (unlikely(!writer.throughput.write(&tp_out, &status))) {
+				logger(ERROR, "Unable to write throughput data: %s", status.message);
+
+				gru_status_reset(&status);
+				break;
+			} 
+			
+		 	last_count = count;
+			last_sample_ts = now;
 		}
 	}
 
 	vmsl->stop(msg_ctxt, &status);
 	vmsl->destroy(msg_ctxt, &status);
 
-	statistics_destroy(&stat_io);
+	writer.latency.finalize(&status);
+	writer.throughput.finalize(&status);
 
-	uint64_t elapsed = statistics_diff(start, last);
-	double rate = ((double) count / (double) elapsed) * 1000;
+	uint64_t elapsed = gru_time_elapsed_secs(start, now);
+	calc_throughput(&tp_out, start, now, count);
 
-	uint64_t total_received = count;
-
-	logger(STAT,
-		"summary;received;%" PRIu64 ";elapsed;%" PRIu64 ";rate;%.2f",
-		total_received,
-		elapsed,
-		rate);
-
-	logger(INFO,
+	logger(INFO, 
 		"Summary: received %" PRIu64 " messages in %" PRIu64
-		" milliseconds (rate: %.2f msgs/sec)",
-		total_received,
-		elapsed,
-		rate);
+		" seconds (rate: %.2f msgs/sec)",
+		tp_out.count, elapsed, tp_out.rate);
 
 	msg_content_data_release(&content_storage);
 	return;
 
 err_exit:
 	fprintf(stderr, "%s", status.message);
-	statistics_destroy(&stat_io);
 	msg_content_data_release(&content_storage);
 
 	if (msg_ctxt) {

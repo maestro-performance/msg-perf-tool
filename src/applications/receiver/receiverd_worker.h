@@ -30,6 +30,12 @@
 #include "msg_content_data.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
+#include "statistics/stats_types.h"
+#include "statistics/calculator.h"
+#include "statistics/stats_writer.h"
+#include "statistics/csv_writer.h"
+#include "maestro/maestro_player.h"
+#include "maestro/maestro_sheet.h"
 
 typedef enum test_duration_type_t_ {
 	MESSAGE_COUNT, 
