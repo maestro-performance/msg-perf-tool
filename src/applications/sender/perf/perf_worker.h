@@ -16,17 +16,23 @@
 #ifndef PERF_WORKER_H
 #define PERF_WORKER_H
 
-#include "contrib/options.h"
-#include "msgctxt.h"
-#include "msg_content_data.h"
-#include "process_utils.h"
-#include "statistics.h"
-#include "vmsl.h"
-
 #include <inttypes.h>
 #include <unistd.h>
 
 #include <common/gru_status.h>
+
+#include "contrib/options.h"
+#include "msgctxt.h"
+#include "msg_content_data.h"
+#include "process_utils.h"
+#include "vmsl.h"
+
+#include "statistics/stats_types.h"
+#include "statistics/calculator.h"
+#include "statistics/stats_writer.h"
+#include "statistics/csv_writer.h"
+#include "maestro/maestro_player.h"
+#include "maestro/maestro_sheet.h"
 
 #ifdef __cplusplus
 extern "C" {
