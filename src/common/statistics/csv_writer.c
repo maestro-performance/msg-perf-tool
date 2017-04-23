@@ -122,17 +122,17 @@ bool csv_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *statu
 }
 
 
-int csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
+bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
 	char *str = gru_time_write_format(&tp->duration.end, "%Y-%m-%d %H:%M:%S", 
 		status);
 
 	if (unlikely(!str)) {
-		return 0;
+		return false;
 	}
 
-	int ret = fprintf(tp_file, "%s;%" PRIu64 ";%.2f\n", str, tp->count, tp->rate);
+	fprintf(tp_file, "%s;%" PRIu64 ";%.2f\n", str, tp->count, tp->rate);
 	gru_dealloc_string(&str);
-	return ret;
+	return true;
 }
 
 

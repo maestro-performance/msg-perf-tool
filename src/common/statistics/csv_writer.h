@@ -72,7 +72,7 @@ bool csv_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *statu
  * @param status status response in case of error 
  * @return true if success or false otherwise (in this case, check status for details)
  */
-int csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status);
+bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status);
 
 /**
  * Flushes throughput data
