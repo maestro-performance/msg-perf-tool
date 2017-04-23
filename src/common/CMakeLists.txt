@@ -7,6 +7,7 @@ add_library(
         contrib/options.c
         statistics/calculator.c
         statistics/csv_writer.c
+        statistics/out_writer.c
         vmsl.c
         msg_conn_info.c
         msgctxt.c
