@@ -127,12 +127,12 @@ int csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
 		status);
 
 	if (unlikely(!str)) {
-		return false;
+		return 0;
 	}
 
-	fprintf(tp_file, "%s;%" PRIu64 ";%.2f\n", str, tp->count, tp->rate);
+	int ret = fprintf(tp_file, "%s;%" PRIu64 ";%.2f\n", str, tp->count, tp->rate);
 	gru_dealloc_string(&str);
-	return true;
+	return ret;
 }
 
 
