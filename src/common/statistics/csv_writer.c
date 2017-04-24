@@ -15,11 +15,34 @@
  */
 #include "csv_writer.h"
 
-static FILE *lat_file = NULL;
-static FILE *tp_file = NULL;
+// static FILE *lat_file = NULL;
+// static FILE *tp_file = NULL;
+static gzFile *lat_file = NULL;
+static gzFile *tp_file = NULL;
 
-static FILE *csv_write_initialize(char *directory, char *name, gru_status_t *status) {
-	FILE *ret = NULL;
+gzFile *csv_write_open_file(const char *dir, const char *name, gru_status_t *status) {
+
+	char *fullpath = gru_path_format(dir, name, status);
+
+	if (!gru_path_rename(fullpath, status)) {
+		gru_dealloc_string(&fullpath);
+		return NULL;
+	}
+
+	gzFile *f = gzopen(fullpath, "wb");
+	gru_dealloc_string(&fullpath);
+
+	if (!f) {
+		gru_status_strerror(status, GRU_FAILURE, errno);
+		return NULL;
+	}
+
+	return f;
+}
+
+
+static gzFile *csv_write_initialize(char *directory, char *name, gru_status_t *status) {
+	gzFile *ret = NULL;
 
 	if (!directory || !name) {
 		gru_status_set(status, GRU_FAILURE, 
@@ -28,7 +51,7 @@ static FILE *csv_write_initialize(char *directory, char *name, gru_status_t *sta
 		return NULL;
 	}
 
-	ret = gru_io_open_unique_file(directory, name, status);
+	ret = csv_write_open_file(directory, name, status);
 	if (!ret) {
 		return false;
 	}
@@ -37,7 +60,7 @@ static FILE *csv_write_initialize(char *directory, char *name, gru_status_t *sta
 }
 
 static bool csv_writer_finalize(FILE *file, gru_status_t *status) {
-	if (fclose(file) != 0) {
+	if (gzclose(file) != 0) {
 		gru_status_strerror(status, GRU_FAILURE, errno);
 		return false;
 	}
@@ -46,7 +69,7 @@ static bool csv_writer_finalize(FILE *file, gru_status_t *status) {
 }
 
 bool csv_writer_flush(FILE *file, gru_status_t *status) {
-	if (fflush(file) != 0) {
+	if (gzflush(file, Z_SYNC_FLUSH) != 0) {
 		gru_status_strerror(status, GRU_FAILURE, errno);
 		
 		return false;
@@ -86,7 +109,7 @@ bool csv_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
 	uint64_t milli_latency = gru_time_to_milli(&latency->elapsed);
 	uint32_t milli = (uint32_t) latency->duration.start.tv_usec / 1000;
 
-	fprintf(lat_file, "%s.%03" PRId32 ";%" PRIu64 "\n", str, milli, milli_latency);
+	gzprintf(lat_file, "%s.%03" PRId32 ";%" PRIu64 "\n", str, milli, milli_latency);
 
 	gru_dealloc_string(&str);
 	return true;
@@ -117,7 +140,7 @@ bool csv_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *statu
 		return false;
 	}
 	
-	fprintf(tp_file, "timestamp;count;rate\n");
+	gzprintf(tp_file, "timestamp;count;rate\n");
 	return csv_tp_writer_flush(status);
 }
 
@@ -130,7 +153,7 @@ bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
 		return false;
 	}
 
-	fprintf(tp_file, "%s;%" PRIu64 ";%.2f\n", str, tp->count, tp->rate);
+	gzprintf(tp_file, "%s;%" PRIu64 ";%.2f\n", str, tp->count, tp->rate);
 	gru_dealloc_string(&str);
 	return true;
 }

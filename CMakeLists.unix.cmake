@@ -62,3 +62,9 @@ find_library(UUID_LIB NAMES uuid libuuid)
 
 message(STATUS "UUID headers found on ${UUID_INCLUDE_DIR}")
 message(STATUS "UUID library found at ${UUID_LIB}")
+
+find_path(ZLIB_INCLUDE_DIR zlib.h)
+find_library(ZLIB_LIB NAMES z libz)
+
+message(STATUS "zlib headers found on ${ZLIB_INCLUDE_DIR}")
+message(STATUS "zlib library found at ${ZLIB_LIB}")

@@ -33,7 +33,8 @@ SET(MQTT_SUPPORT OFF CACHE BOOL "Enable MQTT 3.x support")
 include_directories(${GRU_INCLUDE_DIR} 
     ${JSON_INCLUDE_DIR} 
     ${BMIC_INCLUDE_DIR} 
-    ${URIPARSER_INCLUDE_DIR})
+    ${URIPARSER_INCLUDE_DIR}
+    ${ZLIB_INCLUDE_DIR})
 
 link_libraries(${MATH_LIB} 
     ${GRU_LIB} 
@@ -42,6 +43,7 @@ link_libraries(${MATH_LIB}
     ${BMIC_PRODUCT_LIB} 
     ${URIPARSER_LIB}
     ${UUID_LIB}
+    ${ZLIB_LIB}
     )
 
 include_directories(src/common)

@@ -18,6 +18,8 @@
 
 #include <stdio.h>
 
+#include <zlib.h>
+
 #include <common/gru_status.h>
 #include <io/gru_ioutils.h>
 

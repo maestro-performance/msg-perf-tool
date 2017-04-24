@@ -29,7 +29,7 @@ static bool perf_worker_init_data(msg_content_data_t *data, size_t size, gru_sta
 
 static void perf_csv_name(const char *prefix, char *name, size_t len) 
 {
-	snprintf(name, len - 1, "%s-%d.csv", prefix, getpid());
+	snprintf(name, len - 1, "%s-%d.csv.gz", prefix, getpid());
 }
 
 static bool perf_initialize_writer(stats_writer_t *writer, const options_t *options, 
