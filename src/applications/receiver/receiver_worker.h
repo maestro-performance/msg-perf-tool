@@ -37,6 +37,7 @@ extern "C" {
 #include "statistics/calculator.h"
 #include "statistics/stats_writer.h"
 #include "statistics/csv_writer.h"
+#include "statistics/out_writer.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
 

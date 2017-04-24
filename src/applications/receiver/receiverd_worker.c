@@ -71,7 +71,7 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting parallel count option");
 
-		worker_options.parallel_count = atoi(tmp_val);
+		worker_options.parallel_count = (uint16_t) atoi(tmp_val);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
@@ -87,7 +87,7 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_THROTTLE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting throttle option");
 
-		worker_options.throttle = atol(tmp_val);
+		worker_options.throttle = atoi(tmp_val);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		
 		return NULL;
@@ -198,7 +198,7 @@ static void receiverd_csv_name(const char *prefix, char *name, size_t len)
 	snprintf(name, len - 1, "%s-%d.csv", prefix, getpid());
 }
 
-bool receiverd_initialize_writer(stats_writer_t *writer, const options_t *options, 
+bool receiverd_initialize_writer(stats_writer_t *writer, const worker_options_t *options, 
 	gru_status_t *status) 
 {
 	csv_writer_latency_assign(&writer->latency);
@@ -209,7 +209,8 @@ bool receiverd_initialize_writer(stats_writer_t *writer, const options_t *option
 
 	stat_io_info_t lat_io_info = {0};
 	lat_io_info.dest.name = lat_fname;
-	lat_io_info.dest.location = (char *) options->logdir;
+	const options_t *prg_options = get_options_object();
+	lat_io_info.dest.location = (char *) prg_options->logdir;
 
 	if (!writer->latency.initialize(&lat_io_info, status)) {
 		return false;
@@ -220,7 +221,7 @@ bool receiverd_initialize_writer(stats_writer_t *writer, const options_t *option
 
 	stat_io_info_t tp_io_info = {0};
 	tp_io_info.dest.name = tp_fname;
-	tp_io_info.dest.location = (char *) options->logdir;
+	tp_io_info.dest.location = (char *) prg_options->logdir;
 
 	if (!writer->throughput.initialize(&tp_io_info, status)) {
 		return false;

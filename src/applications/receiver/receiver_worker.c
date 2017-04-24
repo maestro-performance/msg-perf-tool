@@ -48,7 +48,7 @@ static void receiver_csv_name(const char *prefix, char *name, size_t len)
 	snprintf(name, len - 1, "%s-%d.csv", prefix, getpid());
 }
 
-bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
+bool receiver_initialize_csv_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
 {
 	csv_writer_latency_assign(&writer->latency);
@@ -79,6 +79,21 @@ bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options
 	return true;
 }
 
+bool receiver_initialize_out_writer(stats_writer_t *writer, const options_t *options, 
+	gru_status_t *status) 
+{
+	out_writer_latency_assign(&writer->latency);
+	out_writer_throughput_assign(&writer->throughput);
+
+	return true;
+}
+
+
+bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
+	gru_status_t *status) 
+{
+	return receiver_initialize_out_writer(writer, options, status);
+}
 
 void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
@@ -128,6 +143,7 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	stats_writer_t writer = {0};
 	if (!receiver_initialize_writer(&writer, options, &status)) {
 		logger(ERROR, "Unable to initialize writer: %s", status.message);
+		
 		
 		goto err_exit;
 	}

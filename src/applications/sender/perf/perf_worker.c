@@ -100,7 +100,6 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 
 	register uint64_t count = 0;
 	
-	stat_latency_t lat_out = {0};
 	stat_throughput_t tp_out = {0};
 
 	useconds_t idle_usec = 0;

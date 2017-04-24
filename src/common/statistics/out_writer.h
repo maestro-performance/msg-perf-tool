@@ -92,13 +92,13 @@ bool out_tp_writer_finalize(gru_status_t *status);
 /** 
  * Latency writer I/O assignment
  */
-bool out_writer_latency_assign(latency_writer_t *writer);
+void out_writer_latency_assign(latency_writer_t *writer);
 
 
 /**
  * Throghput writer I/O assignment
  */
-bool out_writer_throughput_assign(throughput_writer_t *writer);
+void out_writer_throughput_assign(throughput_writer_t *writer);
 
 
 #endif /* OUT_WRITER_H */
