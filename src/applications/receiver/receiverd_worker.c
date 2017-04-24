@@ -21,8 +21,6 @@ worker_options_t worker_options = {0};
 static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t *response, 
 	const maestro_player_info_t *pinfo) 
 {
-	
-
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 

@@ -68,7 +68,11 @@ int main(int argc, char **argv) {
 				gru_logger_set_mininum(options->log_level);
 				break;
 			case 'L':
-				strncpy(options->logdir, optarg, sizeof(options->logdir) - 1);
+				options->logdir = strdup(optarg);
+				if (!options->logdir) {
+					fprintf(stderr, "Unable to create memory for the log dir setting\n");
+					goto err_exit;
+				}
 				break;
 			case 'm':
 				options->maestro_uri = gru_uri_parse(optarg, &status);

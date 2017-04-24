@@ -92,7 +92,11 @@ int tune_main(int argc, char **argv) {
 				options->message_size = atoi(optarg);
 				break;
 			case 'L':
-				strncpy(options->logdir, optarg, sizeof(options->logdir) - 1);
+				options->logdir = strdup(optarg);
+				if (!options->logdir) {
+					fprintf(stderr, "Unable to create memory for the log dir setting\n");
+					goto err_exit;
+				}
 				break;
 			case 'h':
 				show_help(argv);

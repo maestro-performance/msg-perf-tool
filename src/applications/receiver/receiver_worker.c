@@ -45,7 +45,7 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 
 static void receiver_csv_name(const char *prefix, char *name, size_t len) 
 {
-	snprintf(name, len - 1, "%s-%d.csv", prefix, getpid());
+	snprintf(name, len - 1, "%s-%d.csv.gz", prefix, getpid());
 }
 
 bool receiver_initialize_csv_writer(stats_writer_t *writer, const options_t *options, 
@@ -92,7 +92,11 @@ bool receiver_initialize_out_writer(stats_writer_t *writer, const options_t *opt
 bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
 {
-	return receiver_initialize_out_writer(writer, options, status);
+	if (options->logdir) {
+		return receiver_initialize_csv_writer(writer, options, status);
+	}
+	
+	return receiver_initialize_out_writer(writer, options, status);	
 }
 
 void receiver_start(const vmsl_t *vmsl, const options_t *options) {

@@ -15,12 +15,10 @@
  */
 #include "csv_writer.h"
 
-// static FILE *lat_file = NULL;
-// static FILE *tp_file = NULL;
-static gzFile *lat_file = NULL;
-static gzFile *tp_file = NULL;
+static gzFile lat_file = NULL;
+static gzFile tp_file = NULL;
 
-gzFile *csv_write_open_file(const char *dir, const char *name, gru_status_t *status) {
+gzFile csv_write_open_file(const char *dir, const char *name, gru_status_t *status) {
 
 	char *fullpath = gru_path_format(dir, name, status);
 
@@ -29,7 +27,7 @@ gzFile *csv_write_open_file(const char *dir, const char *name, gru_status_t *sta
 		return NULL;
 	}
 
-	gzFile *f = gzopen(fullpath, "wb");
+	gzFile f = gzopen(fullpath, "wb");
 	gru_dealloc_string(&fullpath);
 
 	if (!f) {
@@ -41,8 +39,8 @@ gzFile *csv_write_open_file(const char *dir, const char *name, gru_status_t *sta
 }
 
 
-static gzFile *csv_write_initialize(char *directory, char *name, gru_status_t *status) {
-	gzFile *ret = NULL;
+static gzFile csv_write_initialize(char *directory, char *name, gru_status_t *status) {
+	gzFile ret = NULL;
 
 	if (!directory || !name) {
 		gru_status_set(status, GRU_FAILURE, 
@@ -53,7 +51,7 @@ static gzFile *csv_write_initialize(char *directory, char *name, gru_status_t *s
 
 	ret = csv_write_open_file(directory, name, status);
 	if (!ret) {
-		return false;
+		return NULL;
 	}
 
 	return ret;
@@ -92,7 +90,7 @@ bool csv_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *stat
 		return false;
 	}
 	
-	fprintf(lat_file, "creation;latency\n");
+	gzprintf(lat_file, "creation;latency\n");
 	return csv_lat_writer_flush(status);
 }
 

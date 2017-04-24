@@ -98,7 +98,11 @@ int main(int argc, char **argv) {
 				options->message_size = atoll(optarg);
 				break;
 			case 'L':
-				strncpy(options->logdir, optarg, sizeof(options->logdir) - 1);
+				options->logdir = strdup(optarg);
+				if (!options->logdir) {
+					fprintf(stderr, "Unable to create memory for the log dir setting\n");
+					goto err_exit;
+				}
 				break;
 			case 'D':
 				options->daemon = true;
@@ -165,8 +169,7 @@ int main(int argc, char **argv) {
 			}
 		}
 	} else {
-		if (strlen(options->logdir) > 0 && options->daemon) {
-
+		if (options->logdir && options->daemon) {
 			remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, &status);
 		}
 

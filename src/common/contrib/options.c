@@ -32,8 +32,7 @@ void options_set_defaults(options_t *ret) {
 		return;
 	}
 
-	strcpy(ret->logdir, ".");
-
+	ret->logdir = NULL;
 	ret->parallel_count = 1;
 	ret->count = 0;
 	ret->log_level = INFO;
@@ -55,7 +54,7 @@ options_t *options_new() {
 		return NULL;
 	}
 
-	bzero(ret->logdir, sizeof(ret->logdir));
+	ret->logdir = NULL;
 	options_set_defaults(ret);
 
 	return ret;
@@ -69,8 +68,9 @@ void options_destroy(options_t **obj) {
 	}
 
 	free(opt->iface);
-
+	free(opt->logdir);
 	free(opt);
+	
 	*obj = NULL;
 }
 

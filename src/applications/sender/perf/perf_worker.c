@@ -32,7 +32,7 @@ static void perf_csv_name(const char *prefix, char *name, size_t len)
 	snprintf(name, len - 1, "%s-%d.csv.gz", prefix, getpid());
 }
 
-static bool perf_initialize_writer(stats_writer_t *writer, const options_t *options, 
+static bool perf_initialize_csv_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
 {
 	csv_writer_throughput_assign(&writer->throughput);
@@ -49,6 +49,25 @@ static bool perf_initialize_writer(stats_writer_t *writer, const options_t *opti
 	}
 	
 	return true;
+}
+
+static bool perf_initialize_out_writer(stats_writer_t *writer, const options_t *options, 
+	gru_status_t *status) 
+{
+	out_writer_latency_assign(&writer->latency);
+	out_writer_throughput_assign(&writer->throughput);
+
+	return true;
+}
+
+static bool perf_initialize_writer(stats_writer_t *writer, const options_t *options, 
+	gru_status_t *status) 
+{
+	if (options->logdir) {
+		return perf_initialize_csv_writer(writer, options, status);
+	}
+	
+	return perf_initialize_out_writer(writer, options, status);
 }
 
 void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {

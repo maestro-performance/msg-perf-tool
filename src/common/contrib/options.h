@@ -40,7 +40,7 @@ typedef struct options_t_ {
 	gru_uri_t uri;
 	gru_uri_t maestro_uri;
 	uint64_t count;
-	char logdir[OPT_MAX_STR_SIZE];
+	char *logdir;
 	uint16_t parallel_count;
 	size_t message_size;
 	log_level_t log_level;
