@@ -172,7 +172,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 
 	
 	while (worker->can_continue(worker->options, snapshot)) {
-		vmsl_stat_t ret = worker->vmsl->send(msg_ctxt, &content_storage, &status);
+		vmsl_stat_t ret = worker->vmsl->send(msg_ctxt, &content_storage, status);
 		if (vmsl_stat_error(ret)) {
 			logger(ERROR, "Error sending data: %s\n", status->message);
 

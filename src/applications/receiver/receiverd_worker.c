@@ -261,11 +261,6 @@ static void receiverd_worker_execute(const vmsl_t *vmsl) {
 	 	snapshot.count, elapsed, snapshot.throughput.rate);
 	
 	return;
-
-err_exit:
-
-	gru_status_reset(&status);
-	return;
 }
 
 

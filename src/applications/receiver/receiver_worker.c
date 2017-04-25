@@ -169,9 +169,4 @@ void receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	 	snapshot.count, elapsed, snapshot.throughput.rate);
 	
 	return;
-
-err_exit:
-
-	gru_status_reset(&status);
-	return;
 }

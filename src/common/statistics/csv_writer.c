@@ -57,7 +57,7 @@ static gzFile csv_write_initialize(char *directory, char *name, gru_status_t *st
 	return ret;
 }
 
-static bool csv_writer_finalize(FILE *file, gru_status_t *status) {
+static bool csv_writer_finalize(gzFile file, gru_status_t *status) {
 	if (gzclose(file) != 0) {
 		gru_status_strerror(status, GRU_FAILURE, errno);
 		return false;
@@ -66,7 +66,7 @@ static bool csv_writer_finalize(FILE *file, gru_status_t *status) {
 	return true;
 }
 
-bool csv_writer_flush(FILE *file, gru_status_t *status) {
+static bool csv_writer_flush(gzFile file, gru_status_t *status) {
 	if (gzflush(file, Z_SYNC_FLUSH) != 0) {
 		gru_status_strerror(status, GRU_FAILURE, errno);
 		

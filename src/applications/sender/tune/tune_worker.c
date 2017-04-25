@@ -77,7 +77,8 @@ static bool tune_purge_queue(const bmic_context_t *ctxt, const options_t *option
 }
 
 static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
-	uint32_t step, gru_duration_t duration, uint32_t throttle) {
+	uint32_t step, gru_duration_t duration, uint32_t throttle) 
+{
 	perf_stats_t ret = {0};
 	gru_status_t status = gru_status_new();
 
@@ -96,7 +97,6 @@ static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	}
 
 	register uint64_t sent = 0;
-	register uint64_t round = 0;
 
 	msg_content_data_t data = {0};
 	if (!tune_worker_init_data(&data, options->message_size, &status)) {
