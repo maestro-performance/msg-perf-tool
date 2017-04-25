@@ -45,16 +45,29 @@ extern "C" {
 #include "worker_types.h"
 
 /**
- * Execute a sample receiver worker 
- * @param worker The worker to execute 
+ * Execute a simple receiver worker
+ * @param worker The worker to execute
  * @param snapshot The last measured snapshot for the worker. Callers of this function can use
  * the address of this variable to check the current status of the test execution
  * @param status Status container in case of error
- * @param WORKER_SUCCESS if successful or a composed value (including WORKER_FAILURE) in 
+ * @param WORKER_SUCCESS if successful or a composed value (including WORKER_FAILURE) in
  * case of errors
  */
 worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snapshot_t *snapshot,
- gru_status_t *status);
+	gru_status_t *status);
+
+
+/**
+ * Execute a simple sender worker
+ * @param worker The worker to execute
+ * @param snapshot The last measured snapshot for the worker. Callers of this function can use
+ * the address of this variable to check the current status of the test execution
+ * @param status Status container in case of error
+ * @param WORKER_SUCCESS if successful or a composed value (including WORKER_FAILURE) in
+ * case of errors
+ */
+worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapshot_t *snapshot,
+	gru_status_t *status);
 
 #ifdef __cplusplus
 }

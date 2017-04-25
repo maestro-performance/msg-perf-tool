@@ -12,6 +12,7 @@ target_link_libraries(
 	mpt-common
         mpt-api-common
         mpt-orchestration-maestro
+        mpt-worker
 )
 
 install(TARGETS

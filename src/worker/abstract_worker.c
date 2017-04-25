@@ -15,8 +15,8 @@
  */
 #include "abstract_worker.h"
 
-static void abstract_worker_msg_opt(msg_opt_t *opt, const worker_options_t *options) {
-	opt->direction = MSG_DIRECTION_RECEIVER;
+static void abstract_worker_msg_opt(msg_opt_t *opt, msg_direction_t direction, const worker_options_t *options) {
+	opt->direction = direction;
 	opt->qos = MSG_QOS_AT_MOST_ONCE;
 	opt->statistics = MSG_STAT_DEFAULT;
 
@@ -33,7 +33,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	msg_content_data_t content_storage = {0}; 
 
 	msg_opt_t opt = {0};
-	abstract_worker_msg_opt(&opt, worker->options);
+	abstract_worker_msg_opt(&opt, MSG_DIRECTION_RECEIVER, worker->options);
 
 	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, NULL, status);
 	if (!msg_ctxt) {
@@ -103,6 +103,111 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	worker->vmsl->destroy(msg_ctxt, status);
 
 	worker->writer->latency.finalize(status);
+	worker->writer->throughput.finalize(status);
+
+	calc_throughput(&snapshot->throughput, snapshot->start, snapshot->now, 
+		snapshot->count);
+
+	msg_content_data_release(&content_storage);
+	return WORKER_SUCCESS;
+
+err_exit:
+	msg_content_data_release(&content_storage);
+
+	if (msg_ctxt) {
+		worker->vmsl->destroy(msg_ctxt, status);
+	}
+
+	gru_status_reset(status);
+	return WORKER_FAILURE;
+}
+
+
+static bool worker_init_data(msg_content_data_t *data, size_t size, gru_status_t *status) {
+	msg_content_data_init(data, size, status);
+	if (!gru_status_success(status)) {
+		msg_content_data_release(data);
+
+		return false;
+	}
+
+	msg_content_data_fill(data, 'd');
+	return true;
+}
+
+
+worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapshot_t *snapshot, 
+	gru_status_t *status) 
+{
+	logger_t logger = gru_logger_get();
+	const uint32_t sample_interval = 10;
+	uint64_t last_count = 0;
+	msg_content_data_t content_storage = {0}; 
+
+	msg_opt_t opt = {0};
+	abstract_worker_msg_opt(&opt, MSG_DIRECTION_SENDER, worker->options);
+
+	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, NULL, status);
+	if (!msg_ctxt) {
+		goto err_exit;
+	}
+
+
+	// TODO: this neeeds to be replaced w/ a content strategy approach
+	if (!worker_init_data(&content_storage, worker->options->message_size, status)) {
+		goto err_exit;
+	}
+	
+
+	snapshot->start = gru_time_now();
+	snapshot->now = snapshot->start;
+	gru_timestamp_t last_sample_ts = snapshot->start; // Last sampling timestamp
+
+	install_interrupt_handler();
+
+	useconds_t idle_usec = 0;
+	if (worker->options->throttle) {
+		idle_usec = 1000000 / worker->options->throttle;
+	}
+
+	
+	while (worker->can_continue(worker->options, snapshot)) {
+		vmsl_stat_t ret = worker->vmsl->send(msg_ctxt, &content_storage, &status);
+		if (vmsl_stat_error(ret)) {
+			logger(ERROR, "Error sending data: %s\n", status->message);
+
+			gru_status_reset(status);
+			break;
+		}
+
+
+		snapshot->count++;
+		snapshot->now = gru_time_now();
+
+		if (gru_time_elapsed_secs(last_sample_ts, snapshot->now) >= sample_interval) {
+			uint64_t processed_count = snapshot->count - last_count;
+			
+			calc_throughput(&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
+
+			if (unlikely(!worker->writer->throughput.write(&snapshot->throughput, status))) {
+				logger(ERROR, "Unable to write throughput data: %s", status->message);
+
+				gru_status_reset(status);
+				break;
+			} 
+			
+		 	last_count = snapshot->count;
+			last_sample_ts = snapshot->now;
+		}
+
+		if (worker->options->throttle > 0) {
+				usleep(idle_usec);
+		}
+	}
+
+	worker->vmsl->stop(msg_ctxt, status);
+	worker->vmsl->destroy(msg_ctxt, status);
+
 	worker->writer->throughput.finalize(status);
 
 	calc_throughput(&snapshot->throughput, snapshot->start, snapshot->now, 
