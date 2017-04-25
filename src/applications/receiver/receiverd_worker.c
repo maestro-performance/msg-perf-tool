@@ -246,7 +246,7 @@ static void receiverd_worker_execute(const vmsl_t *vmsl) {
 	worker_ret_t ret = {0}; 
 	worker_snapshot_t snapshot = {0};
 
-	ret = abstract_worker_start(&worker, &snapshot, &status);
+	ret = abstract_receiver_worker_start(&worker, &snapshot, &status);
 	if (ret != WORKER_SUCCESS) {
 		fprintf(stderr, "Unable to execute worker: %s\n", status.message);
 

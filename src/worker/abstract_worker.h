@@ -53,7 +53,7 @@ extern "C" {
  * @param WORKER_SUCCESS if successful or a composed value (including WORKER_FAILURE) in 
  * case of errors
  */
-worker_ret_t abstract_worker_start(const worker_t *worker, worker_snapshot_t *snapshot,
+worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snapshot_t *snapshot,
  gru_status_t *status);
 
 #ifdef __cplusplus

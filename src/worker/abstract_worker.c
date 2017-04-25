@@ -24,7 +24,7 @@ static void abstract_worker_msg_opt(msg_opt_t *opt, const worker_options_t *opti
 	opt->uri = options->uri;
 }
 
-worker_ret_t abstract_worker_start(const worker_t *worker, worker_snapshot_t *snapshot, 
+worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snapshot_t *snapshot, 
 	gru_status_t *status) 
 {
 	logger_t logger = gru_logger_get();
