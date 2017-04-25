@@ -36,6 +36,11 @@
 #include "vmsl.h"
 #include "bmic_utils.h"
 
+#include "abstract_worker.h"
+#include "worker_options.h"
+#include "worker_types.h"
+#include "worker_utils.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

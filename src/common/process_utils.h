@@ -40,8 +40,6 @@ bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, 
 	gru_status_t *status);
 void init_controller(bool daemon, const char *logdir, const char *controller_name);
 
-bool can_continue(const options_t *options, uint64_t sent);
-
 bool is_interrupted();
 
 void install_timer(time_t sec);

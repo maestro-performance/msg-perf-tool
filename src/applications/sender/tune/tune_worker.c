@@ -29,17 +29,6 @@ static bool tune_worker_init_data(msg_content_data_t *data, size_t size, gru_sta
 	return true;
 }
 
-static bool tune_can_continue(gru_duration_t duration) {
-	struct timeval now;
-
-	gettimeofday(&now, NULL);
-
-	if (likely(now.tv_sec <= duration.end.tv_sec)) {
-		return true;
-	}
-
-	return false;
-}
 
 static void tune_print_stat(uint32_t steps, const char *msg, ...) {
 	va_list ap;
@@ -76,69 +65,69 @@ static bool tune_purge_queue(const bmic_context_t *ctxt, const options_t *option
 	return ret;
 }
 
-static perf_stats_t tune_exec_step(const options_t *options, const vmsl_t *vmsl,
-	uint32_t step, gru_duration_t duration, uint32_t throttle) 
+static bool tune_initialize_out_writer(stats_writer_t *writer, const options_t *options, 
+	gru_status_t *status) 
 {
-	perf_stats_t ret = {0};
-	gru_status_t status = gru_status_new();
+	out_writer_latency_assign(&writer->latency);
+	out_writer_throughput_assign(&writer->throughput);
 
-	msg_opt_t opt = {
-		.direction = MSG_DIRECTION_SENDER, 
-		.qos = MSG_QOS_AT_MOST_ONCE,
-		.conn_info.id = MSG_CONN_ID_DEFAULT_SENDER_ID,
-		.uri = options->uri
-	};
-
-	msg_ctxt_t *msg_ctxt = vmsl->init(opt, NULL, &status);
-	if (!msg_ctxt) {
-		fprintf(stderr, "%s", status.message);
-
-		return ret;
-	}
-
-	register uint64_t sent = 0;
-
-	msg_content_data_t data = {0};
-	if (!tune_worker_init_data(&data, options->message_size, &status)) {
-		return ret;
-	}
-
-	useconds_t idle_usec = 0;
-	if (options->throttle) {
-		idle_usec = 1000000 / options->throttle;
-	}
-
-
-	while (tune_can_continue(duration)) {
-		vmsl_stat_t sstat = vmsl->send(msg_ctxt, &data, &status);
-
-		if (vmsl_stat_error(sstat)) {
-			fprintf(stderr, "%s", status.message);
-			break;
-		}
-
-		sent++;
-
-		if (throttle > 0) {
-			usleep(idle_usec);
-		}
-	}
-
-	msg_content_data_release(&data);
-
-	vmsl->stop(msg_ctxt, &status);
-	vmsl->destroy(msg_ctxt, &status);
-
-	ret.sent = sent;
-	return ret;
+	return true;
 }
 
-uint32_t tune_calc_approximate(perf_stats_t stats, bmic_queue_stat_t qstat,
+
+static bool tune_exec_step(const options_t *options, const vmsl_t *vmsl,
+	const gru_duration_t duration, const uint32_t throttle, worker_snapshot_t *snapshot) 
+{
+	logger_t logger = gru_logger_get();
+	gru_status_t status = gru_status_new();
+	
+	worker_t worker = {0};
+
+	worker.vmsl = vmsl;
+	worker_options_t wrk_opt = {0};
+	worker.options = &wrk_opt;
+
+	worker.options->uri = options->uri; 
+	if (options->count == 0) {
+		worker.options->duration_type = TEST_TIME;
+		worker.options->duration.time = duration;
+	}
+	worker.options->parallel_count = options->parallel_count;
+	worker.options->log_level = options->log_level;
+	worker.options->message_size = options->message_size;
+	worker.options->throttle = throttle;
+
+	stats_writer_t writer = {0};
+	worker.writer = &writer;
+	tune_initialize_out_writer(worker.writer, options, &status);
+
+	worker.can_continue = worker_check;
+	
+	worker_ret_t ret = {0}; 
+
+	ret = abstract_sender_worker_start(&worker, snapshot, &status);
+	if (ret != WORKER_SUCCESS) {
+		fprintf(stderr, "Unable to execute worker: %s\n", status.message);
+
+		return false;
+	}
+
+	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
+
+	logger(INFO, 
+	 	"Summary: received %" PRIu64 " messages in %" PRIu64
+	 	" seconds (rate: %.2f msgs/sec)",
+	 	snapshot->count, elapsed, snapshot->throughput.rate);
+	
+	return true;
+}
+
+uint32_t tune_calc_approximate(worker_snapshot_t snapshot, bmic_queue_stat_t qstat,
 	gru_duration_t duration, gru_status_t *status) {
 
-	uint64_t elapsed = gru_duration_seconds(duration);
+	uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-	double approximate = ((double) (stats.sent - qstat.queue_size)) / (double) elapsed;
+	double approximate = ((double) (snapshot.count - qstat.queue_size)) / (double) elapsed;
 
 	return (uint32_t) trunc(approximate);
 }
@@ -176,9 +165,15 @@ int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		gru_duration_t duration_object = gru_duration_from_minutes(duration[i]);
 		tune_print_stat(i, "Duration %" PRIu64 " minutes\n", duration[i]);
 
-		perf_stats_t pstats =
-			tune_exec_step(options, vmsl, i, duration_object, approximate);
-		tune_print_stat(i, "Step %d finished sending data. Reading queue stats\n", i);
+		
+		worker_snapshot_t snapshot = {0};
+
+		if (!tune_exec_step(options, vmsl, duration_object, approximate, &snapshot)) {
+			fprintf(stderr, "Step %d did not finish successfully", i);
+		}
+		else { 
+			tune_print_stat(i, "Step %d finished sending data. Reading queue stats\n", i);
+		}
 
 		bmic_queue_stat_t qstats = {0};
 		mpt_get_queue_stats(&ctxt, &options->uri.path[1], &qstats, &status);
@@ -191,7 +186,7 @@ int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		printf("Queue size: %" PRId64 "\n", qstats.queue_size);
 
 		tune_print_stat(i, "Calculating approximate sustained throughput");
-		approximate = tune_calc_approximate(pstats, qstats, duration_object, &status);
+		approximate = tune_calc_approximate(snapshot, qstats, duration_object, &status);
 
 		printf(CLEAR_LINE);
 		tune_print_stat(i,
@@ -203,7 +198,7 @@ int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		tune_print_stat(i,
 			"Sent: %" PRIu64 ". Queue size. %" PRId64 ". Received %" PRIu64
 			". Approximate: %" PRIu32 "\n",
-			pstats.sent,
+			snapshot.count,
 			qstats.queue_size,
 			qstats.msg_ack_count,
 			approximate);

@@ -119,29 +119,6 @@ inline bool is_interrupted() {
 	return interrupted;
 }
 
-bool can_continue(const options_t *options, uint64_t sent) {
-	if (is_interrupted()) {
-		return false;
-	}
-
-	if (likely(options->count == 0)) {
-		struct timeval now;
-
-		gettimeofday(&now, NULL);
-
-		if (likely(now.tv_sec <= options->duration.end.tv_sec)) {
-			return true;
-		}
-	} else {
-		if (likely(sent < options->count)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-
 int create_queue(key_t key, gru_status_t *status) {
 	int msg_flag = IPC_CREAT | 0666;
 	
