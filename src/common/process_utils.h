@@ -42,6 +42,8 @@ void init_controller(bool daemon, const char *logdir, const char *controller_nam
 
 bool can_continue(const options_t *options, uint64_t sent);
 
+bool is_interrupted();
+
 void install_timer(time_t sec);
 void install_interrupt_handler();
 

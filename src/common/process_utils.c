@@ -115,8 +115,12 @@ void install_interrupt_handler() {
 	sigaction(SIGINT, &sa, NULL);
 }
 
+inline bool is_interrupted() {
+	return interrupted;
+}
+
 bool can_continue(const options_t *options, uint64_t sent) {
-	if (interrupted) {
+	if (is_interrupted()) {
 		return false;
 	}
 

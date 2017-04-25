@@ -41,7 +41,10 @@ extern "C" {
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
 
-
+#include "abstract_worker.h"
+#include "worker_options.h"
+#include "worker_types.h"
+#include "worker_utils.h"
 
 void receiver_start(const vmsl_t *vmsl, const options_t *options);
 

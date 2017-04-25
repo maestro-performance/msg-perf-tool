@@ -36,7 +36,6 @@ extern "C" {
 #include "receiver_worker.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
-
 #include "process_utils.h"
 
 #ifdef __cplusplus
