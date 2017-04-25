@@ -193,7 +193,7 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 
 static void receiverd_csv_name(const char *prefix, char *name, size_t len) 
 {
-	snprintf(name, len - 1, "%s-%d.csv", prefix, getpid());
+	snprintf(name, len - 1, "%s-%d.csv.gz", prefix, getpid());
 }
 
 bool receiverd_initialize_writer(stats_writer_t *writer, const worker_options_t *options, 
@@ -228,127 +228,46 @@ bool receiverd_initialize_writer(stats_writer_t *writer, const worker_options_t 
 	return true;
 }
 
-
-void receiverd_run_test(const vmsl_t *vmsl, const worker_options_t *options) {
+static void receiverd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
-	const uint32_t sample_interval = 10;
-	uint64_t last_count = 0;
-	msg_content_data_t content_storage = {0}; 
+	
+	worker_t worker = {0};
 
-	msg_opt_t opt = {
-		.direction = MSG_DIRECTION_RECEIVER, 
-		.qos = MSG_QOS_AT_MOST_ONCE, 
-		.statistics = MSG_STAT_DEFAULT,
-	};
-
-	msg_conn_info_gen_id(&opt.conn_info);
-	opt.uri = options->uri;
-
-	msg_ctxt_t *msg_ctxt = vmsl->init(opt, NULL, &status);
-	if (!msg_ctxt) {
-		goto err_exit;
-	}
-
-	vmsl_stat_t ret = vmsl->subscribe(msg_ctxt, NULL, &status);
-	if (vmsl_stat_error(ret)) {
-		goto err_exit;
-	}
-
-	msg_content_data_init(&content_storage, options->message_size, &status);
-	if (!gru_status_success(&status)) {
-		goto err_exit;
-	}
+	worker.vmsl = vmsl;
+	worker.options = &worker_options;
 
 	stats_writer_t writer = {0};
-	if (!receiverd_initialize_writer(&writer, options, &status)) {
-		logger(ERROR, "Unable to initialize writer: %s", status.message);
-		
-		goto err_exit;
+	worker.writer = &writer;
+	receiverd_initialize_writer(worker.writer, &worker_options, &status);
+
+	worker.can_continue = worker_check;
+	
+	worker_ret_t ret = {0}; 
+	worker_snapshot_t snapshot = {0};
+
+	ret = abstract_worker_start(&worker, &snapshot, &status);
+	if (ret != WORKER_SUCCESS) {
+		fprintf(stderr, "Unable to execute worker: %s\n", status.message);
+
+		return;
 	}
 
-	gru_timestamp_t start = gru_time_now();
-	gru_timestamp_t now = start;
-	gru_timestamp_t last_sample_ts = start; // Last sampling timestamp
-
-
-	install_interrupt_handler();
-
-	register uint64_t count = 0;
-	stat_latency_t lat_out = {0};
-	stat_throughput_t tp_out = {0};
-
-	while (started) {
-		vmsl_stat_t rstat = vmsl->receive(msg_ctxt, &content_storage, &status);
-		if (unlikely(vmsl_stat_error(rstat))) {
-			logger(ERROR, "Error receiving data: %s\n", status.message);
-
-			gru_status_reset(&status);
-			break;
-		}
-
-		if (rstat & VMSL_NO_DATA) {
-			usleep(500);
-			continue;
-		}
-
-		count++;
-
-		now = gru_time_now();
-
-		calc_latency(&lat_out, content_storage.created, now);
-		if (unlikely(!writer.latency.write(&lat_out, &status))) {
-			logger(ERROR, "Unable to write latency data: %s", status.message);
-
-			gru_status_reset(&status);
-			break;
-		}
-
-		if (gru_time_elapsed_secs(last_sample_ts, now) >= sample_interval) {
-			uint64_t processed_count = count - last_count;
-			
-			calc_throughput(&tp_out, last_sample_ts, now, processed_count);
-
-			if (unlikely(!writer.throughput.write(&tp_out, &status))) {
-				logger(ERROR, "Unable to write throughput data: %s", status.message);
-
-				gru_status_reset(&status);
-				break;
-			} 
-			
-		 	last_count = count;
-			last_sample_ts = now;
-		}
-	}
-
-	vmsl->stop(msg_ctxt, &status);
-	vmsl->destroy(msg_ctxt, &status);
-
-	writer.latency.finalize(&status);
-	writer.throughput.finalize(&status);
-
-	uint64_t elapsed = gru_time_elapsed_secs(start, now);
-	calc_throughput(&tp_out, start, now, count);
+	uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
 	logger(INFO, 
-		"Summary: received %" PRIu64 " messages in %" PRIu64
-		" seconds (rate: %.2f msgs/sec)",
-		tp_out.count, elapsed, tp_out.rate);
-
-	msg_content_data_release(&content_storage);
+	 	"Summary: received %" PRIu64 " messages in %" PRIu64
+	 	" seconds (rate: %.2f msgs/sec)",
+	 	snapshot.count, elapsed, snapshot.throughput.rate);
+	
 	return;
 
 err_exit:
-	fprintf(stderr, "%s", status.message);
-	msg_content_data_release(&content_storage);
-
-	if (msg_ctxt) {
-		vmsl->destroy(msg_ctxt, &status);
-	}
 
 	gru_status_reset(&status);
 	return;
 }
+
 
 int receiverd_worker_start(const options_t *options) {
 	gru_status_t status = gru_status_new();
@@ -380,7 +299,7 @@ int receiverd_worker_start(const options_t *options) {
 				}
 			}
 			else {
-				receiverd_run_test(&vmsl, &worker_options);
+				receiverd_worker_execute(&vmsl);
 			}
 		}
 
