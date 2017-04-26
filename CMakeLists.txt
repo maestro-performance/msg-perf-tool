@@ -95,6 +95,7 @@ add_subdirectory(src/applications/sender objs/applications/sender)
 add_subdirectory(src/applications/runner objs/applications/runner)
 add_subdirectory(src/applications/loader objs/applications/loader)
 add_subdirectory(src/applications/maestro objs/applications/maestro)
+add_subdirectory(src/applications/mpt-daemons objs/applications/mpt-daemons)
 
 add_custom_target(format
 	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/util/format.sh

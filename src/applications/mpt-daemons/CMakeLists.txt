@@ -1,11 +1,11 @@
 add_executable(
-	mpt-receiver
-	receiver_main.c
-  	receiver_worker.c
+	mpt-receiver-daemon
+	receiver/receiverd_main.c
+	receiver/receiverd_worker.c
 )
 
 target_link_libraries(
-	mpt-receiver
+	mpt-receiver-daemon
 	mpt-common
 	mpt-api-common
 	mpt-orchestration-maestro
@@ -13,6 +13,6 @@ target_link_libraries(
 )
 
 install(TARGETS
-	mpt-receiver
+	mpt-receiver-daemon
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
