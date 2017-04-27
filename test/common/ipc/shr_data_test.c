@@ -27,14 +27,14 @@ typedef struct tst_t_ {
 
 
 int main(int argc, char **argv) {
+	shr_data_buff_t *shr = NULL;
 	gru_logger_set(gru_logger_default_printer);
 	gru_status_t status = gru_status_new();
 	const int expected = 29;
-	const int count = 45;
 
 	pid_t child = fork();
 	if (child == 0) {
-		shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(tst_t), "buildtest", &status);
+		shr = shr_buff_new(BUFF_WRITE, sizeof(tst_t), "buildtest", &status);
 		if (!shr) {
 			fprintf(stderr, "Unable to open a write buffer: %s", status.message);
 			
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 	}
 	else {
 		sleep(1);
-		shr_data_buff_t *shr = shr_buff_new(BUFF_READ, sizeof(tst_t), "buildtest", &status);
+		shr = shr_buff_new(BUFF_READ, sizeof(tst_t), "buildtest", &status);
 
 		if (!shr) {
 			fprintf(stderr, "Unable to open a read buffer: %s", status.message);
