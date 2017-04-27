@@ -15,6 +15,18 @@
  */
 #include "abstract_worker.h"
 
+static const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status) {
+	char *cname = NULL;
+
+	if (asprintf(&cname, "%s-%d", worker->name, child) == -1) {
+		gru_status_set(status, GRU_FAILURE, "Not enough memory to format name");
+
+		return NULL;
+	}
+
+	return cname;
+}
+
 static void abstract_worker_msg_opt(msg_opt_t *opt, msg_direction_t direction, const worker_options_t *options) {
 	opt->direction = direction;
 	opt->qos = MSG_QOS_AT_MOST_ONCE;
@@ -44,6 +56,25 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	if (vmsl_stat_error(ret)) {
 		goto err_exit;
 	}
+
+#ifdef MPT_SHARED_BUFFERS
+	char *cname = worker_name(worker, getpid(), status);
+	if (!cname) {
+		goto err_exit;
+	}
+
+	shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
+		cname, status);
+	gru_dealloc_string(&cname);
+
+	if (!shr) {
+		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
+			status->message);
+			
+		return EXIT_FAILURE;
+	}
+
+#endif // MPT_SHARED_BUFFERS
 
 	// TODO: requires a content strategy
 	msg_content_data_init(&content_storage, worker->options->message_size, status);
@@ -92,7 +123,11 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 
 				gru_status_reset(status);
 				break;
-			} 
+			}
+
+#ifdef MPT_SHARED_BUFFERS
+			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
+#endif // MPT_SHARED_BUFFERS
 			
 		 	last_count = snapshot->count;
 			last_sample_ts = snapshot->now;
@@ -108,10 +143,19 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	calc_throughput(&snapshot->throughput, snapshot->start, snapshot->now, 
 		snapshot->count);
 
+
+#ifdef MPT_SHARED_BUFFERS
+	shr_buff_detroy(&shr);
+#endif // MPT_SHARED_BUFFERS
+
 	msg_content_data_release(&content_storage);
 	return WORKER_SUCCESS;
 
 err_exit:
+#ifdef MPT_SHARED_BUFFERS
+	shr_buff_detroy(&shr);
+#endif // MPT_SHARED_BUFFERS
+
 	msg_content_data_release(&content_storage);
 
 	if (msg_ctxt) {
@@ -152,6 +196,24 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 		goto err_exit;
 	}
 
+#ifdef MPT_SHARED_BUFFERS
+	char *cname = worker_name(worker, getpid(), status);
+	if (!cname) {
+		goto err_exit;
+	}
+
+	shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
+		cname, status);
+	gru_dealloc_string(&cname);
+
+	if (!shr) {
+		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
+			status->message);
+			
+		return EXIT_FAILURE;
+	}
+
+#endif // MPT_SHARED_BUFFERS
 
 	// TODO: this neeeds to be replaced w/ a content strategy approach
 	if (!worker_init_data(&content_storage, worker->options->message_size, status)) {
@@ -198,6 +260,10 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 			
 		 	last_count = snapshot->count;
 			last_sample_ts = snapshot->now;
+
+#ifdef MPT_SHARED_BUFFERS
+			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
+#endif // MPT_SHARED_BUFFERS
 		}
 
 		if (worker->options->throttle > 0) {
@@ -213,6 +279,10 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 	calc_throughput(&snapshot->throughput, snapshot->start, snapshot->now, 
 		snapshot->count);
 
+#ifdef MPT_SHARED_BUFFERS
+	shr_buff_detroy(&shr);
+#endif // MPT_SHARED_BUFFERS
+
 	msg_content_data_release(&content_storage);
 	return WORKER_SUCCESS;
 
@@ -223,6 +293,82 @@ err_exit:
 		worker->vmsl->destroy(msg_ctxt, status);
 	}
 
+#ifdef MPT_SHARED_BUFFERS
+	shr_buff_detroy(&shr);
+#endif // MPT_SHARED_BUFFERS
+
 	gru_status_reset(status);
 	return WORKER_FAILURE;
+}
+
+
+gru_list_t *abstract_worker_clone(const worker_t *worker, const char *name, abstract_worker_start worker_start, 
+	gru_status_t *status) 
+{
+	gru_list_t *ret = gru_list_new(status);
+	if (!ret) {
+		return NULL;
+	}
+
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Creating %d concurrent operations", worker->options->parallel_count);
+	for (uint16_t i = 0; i < worker->options->parallel_count; i++) {
+		pid_t child = fork();
+
+		if (child == 0) {
+			worker_snapshot_t snapshot = {0};
+			
+			if (asprintf(&worker->name, "%s-%d", getpid()) == -1) {
+				fprintf(stderr, "Not enough memory to format name\n");
+
+				return NULL;
+			}
+
+			worker_ret_t ret = worker_start(worker, &snapshot, status);
+			if (ret != WORKER_SUCCESS) {
+				fprintf(stderr, "Unable to execute worker: %s\n", status->message);
+
+				return NULL;
+			}
+		}
+		else {
+			worker_info_t *worker_info = gru_alloc(sizeof(worker_info_t), status);
+			if (!worker_info) {
+				break;
+			}
+
+			worker_info->child = child;
+
+			char *cname = worker_name(worker, child, status);
+			if (!cname) {
+				kill(child, SIGKILL);
+				break;
+			}
+
+			worker_info->shr = shr_buff_new(BUFF_READ, sizeof(worker_snapshot_t), 
+				cname, status);
+
+			if (!worker_info->shr) {
+				gru_status_set(status, GRU_FAILURE, "Unable to open a read buffer: %s", 
+					status->message);
+			
+				kill(child, SIGKILL);
+				break;
+			}
+
+			if (gru_list_append(ret, worker_info)) {
+				shr_buff_detroy(&worker_info->shr);
+				gru_dealloc((void **) &worker_info);
+				kill(child, SIGKILL);
+
+				gru_status_set(status, GRU_FAILURE, "Unable register new worker: %s", 
+					status->message);
+			
+				break;
+			}
+		}
+	}
+
+	return ret;
 }

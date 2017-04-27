@@ -25,6 +25,8 @@ extern "C" {
 #include <unistd.h>
 #include <stdio.h>
 
+#include <signal.h>
+
 #include <common/gru_status.h>
 
 #include "contrib/options.h"
@@ -43,6 +45,13 @@ extern "C" {
 
 #include "worker_options.h"
 #include "worker_types.h"
+
+#ifdef MPT_SHARED_BUFFERS
+ #include "ipc/shared_data_buffer.h"
+#endif // MPT_SHARED_BUFFERS
+
+typedef worker_ret_t (*abstract_worker_start)(const worker_t *worker, worker_snapshot_t *snapshot,
+	gru_status_t *status);
 
 /**
  * Execute a simple receiver worker
@@ -68,6 +77,12 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
  */
 worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapshot_t *snapshot,
 	gru_status_t *status);
+
+/**
+ * Clone a worker 
+ */
+gru_list_t *abstract_worker_clone(const worker_t *worker, const char *name, 
+	abstract_worker_start worker_start, gru_status_t *status);
 
 #ifdef __cplusplus
 }

@@ -1,3 +1,4 @@
+add_definitions(-DMPT_SHARED_BUFFERS)
 
 add_library(
 	mpt-worker SHARED

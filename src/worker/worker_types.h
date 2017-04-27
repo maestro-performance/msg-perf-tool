@@ -27,6 +27,11 @@ extern "C" {
 #include "vmsl.h"
 #include "statistics/stats_types.h"
 #include "statistics/stats_writer.h"
+
+#ifdef MPT_SHARED_BUFFERS
+ #include "ipc/shared_data_buffer.h"
+#endif // MPT_SHARED_BUFFERS
+
 /**
  * Common return type for the worker
  */
@@ -53,11 +58,22 @@ typedef bool(*worker_iteration_check)(const worker_options_t *options,
  * Abstracts the "operational" parts of the test execution, options, etc.
  */ 
 typedef struct worker_t_ {
+	char *name;
 	const vmsl_t *vmsl;
 	worker_options_t *options;
 	stats_writer_t *writer;
 	worker_iteration_check can_continue;
 } worker_t;
+
+typedef struct worker_info_t_ {
+	pid_t child;
+	worker_snapshot_t snapshot;
+	
+#ifdef MPT_SHARED_BUFFERS
+ 	shr_data_buff_t *shr;
+#endif // MPT_SHARED_BUFFERS
+
+} worker_info_t;
 
 #ifdef __cplusplus
 }
