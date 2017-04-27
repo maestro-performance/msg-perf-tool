@@ -16,7 +16,7 @@
 #include "receiverd_main.h"
 
 static void show_help(char **argv) {
-	gru_cli_program_usage("mpt-receiverd", argv[0]);
+	gru_cli_program_usage("mpt-receiver-daemon", argv[0]);
 
 	gru_cli_option_help("help", "h", "show this help");
 	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
