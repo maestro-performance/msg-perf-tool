@@ -51,6 +51,12 @@ if (UNIX)
 
 	CHECK_INCLUDE_FILES(ctype.h HAVE_CTYPE_H)
 	FailIfNotSet(HAVE_CTYPE_H ctype.h)
+
+	CHECK_INCLUDE_FILES(semaphore.h HAVE_SEMAPHORE_H)
+	FailIfNotSet(HAVE_SEMAPHORE_H semaphore.h)
+
+	CHECK_INCLUDE_FILES(sys/mman.h HAVE_SYS_MMAN_H)
+	FailIfNotSet(HAVE_SYS_MMAN_H sys/mman.h)
 endif (UNIX)
 
 macro (DefineIfSet VARIABLE)

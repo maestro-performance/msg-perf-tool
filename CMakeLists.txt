@@ -13,6 +13,7 @@ set(MPT_VERSION_PATCH 1)
 set(GRU_DIR "/usr" CACHE STRING "GRU directory")
 set(BMIC_DIR "/usr" CACHE STRING "BMIC directory")
 set(BUILD_WITH_EXTRA_DEBUG OFF CACHE BOOL "Build extra debug information")
+set(BUILD_WITH_UNIT_TESTS ON CACHE BOOL "Build unit tests")
 
 add_definitions(-DPROJECT_NAME="${PROJECT_NAME}" -DMPT_VERSION="${MPT_VERSION}")
 
@@ -101,3 +102,10 @@ add_custom_target(format
 	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/util/format.sh
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+if (BUILD_WITH_UNIT_TESTS)
+	enable_testing()
+
+	include_directories(test)
+	add_subdirectory(test)
+endif (BUILD_WITH_UNIT_TESTS)
