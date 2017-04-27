@@ -295,6 +295,7 @@ int receiverd_worker_start(const options_t *options) {
 			}
 			else {
 				receiverd_worker_execute(&vmsl);
+				started = false;
 			}
 		}
 
