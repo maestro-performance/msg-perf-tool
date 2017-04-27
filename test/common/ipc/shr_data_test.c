@@ -15,6 +15,7 @@
  */
 #include <semaphore.h>
 #include <signal.h>
+#include <limits.h>
 
 #include <common/gru_status.h>
 
@@ -40,17 +41,18 @@ int main(int argc, char **argv) {
 			return EXIT_FAILURE;
 		}
 
-		for (register int i = 0;; i++) {
+		for (int i = 0; i < INT_MAX; i++) {
 			tst_t data = {0};
 			data.value = i;
 
-			printf("Writing shared data: %d ...\n", i);
+			// printf("Writing shared data: %d ...\n", i);
 
 			shr_buff_write(shr, &data, sizeof(tst_t));
 		}
 		shr_buff_detroy(&shr);
 	}
 	else {
+		sleep(1);
 		shr_data_buff_t *shr = shr_buff_new(BUFF_READ, sizeof(tst_t), "buildtest", &status);
 
 		if (!shr) {
@@ -61,7 +63,7 @@ int main(int argc, char **argv) {
 		}
 
 		tst_t data = {0};
-		for (int i = 0;; i++) {
+		for (int i = 0; i < INT_MAX; i++) {
 			shr_buff_read(shr, &data, sizeof(tst_t));
 			printf("Read shared data : %d ...\n", data.value);
 			
