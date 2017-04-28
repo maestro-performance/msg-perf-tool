@@ -99,9 +99,14 @@ static shr_data_buff_t *shr_buff_new_reader(size_t len, const char *name, gru_st
 		goto err_exit_2;
 	}
 
+#if defined __linux__
 	ret->ptr = mmap((caddr_t) 0, pagesize, PROT_READ, 
 		MAP_SHARED | MAP_LOCKED | MAP_POPULATE, ret->fd, 0);
-	
+#else 
+	ret->ptr = mmap((caddr_t) 0, pagesize, PROT_READ, 
+		MAP_SHARED | MAP_HASSEMAPHORE, ret->fd, 0);
+#endif 
+
 	if (ret->ptr == (caddr_t)(-1)) {
 		gru_status_set(status, GRU_FAILURE, "Unable to open memory mapped file: %s\n", 
 			strerror(errno));
@@ -153,6 +158,7 @@ static shr_data_buff_t *shr_buff_new_writer(size_t len, const char *name, gru_st
 	ret->fd = shm_open(ret->name, O_RDWR | O_TRUNC | O_CREAT, 
 		S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
+
 	if (ret->fd < 0) {
 		gru_status_set(status, GRU_FAILURE, "Unable to open shared memory: %s\n", 
 			strerror(errno));
@@ -166,10 +172,15 @@ static shr_data_buff_t *shr_buff_new_writer(size_t len, const char *name, gru_st
 
 		goto err_exit_2;
 	}
-
+	
+#if defined __linux__
 	ret->ptr = mmap((caddr_t) 0, pagesize, PROT_WRITE, 
 		MAP_SHARED | MAP_LOCKED | MAP_POPULATE, ret->fd, 0);
-	
+#else 
+	ret->ptr = mmap((caddr_t) 0, pagesize, PROT_WRITE, 
+		MAP_SHARED | MAP_HASSEMAPHORE, ret->fd, 0);
+#endif 
+
 	if (ret->ptr == (caddr_t)(-1)) {
 		gru_status_set(status, GRU_FAILURE, "Unable to open memory mapped file: %s\n", 
 			strerror(errno));
