@@ -74,7 +74,7 @@ static bool shr_data_buff_create_sem(shr_data_buff_t *buff, const char *name, in
 
 static shr_data_buff_t *shr_buff_new_reader(size_t len, const char *name, gru_status_t *status)
 {
-	const sem_initial_value = 0; // The initial semaphore vaue for read
+	const int sem_initial_value = 0; // The initial semaphore vaue for read
 
 	shr_data_buff_t *ret = gru_alloc(sizeof(shr_data_buff_t), status);
 	if (!ret) {
@@ -140,7 +140,7 @@ static shr_data_buff_t *shr_buff_new_reader(size_t len, const char *name, gru_st
 
 static shr_data_buff_t *shr_buff_new_writer(size_t len, const char *name, gru_status_t *status)
 {
-	const sem_initial_value = 1; // The initial semaphore vaue for write
+	const int sem_initial_value = 1; // The initial semaphore vaue for write
 
 	shr_data_buff_t *ret = gru_alloc(sizeof(shr_data_buff_t), status);
 	if (!ret) {
