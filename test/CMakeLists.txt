@@ -10,7 +10,6 @@ link_libraries(${MATH_LIB}
     ${URIPARSER_LIB}
     ${UUID_LIB}
     ${ZLIB_LIB}
-    rt
     pthread
     mpt-common
 )

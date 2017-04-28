@@ -1,7 +1,12 @@
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	add_definitions(-DLINUX_BUILD -D_GNU_SOURCE)
+
+	find_library(RT_LIB NAMES rt)
+	message(STATUS "RT library found at ${RT_LIB}")
 else (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	message(STATUS "Compiling for " ${CMAKE_SYSTEM_NAME} "")
+
+	set(RT_LIB "")
 
 	if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		set(CMAKE_MACOSX_RPATH TRUE)
@@ -15,6 +20,7 @@ set (CTEST_BINARY_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/${CMAKE_INSTALL_BIN
 
 find_library(MATH_LIB NAMES m)
 message(STATUS "Math library found at ${MATH_LIB}")
+
 
 # GRU
 find_path(GRU_INCLUDE_DIR common/gru_base.h
