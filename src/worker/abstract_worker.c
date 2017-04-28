@@ -58,14 +58,14 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	}
 
 #ifdef MPT_SHARED_BUFFERS
-	char *cname = worker_name(worker, getpid(), status);
+	const char *cname = worker_name(worker, getpid(), status);
 	if (!cname) {
 		goto err_exit;
 	}
 
 	shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
 		cname, status);
-	gru_dealloc_string(&cname);
+	gru_dealloc_const_string(&cname);
 
 	if (!shr) {
 		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
@@ -197,14 +197,14 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 	}
 
 #ifdef MPT_SHARED_BUFFERS
-	char *cname = worker_name(worker, getpid(), status);
+	const char *cname = worker_name(worker, getpid(), status);
 	if (!cname) {
 		goto err_exit;
 	}
 
 	shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
 		cname, status);
-	gru_dealloc_string(&cname);
+	gru_dealloc_const_string(&cname);
 
 	if (!shr) {
 		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
@@ -318,11 +318,9 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 		if (child == 0) {
 			worker_snapshot_t snapshot = {0};
 
-			worker_ret_t ret = worker_start(worker, &snapshot, status);
-			if (ret != WORKER_SUCCESS) {
-				fprintf(stderr, "Unable to execute worker: %s\n", status->message);
-
-				return NULL;
+			worker_ret_t wret = worker_start(worker, &snapshot, status);
+			if (wret != WORKER_SUCCESS) {
+				logger(ERROR, "Unable to execute worker: %s\n", status->message);
 			}
 
 			return NULL;
@@ -337,7 +335,7 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 
 			worker_info->child = child;
 
-			char *cname = worker_name(worker, child, status);
+			const char *cname = worker_name(worker, child, status);
 			if (!cname) {
 				kill(child, SIGKILL);
 				break;
@@ -368,4 +366,59 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 	}
 
 	return ret;
+}
+
+
+bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler handler) {
+	gru_node_t *node = NULL;
+
+	if (list == NULL) {
+		return true;
+	}
+
+	node = list->root;
+
+	uint32_t pos = 0;
+	while (node) {
+		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
+		
+		int wstatus = 0;
+		pid_t pid = waitpid(worker_info->child, &wstatus, WNOHANG);
+
+		// waitpid returns 0 if WNOHANG and there's no change of state for the process
+		if (pid == 0) {
+			if (handler(worker_info)) {
+				node = node->next;
+				pos++;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			if (WIFEXITED(wstatus)) {
+				printf("Child %d finished with status %d\n", 
+					worker_info->child, WEXITSTATUS(wstatus));
+			}
+			else if (WIFSIGNALED(wstatus)) {
+				printf("Child %d received a signal %d\n", 
+					worker_info->child, WTERMSIG(wstatus));
+			}
+			else if (WIFSTOPPED(wstatus)) {
+				printf("Child %d stopped %d\n", 
+					worker_info->child, WSTOPSIG(wstatus));
+			}
+
+			gru_dealloc((void **) &worker_info);
+			
+			node = node->next;
+			pos++;
+			gru_node_t *orphan = gru_list_remove(list, pos);
+			
+			gru_node_destroy(&orphan);
+			
+		}
+	}
+
+	return true;
 }

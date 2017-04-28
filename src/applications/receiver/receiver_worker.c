@@ -99,7 +99,7 @@ bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options
 	return receiver_initialize_out_writer(writer, options, status);	
 }
 
-static void receiver_print_partial(worker_info_t *worker_info) {
+static bool receiver_print_partial(worker_info_t *worker_info) {
 	worker_snapshot_t snapshot = {0};
 
 	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
@@ -109,56 +109,10 @@ static void receiver_print_partial(worker_info_t *worker_info) {
 				" seconds (rate: %.2f msgs/sec)",
 				snapshot.count, elapsed, snapshot.throughput.rate);
 	}
+
+	return true;
 }
 
-static void receiver_check_child(gru_list_t *list) {
-	gru_node_t *node = NULL;
-
-	if (list == NULL) {
-		return;
-	}
-
-	node = list->root;
-
-	uint32_t pos = 0;
-	while (node) {
-		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
-		
-		int wstatus = 0;
-		pid_t pid = waitpid(worker_info->child, &wstatus, WNOHANG);
-
-		// waitpid returns 0 if WNOHANG and there's no change of state for the process
-		if (pid == 0) {
-			receiver_print_partial(worker_info);
-
-			node = node->next;
-			pos++;
-		}
-		else {
-			if (WIFEXITED(wstatus)) {
-				printf("Child %d finished with status %d\n", 
-					worker_info->child, WEXITSTATUS(wstatus));
-			}
-			else if (WIFSIGNALED(wstatus)) {
-				printf("Child %d received a signal %d\n", 
-					worker_info->child, WTERMSIG(wstatus));
-			}
-			else if (WIFSTOPPED(wstatus)) {
-				printf("Child %d stopped %d\n", 
-					worker_info->child, WSTOPSIG(wstatus));
-			}
-
-			gru_dealloc((worker_info_t **) &worker_info);
-			
-			node = node->next;
-			pos++;
-			gru_node_t *orphan = gru_list_remove(list, pos);
-			
-			gru_node_destroy(&orphan);
-			
-		}
-	}
-}
 
 int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
@@ -247,7 +201,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		
 		while (gru_list_count(children) > 0) {
 			logger(INFO, "There are still %d children running", gru_list_count(children));
-			receiver_check_child(children); 
+			abstract_worker_watchdog(children, receiver_print_partial); 
 			
 			sleep(1);
 		}

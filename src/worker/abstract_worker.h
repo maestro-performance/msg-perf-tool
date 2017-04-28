@@ -26,6 +26,7 @@ extern "C" {
 #include <stdio.h>
 
 #include <signal.h>
+#include <sys/wait.h>
 
 #include <common/gru_status.h>
 
@@ -50,8 +51,11 @@ extern "C" {
  #include "ipc/shared_data_buffer.h"
 #endif // MPT_SHARED_BUFFERS
 
+
 typedef worker_ret_t (*abstract_worker_start)(const worker_t *worker, worker_snapshot_t *snapshot,
 	gru_status_t *status);
+
+typedef bool (abstract_worker_watchdog_handler)(worker_info_t *worker_info);
 
 /**
  * Execute a simple receiver worker
@@ -80,9 +84,23 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 
 /**
  * Clone a worker 
+ * @param worker The worker to clone 
+ * @param worker_start the abstract worker start function (ie: abstract_sender_worker_start)
+ * @param status Status container in case of error
+ * @return a list of child/clones
  */
 gru_list_t *abstract_worker_clone(const worker_t *worker, 
 	abstract_worker_start worker_start, gru_status_t *status);
+
+
+/**
+ * Watchdog function that iterates over a list of workers in order to check their status 
+ * @param list list of workers (as returned by abstract_worker_clone)
+ * @param handler A watchdog handler function. A handler function must always return true, 
+ * otherwise it causes the watchdog to stop running.
+ * @return Returns true unless a handler returns false
+ */
+bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler handler);
 
 #ifdef __cplusplus
 }
