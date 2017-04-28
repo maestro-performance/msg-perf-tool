@@ -100,7 +100,7 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
 	logger(INFO, 
-	 	"Summary: received %" PRIu64 " messages in %" PRIu64
+	 	"Summary: sent %" PRIu64 " messages in %" PRIu64
 	 	" seconds (rate: %.2f msgs/sec)",
 	 	snapshot.count, elapsed, snapshot.throughput.rate);
 	
