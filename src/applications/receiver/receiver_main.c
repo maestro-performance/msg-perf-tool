@@ -124,66 +124,30 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	init_controller(options->daemon, options->logdir, "mpt-receiver-controller");
+	// init_controller(options->daemon, options->logdir, "mpt-receiver-controller");
+	if (options->logdir) {
+		remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, &status);
+	}
 
 	vmsl_t vmsl = vmsl_init();
 
 	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
 		goto err_exit;
 	}
-
-	int child = 0;
+	
 	logger_t logger = gru_logger_get();
 
-	if (options->parallel_count > 1) {
-		logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-		for (uint16_t i = 0; i < options->parallel_count; i++) {
-			child = fork();
+	logger(INFO, "Starting test");
+	if (receiver_start(&vmsl, options) == 0) {
+		logger(INFO, "Test execution with process ID %d finished successfully\n", getpid());
 
-			if (child == 0) {
-				if (strlen(options->logdir) > 0) {
-					remap_log(options->logdir,
-						"mpt-receiver",
-						getppid(),
-						getpid(),
-						stderr,
-						&status);
-				}
-
-				receiver_start(&vmsl, options);
-				goto success_exit;
-			} else {
-				if (child < 0) {
-					printf("Error launching child process: %s\n", strerror(errno));
-				}
-			}
-		}
-
-		if (child > 0) {
-			int rc = 0;
-			pid_t child_pid;
-			for (uint16_t i = 0; i < options->parallel_count; i++) {
-				child_pid = waitpid(-1, &rc, 0);
-
-				logger(INFO, "Child process %d terminated with status %d", child_pid, rc);
-			}
-		}
-	} else {
-		if (options->logdir && options->daemon) {
-			remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, &status);
-		}
-
-		logger(INFO, "Starting test");
-		receiver_start(&vmsl, options);
+		options_destroy(&options);
+		return EXIT_SUCCESS;
 	}
-
-	logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
-
-success_exit:
-	options_destroy(&options);
-	return EXIT_SUCCESS;
-
-err_exit:
+	
+	err_exit:	
+	logger(INFO, "Test execution with process ID %d finished with errors\n", getpid());
+	
 	options_destroy(&options);
 	return EXIT_FAILURE;
 }

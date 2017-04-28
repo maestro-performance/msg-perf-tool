@@ -81,7 +81,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 /**
  * Clone a worker 
  */
-gru_list_t *abstract_worker_clone(const worker_t *worker, const char *name, 
+gru_list_t *abstract_worker_clone(const worker_t *worker, 
 	abstract_worker_start worker_start, gru_status_t *status);
 
 #ifdef __cplusplus

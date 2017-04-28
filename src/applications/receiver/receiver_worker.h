@@ -25,6 +25,8 @@ extern "C" {
 #include <unistd.h>
 #include <stdio.h>
 
+#include <sys/wait.h>
+
 #include <common/gru_status.h>
 
 #include "contrib/options.h"
@@ -46,7 +48,7 @@ extern "C" {
 #include "worker_types.h"
 #include "worker_utils.h"
 
-void receiver_start(const vmsl_t *vmsl, const options_t *options);
+int receiver_start(const vmsl_t *vmsl, const options_t *options);
 
 #ifdef __cplusplus
 }

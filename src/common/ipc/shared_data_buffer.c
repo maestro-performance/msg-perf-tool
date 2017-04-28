@@ -253,14 +253,25 @@ void shr_buff_detroy(shr_data_buff_t **ptr) {
 	gru_dealloc((void **) ptr);
 }
 
-void shr_buff_read(const shr_data_buff_t *src, void *dest, size_t len) {
-	sem_wait(src->sem_read);
+bool shr_buff_read(const shr_data_buff_t *src, void *dest, size_t len) {
+	sem_trywait(src->sem_read);
+	if (errno == EAGAIN) {
+		return false;
+	}
+
 	memcpy(dest, src->ptr, len);
 	sem_post(src->sem_write);
+	return true;
 }
 
 bool shr_buff_write(shr_data_buff_t *dest, void *src, size_t len) {
 	memcpy(dest->ptr, src, len);
 	sem_post(dest->sem_read);
+	
 	sem_trywait(dest->sem_write);
+	if (errno == EAGAIN) {
+		return false;
+	}
+
+	return true;
 }

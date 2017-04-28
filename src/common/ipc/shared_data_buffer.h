@@ -71,7 +71,7 @@ void shr_buff_detroy(shr_data_buff_t **ptr);
  * @param dest destination pointer
  * @param len number of bytes to read
  */
-void shr_buff_read(const shr_data_buff_t *src, void *dest, size_t len);
+bool shr_buff_read(const shr_data_buff_t *src, void *dest, size_t len);
 
 /**
  * Atomic write of a data buffer 

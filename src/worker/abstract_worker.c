@@ -301,8 +301,7 @@ err_exit:
 	return WORKER_FAILURE;
 }
 
-
-gru_list_t *abstract_worker_clone(const worker_t *worker, const char *name, abstract_worker_start worker_start, 
+gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start worker_start, 
 	gru_status_t *status) 
 {
 	gru_list_t *ret = gru_list_new(status);
@@ -318,12 +317,6 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, const char *name, abst
 
 		if (child == 0) {
 			worker_snapshot_t snapshot = {0};
-			
-			if (asprintf(&worker->name, "%s-%d", getpid()) == -1) {
-				fprintf(stderr, "Not enough memory to format name\n");
-
-				return NULL;
-			}
 
 			worker_ret_t ret = worker_start(worker, &snapshot, status);
 			if (ret != WORKER_SUCCESS) {
@@ -331,8 +324,12 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, const char *name, abst
 
 				return NULL;
 			}
+
+			return NULL;
 		}
 		else {
+			logger(INFO, "Created child %d", child);
+
 			worker_info_t *worker_info = gru_alloc(sizeof(worker_info_t), status);
 			if (!worker_info) {
 				break;
@@ -357,7 +354,7 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, const char *name, abst
 				break;
 			}
 
-			if (gru_list_append(ret, worker_info)) {
+			if (!gru_list_append(ret, worker_info)) {
 				shr_buff_detroy(&worker_info->shr);
 				gru_dealloc((void **) &worker_info);
 				kill(child, SIGKILL);

@@ -16,6 +16,7 @@ set(BUILD_WITH_EXTRA_DEBUG OFF CACHE BOOL "Build extra debug information")
 set(BUILD_WITH_UNIT_TESTS ON CACHE BOOL "Build unit tests")
 
 add_definitions(-DPROJECT_NAME="${PROJECT_NAME}" -DMPT_VERSION="${MPT_VERSION}")
+add_definitions(-DMPT_SHARED_BUFFERS)
 
 if (UNIX)
 	message(STATUS "Adding Unix related build rules")
