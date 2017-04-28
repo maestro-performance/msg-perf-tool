@@ -156,7 +156,10 @@ int perf_main(int argc, char **argv) {
 		}
 	}
 
-	init_controller(options->daemon, options->logdir, "mpt-sender-controller");
+	// init_controller(options->daemon, options->logdir, "mpt-sender-controller");
+	if (options->logdir && options->daemon) {
+		remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
+	}
 
 	vmsl_t vmsl = vmsl_init();
 
@@ -169,81 +172,30 @@ int perf_main(int argc, char **argv) {
 
 	logger_t logger = gru_logger_get();
 
-	if (options->parallel_count > 1) {
-		logger(INFO, "Creating %d concurrent operations", options->parallel_count);
-
 #ifdef LINUX_BUILD
-		probe_scheduler_start(&status);
+	probe_scheduler_start(&status);
 #endif // LINUX_BUILD
 
-		for (uint16_t i = 0; i < options->parallel_count; i++) {
-			child = fork();
 
-			if (child == 0) {
-				if (strlen(options->logdir) > 0) {
-					bool ret = remap_log(options->logdir,
-						"mpt-sender",
-						getppid(),
-						getpid(),
-						stderr,
-						&status);
-					if (!ret) {
-						fprintf(stderr, "Unable to remap log: %s", status.message);
-
-#ifdef LINUX_BUILD
-						probe_scheduler_stop();
-#endif // LINUX_BUILD
-
-						goto err_exit;
-					}
-				}
-
-				perf_worker_start(&vmsl, options);
-				goto success_exit;
-			} else {
-				if (child < 0) {
-					printf("Error launching child process: %s\n", strerror(errno));
-				}
-			}
-		}
-
-		if (child > 0) {
-			setsid();
-			int rc = 0;
-			pid_t child_pid;
-			for (uint16_t i = 0; i < options->parallel_count; i++) {
-				child_pid = waitpid(-1, &rc, 0);
-
-				logger(INFO, "Child process %d terminated with status %d", child_pid, rc);
-			}
-		}
+	if (perf_worker_start(&vmsl, options) == 0) {
+		logger(INFO, "Test execution with process ID %d finished successfully\n", getpid());
 
 #ifdef LINUX_BUILD
 		probe_scheduler_stop();
 #endif // LINUX_BUILD
 
-	} else {
-		if (options->logdir && options->daemon) {
-			remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
-		}
-
-#ifdef LINUX_BUILD
-		probe_scheduler_start(&status);
-#endif // LINUX_BUILD
-		perf_worker_start(&vmsl, options);
-
-#ifdef LINUX_BUILD
-		probe_scheduler_stop();
-#endif // LINUX_BUILD
+		options_destroy(&options);
+		return EXIT_SUCCESS;
 	}
 
-	logger(INFO, "Test execution with parent ID %d terminated successfully\n", getpid());
+#ifdef LINUX_BUILD
+	probe_scheduler_stop();
+#endif // LINUX_BUILD
 
-success_exit:
-	options_destroy(&options);
-	return EXIT_SUCCESS;
 
-err_exit:
+	err_exit:
+	logger(INFO, "Test execution with process ID %d finished with errors\n", getpid());
+
 	options_destroy(&options);
 	return EXIT_FAILURE;
 }

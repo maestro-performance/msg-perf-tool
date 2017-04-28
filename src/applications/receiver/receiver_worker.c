@@ -106,7 +106,7 @@ static bool receiver_print_partial(worker_info_t *worker_info) {
 		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
 		printf("Partial summary: received %" PRIu64 " messages in %" PRIu64
-				" seconds (rate: %.2f msgs/sec)",
+				" seconds (rate: %.2f msgs/sec)\n",
 				snapshot.count, elapsed, snapshot.throughput.rate);
 	}
 
@@ -198,9 +198,8 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			}
 		}
 
-		
 		while (gru_list_count(children) > 0) {
-			logger(INFO, "There are still %d children running", gru_list_count(children));
+			mpt_trace("There are still %d children running", gru_list_count(children));
 			abstract_worker_watchdog(children, receiver_print_partial); 
 			
 			sleep(1);

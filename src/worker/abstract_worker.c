@@ -71,7 +71,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
 			status->message);
 			
-		return EXIT_FAILURE;
+		goto err_exit;
 	}
 
 #endif // MPT_SHARED_BUFFERS
@@ -88,10 +88,11 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 
 	install_interrupt_handler();
 	
+	logger(DEBUG, "Initializing receiver loop");
 	while (worker->can_continue(worker->options, snapshot)) {
 		vmsl_stat_t rstat = worker->vmsl->receive(msg_ctxt, &content_storage, status);
 		if (unlikely(vmsl_stat_error(rstat))) {
-			logger(ERROR, "Error receiving data: %s\n", status->message);
+			logger(ERROR, "Error receiving data: %s", status->message);
 
 			gru_status_reset(status);
 			break;
@@ -210,7 +211,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
 			status->message);
 			
-		return EXIT_FAILURE;
+		goto err_exit;
 	}
 
 #endif // MPT_SHARED_BUFFERS
@@ -232,11 +233,11 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 		idle_usec = 1000000 / worker->options->throttle;
 	}
 
-	
+	logger(DEBUG, "Initializing sender loop");
 	while (worker->can_continue(worker->options, snapshot)) {
 		vmsl_stat_t ret = worker->vmsl->send(msg_ctxt, &content_storage, status);
 		if (vmsl_stat_error(ret)) {
-			logger(ERROR, "Error sending data: %s\n", status->message);
+			logger(ERROR, "Error sending data: %s", status->message);
 
 			gru_status_reset(status);
 			break;
@@ -320,7 +321,7 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 
 			worker_ret_t wret = worker_start(worker, &snapshot, status);
 			if (wret != WORKER_SUCCESS) {
-				logger(ERROR, "Unable to execute worker: %s\n", status->message);
+				logger(ERROR, "Unable to execute worker: %s", status->message);
 			}
 
 			return NULL;
@@ -371,6 +372,7 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 
 bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler handler) {
 	gru_node_t *node = NULL;
+	logger_t logger = gru_logger_get();
 
 	if (list == NULL) {
 		return true;
@@ -397,25 +399,24 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 		}
 		else {
 			if (WIFEXITED(wstatus)) {
-				printf("Child %d finished with status %d\n", 
-					worker_info->child, WEXITSTATUS(wstatus));
+				logger(INFO, "Child %d finished with status %d", worker_info->child,
+					WEXITSTATUS(wstatus));
 			}
 			else if (WIFSIGNALED(wstatus)) {
-				printf("Child %d received a signal %d\n", 
-					worker_info->child, WTERMSIG(wstatus));
+				logger(ERROR, "Child %d received a signal %d", worker_info->child,
+					WTERMSIG(wstatus));
 			}
 			else if (WIFSTOPPED(wstatus)) {
-				printf("Child %d stopped %d\n", 
-					worker_info->child, WSTOPSIG(wstatus));
+				logger(ERROR, "Child %d stopped %d", worker_info->child,
+					WSTOPSIG(wstatus));
 			}
 
-			gru_dealloc((void **) &worker_info);
-			
 			node = node->next;
 			pos++;
 			gru_node_t *orphan = gru_list_remove(list, pos);
 			
 			gru_node_destroy(&orphan);
+			//gru_dealloc((void **) &worker_info);
 			
 		}
 	}

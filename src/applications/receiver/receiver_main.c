@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
 		return EXIT_SUCCESS;
 	}
 	
-	err_exit:	
+	err_exit:
 	logger(INFO, "Test execution with process ID %d finished with errors\n", getpid());
 	
 	options_destroy(&options);

@@ -60,7 +60,21 @@ static bool perf_initialize_writer(stats_writer_t *writer, const options_t *opti
 	return perf_initialize_out_writer(writer, options, status);
 }
 
-void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
+static bool perf_print_partial(worker_info_t *worker_info) {
+	worker_snapshot_t snapshot = {0};
+
+	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
+		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+
+		printf("Partial summary: sent %" PRIu64 " messages in %" PRIu64
+				" seconds (rate: %.2f msgs/sec)\n",
+				snapshot.count, elapsed, snapshot.throughput.rate);
+	}
+
+	return true;
+}
+
+int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 	
@@ -79,6 +93,7 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	worker.options->log_level = options->log_level;
 	worker.options->message_size = options->message_size;
 	worker.options->throttle = options->throttle;
+	worker.name = "sender";
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
@@ -87,22 +102,49 @@ void perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	worker.can_continue = worker_check;
 	
 
-	worker_ret_t ret = {0}; 
-	worker_snapshot_t snapshot = {0};
+	if (options->parallel_count == 1) { 
+		worker_ret_t ret = {0}; 
+		worker_snapshot_t snapshot = {0};
 
-	ret = abstract_sender_worker_start(&worker, &snapshot, &status);
-	if (ret != WORKER_SUCCESS) {
-		fprintf(stderr, "Unable to execute worker: %s\n", status.message);
+		ret = abstract_sender_worker_start(&worker, &snapshot, &status);
+		if (ret != WORKER_SUCCESS) {
+			logger(ERROR, "Unable to execute worker: %s\n", status.message);
 
-		return;
+			return 1;
+		}
+
+		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+
+		logger(INFO, 
+			"Summary: sent %" PRIu64 " messages in %" PRIu64
+			" seconds (rate: %.2f msgs/sec)",
+			snapshot.count, elapsed, snapshot.throughput.rate);
 	}
+	else {
+		sleep(3);
+		gru_list_t *children = abstract_worker_clone(&worker, 
+			abstract_sender_worker_start, &status);
 
-	uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+		if (!children && !gru_status_success(&status)) {
+			logger(ERROR, "Unable to initialize children: %s", status.message);
 
-	logger(INFO, 
-	 	"Summary: sent %" PRIu64 " messages in %" PRIu64
-	 	" seconds (rate: %.2f msgs/sec)",
-	 	snapshot.count, elapsed, snapshot.throughput.rate);
+			return 1;
+		}
+		else {
+			if (!children) {
+				return 0;
+			}
+		}
+
+		while (gru_list_count(children) > 0) {
+			mpt_trace("There are still %d children running", gru_list_count(children));
+			abstract_worker_watchdog(children, perf_print_partial); 
+			
+			sleep(1);
+		}
+
+		gru_list_destroy(&children);
+	}
 	
-	return;
+	return 0;
 }
