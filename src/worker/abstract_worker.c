@@ -102,13 +102,15 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 			break;
 		}
 
+		snapshot->now = gru_time_now();
 		if (rstat & VMSL_NO_DATA) {
 			usleep(500);
+
 			continue;
 		}
 
 		snapshot->count++;
-		snapshot->now = gru_time_now();
+		
 
 		calc_latency(&snapshot->latency, content_storage.created, snapshot->now);
 		if (unlikely(!worker->writer->latency.write(&snapshot->latency, status))) {
