@@ -101,12 +101,13 @@ bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options
 
 static bool receiver_print_partial(worker_info_t *worker_info) {
 	worker_snapshot_t snapshot = {0};
+	logger_t logger = gru_logger_get();
 
 	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
 		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-		printf("Partial summary: received %" PRIu64 " messages in %" PRIu64
-				" seconds (rate: %.2f msgs/sec)\n",
+		logger(INFO, "Partial summary: PID %d received %" PRIu64 " messages in %" PRIu64
+				" seconds (rate: %.2f msgs/sec)", worker_info->child,
 				snapshot.count, elapsed, snapshot.throughput.rate);
 	}
 
@@ -183,7 +184,6 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			snapshot.count, elapsed, snapshot.throughput.rate);
 	}
 	else {
-		sleep(1);
 		gru_list_t *children = abstract_worker_clone(&worker, 
 			abstract_receiver_worker_start, &status);
 
