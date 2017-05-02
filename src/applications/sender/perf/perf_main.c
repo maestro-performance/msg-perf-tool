@@ -157,7 +157,7 @@ int perf_main(int argc, char **argv) {
 	}
 
 	// init_controller(options->daemon, options->logdir, "mpt-sender-controller");
-	if (options->logdir && options->daemon) {
+	if (options->logdir) {
 		remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
 	}
 
@@ -166,7 +166,6 @@ int perf_main(int argc, char **argv) {
 	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
 		goto err_exit;
 	}
-
 	
 	int child = 0;
 
