@@ -217,6 +217,21 @@ bool senderd_initialize_writer(stats_writer_t *writer, const worker_options_t *o
 	return true;
 }
 
+static bool senderd_copy_partial(worker_info_t *worker_info) {
+	worker_snapshot_t snapshot = {0};
+	logger_t logger = gru_logger_get();
+
+	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
+		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+
+		logger(INFO, "Partial summary: PID %d sent %" PRIu64 " messages in %" PRIu64
+				" seconds (rate: %.2f msgs/sec)", worker_info->child,
+				snapshot.count, elapsed, snapshot.throughput.rate);
+	}
+
+	return true;
+}
+
 static void senderd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
@@ -228,26 +243,53 @@ static void senderd_worker_execute(const vmsl_t *vmsl) {
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
+	worker.name = "senderd";
 	senderd_initialize_writer(worker.writer, &worker_options, &status);
 
 	worker.can_continue = worker_check;
 	
-	worker_ret_t ret = {0}; 
-	worker_snapshot_t snapshot = {0};
+	if (worker_options.parallel_count == 1) {
+		worker_ret_t ret = {0}; 
+		worker_snapshot_t snapshot = {0};
 
-	ret = abstract_sender_worker_start(&worker, &snapshot, &status);
-	if (ret != WORKER_SUCCESS) {
-		fprintf(stderr, "Unable to execute worker: %s\n", status.message);
+		ret = abstract_sender_worker_start(&worker, &snapshot, &status);
+		if (ret != WORKER_SUCCESS) {
+			fprintf(stderr, "Unable to execute worker: %s\n", status.message);
 
-		return;
+			return;
+		}
+
+		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+
+		logger(INFO, 
+			"Summary: sent %" PRIu64 " messages in %" PRIu64
+			" seconds (rate: %.2f msgs/sec)",
+			snapshot.count, elapsed, snapshot.throughput.rate);
 	}
+	else {
+		gru_list_t *children = abstract_worker_clone(&worker, 
+			abstract_sender_worker_start, &status);
 
-	uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+		if (!children && !gru_status_success(&status)) {
+			logger(ERROR, "Unable to initialize children: %s", status.message);
 
-	logger(INFO, 
-	 	"Summary: sent %" PRIu64 " messages in %" PRIu64
-	 	" seconds (rate: %.2f msgs/sec)",
-	 	snapshot.count, elapsed, snapshot.throughput.rate);
+			return;
+		}
+		else {
+			if (!children) {
+				return;
+			}
+		}
+
+		while (gru_list_count(children) > 0) {
+			mpt_trace("There are still %d children running", gru_list_count(children));
+			abstract_worker_watchdog(children, senderd_copy_partial); 
+			
+			sleep(1);
+		}
+
+		gru_list_destroy(&children);
+	}
 	
 	return;
 }
