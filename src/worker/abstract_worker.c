@@ -104,8 +104,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 
 		snapshot->now = gru_time_now();
 		if (rstat & VMSL_NO_DATA) {
-			usleep(500);
-
+			usleep(100);
 			continue;
 		}
 
