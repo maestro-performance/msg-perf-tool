@@ -30,41 +30,17 @@ static bool shr_data_buff_create_sem(shr_data_buff_t *buff, const char *name, in
 		return false;
 	}
 
-	if (asprintf(&wname, "/%s-write", name) == -1) {
-		gru_status_set(status, GRU_FAILURE, "Unable to format write semaphore name");
-		
-		goto err_exit_1;
-	}
-
-
 	buff->sem_read = sem_open(rname, O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 
 		initial);
 	if (buff->sem_read == SEM_FAILED) {
 		gru_status_set(status, GRU_FAILURE, "Unable to open read semaphore: %s\n", 
 			strerror(errno));
 
-		goto err_exit_2;
+		goto err_exit_1;
 	}
 
-	buff->sem_write = sem_open(wname, O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 
-		initial);
-	if (buff->sem_write == SEM_FAILED) {
-		
-		gru_status_set(status, GRU_FAILURE, "Unable to open write semaphore: %s\n", 
-			strerror(errno));
-
-		goto err_exit_3;
-	}
-
-	gru_dealloc_string(&wname);
 	gru_dealloc_string(&rname);
 	return true;
-
-	err_exit_3:
-	sem_close(buff->sem_read);
-	
-	err_exit_2:
-	gru_dealloc_string(&wname);
 
 	err_exit_1:
 	gru_dealloc_string(&rname);
@@ -89,7 +65,7 @@ static shr_data_buff_t *shr_buff_new_reader(size_t len, const char *name, gru_st
 		goto err_exit_1;
 	}
 
-	ret->fd = shm_open(ret->name, O_RDONLY | O_CREAT, 
+	ret->fd = shm_open(ret->name, O_RDONLY, 
 		S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
 	if (ret->fd < 0) {
@@ -210,7 +186,7 @@ static shr_data_buff_t *shr_buff_new_writer(size_t len, const char *name, gru_st
 	return NULL;
 }
 
-shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm, size_t len, const char *name, 
+volatile shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm, size_t len, const char *name, 
 	gru_status_t *status)
 {
 	logger_t logger = gru_logger_get();
@@ -233,7 +209,7 @@ shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm, size_t len, const char *name
 	return shr_buff_new_writer(len, name, status);
 }
 
-void shr_buff_detroy(shr_data_buff_t **ptr) {
+void shr_buff_detroy(volatile shr_data_buff_t **ptr) {
 	shr_data_buff_t *buff = *ptr;
 
 	if (!buff) {
@@ -247,31 +223,44 @@ void shr_buff_detroy(shr_data_buff_t **ptr) {
 	}
 	
 	sem_close(buff->sem_read);
-	sem_close(buff->sem_write);
 
 	gru_dealloc_string(&buff->name);
 	gru_dealloc((void **) ptr);
 }
 
-bool shr_buff_read(const shr_data_buff_t *src, void *dest, size_t len) {
-	sem_trywait(src->sem_read);
-	if (errno == EAGAIN) {
-		return false;
+bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) {
+	struct timespec ts;
+
+	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
+		sem_trywait(src->sem_read);
+
+		if (errno == EAGAIN) {
+			return false;
+		}
 	}
+	else {
+		ts.tv_sec + 2;
+		sem_timedwait(src->sem_read, &ts);
+
+		if (errno == ETIMEDOUT || errno == EAGAIN) {
+			return false;
+		}
+	}
+	
 
 	memcpy(dest, src->ptr, len);
-	sem_post(src->sem_write);
+	sem_post(src->sem_read);
 	return true;
 }
 
-bool shr_buff_write(shr_data_buff_t *dest, void *src, size_t len) {
-	memcpy(dest->ptr, src, len);
-	sem_post(dest->sem_read);
-	
-	sem_trywait(dest->sem_write);
+bool shr_buff_write(volatile shr_data_buff_t *dest, void *src, size_t len) {
+	sem_trywait(dest->sem_read);
 	if (errno == EAGAIN) {
 		return false;
 	}
+
+	memcpy(dest->ptr, src, len);
+	sem_post(dest->sem_read);
 
 	return true;
 }

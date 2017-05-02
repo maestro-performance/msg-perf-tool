@@ -27,6 +27,7 @@ extern "C" {
 #include <semaphore.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -43,7 +44,6 @@ typedef struct shr_data_buff_t_ {
 	char *name;
 	void *ptr;
 	sem_t *sem_read;
-	sem_t *sem_write;
 	int fd;
 	shr_buff_perm_t perm;
 } shr_data_buff_t;
@@ -56,14 +56,14 @@ typedef struct shr_data_buff_t_ {
  * @param status status structure in case of error
  * @return A pointer to a new shared data buffer or false otherwise
  */
-shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm, size_t len, const char *name, 
+volatile shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm, size_t len, const char *name, 
 	gru_status_t *status);
 
 /**
  * Destroys a shared data buffer
  * @param ptr a pointer to a pointer of a shared ptr
  */
-void shr_buff_detroy(shr_data_buff_t **ptr);
+void shr_buff_detroy(volatile shr_data_buff_t **ptr);
 
 /**
  * Atomic read of a data buffer 
@@ -71,7 +71,7 @@ void shr_buff_detroy(shr_data_buff_t **ptr);
  * @param dest destination pointer
  * @param len number of bytes to read
  */
-bool shr_buff_read(const shr_data_buff_t *src, void *dest, size_t len);
+bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len);
 
 /**
  * Atomic write of a data buffer 
@@ -79,7 +79,7 @@ bool shr_buff_read(const shr_data_buff_t *src, void *dest, size_t len);
  * @param src source pointer
  * @param len number of bytes to write
  */
-bool shr_buff_write(shr_data_buff_t *dest, void *src, size_t len);
+bool shr_buff_write(volatile shr_data_buff_t *dest, void *src, size_t len);
 
 
 
