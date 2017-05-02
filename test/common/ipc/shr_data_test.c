@@ -17,6 +17,8 @@
 #include <signal.h>
 #include <limits.h>
 
+#include <sys/wait.h>
+
 #include <common/gru_status.h>
 
 #include <ipc/shared_data_buffer.h>
