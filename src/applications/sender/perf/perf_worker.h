@@ -31,6 +31,7 @@
 #include "statistics/calculator.h"
 #include "statistics/stats_writer.h"
 #include "statistics/csv_writer.h"
+#include "statistics/nop_writer.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
 

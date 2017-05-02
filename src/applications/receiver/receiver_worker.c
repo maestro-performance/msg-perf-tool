@@ -88,12 +88,25 @@ bool receiver_initialize_out_writer(stats_writer_t *writer, const options_t *opt
 	return true;
 }
 
+bool receiver_initialize_nop_writer(stats_writer_t *writer, const options_t *options, 
+	gru_status_t *status) 
+{
+	nop_writer_latency_assign(&writer->latency);
+	nop_writer_throughput_assign(&writer->throughput);
+
+	return true;
+}
 
 bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
 {
 	if (options->logdir) {
 		return receiver_initialize_csv_writer(writer, options, status);
+	}
+	else {
+		if (options->parallel_count > 1) {
+			return receiver_initialize_nop_writer(writer, options, status);
+		}
 	}
 	
 	return receiver_initialize_out_writer(writer, options, status);	

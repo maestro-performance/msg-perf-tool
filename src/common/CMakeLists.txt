@@ -8,6 +8,7 @@ add_library(
         statistics/calculator.c
         statistics/csv_writer.c
         statistics/out_writer.c
+        statistics/nop_writer.c
         ipc/shared_data_buffer.c
         vmsl.c
         msg_conn_info.c
