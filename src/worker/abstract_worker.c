@@ -15,6 +15,8 @@
  */
 #include "abstract_worker.h"
 
+static bool locked = true;
+
 static const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status) {
 	char *cname = NULL;
 
@@ -63,7 +65,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 		goto err_exit;
 	}
 
-	shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
+	volatile shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
 		cname, status);
 	gru_dealloc_const_string(&cname);
 
@@ -73,6 +75,8 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 			
 		goto err_exit;
 	}
+
+	kill(getppid(), SIGUSR2);
 
 #endif // MPT_SHARED_BUFFERS
 
@@ -203,7 +207,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 		goto err_exit;
 	}
 
-	shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
+	volatile shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
 		cname, status);
 	gru_dealloc_const_string(&cname);
 
@@ -213,6 +217,8 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 			
 		goto err_exit;
 	}
+
+	kill(getppid(), SIGUSR2);
 
 #endif // MPT_SHARED_BUFFERS
 
@@ -302,6 +308,23 @@ err_exit:
 	return WORKER_FAILURE;
 }
 
+
+static void abstract_worker_sigusr2_handler(int signum) {
+	locked = false;
+}
+
+
+static void abstract_worker_setup_wait() {
+	struct sigaction sa;
+
+	memset(&sa, 0, sizeof(sa));
+
+	sa.sa_handler = &abstract_worker_sigusr2_handler;
+	sa.sa_flags = SA_SIGINFO;
+	sigaction(SIGUSR2, &sa, NULL);
+	locked = true;
+}
+
 gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start worker_start, 
 	gru_status_t *status) 
 {
@@ -323,11 +346,11 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 			if (wret != WORKER_SUCCESS) {
 				logger(ERROR, "Unable to execute worker: %s", status->message);
 			}
-
+			
 			return NULL;
 		}
 		else {
-			logger(INFO, "Created child %d", child);
+			abstract_worker_setup_wait();
 
 			worker_info_t *worker_info = gru_alloc(sizeof(worker_info_t), status);
 			if (!worker_info) {
@@ -342,7 +365,16 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 				break;
 			}
 
-			worker_info->shr = shr_buff_new(BUFF_READ, sizeof(worker_snapshot_t), 
+
+			logger(INFO, "Created child %d and waiting for the continue signal", child);
+			while (locked) {
+				usleep(50);
+			}
+
+			logger(INFO, "Child %d gave the ok signal", child);
+			fflush(NULL);
+
+			worker_info->shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
 				cname, status);
 
 			if (!worker_info->shr) {
@@ -380,7 +412,6 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 
 	node = list->root;
 
-	uint32_t pos = 0;
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
 		
@@ -391,7 +422,6 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 		if (pid == 0) {
 			if (handler(worker_info)) {
 				node = node->next;
-				pos++;
 			}
 			else {
 				return false;
@@ -411,13 +441,15 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 					WSTOPSIG(wstatus));
 			}
 
+			gru_node_t *orphan = node;
 			node = node->next;
-			pos++;
-			gru_node_t *orphan = gru_list_remove(list, pos);
-			
+
+			if (!gru_list_remove_node(list, orphan)) {
+				logger(ERROR, "Unable to remove an orphaned child");
+			}
+						
 			gru_node_destroy(&orphan);
-			//gru_dealloc((void **) &worker_info);
-			
+			gru_dealloc((void **) &worker_info);
 		}
 	}
 
