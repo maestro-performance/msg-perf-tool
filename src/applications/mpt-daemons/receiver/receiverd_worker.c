@@ -306,17 +306,18 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 
 
 int receiverd_worker_start(const options_t *options) {
+	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 	maestro_sheet_t *sheet = new_receiver_sheet(&status);
 
 	if (!maestro_player_start(options, sheet, &status)) {
-		fprintf(stderr, "Unable to connect to maestro broker: %s\n", 
+		logger(FATAL, "Unable to connect to maestro broker: %s\n", 
 			status.message);
 
 		return 1;
 	}
 
-	logger_t logger = gru_logger_get();
+	
 	while (true) {
 		sleep(1);
 
