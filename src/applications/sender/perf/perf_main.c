@@ -166,8 +166,6 @@ int perf_main(int argc, char **argv) {
 	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
 		goto err_exit;
 	}
-	
-	int child = 0;
 
 	logger_t logger = gru_logger_get();
 
