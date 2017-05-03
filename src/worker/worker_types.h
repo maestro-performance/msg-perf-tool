@@ -70,7 +70,7 @@ typedef struct worker_info_t_ {
 	worker_snapshot_t snapshot;
 	
 #ifdef MPT_SHARED_BUFFERS
- 	shr_data_buff_t *shr;
+ 	volatile shr_data_buff_t *shr;
 #endif // MPT_SHARED_BUFFERS
 
 } worker_info_t;
