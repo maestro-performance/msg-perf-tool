@@ -102,5 +102,5 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 				sizeof(note->command), MAESTRO_NOTE_PROTOCOL_ERROR);
 	}
 
-	return true;
+	return ret;
 }
