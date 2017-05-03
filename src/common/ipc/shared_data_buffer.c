@@ -238,7 +238,7 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 		}
 	}
 	else {
-		ts.tv_sec + 2;
+		ts.tv_sec = ts.tv_sec + 2;
 		sem_timedwait(src->sem_read, &ts);
 
 		if (errno == ETIMEDOUT || errno == EAGAIN) {
