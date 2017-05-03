@@ -26,6 +26,9 @@ Runtime/Compilation:
 * [gru](https://github.com/orpiske/gru)
 * [bmic](https://github.com/orpiske/bmic)
 * python
+* zlib
+* libuuid
+* readline
 
 Recommended:
 * iperf (as a good practice, for testing network performance prior to test execution)
