@@ -92,7 +92,11 @@ int main(int argc, char **argv) {
 	}
 
 	init_controller(true, options->logdir, "mpt-sender-daemon");
-	senderd_worker_start(options);
+	if (senderd_worker_start(options) != 0) {
+		printf("Unable to start the sender worker\n");
+
+		goto err_exit;
+	}
 
 	options_destroy(&options);
 	return EXIT_SUCCESS;
