@@ -209,7 +209,7 @@ volatile shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm, size_t len, const c
 }
 
 void shr_buff_detroy(volatile shr_data_buff_t **ptr) {
-	shr_data_buff_t *buff = *ptr;
+	volatile shr_data_buff_t *buff = *ptr;
 
 	if (!buff) {
 		return;
