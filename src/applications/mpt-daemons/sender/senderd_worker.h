@@ -42,7 +42,7 @@
 #include "worker_types.h"
 #include "worker_utils.h"
 
-int sender_worker_start(const options_t *options);
+int senderd_worker_start(const options_t *options);
 
 #endif /* SENDERD_WORKER_H */
 
