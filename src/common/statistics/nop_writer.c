@@ -15,8 +15,6 @@
  */
 #include "nop_writer.h"
 
-static gru_timestamp_t last_latency_duration;
-
 bool nop_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
 	return true;
 }
