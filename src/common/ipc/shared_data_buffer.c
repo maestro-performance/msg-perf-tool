@@ -21,8 +21,7 @@ static int pagesize = 0;
 static bool shr_data_buff_create_sem(shr_data_buff_t *buff, const char *name, int initial, 
 	gru_status_t *status) 
 {
-	char *rname = NULL; 
-	char *wname = NULL;
+	char *rname = NULL;
 
 	if (asprintf(&rname, "/%s-read", name) == -1) {
 		gru_status_set(status, GRU_FAILURE, "Unable to format read semaphore name");

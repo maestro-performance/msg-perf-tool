@@ -33,7 +33,9 @@ extern "C" {
 #include <sys/stat.h>
 
 #include <common/gru_status.h>
+#include <common/gru_alloc.h>
 #include <log/gru_logger.h>
+
 
 typedef enum shr_buff_perm_t_ {
 	BUFF_READ,
