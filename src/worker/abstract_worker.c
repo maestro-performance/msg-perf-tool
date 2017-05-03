@@ -89,8 +89,6 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	snapshot->start = gru_time_now();
 	snapshot->now = snapshot->start;
 	gru_timestamp_t last_sample_ts = snapshot->start; // Last sampling timestamp
-
-	install_interrupt_handler();
 	
 	logger(DEBUG, "Initializing receiver loop");
 	while (worker->can_continue(worker->options, snapshot)) {
@@ -137,8 +135,10 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 			
 		 	last_count = snapshot->count;
 			last_sample_ts = snapshot->now;
+			fflush(NULL);
 		}
 	}
+	logger(DEBUG, "Finalizing sender loop");
 
 	worker->vmsl->stop(msg_ctxt, status);
 	worker->vmsl->destroy(msg_ctxt, status);
@@ -149,6 +149,12 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	calc_throughput(&snapshot->throughput, snapshot->start, snapshot->now, 
 		snapshot->count);
 
+	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
+
+	logger(INFO, 
+		"Summary: received %" PRIu64 " messages in %" PRIu64
+		" seconds (last measured rate: %.2f msgs/sec)",
+		snapshot->count, elapsed, snapshot->throughput.rate);
 
 #ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
@@ -233,8 +239,6 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 	snapshot->now = snapshot->start;
 	gru_timestamp_t last_sample_ts = snapshot->start; // Last sampling timestamp
 
-	install_interrupt_handler();
-
 	useconds_t idle_usec = 0;
 	if (worker->options->throttle) {
 		idle_usec = 1000000 / worker->options->throttle;
@@ -272,12 +276,15 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 #ifdef MPT_SHARED_BUFFERS
 			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
 #endif // MPT_SHARED_BUFFERS
+
+			fflush(NULL);
 		}
 
 		if (worker->options->throttle > 0) {
 				usleep(idle_usec);
 		}
 	}
+	logger(DEBUG, "Finalizing sender loop");
 
 	worker->vmsl->stop(msg_ctxt, status);
 	worker->vmsl->destroy(msg_ctxt, status);
@@ -286,6 +293,12 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 
 	calc_throughput(&snapshot->throughput, snapshot->start, snapshot->now, 
 		snapshot->count);
+	
+	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
+	logger(INFO, 
+			"Summary: sent %" PRIu64 " messages in %" PRIu64
+			" seconds (last measured rate: %.2f msgs/sec)",
+			snapshot->count, elapsed, snapshot->throughput.rate);
 
 #ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
@@ -343,11 +356,18 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 		if (child == 0) {
 			worker_snapshot_t snapshot = {0};
 
+			const options_t *options = get_options_object();
+
+			remap_log(options->logdir, worker->name, getppid(), getpid(), stderr, status);
+
+			// abstract_worker_setup_terminate();
+			install_interrupt_handler();
 			worker_ret_t wret = worker_start(worker, &snapshot, status);
 			if (wret != WORKER_SUCCESS) {
 				logger(ERROR, "Unable to execute worker: %s", status->message);
 			}
 			
+			logger(INFO, "Test execution terminated");
 			return NULL;
 		}
 		else {
@@ -427,14 +447,14 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 			else {
 				return false;
 			}
-		}
+		} 
 		else {
 			if (WIFEXITED(wstatus)) {
 				logger(INFO, "Child %d finished with status %d", worker_info->child,
 					WEXITSTATUS(wstatus));
 			}
 			else if (WIFSIGNALED(wstatus)) {
-				logger(ERROR, "Child %d received a signal %d", worker_info->child,
+				logger(INFO, "Child %d received a signal %d", worker_info->child,
 					WTERMSIG(wstatus));
 			}
 			else if (WIFSTOPPED(wstatus)) {
@@ -448,10 +468,80 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 			if (!gru_list_remove_node(list, orphan)) {
 				logger(ERROR, "Unable to remove an orphaned child");
 			}
-						
+
 			gru_node_destroy(&orphan);
 			gru_dealloc((void **) &worker_info);
 		}
+	}
+
+	return true;
+}
+
+
+bool abstract_worker_stop(gru_list_t *list) {
+	gru_node_t *node = NULL;
+	logger_t logger = gru_logger_get();
+
+	if (list == NULL) {
+		return false;
+	}
+
+	node = list->root;
+
+	while (node) {
+		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
+
+		logger(INFO, "Terminating child %d", worker_info->child);
+		if (kill(worker_info->child, SIGTERM) != 0) {
+			logger(WARNING, "Unable to send signal to the child process");
+			node = node->next;
+			continue;
+		}
+		
+		uint16_t retry = 3;
+		pid_t pid = 0;
+
+		do { 	
+			int wstatus = 0;
+			
+			pid = waitpid(worker_info->child, &wstatus, WNOHANG);
+
+			// waitpid returns 0 if WNOHANG and there's no change of state for the process
+			if (pid != 0) {
+				if (WIFEXITED(wstatus)) {
+					logger(INFO, "Child %d stopped successfully with status %d", worker_info->child,
+						WEXITSTATUS(wstatus));
+				} else if (WIFSIGNALED(wstatus)) {
+					logger(INFO, "Child %d stopped successfully signal %d", worker_info->child,
+						WTERMSIG(wstatus));
+				} else if (WIFSTOPPED(wstatus)) {
+					logger(WARNING, "Child %d stopped abnormally %d", worker_info->child,
+						WSTOPSIG(wstatus));
+				}
+
+				break;
+			}
+			else {
+				if (pid == -1) {
+					logger(WARNING, "Failed to stop child %d: %s", worker_info->child,
+						strerror(errno));
+
+					break;
+				}
+				else {
+					usleep(10000);
+					retry--;
+
+					if (retry == 0) {
+						logger(WARNING, "Killing child process %d because refuses to stop for good", 
+							worker_info->child);
+						kill(worker_info->child, SIGKILL);
+					}
+				}
+			}
+		} while (pid == 0 && retry > 0);
+
+		node = node->next;
 	}
 
 	return true;

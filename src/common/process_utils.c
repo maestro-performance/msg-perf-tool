@@ -128,6 +128,7 @@ void install_interrupt_handler() {
 	sa.sa_handler = &interrupt_handler;
 	sa.sa_flags = SA_SIGINFO;
 	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
 }
 
 inline bool is_interrupted() {

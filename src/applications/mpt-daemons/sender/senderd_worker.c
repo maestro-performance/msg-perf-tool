@@ -17,6 +17,7 @@
 
 bool started = false;
 worker_options_t worker_options = {0};
+static gru_list_t *children = NULL;
 
 static void *senderd_handle_set(const maestro_note_t *request, maestro_note_t *response, 
 	const maestro_player_info_t *pinfo) 
@@ -137,9 +138,14 @@ static void *senderd_handle_start(const maestro_note_t *request, maestro_note_t 
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
-	started = true;
+	if (started == true || children != NULL) {
+		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
+	}
+	else {
+		started = true;
 
-	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+	}
 	return NULL;
 }
 
@@ -150,6 +156,16 @@ static void *senderd_handle_stop(const maestro_note_t *request, maestro_note_t *
 
 	logger(INFO, "Just received a stop request");
 	started = false;
+
+	if (children) {
+		if (!abstract_worker_stop(children)) {
+			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
+
+			gru_list_destroy(&children);
+
+			return NULL;
+		}
+	}
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 	return NULL;
@@ -232,7 +248,7 @@ static bool senderd_copy_partial(worker_info_t *worker_info) {
 	return true;
 }
 
-static void senderd_worker_execute(const vmsl_t *vmsl) {
+static bool senderd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 	
@@ -248,50 +264,30 @@ static void senderd_worker_execute(const vmsl_t *vmsl) {
 
 	worker.can_continue = worker_check;
 	
-	if (worker_options.parallel_count == 1) {
-		worker_ret_t ret = {0}; 
-		worker_snapshot_t snapshot = {0};
+	children = abstract_worker_clone(&worker, abstract_sender_worker_start, &status);
 
-		ret = abstract_sender_worker_start(&worker, &snapshot, &status);
-		if (ret != WORKER_SUCCESS) {
-			fprintf(stderr, "Unable to execute worker: %s\n", status.message);
+	if (!children && !gru_status_success(&status)) {
+		logger(ERROR, "Unable to initialize children: %s", status.message);
 
-			return;
-		}
-
-		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
-
-		logger(INFO, 
-			"Summary: sent %" PRIu64 " messages in %" PRIu64
-			" seconds (rate: %.2f msgs/sec)",
-			snapshot.count, elapsed, snapshot.throughput.rate);
+		return true;
 	}
 	else {
-		gru_list_t *children = abstract_worker_clone(&worker, 
-			abstract_sender_worker_start, &status);
-
-		if (!children && !gru_status_success(&status)) {
-			logger(ERROR, "Unable to initialize children: %s", status.message);
-
-			return;
+		if (!children) {
+			return false;
 		}
-		else {
-			if (!children) {
-				return;
-			}
-		}
-
-		while (gru_list_count(children) > 0) {
-			mpt_trace("There are still %d children running", gru_list_count(children));
-			abstract_worker_watchdog(children, senderd_copy_partial); 
-			
-			sleep(1);
-		}
-
-		gru_list_destroy(&children);
 	}
+
+	while (gru_list_count(children) > 0) {
+		mpt_trace("There are still %d children running", gru_list_count(children));
+		abstract_worker_watchdog(children, senderd_copy_partial); 
+		
+		sleep(1);
+	}
+
+	gru_list_destroy(&children);
 	
-	return;
+	
+	return true;
 }
 
 
@@ -325,7 +321,11 @@ int senderd_worker_start(const options_t *options) {
 				}
 			}
 			else {
-				senderd_worker_execute(&vmsl);
+				if (!senderd_worker_execute(&vmsl)) {
+					// Child return
+					break;
+				}
+
 				started = false;
 			}
 		}

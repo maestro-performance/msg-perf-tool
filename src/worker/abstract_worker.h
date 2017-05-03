@@ -102,6 +102,14 @@ gru_list_t *abstract_worker_clone(const worker_t *worker,
  */
 bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler handler);
 
+
+/**
+ * Stops all workers in the workers list
+ * @param list A list of workers to stop
+ * @return true unless the list of workers is NULL
+ */
+bool abstract_worker_stop(gru_list_t *list);
+
 #ifdef __cplusplus
 }
 #endif
