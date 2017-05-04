@@ -2,6 +2,7 @@ add_library(
 	mpt-worker SHARED
         abstract_worker.c
         worker_utils.c
+        worker_wait.c
 )
 
 target_link_libraries(

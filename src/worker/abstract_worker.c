@@ -15,8 +15,6 @@
  */
 #include "abstract_worker.h"
 
-static bool locked = true;
-
 static const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status) {
 	char *cname = NULL;
 
@@ -323,22 +321,6 @@ err_exit:
 }
 
 
-static void abstract_worker_sigusr2_handler(int signum) {
-	locked = false;
-}
-
-
-static void abstract_worker_setup_wait() {
-	struct sigaction sa;
-
-	memset(&sa, 0, sizeof(sa));
-
-	sa.sa_handler = &abstract_worker_sigusr2_handler;
-	sa.sa_flags = SA_SIGINFO;
-	sigaction(SIGUSR2, &sa, NULL);
-	locked = true;
-}
-
 gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start worker_start, 
 	gru_status_t *status) 
 {
@@ -371,7 +353,7 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 			return NULL;
 		}
 		else {
-			abstract_worker_setup_wait();
+			worker_wait_setup();
 
 			worker_info_t *worker_info = gru_alloc(sizeof(worker_info_t), status);
 			if (!worker_info) {
@@ -386,11 +368,8 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 				break;
 			}
 
-
 			logger(INFO, "Created child %d and waiting for the continue signal", child);
-			while (locked) {
-				usleep(50);
-			}
+			worker_wait();
 
 			logger(INFO, "Child %d gave the ok signal", child);
 			fflush(NULL);

@@ -46,6 +46,7 @@ extern "C" {
 
 #include "worker_options.h"
 #include "worker_types.h"
+#include "worker_wait.h"
 
 #ifdef MPT_SHARED_BUFFERS
  #include "ipc/shared_data_buffer.h"
