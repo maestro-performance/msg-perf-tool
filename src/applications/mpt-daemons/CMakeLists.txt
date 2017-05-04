@@ -1,13 +1,23 @@
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	configure_file(receiver/config/receiverd.service.in
-		${SYSTEMD_UNIT_PATH}/receiverd.service
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/receiverd.service
 		@ONLY
 	)
 
 
 	configure_file(receiver/config/receiverd.in
-		${SYSCONFIG_PATH}/receiverd
+		${CMAKE_BUILD_SYSCONFIG_PATH}/receiverd
 		@ONLY
+	)
+
+	install(FILES
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/receiverd.service
+		DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNIT_PATH}
+	)
+
+	install(FILES
+		${CMAKE_BUILD_SYSCONFIG_PATH}/receiverd
+		DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
 	)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 

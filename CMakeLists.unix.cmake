@@ -4,8 +4,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	find_library(RT_LIB NAMES rt)
 	message(STATUS "RT library found at ${RT_LIB}")
 	
-	set(SYSTEMD_UNIT_PATH ${CMAKE_BINARY_DIR}/target/usr/lib/systemd/system)
-	set(SYSCONFIG_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSCONFDIR}/sysconfig)
+	set(CMAKE_INSTALL_SYSTEMD_UNIT_PATH /usr/lib/systemd/system)
+	set(SYSTEMD_UNIT_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSTEMD_UNIT_PATH})
+
+	set(CMAKE_INSTALL_SYSCONFIG_PATH ${CMAKE_INSTALL_SYSCONFDIR}/sysconfig)
+	set(SYSCONFIG_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSCONFIG_PATH})
 else (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	message(STATUS "Compiling for " ${CMAKE_SYSTEM_NAME} "")
 
