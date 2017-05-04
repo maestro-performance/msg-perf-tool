@@ -91,6 +91,11 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if (options->logdir == NULL) {
+		fprintf(stderr, "Log directory is mandatory for the sender daemon\n");
+		goto err_exit;
+	}
+
 	init_controller(true, options->logdir, "mpt-sender-daemon");
 	if (senderd_worker_start(options) != 0) {
 		printf("Unable to start the sender worker\n");

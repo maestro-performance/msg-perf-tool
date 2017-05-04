@@ -91,6 +91,11 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if (options->logdir == NULL) {
+		fprintf(stderr, "Log directory is mandatory for the receiver daemon\n");
+		goto err_exit;
+	}
+
 	init_controller(true, options->logdir, "mpt-receiver-daemon");
 	
 	if (receiverd_worker_start(options) != 0) {
