@@ -91,8 +91,13 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (options->logdir == NULL) {
+	if (!options->logdir) {
 		fprintf(stderr, "Log directory is mandatory for the sender daemon\n");
+		goto err_exit;
+	}
+	
+	if (!gru_path_mkdirs(options->logdir, &status)) {
+		fprintf(stderr, "Unable to create log directory: %s\n", status.message);
 		goto err_exit;
 	}
 

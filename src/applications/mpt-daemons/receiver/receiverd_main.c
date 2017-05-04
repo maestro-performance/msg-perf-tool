@@ -96,6 +96,11 @@ int main(int argc, char **argv) {
 		goto err_exit;
 	}
 
+	if (!gru_path_mkdirs(options->logdir, &status)) {
+		fprintf(stderr, "Unable to create log directory: %s\n", status.message);
+		goto err_exit;
+	}
+
 	if (!options->maestro_uri.host) {
 		fprintf(stderr, "Maestro host is mandatory for the receiver daemon\n");
 		goto err_exit;
