@@ -25,7 +25,7 @@ static void show_help(char **argv) {
 	gru_cli_option_help("broker-url", "b", "broker URL to connect to");
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
-	gru_cli_option_help("duration", "d", "runs for a fixed amount of time (in minutes)");
+	gru_cli_option_help("duration", "d", "runs for the specificied amount of time. It must be suffixed by 's', 'm', 'h' or 'd' (ie.: 1h15s, 10m)");
 	gru_cli_option_help("log-level",
 		"l",
 		"runs in the given verbose (info, stat, debug, etc) level mode");
@@ -95,7 +95,9 @@ int perf_main(int argc, char **argv) {
 				options->uri = gru_uri_parse(optarg, &status);
 				if (gru_status_error(&status)) {
 					fprintf(stderr, "%s", status.message);
-					goto err_exit;
+
+					options_destroy(&options);
+					return EXIT_FAILURE;
 				}
 				break;
 			case 'c':
@@ -109,7 +111,12 @@ int perf_main(int argc, char **argv) {
 				options->parallel_count = (uint16_t) atoi(optarg);
 				break;
 			case 'd':
-				options->duration = gru_duration_from_minutes(atoi(optarg));
+				if (!gru_duration_parse(&options->duration, optarg)) {
+					fprintf(stderr, "Invalid input duration: %s\n", optarg);
+
+					options_destroy(&options);
+					return EXIT_FAILURE;
+				}
 				break;
 			case 's':
 				options->message_size = atoi(optarg);
@@ -118,7 +125,9 @@ int perf_main(int argc, char **argv) {
 				options->logdir = strdup(optarg);
 				if (!options->logdir) {
 					fprintf(stderr, "Unable to create memory for the log dir setting\n");
-					goto err_exit;
+
+					options_destroy(&options);
+					return EXIT_FAILURE;
 				}
 				break;
 			case 't':
@@ -143,7 +152,9 @@ int perf_main(int argc, char **argv) {
 				options->maestro_uri = gru_uri_parse(optarg, &status);
 				if (gru_status_error(&status)) {
 					fprintf(stderr, "%s", status.message);
-					goto err_exit;
+
+					options_destroy(&options);
+					return EXIT_FAILURE;
 				}
 				break;
 			case 'h':

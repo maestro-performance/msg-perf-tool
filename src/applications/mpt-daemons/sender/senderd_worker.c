@@ -49,8 +49,15 @@ static void *senderd_handle_set(const maestro_note_t *request, maestro_note_t *r
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting duration option");
 
-		worker_options.duration_type = MESSAGE_COUNT;
-		worker_options.duration.count = atol(tmp_val);
+		gru_duration_t duration = gru_duration_new();
+		if (!gru_duration_parse(&duration, tmp_val)) {
+			worker_options.duration_type = MESSAGE_COUNT;
+			worker_options.duration.count = atol(tmp_val);
+		}
+		else {
+			worker_options.duration_type = TEST_TIME;
+			worker_options.duration.time = duration;
+		}
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 
