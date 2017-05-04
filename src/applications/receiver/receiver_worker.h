@@ -48,6 +48,7 @@ extern "C" {
 #include "worker_options.h"
 #include "worker_types.h"
 #include "worker_utils.h"
+#include "worker_wait.h"
 
 int receiver_start(const vmsl_t *vmsl, const options_t *options);
 

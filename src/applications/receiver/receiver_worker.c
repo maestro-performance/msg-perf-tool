@@ -176,12 +176,12 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	receiver_initialize_writer(worker.writer, options, &status);
 
 	worker.can_continue = worker_check;
-	
 
 	if (options->parallel_count == 1) { 
 		worker_ret_t ret = {0}; 
 		worker_snapshot_t snapshot = {0};
 
+		worker_wait_setup();
 		ret = abstract_receiver_worker_start(&worker, &snapshot, &status);
 		if (ret != WORKER_SUCCESS) {
 			fprintf(stderr, "Unable to execute worker: %s\n", status.message);

@@ -39,6 +39,7 @@
 #include "worker_options.h"
 #include "worker_types.h"
 #include "worker_utils.h"
+#include "worker_wait.h"
 
 #ifdef __cplusplus
 extern "C" {
