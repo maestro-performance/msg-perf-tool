@@ -1,45 +1,45 @@
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	# Receiver files
-	configure_file(receiver/config/receiverd.service.in
+	configure_file(receiver/config/mpt-receiver-daemon.service.in
 		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/receiverd.service
 		@ONLY
 	)
 
-	configure_file(receiver/config/receiverd.in
-		${CMAKE_BUILD_SYSCONFIG_PATH}/receiverd
+	configure_file(receiver/config/mpt-receiver-daemon.in
+		${CMAKE_BUILD_SYSCONFIG_PATH}/mpt-receiver-daemon
 		@ONLY
 	)
 
 	install(FILES
-		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/receiverd.service
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/mpt-receiver-daemon.service
 		DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNIT_PATH}
 	)
 
 	install(FILES
-		${CMAKE_BUILD_SYSCONFIG_PATH}/receiverd
+		${CMAKE_BUILD_SYSCONFIG_PATH}/mpt-receiver-daemon
 		DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
 	)
 
 
 	# Sender files
-	configure_file(sender/config/senderd.service.in
-		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/senderd.service
+	configure_file(sender/config/mpt-sender-daemon.service.in
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/mpt-sender-daemon.service
 		@ONLY
 	)
 
 
-	configure_file(sender/config/senderd.in
-		${CMAKE_BUILD_SYSCONFIG_PATH}/senderd
+	configure_file(sender/config/mpt-sender-daemon.in
+		${CMAKE_BUILD_SYSCONFIG_PATH}/mpt-sender-daemon
 		@ONLY
 	)
 
 	install(FILES
-		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/senderd.service
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/mpt-sender-daemon.service
 		DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNIT_PATH}
 	)
 
 	install(FILES
-		${CMAKE_BUILD_SYSCONFIG_PATH}/senderd
+		${CMAKE_BUILD_SYSCONFIG_PATH}/mpt-sender-daemon
 		DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
 	)
 
