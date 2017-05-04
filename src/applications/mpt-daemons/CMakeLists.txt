@@ -1,7 +1,7 @@
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	# Receiver files
 	configure_file(receiver/config/mpt-receiver-daemon.service.in
-		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/mpt-receiver-daemon.service.service
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/mpt-receiver-daemon.service
 		@ONLY
 	)
 
