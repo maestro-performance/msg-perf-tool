@@ -60,18 +60,18 @@ int main(int argc, char **argv) {
 	while (1) {
 
 		static struct option long_options[] = {
-			{"broker-url", true, 0, 'b'},
-			{"duration", true, 0, 'd'},
-			{"log-level", true, 0, 'l'},
-			{"parallel-count", true, 0, 'p'},
-			{"message-size", true, 0, 's'},
-			{"log-dir", true, 0, 'L'},
-			{"daemon", false, 0, 'D'},
-			{"maestro-url", true, 0, 'm'},
-			{"help", false, 0, 'h'},
+			{"broker-url", required_argument, 0, 'b'},
+			{"duration", required_argument, 0, 'd'},
+			{"log-level", required_argument, 0, 'l'},
+			{"log-dir", required_argument, 0, 'L'},
+			{"parallel-count", required_argument, 0, 'p'},
+			{"message-size", required_argument, 0, 's'},
+			{"daemon", no_argument, 0, 'D'},
+			{"maestro-url", required_argument, 0, 'm'},
+			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:d:l:p:s:c:L:Dm:h", long_options, &option_index);
+		c = getopt_long(argc, argv, "b:d:l:L:p:s:Dm:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}

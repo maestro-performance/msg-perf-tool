@@ -53,14 +53,15 @@ int tune_main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {{"broker-url", true, 0, 'b'},
-			{"log-level", true, 0, 'l'},
-			{"log-dir", true, 0, 'L'},
-			{"size", true, 0, 's'},
+		static struct option long_options[] = {
+			{"broker-url", required_argument, 0, 'b'},
+			{"log-level", required_argument, 0, 'l'},
+			{"log-dir", required_argument, 0, 'L'},
+			{"size", required_argument, 0, 's'},
 			{"help", false, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:l:s:L:h", long_options, &option_index);
+		c = getopt_long(argc, argv, "b:l:L:s:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}

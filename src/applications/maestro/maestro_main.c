@@ -48,9 +48,9 @@ int main(int argc, char **argv) {
 	while (1) {
 
 		static struct option long_options[] = {
-			{"maestro-url", true, 0, 'm'},
-			{"log-level", true, 0, 'l'},
-			{"help", false, 0, 'h'},
+			{"maestro-url", required_argument, 0, 'm'},
+			{"log-level", required_argument, 0, 'l'},
+			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
 		c = getopt_long(argc, argv, "m:l:h", long_options, &option_index);

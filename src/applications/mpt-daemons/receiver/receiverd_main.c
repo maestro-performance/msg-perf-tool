@@ -51,13 +51,13 @@ int main(int argc, char **argv) {
 	while (1) {
 
 		static struct option long_options[] = {
-			{"log-level", true, 0, 'l'},
-			{"log-dir", true, 0, 'L'},
-			{"maestro-url", true, 0, 'm'},
-			{"help", false, 0, 'h'},
+			{"log-level", required_argument, 0, 'l'},
+			{"log-dir", required_argument, 0, 'L'},
+			{"maestro-url", required_argument, 0, 'm'},
+			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "L:l:m:h", long_options, &option_index);
+		c = getopt_long(argc, argv, "l:L:m:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}

@@ -69,23 +69,23 @@ int perf_main(int argc, char **argv) {
 	while (1) {
 
 		static struct option long_options[] = {
-			{"broker-url", true, 0, 'b'},
-			{"count", true, 0, 'c'},
-			{"log-level", true, 0, 'l'},
-			{"parallel-count", true, 0, 'p'},
-			{"duration", true, 0, 'd'},
-			{"size", true, 0, 's'},
-			{"log-dir", true, 0, 'L'},
-			{"throttle", true, 0, 't'},
-			{"daemon", false, 0, 'D'},
-			{"no-probes", false, 0, 'N'},
-			{"interface", true, 0, 'i'},
-			{"maestro-url", true, 0, 'm'},
-			{"probes", true, 0, 'P'},
-			{"help", false, 0, 'h'},
+			{"broker-url", required_argument, 0, 'b'},
+			{"count", required_argument, 0, 'c'},
+			{"log-level", required_argument, 0, 'l'},
+			{"parallel-count", required_argument, 0, 'p'},
+			{"duration", required_argument, 0, 'd'},
+			{"size", required_argument, 0, 's'},
+			{"log-dir", required_argument, 0, 'L'},
+			{"throttle", required_argument, 0, 't'},
+			{"daemon", no_argument, 0, 'D'},
+			{"no-probes", no_argument, 0, 'N'},
+			{"interface", required_argument, 0, 'i'},
+			{"maestro-url", required_argument, 0, 'm'},
+			{"probes", required_argument, 0, 'P'},
+			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:DNi:m:h", long_options, &option_index);
+		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:DNi:m:P:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
