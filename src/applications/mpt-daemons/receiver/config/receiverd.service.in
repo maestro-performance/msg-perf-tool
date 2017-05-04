@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=forking
 EnvironmentFile=-/@CMAKE_INSTALL_SYSCONFIG_PATH@/receiverd
-ExecStart=@CMAKE_INSTALL_PREFIX@/bin/mpt-receiver-daemon -m $MAESTRO_BROKER -L $MPT_LOG_DIR -l $MPT_LOG_LEVEL
+ExecStart=@CMAKE_INSTALL_PREFIX@/bin/mpt-receiver-daemon -m $MAESTRO_BROKER_URL -L $MPT_LOG_DIR -l $MPT_LOG_LEVEL
 PrivateTmp=false
 
 [Install]
