@@ -1,3 +1,17 @@
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	configure_file(receiver/config/receiverd.service.in
+		${SYSTEMD_UNIT_PATH}/receiverd.service
+		@ONLY
+	)
+
+
+	configure_file(receiver/config/receiverd.in
+		${SYSCONFIG_PATH}/receiverd
+		@ONLY
+	)
+endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
+
 add_executable(
 	mpt-receiver-daemon
 	receiver/receiverd_main.c

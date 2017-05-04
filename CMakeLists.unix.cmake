@@ -3,6 +3,9 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	find_library(RT_LIB NAMES rt)
 	message(STATUS "RT library found at ${RT_LIB}")
+	
+	set(SYSTEMD_UNIT_PATH ${CMAKE_BINARY_DIR}/target/usr/lib/systemd/system)
+	set(SYSCONFIG_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSCONFDIR}/sysconfig)
 else (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	message(STATUS "Compiling for " ${CMAKE_SYSTEM_NAME} "")
 
@@ -17,6 +20,8 @@ endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_BINDIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_LIBDIR})
 set (CTEST_BINARY_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/${CMAKE_INSTALL_BINDIR})
+
+
 
 find_library(MATH_LIB NAMES m)
 message(STATUS "Math library found at ${MATH_LIB}")
