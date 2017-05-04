@@ -1,12 +1,12 @@
 [Unit]
 Description=MPT Receiver Daemon
-After=syslog.target ntpdate.service sntp.service
+After=syslog.target network.target
 
 [Service]
 Type=forking
 EnvironmentFile=-/@CMAKE_INSTALL_SYSCONFIG_PATH@/receiverd
 ExecStart=@CMAKE_INSTALL_PREFIX@/bin/mpt-receiver-daemon -m $MAESTRO_BROKER -L $MPT_LOG_DIR -l $MPT_LOG_LEVEL
-PrivateTmp=true
+PrivateTmp=false
 
 [Install]
 WantedBy=multi-user.target
