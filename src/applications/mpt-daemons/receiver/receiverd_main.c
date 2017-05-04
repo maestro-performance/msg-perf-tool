@@ -91,8 +91,13 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (options->logdir == NULL) {
+	if (!options->logdir) {
 		fprintf(stderr, "Log directory is mandatory for the receiver daemon\n");
+		goto err_exit;
+	}
+
+	if (!options->maestro_uri.host) {
+		fprintf(stderr, "Maestro host is mandatory for the receiver daemon\n");
 		goto err_exit;
 	}
 
