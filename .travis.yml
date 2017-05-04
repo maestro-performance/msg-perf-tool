@@ -27,6 +27,10 @@ before_script:
   - echo "Installing litestomp"
   - mkdir litestomp && tar -xvf litestomp-head.tar.gz -C litestomp --strip-components=1
   - pushd litestomp && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=RELEASE .. && make && sudo make install ; popd
+  - echo "Installing Paho MQTT C"
+  - wget https://github.com/eclipse/paho.mqtt.c/tarball/master -O pahoc-head.tar.gz
+  - mkdir pahoc && tar -xvf pahoc-head.tar.gz -C pahoc --strip-components=1
+  - pushd pahoc && mkdir build.paho && cd build.paho && cmake -DPAHO_WITH_SSL=FALSE -DPAHO_BUILD_SAMPLES=FALSE -DPAHO_BUILD_DOCUMENTATION=FALSE -DCMAKE_BUILD_TYPE=RELEASE .. && make && sudo make install ; popd
 script:
   - mkdir -p build
   - cd build
