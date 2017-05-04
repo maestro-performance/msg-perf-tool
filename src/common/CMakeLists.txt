@@ -9,6 +9,7 @@ add_library(
         statistics/csv_writer.c
         statistics/out_writer.c
         statistics/nop_writer.c
+        statistics/naming_utils.c
         ipc/shared_data_buffer.c
         vmsl.c
         msg_conn_info.c

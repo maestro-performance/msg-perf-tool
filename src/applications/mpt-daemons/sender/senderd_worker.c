@@ -214,32 +214,6 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	return ret;
 }
 
-static void senderd_csv_name(const char *prefix, char *name, size_t len) 
-{
-	snprintf(name, len - 1, "%s-%d.csv.gz", prefix, getpid());
-}
-
-bool senderd_initialize_writer(stats_writer_t *writer, const worker_options_t *options, 
-	gru_status_t *status) 
-{
-	csv_writer_throughput_assign(&writer->throughput);
-
-	const options_t *prg_options = get_options_object();
-	
-	char tp_fname[64] = {0};
-	senderd_csv_name("sender-throughput", tp_fname, sizeof(tp_fname));
-
-	stat_io_info_t tp_io_info = {0};
-	tp_io_info.dest.name = tp_fname;
-	tp_io_info.dest.location = (char *) prg_options->logdir;
-
-	if (!writer->throughput.initialize(&tp_io_info, status)) {
-		return false;
-	}
-	
-	return true;
-}
-
 static bool senderd_copy_partial(worker_info_t *worker_info) {
 	worker_snapshot_t snapshot = {0};
 	logger_t logger = gru_logger_get();
@@ -267,9 +241,11 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	worker.name = "senderd";
-	senderd_initialize_writer(worker.writer, &worker_options, &status);
 
 	worker.can_continue = worker_check;
+
+	worker.report_format = FORMAT_CSV; 
+	worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 	
 	children = abstract_worker_clone(&worker, abstract_sender_worker_start, &status);
 

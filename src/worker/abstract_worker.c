@@ -321,7 +321,7 @@ err_exit:
 }
 
 
-gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start worker_start, 
+gru_list_t *abstract_worker_clone(worker_t *worker, abstract_worker_start worker_start, 
 	gru_status_t *status) 
 {
 	gru_list_t *ret = gru_list_new(status);
@@ -341,8 +341,20 @@ gru_list_t *abstract_worker_clone(const worker_t *worker, abstract_worker_start 
 			const options_t *options = get_options_object();
 
 			remap_log(options->logdir, worker->name, getppid(), getpid(), stderr, status);
+			
+			naming_info_t naming_info = {0};
+			
+			naming_info.source = worker->name;
+			naming_info.location = options->logdir; 
+			naming_info.pid = getpid();
+			naming_info.ppid = getppid();
 
-			// abstract_worker_setup_terminate();
+			bool nmret = naming_initialize_writer(worker->writer, worker->report_format, 
+				worker->naming_options, &naming_info, status);
+			if (!nmret) {
+				return NULL;
+			}
+			
 			install_interrupt_handler();
 			worker_ret_t wret = worker_start(worker, &snapshot, status);
 			if (wret != WORKER_SUCCESS) {

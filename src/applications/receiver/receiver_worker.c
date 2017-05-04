@@ -43,73 +43,32 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	return ret;
 }
 
-static void receiver_csv_name(const char *prefix, char *name, size_t len) 
-{
-	snprintf(name, len - 1, "%s-%d.csv.gz", prefix, getpid());
-}
-
-bool receiver_initialize_csv_writer(stats_writer_t *writer, const options_t *options, 
-	gru_status_t *status) 
-{
-	csv_writer_latency_assign(&writer->latency);
-	csv_writer_throughput_assign(&writer->throughput);
-
-	char lat_fname[64] = {0};
-	receiver_csv_name("receiver-latency", lat_fname, sizeof(lat_fname));
-
-	stat_io_info_t lat_io_info = {0};
-	lat_io_info.dest.name = lat_fname;
-	lat_io_info.dest.location = (char *) options->logdir;
-
-	if (!writer->latency.initialize(&lat_io_info, status)) {
-		return false;
-	}
-
-	char tp_fname[64] = {0};
-	receiver_csv_name("receiver-throughput", tp_fname, sizeof(tp_fname));
-
-	stat_io_info_t tp_io_info = {0};
-	tp_io_info.dest.name = tp_fname;
-	tp_io_info.dest.location = (char *) options->logdir;
-
-	if (!writer->throughput.initialize(&tp_io_info, status)) {
-		return false;
-	}
-	
-	return true;
-}
-
-bool receiver_initialize_out_writer(stats_writer_t *writer, const options_t *options, 
-	gru_status_t *status) 
-{
-	out_writer_latency_assign(&writer->latency);
-	out_writer_throughput_assign(&writer->throughput);
-
-	return true;
-}
-
-bool receiver_initialize_nop_writer(stats_writer_t *writer, const options_t *options, 
-	gru_status_t *status) 
-{
-	nop_writer_latency_assign(&writer->latency);
-	nop_writer_throughput_assign(&writer->throughput);
-
-	return true;
-}
-
 bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
 {
+	bool nmret = false;
+	
 	if (options->logdir) {
-		return receiver_initialize_csv_writer(writer, options, status);
+		naming_info_t naming_info = {0};
+			
+		naming_info.source = "receiver";
+		
+		naming_info.pid = getpid();
+		naming_info.ppid = 0;
+		naming_info.location = options->logdir; 
+
+		return naming_initialize_writer(writer, FORMAT_CSV, NM_LATENCY | NM_THROUGHPUT, 
+			&naming_info, status);
 	}
 	else {
 		if (options->parallel_count > 1) {
-			return receiver_initialize_nop_writer(writer, options, status);
+			return naming_initialize_writer(writer, FORMAT_NOP, NM_LATENCY | NM_THROUGHPUT, 
+				NULL, status);
 		}
 	}
 	
-	return receiver_initialize_out_writer(writer, options, status);	
+	return naming_initialize_writer(writer, FORMAT_OUT, NM_LATENCY | NM_THROUGHPUT, NULL, 
+		status);
 }
 
 static bool receiver_print_partial(worker_info_t *worker_info) {
@@ -197,6 +156,9 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			snapshot.count, elapsed, snapshot.throughput.rate);
 	}
 	else {
+		worker.report_format = FORMAT_CSV; 
+		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
+
 		gru_list_t *children = abstract_worker_clone(&worker, 
 			abstract_receiver_worker_start, &status);
 

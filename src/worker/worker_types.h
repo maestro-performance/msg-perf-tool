@@ -27,6 +27,7 @@ extern "C" {
 #include "vmsl.h"
 #include "statistics/stats_types.h"
 #include "statistics/stats_writer.h"
+#include "statistics/naming_utils.h"
 
 #ifdef MPT_SHARED_BUFFERS
  #include "ipc/shared_data_buffer.h"
@@ -62,6 +63,8 @@ typedef struct worker_t_ {
 	const vmsl_t *vmsl;
 	worker_options_t *options;
 	stats_writer_t *writer;
+	report_format_t report_format;
+	naming_opt_t naming_options;
 	worker_iteration_check can_continue;
 } worker_t;
 

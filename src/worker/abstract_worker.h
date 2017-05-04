@@ -39,8 +39,7 @@ extern "C" {
 #include "statistics/stats_types.h"
 #include "statistics/calculator.h"
 #include "statistics/stats_writer.h"
-#include "statistics/csv_writer.h"
-#include "statistics/out_writer.h"
+#include "statistics/naming_utils.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
 
@@ -90,7 +89,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
  * @param status Status container in case of error
  * @return a list of child/clones
  */
-gru_list_t *abstract_worker_clone(const worker_t *worker, 
+gru_list_t *abstract_worker_clone(worker_t *worker,
 	abstract_worker_start worker_start, gru_status_t *status);
 
 

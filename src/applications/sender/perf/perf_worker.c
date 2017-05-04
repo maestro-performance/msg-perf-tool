@@ -15,63 +15,29 @@
  */
 #include "perf_worker.h"
 
-
-
-static void perf_csv_name(const char *prefix, char *name, size_t len) 
-{
-	snprintf(name, len - 1, "%s-%d.csv.gz", prefix, getpid());
-}
-
-static bool perf_initialize_csv_writer(stats_writer_t *writer, const options_t *options, 
-	gru_status_t *status) 
-{
-	csv_writer_throughput_assign(&writer->throughput);
-
-	char tp_fname[64] = {0};
-	perf_csv_name("sender-throughput", tp_fname, sizeof(tp_fname));
-
-	stat_io_info_t tp_io_info = {0};
-	tp_io_info.dest.name = tp_fname;
-	tp_io_info.dest.location = (char *) options->logdir;
-
-	if (!writer->throughput.initialize(&tp_io_info, status)) {
-		return false;
-	}
-	
-	return true;
-}
-
-static bool perf_initialize_out_writer(stats_writer_t *writer, const options_t *options, 
-	gru_status_t *status) 
-{
-	out_writer_latency_assign(&writer->latency);
-	out_writer_throughput_assign(&writer->throughput);
-
-	return true;
-}
-
-bool perf_initialize_nop_writer(stats_writer_t *writer, const options_t *options, 
-	gru_status_t *status) 
-{
-	nop_writer_latency_assign(&writer->latency);
-	nop_writer_throughput_assign(&writer->throughput);
-
-	return true;
-}
-
 static bool perf_initialize_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
 {
+
 	if (options->logdir) {
-		return perf_initialize_csv_writer(writer, options, status);
+		naming_info_t naming_info = {0};
+			
+		naming_info.source = "sender";
+		
+		naming_info.pid = getpid();
+		naming_info.ppid = 0;
+		naming_info.location = options->logdir; 
+
+		return naming_initialize_writer(writer, FORMAT_CSV, NM_THROUGHPUT, &naming_info,
+			status);
 	}
 	else {
 		if (options->parallel_count > 1) {
-			return perf_initialize_nop_writer(writer, options, status);
+			return naming_initialize_writer(writer, FORMAT_NOP, NM_THROUGHPUT, NULL, status);
 		}
 	}
 	
-	return perf_initialize_out_writer(writer, options, status);
+	return naming_initialize_writer(writer, FORMAT_OUT, NM_THROUGHPUT, NULL, status);
 }
 
 static bool perf_print_partial(worker_info_t *worker_info) {
