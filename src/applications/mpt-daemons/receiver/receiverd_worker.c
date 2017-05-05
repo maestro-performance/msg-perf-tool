@@ -218,15 +218,11 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 
 
 static bool receiverd_copy(worker_info_t *worker_info) {
-	worker_snapshot_t snapshot = {0};
-	logger_t logger = gru_logger_get();
+	if (!shr_buff_read(worker_info->shr, &worker_info->snapshot, sizeof(worker_snapshot_t))) {
+		logger_t logger = gru_logger_get();
 
-	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
-		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
-
-		logger(INFO, "Partial summary: PID %d received %" PRIu64 " messages in %" PRIu64
-				" seconds (rate: %.2f msgs/sec)", worker_info->child,
-				snapshot.count, elapsed, snapshot.throughput.rate);
+		logger(WARNING, "Unable to obtain performance snapshot from receiver child %d", 
+			worker_info->child);
 	}
 
 	return true;
