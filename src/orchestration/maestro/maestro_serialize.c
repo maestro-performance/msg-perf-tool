@@ -24,28 +24,6 @@ static bool maestro_serialize_header_only(const maestro_note_t *note, msg_conten
 }
 
 
-
-
-
-
-
-
-// static bool maestro_note_ping_request(msg_content_data_t *cont) {
-// 	bool ret = msg_content_data_serialize(cont, "%03s", 
-// 		maestro_request(MAESTRO_NOTE_PING));
-	
-// 	return ret;
-// }
-
-
-
-// static bool maestro_note_ping_response(msg_content_data_t *cont, const char *id, const char *ts) {
-// 	bool ret = msg_content_data_serialize(cont, "%03s%37s%12s", 
-// 		maestro_response(MAESTRO_NOTE_PING), id, ts);
-	
-// 	return ret;
-// }
-
 static bool maestro_note_set_request(const maestro_note_t *note, msg_content_data_t *cont) {
 	bool ret = msg_content_data_serialize(cont, "%c%.*s%.*s%.*s", 
 		note->type, 
@@ -96,6 +74,28 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 				note->type, 
 				sizeof(note->command), note->command, 
 				sizeof(note->payload->request.ping.ts), note->payload->request.ping.ts);
+	}
+	else if (maestro_note_equals(note, MAESTRO_NOTE_STATS) && note->type == MAESTRO_TYPE_REQUEST) {
+		ret = maestro_serialize_header_only(note, out);
+	}
+	else if (maestro_note_equals(note, MAESTRO_NOTE_STATS) && note->type == MAESTRO_TYPE_RESPONSE) {
+		// '10527ef92d6-96ad-4ff6-ab3a-d547395f2c0b3receiverperfR1493977868.543546971993841.20165.00'
+		ret = msg_content_data_serialize(out, "%c%-*s%-*s%-*s%-*s%-*s%c%-*s%-*s%-*s%-*s",
+				note->type,
+				(int) sizeof(note->command), note->command,
+				(int) sizeof(note->payload->response.stats.id), note->payload->response.stats.id,
+				(int) sizeof(note->payload->response.stats.child_count), note->payload->response.stats.child_count,
+				(int) sizeof(note->payload->response.stats.role), note->payload->response.stats.role,
+				(int) sizeof(note->payload->response.stats.roleinfo), note->payload->response.stats.roleinfo,
+				note->payload->response.stats.stat_type,
+				(int) sizeof(note->payload->response.stats.stats.perf.timestamp),
+					note->payload->response.stats.stats.perf.timestamp,
+				(int) sizeof(note->payload->response.stats.stats.perf.count),
+					note->payload->response.stats.stats.perf.count,
+				(int) sizeof(note->payload->response.stats.stats.perf.rate),
+					note->payload->response.stats.stats.perf.rate,
+				(int) sizeof(note->payload->response.stats.stats.perf.latency),
+					note->payload->response.stats.stats.perf.latency);
 	}
 	else {
 		ret = msg_content_data_serialize(out, "%c%.*s", note->type, 

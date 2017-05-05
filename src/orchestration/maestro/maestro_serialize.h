@@ -26,8 +26,5 @@ bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd);
 
 bool maestro_note_ok_response(msg_content_data_t *cont);
 
-// bool maestro_note_set_request(msg_content_data_t *cont, const char *opt, const char *val);
-// bool maestro_note_ping_request(msg_content_data_t *cont);
-// bool maestro_note_ping_response(msg_content_data_t *cont, const char *id, const char *ts);
 
 #endif /* MAESTRO_SERIALIZER_H*/

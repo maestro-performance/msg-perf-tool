@@ -99,6 +99,9 @@ int maestro_loop(gru_status_t *status) {
 			ret = maestro_cmd_ping(cmd_ctxt, status);
 		}
 
+		if (strcmp(command, "stats") == 0) {
+			ret = maestro_cmd_stats(cmd_ctxt, status);
+		}
 
 		if (ret == 0) {
 			free(raw_line);

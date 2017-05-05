@@ -91,7 +91,15 @@ static void maestro_cmd_print_data(maestro_note_t *note) {
 			(int) sizeof(note->payload->response.ping.elapsed), note->payload->response.ping.elapsed);
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_PROTOCOL_ERROR)) {
 		printf("One of more of the commands did not complete successfully\n");
-	} else if (maestro_note_equals(note, MAESTRO_NOTE_OK)) {
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_STATS)) {
+		printf("ID: %.*s Childs: %.*s childs Count: %.*s Rate: %.*s Latency: %.*s\n",
+			(int) sizeof(note->payload->response.stats.id), note->payload->response.stats.id,
+			(int) sizeof(note->payload->response.stats.child_count), note->payload->response.stats.child_count,
+			(int) sizeof(note->payload->response.stats.stats.perf.count), note->payload->response.stats.stats.perf.count,
+			(int) sizeof(note->payload->response.stats.stats.perf.rate), note->payload->response.stats.stats.perf.rate,
+			(int) sizeof(note->payload->response.stats.stats.perf.latency), note->payload->response.stats.stats.perf.latency);
+	}
+	else if (maestro_note_equals(note, MAESTRO_NOTE_OK)) {
 		printf("Peer reply OK\n");
 	}
 }
@@ -270,4 +278,8 @@ int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	}
 
 	return 0;
+}
+
+int maestro_cmd_stats(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STATS, status);
 }

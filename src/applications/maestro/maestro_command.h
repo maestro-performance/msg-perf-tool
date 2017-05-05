@@ -41,5 +41,6 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_status_t *status);
 int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
+int maestro_cmd_stats(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 
 #endif /* MAESTRO_COMMAND_H */

@@ -154,3 +154,42 @@ void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *val
 	maestro_payload_set_opt(&note->payload->request.set, opt);
 	maestro_payload_set_value(&note->payload->request.set, value);
 }
+
+
+void maestro_note_stats_set_id(maestro_note_t *note, const char *id) {
+	maestro_set_payload_txt_field(note->payload->response.stats.id, id);
+}
+
+void maestro_note_stats_set_child_count(maestro_note_t *note, uint32_t count) {
+	maestro_set_payload_uint32_field(note->payload->response.stats.child_count, count);
+}
+
+
+void maestro_note_stats_set_role(maestro_note_t *note, const char *role) {
+	maestro_set_payload_txt_field(note->payload->response.stats.role, role);
+}
+
+void maestro_note_stats_set_roleinfo(maestro_note_t *note, const char *roleinfo) {
+	maestro_set_payload_txt_field(note->payload->response.stats.roleinfo, roleinfo);
+}
+
+
+void maestro_note_stats_set_stat_type(maestro_note_t *note, const char stat_type) {
+	note->payload->response.stats.stat_type = stat_type;
+}
+
+void maestro_note_stats_set_perf_ts(maestro_note_t *note, const char *ts) {
+	maestro_set_payload_txt_field(note->payload->response.stats.stats.perf.timestamp, ts);
+}
+
+void maestro_note_stats_set_perf_count(maestro_note_t *note, uint64_t count) {
+	maestro_set_payload_uint64_field(note->payload->response.stats.stats.perf.count, count);
+}
+
+void maestro_note_stats_set_perf_rate(maestro_note_t *note, double rate) {
+	maestro_set_payload_double_field(note->payload->response.stats.stats.perf.rate, rate);
+}
+
+void maestro_note_stats_set_perf_latency(maestro_note_t *note, double latency) {
+	maestro_set_payload_double_field(note->payload->response.stats.stats.perf.latency, latency);
+}
