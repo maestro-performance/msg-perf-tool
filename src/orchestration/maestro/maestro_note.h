@@ -37,8 +37,10 @@
 
 /** Start execution */
 #define MAESTRO_NOTE_START "01"
+
 /** Stop execution **/
 #define MAESTRO_NOTE_STOP "02"
+
 /** Flush all buffers */
 #define MAESTRO_NOTE_FLUSH "03"
 
@@ -51,6 +53,7 @@
 /** Lengh of the value field in a set note */
 #define MAESTRO_NOTE_OPT_VALUE_LEN (MAESTRO_NOTE_PAYLOAD_MAX_LENGTH - MAESTRO_NOTE_OPT_LEN)
 
+/** Send a ping request */
 #define MAESTRO_NOTE_PING "10"
 
 /** Response OK */
