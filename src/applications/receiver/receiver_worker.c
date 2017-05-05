@@ -45,9 +45,7 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 
 bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
-{
-	bool nmret = false;
-	
+{	
 	if (options->logdir) {
 		naming_info_t naming_info = {0};
 			
