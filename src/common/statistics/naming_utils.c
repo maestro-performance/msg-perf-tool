@@ -44,6 +44,8 @@ static bool naming_initialize_csv_latency_writer(stats_writer_t *writer,
 	if (!writer->latency.initialize(&lat_io_info, status)) {
 		return false;
 	}
+
+	return true;
 }
 
 
