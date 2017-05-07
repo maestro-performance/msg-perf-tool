@@ -17,19 +17,6 @@
 
 typedef struct perf_stats_t_ { uint64_t sent; } perf_stats_t;
 
-static bool tune_worker_init_data(msg_content_data_t *data, size_t size, gru_status_t *status) {
-	msg_content_data_init(data, size, status);
-	if (!gru_status_success(status)) {
-		msg_content_data_release(data);
-
-		return false;
-	}
-
-	msg_content_data_fill(data, 'e');
-	return true;
-}
-
-
 static void tune_print_stat(uint32_t steps, const char *msg, ...) {
 	va_list ap;
 
