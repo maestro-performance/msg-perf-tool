@@ -42,6 +42,16 @@ typedef enum worker_ret_t_ {
 } worker_ret_t;
 
 /**
+ * Worker flags 
+ */
+typedef enum worker_flags_t_ {
+	WRK_NONE = 0, /** None */
+	WRK_RECEIVER = 1, /** Data receiver worker */
+	WRK_SENDER = 2, /** Data sender worker */
+	WRK_DAEMON = 4 /** Worker runs as a daemon */
+} workder_flags_t;
+
+/**
  * Represents a snapshot of the current work iteration
  */
 typedef struct worker_snapshot_t_ {
@@ -66,6 +76,7 @@ typedef struct worker_t_ {
 	report_format_t report_format;
 	naming_opt_t naming_options;
 	worker_iteration_check can_continue;
+	workder_flags_t worker_flags;
 } worker_t;
 
 typedef struct worker_info_t_ {
