@@ -83,6 +83,7 @@ static bool tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	worker.options->log_level = options->log_level;
 	worker.options->message_size = options->message_size;
 	worker.options->throttle = throttle;
+	worker.name = "tune";
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
