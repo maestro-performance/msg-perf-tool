@@ -34,4 +34,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -D_FORTIFY_SOURCE=1 -fstrict-aliasing ${CMAKE_USER_C_FLAGS}" CACHE STRING
 		"Flags used by the compiler during release build." FORCE
 	)
+
+	set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2 -D_FORTIFY_SOURCE=1 -fstrict-aliasing ${CMAKE_USER_C_FLAGS}" CACHE STRING
+		"Flags used by the compiler during release build." FORCE
+	)
 endif (CMAKE_COMPILER_IS_GNUCXX)
