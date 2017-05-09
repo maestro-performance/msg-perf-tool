@@ -36,6 +36,36 @@ static void abstract_worker_msg_opt(msg_opt_t *opt, msg_direction_t direction, c
 	opt->uri = options->uri;
 }
 
+static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_t *worker, gru_status_t *status) 
+{
+
+#ifdef MPT_SHARED_BUFFERS
+	const char *cname = worker_name(worker, getpid(), status);
+	
+	if (!cname) {
+		return NULL;
+	}
+
+	volatile shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
+		cname, status);
+	gru_dealloc_const_string(&cname);
+
+	if (!shr) {
+		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
+			status->message);
+			
+		gru_dealloc_const_string(&cname);
+
+		return NULL;
+	}
+
+
+	kill(getppid(), SIGUSR2);
+#endif // MPT_SHARED_BUFFERS
+
+	return shr;
+}
+
 worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snapshot_t *snapshot, 
 	gru_status_t *status) 
 {
@@ -58,23 +88,10 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	}
 
 #ifdef MPT_SHARED_BUFFERS
-	const char *cname = worker_name(worker, getpid(), status);
-	if (!cname) {
-		goto err_exit;
-	}
-
-	volatile shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
-		cname, status);
-	gru_dealloc_const_string(&cname);
-
+	volatile shr_data_buff_t *shr = abstract_worker_new_shared_buffer(worker, status);
 	if (!shr) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
-			status->message);
-			
 		goto err_exit;
 	}
-
-	kill(getppid(), SIGUSR2);
 
 #endif // MPT_SHARED_BUFFERS
 
@@ -207,23 +224,10 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 	}
 
 #ifdef MPT_SHARED_BUFFERS
-	const char *cname = worker_name(worker, getpid(), status);
-	if (!cname) {
-		goto err_exit;
-	}
-
-	volatile shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
-		cname, status);
-	gru_dealloc_const_string(&cname);
-
+	volatile shr_data_buff_t *shr = abstract_worker_new_shared_buffer(worker, status);
 	if (!shr) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
-			status->message);
-			
 		goto err_exit;
 	}
-
-	kill(getppid(), SIGUSR2);
 
 #endif // MPT_SHARED_BUFFERS
 
