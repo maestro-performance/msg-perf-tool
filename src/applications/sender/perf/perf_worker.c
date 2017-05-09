@@ -75,8 +75,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	worker.options->message_size = options->message_size;
 	worker.options->throttle = options->throttle;
 	worker.name = "sender";
-	worker.worker_flags = WRK_SENDER;
-
+	
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	perf_initialize_writer(worker.writer, options, &status);
@@ -85,6 +84,8 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	
 
 	if (options->parallel_count == 1) { 
+		worker.worker_flags = WRK_SENDER;
+
 		worker_ret_t ret = {0}; 
 		worker_snapshot_t snapshot = {0};
 
@@ -104,6 +105,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 			snapshot.count, elapsed, snapshot.throughput.rate);
 	}
 	else {
+		worker.worker_flags = WRK_SENDER | WRK_FORKED;
 		gru_list_t *children = abstract_worker_clone(&worker, 
 			abstract_sender_worker_start, &status);
 

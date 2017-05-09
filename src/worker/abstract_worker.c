@@ -59,8 +59,10 @@ static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_
 		return NULL;
 	}
 
-
-	kill(getppid(), SIGUSR2);
+	// If forked, then we need to signal the parent process that it's ok to continue
+	if (worker->worker_flags & WRK_FORKED) {
+		kill(getppid(), SIGUSR2);
+	}
 #endif // MPT_SHARED_BUFFERS
 
 	return shr;

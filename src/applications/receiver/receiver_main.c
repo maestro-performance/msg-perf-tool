@@ -30,7 +30,7 @@ static void show_help(char **argv) {
 	gru_cli_option_help(
 		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
 	gru_cli_option_help(
-		"parallel-count", "p", "number of parallel connections to the broker");
+		"parallel-count", "p", "number of parallel connections to the broker (require a log directory for > 1)");
 
 	gru_cli_option_help("size", "s", "message size (in bytes)");
 	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
@@ -135,9 +135,15 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	// init_controller(options->daemon, options->logdir, "mpt-receiver-controller");
 	if (options->logdir) {
 		remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, &status);
+	}
+	else {
+		if (options->parallel_count > 1) {
+			fprintf(stderr, "Multiple concurrent process require a log directory\n");
+
+			return EXIT_FAILURE;
+		}
 	}
 
 	vmsl_t vmsl = vmsl_init();

@@ -237,7 +237,7 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	worker.name = "senderd";
-	worker.worker_flags = WRK_SENDER | WRK_DAEMON;
+	worker.worker_flags = WRK_SENDER | WRK_DAEMON | WRK_FORKED;
 
 	worker.can_continue = worker_check;
 

@@ -127,19 +127,18 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	worker.options->message_size = options->message_size;
 	worker.options->throttle = options->throttle;
 	worker.name = "receiver";
-	worker.worker_flags = WRK_RECEIVER;
-
+	
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	receiver_initialize_writer(worker.writer, options, &status);
 
 	worker.can_continue = worker_check;
 
-	if (options->parallel_count == 1) { 
+	if (options->parallel_count == 1) {
+		worker.worker_flags = WRK_RECEIVER;
 		worker_ret_t ret = {0}; 
 		worker_snapshot_t snapshot = {0};
 
-		worker_wait_setup();
 		ret = abstract_receiver_worker_start(&worker, &snapshot, &status);
 		if (ret != WORKER_SUCCESS) {
 			fprintf(stderr, "Unable to execute worker: %s\n", status.message);
@@ -155,6 +154,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			snapshot.count, elapsed, snapshot.throughput.rate);
 	}
 	else {
+		worker.worker_flags = WRK_RECEIVER | WRK_FORKED;
 		worker.report_format = FORMAT_CSV; 
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 
