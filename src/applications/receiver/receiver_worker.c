@@ -43,7 +43,7 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	return ret;
 }
 
-bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
+static bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
 {	
 	if (options->logdir) {
