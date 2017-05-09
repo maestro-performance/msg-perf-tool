@@ -96,6 +96,10 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 					note->payload->response.stats.stats.perf.rate,
 				(int) sizeof(note->payload->response.stats.stats.perf.latency),
 					note->payload->response.stats.stats.perf.latency);
+		// I am doing something wrong, because vasprintf keeps writing more data than 
+		// requeste in the format string. Therefore, force the out content to only have 
+		// the adequate size
+		out->size = 1 + (int) sizeof(note->command) + sizeof(maestro_payload_stats_reply_t);
 	}
 	else {
 		ret = msg_content_data_serialize(out, "%c%.*s", note->type, 
