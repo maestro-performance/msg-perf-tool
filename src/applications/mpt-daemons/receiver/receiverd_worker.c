@@ -296,7 +296,7 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	worker.name = "receiverd";
-
+	worker.worker_flags = WRK_RECEIVER | WRK_DAEMON;
 	worker.can_continue = worker_check;
 	
 	worker.report_format = FORMAT_CSV; 

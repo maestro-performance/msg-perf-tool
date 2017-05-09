@@ -127,6 +127,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	worker.options->message_size = options->message_size;
 	worker.options->throttle = options->throttle;
 	worker.name = "receiver";
+	worker.worker_flags = WRK_RECEIVER;
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
