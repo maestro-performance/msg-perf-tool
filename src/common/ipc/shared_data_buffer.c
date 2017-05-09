@@ -228,6 +228,7 @@ void shr_buff_detroy(volatile shr_data_buff_t **ptr) {
 }
 
 bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) {
+#ifdef __linux__
 	struct timespec ts;
 
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
@@ -245,6 +246,14 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 			return false;
 		}
 	}
+#else
+	sem_trywait(src->sem_read);
+
+	if (errno == EAGAIN) {
+		return false;
+	}
+
+#endif // __linux__
 	
 
 	memcpy(dest, src->ptr, len);
