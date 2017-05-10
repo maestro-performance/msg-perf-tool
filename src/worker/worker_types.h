@@ -28,6 +28,7 @@ extern "C" {
 #include "statistics/stats_types.h"
 #include "statistics/stats_writer.h"
 #include "statistics/naming_utils.h"
+#include "strategies/payload/pl_strategy.h"
 
 #ifdef MPT_SHARED_BUFFERS
  #include "ipc/shared_data_buffer.h"
@@ -78,6 +79,7 @@ typedef struct worker_t_ {
 	naming_opt_t naming_options;
 	worker_iteration_check can_continue;
 	workder_flags_t worker_flags;
+	pl_strategy_t pl_strategy;
 } worker_t;
 
 typedef struct worker_info_t_ {

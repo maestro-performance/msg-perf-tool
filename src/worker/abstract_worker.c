@@ -200,19 +200,6 @@ err_exit:
 }
 
 
-static bool worker_init_data(msg_content_data_t *data, size_t size, gru_status_t *status) {
-	msg_content_data_init(data, size, status);
-	if (!gru_status_success(status)) {
-		msg_content_data_release(data);
-
-		return false;
-	}
-
-	msg_content_data_fill(data, 'd');
-	return true;
-}
-
-
 worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapshot_t *snapshot, 
 	gru_status_t *status) 
 {
@@ -237,8 +224,8 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 
 #endif // MPT_SHARED_BUFFERS
 
-	// TODO: this neeeds to be replaced w/ a content strategy approach
-	if (!worker_init_data(&content_storage, worker->options->message_size, status)) {
+	
+	if (!worker->pl_strategy.init(&content_storage, worker->options->message_size, status)) {
 		goto err_exit;
 	}
 	
@@ -254,6 +241,8 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 
 	logger(DEBUG, "Initializing sender loop");
 	while (worker->can_continue(worker->options, snapshot)) {
+		worker->pl_strategy.load(&content_storage);
+
 		vmsl_stat_t ret = worker->vmsl->send(msg_ctxt, &content_storage, status);
 		if (vmsl_stat_error(ret)) {
 			logger(ERROR, "Error sending data: %s", status->message);
@@ -261,7 +250,6 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 			gru_status_reset(status);
 			break;
 		}
-
 
 		snapshot->count++;
 		snapshot->now = gru_time_now();
@@ -312,11 +300,11 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 	shr_buff_detroy(&shr);
 #endif // MPT_SHARED_BUFFERS
 
-	msg_content_data_release(&content_storage);
+	worker->pl_strategy.cleanup(&content_storage);
 	return WORKER_SUCCESS;
 
 err_exit:
-	msg_content_data_release(&content_storage);
+	worker->pl_strategy.cleanup(&content_storage);
 
 	if (msg_ctxt) {
 		worker->vmsl->destroy(msg_ctxt, status);

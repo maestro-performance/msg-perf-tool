@@ -11,6 +11,7 @@ add_library(
         statistics/nop_writer.c
         statistics/naming_utils.c
         ipc/shared_data_buffer.c
+        strategies/payload/pl_fixed_strategy.c
         vmsl.c
         msg_conn_info.c
         msgctxt.c

@@ -40,6 +40,10 @@ static bool perf_initialize_writer(stats_writer_t *writer, const options_t *opti
 	return naming_initialize_writer(writer, FORMAT_OUT, NM_THROUGHPUT, NULL, status);
 }
 
+static void perf_initialize_pl_strategy(pl_strategy_t *pl_strategy) {
+	pl_fixed_assign(pl_strategy);
+}
+
 static bool perf_print_partial(worker_info_t *worker_info) {
 	worker_snapshot_t snapshot = {0};
 	logger_t logger = gru_logger_get();
@@ -70,6 +74,10 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		worker.options->duration_type = TEST_TIME;
 		worker.options->duration.time = options->duration;
 	}
+	else {
+		worker.options->duration_type = MESSAGE_COUNT;
+		worker.options->duration.count = options->count;
+	}
 	worker.options->parallel_count = options->parallel_count;
 	worker.options->log_level = options->log_level;
 	worker.options->message_size = options->message_size;
@@ -79,10 +87,10 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	perf_initialize_writer(worker.writer, options, &status);
+	perf_initialize_pl_strategy(&worker.pl_strategy);
 
 	worker.can_continue = worker_check;
 	
-
 	if (options->parallel_count == 1) { 
 		worker.worker_flags = WRK_SENDER;
 
