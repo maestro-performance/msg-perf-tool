@@ -119,7 +119,11 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 
 		snapshot->now = gru_time_now();
 		if (rstat & VMSL_NO_DATA) {
-			usleep(100);
+			/*
+			 * After some measurements, it turns out that 25ms seem to provide the right 
+			 * balance between responsiveness and throughput.
+			 */
+			usleep(25000);
 			continue;
 		}
 
