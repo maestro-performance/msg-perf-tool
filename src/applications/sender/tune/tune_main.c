@@ -109,13 +109,12 @@ int tune_main(int argc, char **argv) {
 		}
 	}
 
+	logger_t logger = gru_logger_get();
 	vmsl_t vmsl = vmsl_init();
 
 	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
 		goto err_exit;
 	}
-
-	logger_t logger = gru_logger_get();
 
 	tune_worker_start(&vmsl, options);
 

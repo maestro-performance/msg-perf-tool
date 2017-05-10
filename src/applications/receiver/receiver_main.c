@@ -146,14 +146,13 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	logger_t logger = gru_logger_get();
 	vmsl_t vmsl = vmsl_init();
 
 	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
 		goto err_exit;
 	}
 	
-	logger_t logger = gru_logger_get();
-
 	logger(INFO, "Starting test");
 	if (receiver_start(&vmsl, options) == 0) {
 		logger(INFO, "Test execution with process ID %d finished successfully\n", getpid());
