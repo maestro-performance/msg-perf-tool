@@ -40,8 +40,13 @@ static bool perf_initialize_writer(stats_writer_t *writer, const options_t *opti
 	return naming_initialize_writer(writer, FORMAT_OUT, NM_THROUGHPUT, NULL, status);
 }
 
-static void perf_initialize_pl_strategy(pl_strategy_t *pl_strategy) {
-	pl_fixed_assign(pl_strategy);
+static void perf_initialize_pl_strategy(pl_strategy_t *pl_strategy, const options_t *options) {
+	if (options->variable_size) { 
+		pl_variable_assign(pl_strategy);
+	}
+	else {
+		pl_fixed_assign(pl_strategy);
+	}
 }
 
 static bool perf_print_partial(worker_info_t *worker_info) {
@@ -87,7 +92,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	perf_initialize_writer(worker.writer, options, &status);
-	perf_initialize_pl_strategy(&worker.pl_strategy);
+	perf_initialize_pl_strategy(&worker.pl_strategy, options);
 
 	worker.can_continue = worker_check;
 	

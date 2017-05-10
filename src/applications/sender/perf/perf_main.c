@@ -35,7 +35,7 @@ static void show_help(char **argv) {
 	gru_cli_option_help(
 		"parallel-count", "p", "number of parallel connections to the broker (require a log directory for > 1)");
 
-	gru_cli_option_help("size", "s", "message size (in bytes)");
+	gru_cli_option_help("size", "s", "message size (in bytes). Use ~ to set a 5%% variability to the message size");
 	gru_cli_option_help("throttle",
 		"t",
 		"sets a fixed rate of messages (in messages per second per connection)");
@@ -43,6 +43,7 @@ static void show_help(char **argv) {
 	gru_cli_option_help("interface", "i", "network interface for the network probe");
 	gru_cli_option_help("probes", "P", 
 		"comma-separated list of probes to enable (default: net,bmic)");
+		
 }
 
 int perf_main(int argc, char **argv) {
@@ -119,7 +120,14 @@ int perf_main(int argc, char **argv) {
 				}
 				break;
 			case 's':
-				options->message_size = atoi(optarg);
+				if (optarg[0] == '~') {
+					options->message_size = atoi(optarg + 1);
+					
+					options->variable_size = true;
+				}
+				else {
+					options->message_size = atoi(optarg);
+				}
 				break;
 			case 'L':
 				options->logdir = strdup(optarg);

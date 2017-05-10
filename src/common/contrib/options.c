@@ -37,6 +37,7 @@ void options_set_defaults(options_t *ret) {
 	ret->count = 0;
 	ret->log_level = INFO;
 	ret->message_size = 32;
+	ret->variable_size = false;
 	ret->duration = gru_duration_new();
 	ret->daemon = false;
 	ret->probing = true;

@@ -43,6 +43,7 @@ typedef struct options_t_ {
 	char *logdir;
 	uint16_t parallel_count;
 	size_t message_size;
+	bool variable_size;
 	log_level_t log_level;
 	gru_duration_t duration;
 	bool daemon;

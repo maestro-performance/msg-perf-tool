@@ -86,6 +86,24 @@ void msg_content_data_fill(msg_content_data_t *content, char v) {
 	}
 
 	((char *) content->data)[0] = v;
+	content->size = content->capacity;
+}
+
+
+void msg_content_data_rfill(msg_content_data_t *content) {
+	static const char dict[] = 
+		"0123456789"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz";
+	
+	size_t i = content->capacity - 1;
+
+	for (; 0 < i; i--) {
+		((char *) content->data)[i] = dict[rand() % (sizeof(dict) - 1)];
+	}
+
+	((char *) content->data)[0] = dict[rand() % (sizeof(dict) - 1)];
+	content->size = content->capacity;
 }
 
 bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_list ap) {
