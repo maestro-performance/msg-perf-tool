@@ -13,7 +13,7 @@ set(SHARED_DIR "share")
 
 if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Debug CACHE STRING
-      	"Choose the type of build, options are: Debug Release."
+      	"Choose the type of build, options are: Debug, RelWithDebInfo or Release."
       	FORCE
 	)
 endif(NOT CMAKE_BUILD_TYPE)
@@ -36,6 +36,6 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	)
 
 	set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2 -D_FORTIFY_SOURCE=1 -fstrict-aliasing ${CMAKE_USER_C_FLAGS}" CACHE STRING
-		"Flags used by the compiler during release build." FORCE
+		"Flags used by the compiler during release build with debug information." FORCE
 	)
 endif (CMAKE_COMPILER_IS_GNUCXX)
