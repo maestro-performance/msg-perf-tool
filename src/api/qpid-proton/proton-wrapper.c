@@ -257,7 +257,7 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t
 	proton_set_message_properties(ctxt, message, status);
 
 	pn_data_t *body = pn_message_body(message);
-	pn_data_put_string(body, pn_bytes(data->capacity, data->data));
+	pn_data_put_string(body, pn_bytes(data->size, data->data));
 
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
