@@ -34,9 +34,7 @@
 #include "statistics/nop_writer.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
-#include "strategies/payload/pl_strategy.h"
-#include "strategies/payload/pl_fixed_strategy.h"
-#include "strategies/payload/pl_variable_strategy.h"
+#include "strategies/payload/pl_assign.h"
 
 #include "abstract_worker.h"
 #include "worker_options.h"

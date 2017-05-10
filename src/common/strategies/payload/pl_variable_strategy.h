@@ -24,6 +24,10 @@
 #include "msg_content_data.h"
 #include "strategies/payload/pl_strategy.h"
 
+/**
+ * This "strategy" is used for variable-size payloads (ie.: non-deterministic message sizes)
+ */
+
 bool pl_variable_init(msg_content_data_t *data, size_t size, gru_status_t *status);
 uint64_t pl_variable_load(msg_content_data_t *data);
 void pl_variable_cleanup(msg_content_data_t *data);

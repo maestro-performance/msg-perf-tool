@@ -36,6 +36,7 @@
 #include "statistics/csv_writer.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
+#include "strategies/payload/pl_assign.h"
 
 #include "abstract_worker.h"
 #include "worker_options.h"

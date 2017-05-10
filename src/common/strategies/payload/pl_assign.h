@@ -13,30 +13,34 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef PL_FIXED_STRATEGY_H
-#define PL_FIXED_STRATEGY_H
+
+#ifndef PL_ASSIGN_H
+#define PL_ASSIGN_H
+
+#include "strategies/payload/pl_strategy.h"
+#include "strategies/payload/pl_fixed_strategy.h"
+#include "strategies/payload/pl_variable_strategy.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <common/gru_status.h>
-
-#include "msg_content_data.h"
-#include "strategies/payload/pl_strategy.h"
-
-/**
- * This "strategy" is used for fixed-size payloads 
+/** 
+ * Assign the appropriate payload strategy 
  */
-bool pl_fixed_init(msg_content_data_t *data, size_t size, gru_status_t *status);
-uint64_t pl_fixed_load(msg_content_data_t *data);
-void pl_fixed_cleanup(msg_content_data_t *data);
-
-void pl_fixed_assign(pl_strategy_t *pl_st);
+static inline void pl_strategy_assign(pl_strategy_t *pl_strategy, bool variable_size) {
+	if (variable_size) { 
+		pl_variable_assign(pl_strategy);
+	}
+	else {
+		pl_fixed_assign(pl_strategy);
+	}
+}
 
 #ifdef __cplusplus
 }
 #endif
 
 
-#endif /* PL_FIXED_STRATEGY_H */
+
+#endif /* PL_ASSIGN_H */

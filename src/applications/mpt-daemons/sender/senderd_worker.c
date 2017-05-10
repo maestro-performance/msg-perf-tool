@@ -85,7 +85,15 @@ static void *senderd_handle_set(const maestro_note_t *request, maestro_note_t *r
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, MAESTRO_NOTE_OPT_LEN) == 0) {
 		logger(INFO, "Setting message size option");
 
-		worker_options.message_size = atol(tmp_val);
+		if (tmp_val[0] == '~') {
+			worker_options.message_size = atoi(tmp_val + 1);
+
+			worker_options.variable_size = true;
+		}
+		else {
+			worker_options.message_size = atoi(tmp_val);
+		}
+
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
@@ -243,6 +251,8 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 
 	worker.report_format = FORMAT_CSV; 
 	worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
+
+	pl_strategy_assign(&worker.pl_strategy, worker.options->variable_size);
 	
 	children = abstract_worker_clone(&worker, abstract_sender_worker_start, &status);
 

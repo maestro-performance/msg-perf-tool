@@ -46,6 +46,7 @@ typedef struct worker_options_t_ {
 	log_level_t log_level;
 	uint16_t parallel_count;
 	size_t message_size;
+	bool variable_size;
 	uint32_t throttle;
 } worker_options_t;
 
