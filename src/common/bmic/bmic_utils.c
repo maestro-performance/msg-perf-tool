@@ -31,12 +31,14 @@ bool mpt_init_bmic_ctxt(const options_t *options, bmic_context_t *ctxt,
 	}
 
 	// Load the capabilities just so that it is cached
+	logger(DEBUG, "Caching broker capabilities");
 	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
 	if (!cap) {
 		bmic_context_cleanup(ctxt);
 		return false;
 	}
 
+	logger(DEBUG, "BMIC context and broker management API handle initialized successfully");
 	return true;
 }
 
