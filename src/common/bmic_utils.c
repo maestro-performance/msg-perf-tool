@@ -61,5 +61,20 @@ void mpt_get_queue_stats(const bmic_context_t *ctxt, const char *name,
 
 		return;
 	}
+}
+
+void mpt_get_mem_info(const bmic_context_t *ctxt, bmic_java_memory_model_t memory_model, 
+	mpt_java_mem_t *out, gru_status_t *status)
+{
+	bmic_api_interface_t *api = ctxt->api;
+		
+	out->eden = api->java.eden_info(ctxt->handle, status);
+	out->survivor = api->java.survivor_info(ctxt->handle, status);
+	out->tenured = api->java.tenured_info(ctxt->handle, status);
 	
+	if (memory_model == BMIC_JAVA_MODERN) {
+		out->metaperm = api->java.metaspace_info(ctxt->handle, status);
+	} else {
+		out->metaperm = api->java.permgen_info(ctxt->handle, status);
+	}
 }

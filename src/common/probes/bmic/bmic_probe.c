@@ -82,7 +82,8 @@ int bmic_collect(gru_status_t *status) {
 
 	bmic_api_interface_t *api = ctxt.api;
 	bmic_java_info_t jinfo = api->java.java_info(ctxt.handle, status);
-	while (true) { 
+	while (true) {
+		gru_timestamp_t now = gru_time_now();
 		bmic_queue_stat_t qstats = {0};
 		mpt_get_queue_stats(&ctxt, &options->uri.path[1], &qstats, status);
 		
@@ -91,54 +92,41 @@ int bmic_collect(gru_status_t *status) {
 		}
 
 		bmic_java_os_info_t osinfo = api->java.os_info(ctxt.handle, status);
-		bmic_java_mem_info_t eden = api->java.eden_info(ctxt.handle, status);
-		bmic_java_mem_info_t survivor = api->java.survivor_info(ctxt.handle, status);
-		bmic_java_mem_info_t tenured = api->java.tenured_info(ctxt.handle, status);
-		bmic_java_mem_info_t metaspace;
-		bmic_java_mem_info_t permgen;
 
-		if (jinfo.memory_model == BMIC_JAVA_MODERN) {
-			metaspace = api->java.metaspace_info(ctxt.handle, status);
-		} else {
-			permgen = api->java.permgen_info(ctxt.handle, status);
-		}
+		mpt_java_mem_t java_mem = {0};
 
-		char tm_creation_buff[64] = {0};
-		gru_timestamp_t now = gru_time_now();
-
-		struct tm result;
-		struct tm *creation_tm = localtime_r(&now.tv_sec, &result);
-
-		if (!creation_tm) {
-			logger_t logger = gru_logger_get();
-			
-			logger(ERROR, "Unable to calculate current localtime");
-
+		mpt_get_mem_info(&ctxt, jinfo.memory_model, &java_mem, status);
+		if (gru_status_error(status)) {
 			return 1;
 		}
 
-		strftime(tm_creation_buff, sizeof(tm_creation_buff), "%Y-%m-%d %H:%M:%S", 
-			creation_tm);
+		
+		
+		char *curr_time_str = gru_time_write_format(&now, "%Y-%m-%d %H:%M:%S", status);
 
-		fprintf(report,"%s;%.1f;", tm_creation_buff, osinfo.load_average);
+		if (unlikely(!curr_time_str)) { 
+			return 1;
+		}
+		fprintf(report,"%s;%.1f;", curr_time_str, osinfo.load_average);
 		fprintf(report, "%" PRId64";%" PRId64 ";", 	osinfo.open_fd, 
 			(osinfo.max_fd - osinfo.open_fd));
 		fprintf(report, "%" PRId64 ";", as_mb(osinfo.mem_free));
 		fprintf(report, "%" PRId64 ";%" PRId64";", as_mb(osinfo.swap_free),
 			as_mb(osinfo.swap_committed));
 
-		print_mem(&eden);
-		print_mem(&survivor);
-		print_mem(&tenured);
+		print_mem(&java_mem.eden);
+		print_mem(&java_mem.survivor);
+		print_mem(&java_mem.tenured);
 
 		if (jinfo.memory_model == BMIC_JAVA_MODERN) {
-			print_mem(&metaspace);
+			print_mem(&java_mem.metaperm);
 		} else {
-			print_mem(&permgen);
+			print_mem(&java_mem.metaperm);
 		}
 
 		print_queue_stat(qstats);
 
+		gru_dealloc_string(&curr_time_str);
 		fflush(report);
 		sleep(10);
 	}

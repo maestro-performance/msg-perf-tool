@@ -29,11 +29,21 @@
 extern "C" {
 #endif
 
+typedef struct mpt_java_mem_t_ {
+	bmic_java_mem_info_t eden;
+	bmic_java_mem_info_t survivor;
+	bmic_java_mem_info_t tenured;
+	bmic_java_mem_info_t metaperm;
+} mpt_java_mem_t;
+
 bool mpt_init_bmic_ctxt(const options_t *options, bmic_context_t *ctxt, 
 	gru_status_t *status);
 
 void mpt_get_queue_stats(const bmic_context_t *ctxt, const char *name, 
 	bmic_queue_stat_t *stat, gru_status_t *status);
+
+void mpt_get_mem_info(const bmic_context_t *ctxt, bmic_java_memory_model_t memory_model, 
+	mpt_java_mem_t *out, gru_status_t *status);
 
 #ifdef __cplusplus
 }
