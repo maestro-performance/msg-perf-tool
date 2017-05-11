@@ -42,6 +42,14 @@
 #include "worker_types.h"
 #include "worker_utils.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int receiverd_worker_start(const options_t *options);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* RECEIVERD_WORKER_H */
