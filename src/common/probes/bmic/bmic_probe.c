@@ -100,8 +100,6 @@ int bmic_collect(gru_status_t *status) {
 			return 1;
 		}
 
-		
-		
 		char *curr_time_str = gru_time_write_format(&now, "%Y-%m-%d %H:%M:%S", status);
 
 		if (unlikely(!curr_time_str)) { 

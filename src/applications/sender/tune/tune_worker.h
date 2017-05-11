@@ -34,7 +34,7 @@
 #include "msgctxt.h"
 #include "msg_content_data.h"
 #include "vmsl.h"
-#include "bmic_utils.h"
+#include "bmic/bmic_utils.h"
 
 #include "abstract_worker.h"
 #include "worker_options.h"

@@ -13,11 +13,11 @@ add_library(
         ipc/shared_data_buffer.c
         strategies/payload/pl_fixed_strategy.c
         strategies/payload/pl_variable_strategy.c
+        bmic/bmic_utils.c
         vmsl.c
         msg_conn_info.c
         msgctxt.c
         process_utils.c
-        bmic_utils.c
         msg_content_data.c
         ${PROBES_FILES}
 )

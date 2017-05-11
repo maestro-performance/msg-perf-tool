@@ -24,7 +24,7 @@
 
 #include "probes/probe.h"
 
-#include "bmic_utils.h"
+#include "bmic/bmic_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
