@@ -16,6 +16,7 @@
 #include "net_probe.h"
 
 static FILE *report;
+static bool initialized = false;
 static const char *name = "net";
 static char *device = NULL;
 
@@ -129,12 +130,9 @@ bool net_init(const options_t *options, gru_status_t *status) {
 		return false;
 	}
 
-	
-
-
-
 	fprintf(report, "timestamp;tx;rx\n");
 
+	initialized = true;
 	return true;
 }
 
@@ -211,7 +209,9 @@ int net_collect(gru_status_t *status) {
 }
 
 void net_stop() {
-	fclose(report);
+	if (initialized) { 
+		fclose(report);
+	}
 }
 
 const char *net_name() {
