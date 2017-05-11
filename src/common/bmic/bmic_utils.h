@@ -53,6 +53,11 @@ void mpt_get_queue_stats(const bmic_context_t *ctxt, const char *name,
 void mpt_get_mem_info(const bmic_context_t *ctxt, bmic_java_memory_model_t memory_model, 
 	mpt_java_mem_t *out, gru_status_t *status);
 
+/**
+ * Purge the queue and reset its counters
+ */
+bool mpt_purge_queue(const bmic_context_t *ctxt, const char *name, gru_status_t *status);
+
 #ifdef __cplusplus
 }
 #endif

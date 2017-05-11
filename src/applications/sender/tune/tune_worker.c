@@ -28,29 +28,6 @@ static void tune_print_stat(uint32_t steps, const char *msg, ...) {
 }
 
 
-static bool tune_purge_queue(const bmic_context_t *ctxt, const options_t *options,
-	const char *name, gru_status_t *status) {
-
-	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
-	if (!cap) {
-		fprintf(stderr, "Unable to load capabilities\n");
-		return false;
-	}
-
-	bool ret = false;
-
-	ret = ctxt->api->queue_purge(ctxt->handle, cap, name, status);
-	if (gru_status_error(status)) {
-		fprintf(stderr, "Unable to purge queue\n");
-	}
-
-	ret = ctxt->api->queue_reset(ctxt->handle, cap, name, status);
-	if (gru_status_error(status)) {
-		fprintf(stderr, "Unable to reset queue counters\n");
-	}
-
-	return ret;
-}
 
 static bool tune_initialize_out_writer(stats_writer_t *writer, const options_t *options, 
 	gru_status_t *status) 
@@ -145,7 +122,7 @@ int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	for (int i = 0; i < steps; i++) {
 		printf(CLEAR_LINE);
 		tune_print_stat(i, "Cleaning the queue");
-		bool tret = tune_purge_queue(&ctxt, options, &options->uri.path[1], &status);
+		bool tret = mpt_purge_queue(&ctxt, &options->uri.path[1], &status);
 		if (!tret) {
 			bmic_context_cleanup(&ctxt);
 			return EXIT_FAILURE;

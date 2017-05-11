@@ -84,3 +84,23 @@ install(TARGETS
 	mpt-sender-daemon
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+
+add_executable(
+	mpt-broker-inspector
+	broker/brokerd_main.c
+	broker/brokerd_worker.c
+)
+
+target_link_libraries(
+	mpt-broker-inspector
+	mpt-common
+	mpt-api-common
+	mpt-orchestration-maestro
+	mpt-worker
+)
+
+install(TARGETS
+	mpt-broker-inspector
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)

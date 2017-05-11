@@ -55,6 +55,12 @@ bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *sta
 	gzprintf(report, "pm inital;pm committed;pm max;pm used;");
 	gzprintf(report, "queue size;consumers;ack;exp;\n");
 
+	
+
+	return true;
+}
+
+bool bmic_writer_flush(gru_status_t *status) {
 	if (gzflush(report, Z_SYNC_FLUSH) != 0) {
 		gru_status_strerror(status, GRU_FAILURE, errno);
 		

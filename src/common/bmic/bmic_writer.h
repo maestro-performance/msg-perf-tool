@@ -44,6 +44,11 @@ extern "C" {
 bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *status);
 
 /**
+ * Flushes current data to disk
+ */
+bool bmic_writer_flush(gru_status_t *status);
+
+/**
  * Writes current time
  */
 bool bmic_writer_current_time(gru_status_t *status);

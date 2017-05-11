@@ -80,3 +80,26 @@ void mpt_get_mem_info(const bmic_context_t *ctxt, bmic_java_memory_model_t memor
 		out->metaperm = api->java.permgen_info(ctxt->handle, status);
 	}
 }
+
+
+bool mpt_purge_queue(const bmic_context_t *ctxt, const char *name, gru_status_t *status) {
+	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
+	if (!cap) {
+		fprintf(stderr, "Unable to load capabilities\n");
+		return false;
+	}
+
+	bool ret = false;
+
+	ret = ctxt->api->queue_purge(ctxt->handle, cap, name, status);
+	if (gru_status_error(status)) {
+		fprintf(stderr, "Unable to purge queue\n");
+	}
+
+	ret = ctxt->api->queue_reset(ctxt->handle, cap, name, status);
+	if (gru_status_error(status)) {
+		fprintf(stderr, "Unable to reset queue counters\n");
+	}
+
+	return ret;
+}
