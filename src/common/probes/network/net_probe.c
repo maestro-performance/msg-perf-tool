@@ -53,6 +53,10 @@ static FILE *net_open_tx_file(const char *devname, gru_status_t *status) {
 		return NULL;
 	}
 
+	if (!gru_path_exists(path, status)) {
+		return NULL;
+	}
+
 	int tx_fd = open(path, O_RDONLY);
 	FILE *tx_file = fdopen(tx_fd, "r");
 	if (!tx_file) {

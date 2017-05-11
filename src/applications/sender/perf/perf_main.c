@@ -185,6 +185,12 @@ int perf_main(int argc, char **argv) {
 
 			return EXIT_FAILURE;
 		}
+
+		if (options->probing) {
+			fprintf(stderr, "Log directory is mandatory for running probes\n");
+
+			return EXIT_FAILURE;
+		}
 	}
 
 	logger_t logger = gru_logger_get();

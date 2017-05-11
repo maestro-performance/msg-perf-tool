@@ -106,6 +106,11 @@ bool probe_scheduler_start(gru_status_t *status) {
 		return true;
 	}
 
+	if (!options->logdir) {
+		logger(ERROR, "Log directory is mandatory for probes");
+		return false;
+	}
+
 	list = gru_list_new(status);
 	if (!list) {
 		return false;
