@@ -64,13 +64,15 @@ static void probe_scheduler_launch_probe(const void *nodedata, void *payload) {
 }
 
 static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *name) {
+	logger_t logger = gru_logger_get();
 	void *handle = NULL;
 	char *error = NULL;
 
 	handle = dlopen(lib, RTLD_NOW);
 	if (!handle) {
-		fprintf(stderr, "Unable to open handle: %s\n", dlerror());
+		logger(ERROR, "Unable to open handle: %s\n", dlerror());
 
+		fflush(NULL);
 		return NULL;
 	}
 
@@ -81,7 +83,7 @@ static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *na
 	new_entry = (probe_entry_t * (*) (gru_status_t *) ) dlsym(handle, name);
 	error = dlerror();
 	if (error) {
-		fprintf(stderr, "Unable to open handle: %s\n", error);
+		logger(ERROR, "Unable to open handle: %s\n", error);
 
 		return NULL;
 	}
@@ -130,8 +132,13 @@ bool probe_scheduler_start(gru_status_t *status) {
 
 		logger(DEBUG, "Loading symbol %s@%s", ename, lib);
 
-		probe_entry_t *net = probe_scheduler_load_probe(lib, ename);
-		gru_list_append(list, net);
+		probe_entry_t *probe = probe_scheduler_load_probe(lib, ename);
+		if (probe) {
+			gru_list_append(list, probe);
+		}
+		else {
+			logger(ERROR, "Unable load probe: probe-%s", mod_name);
+		}
 	}
 
 	gru_list_for_each(list, probe_scheduler_launch_probe, NULL);
