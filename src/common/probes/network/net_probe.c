@@ -84,12 +84,40 @@ static FILE *net_open_rx_file(const char *devname, gru_status_t *status) {
 	return rx_file;
 }
 
+static bool net_file_exist(const char *devname, const char *filetype, gru_status_t *status) {
+	char *path = net_get_filename(devname, filetype, status);
+	
+	if (!gru_path_exists(path, status)) {
+		gru_dealloc_string(&path);
+		return false;
+	}
+
+	gru_dealloc_string(&path);
+	return true;
+
+}
+
+static bool net_files_exist(const char *devname, gru_status_t *status) {
+	if (net_file_exist(devname, "tx_bytes", status)) {
+		return net_file_exist(devname, "rx_bytes", status);
+	}
+
+	return false;
+}
+
 
 bool net_init(const options_t *options, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	device = options->iface;
 	logger(INFO, "Reading device %s", device);
+
+	if (!net_files_exist(device, status)) {
+		gru_status_set(status, GRU_FAILURE, 
+			"Device files for reading network information do not exist");
+
+		return false;
+	}
 
 	char filename[64] = {0};
 
@@ -100,6 +128,10 @@ bool net_init(const options_t *options, gru_status_t *status) {
 	if (!report) {
 		return false;
 	}
+
+	
+
+
 
 	fprintf(report, "timestamp;tx;rx\n");
 
