@@ -43,6 +43,28 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
 	)
 
+	# Inspector files
+	configure_file(broker/config/mpt-broker-inspector.service.in
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/mpt-broker-inspector.service
+		@ONLY
+	)
+
+
+	configure_file(broker/config/mpt-broker-inspector.in
+		${CMAKE_BUILD_SYSCONFIG_PATH}/mpt-broker-inspector
+		@ONLY
+	)
+
+	install(FILES
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/mpt-broker-inspector.service
+		DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNIT_PATH}
+	)
+
+	install(FILES
+		${CMAKE_BUILD_SYSCONFIG_PATH}/mpt-broker-inspector
+		DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
+	)
+
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 
