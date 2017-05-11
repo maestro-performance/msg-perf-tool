@@ -15,15 +15,15 @@
  */
 #include "bmic_utils.h"
 
-bool mpt_init_bmic_ctxt(const options_t *options, bmic_context_t *ctxt, 
+bool mpt_init_bmic_ctxt(gru_uri_t uri, bmic_context_t *ctxt, 
 	gru_status_t *status)
 {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Resolved host to %s", options->uri.host);
+	logger(INFO, "Resolved host to %s", uri.host);
 
 	bool ret =
-		bmic_context_init_simple(ctxt, options->uri.host, "admin", "admin", status);
+		bmic_context_init_simple(ctxt, uri.host, "admin", "admin", status);
 
 	if (!ret) {
 		bmic_context_cleanup(ctxt);

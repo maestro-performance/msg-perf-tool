@@ -132,7 +132,7 @@ int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	uint64_t duration[5] = {1, 2, 4, 8, 10};
 
 	bmic_context_t ctxt = {0};
-	bool ret_ctxt = mpt_init_bmic_ctxt(options, &ctxt, &status);
+	bool ret_ctxt = mpt_init_bmic_ctxt(options->uri, &ctxt, &status);
 	if (!ret_ctxt) {
 		fprintf(stderr, "%s\n", status.message);
 

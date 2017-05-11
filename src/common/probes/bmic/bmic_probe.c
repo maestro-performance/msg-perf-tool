@@ -38,7 +38,7 @@ bool bmic_init(const options_t *options, gru_status_t *status) {
 
 	logger(DEBUG, "Creating report file");
 
-	if (!mpt_init_bmic_ctxt(options, &ctxt, status)) {
+	if (!mpt_init_bmic_ctxt(options->uri, &ctxt, status)) {
 		return false;
 	}
 
