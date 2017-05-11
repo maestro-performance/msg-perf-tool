@@ -97,6 +97,8 @@ void bmic_stop() {
 
 		logger(WARNING, "Failed to finalize BMIC writer: %s", status.message);
 	}
+
+	bmic_context_cleanup(&ctxt);
 }
 
 const char *bmic_name() {
