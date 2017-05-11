@@ -51,7 +51,7 @@ typedef enum worker_flags_t_ {
 	WRK_SENDER = 2, /** Data sender worker */
 	WRK_DAEMON = 4, /** Worker runs as a daemon */
 	WRK_FORKED = 8, /** Worked forked from a controller process */
-} workder_flags_t;
+} worker_flags_t;
 
 /**
  * Represents a snapshot of the current work iteration
@@ -78,7 +78,7 @@ typedef struct worker_t_ {
 	report_format_t report_format;
 	naming_opt_t naming_options;
 	worker_iteration_check can_continue;
-	workder_flags_t worker_flags;
+	worker_flags_t worker_flags;
 	pl_strategy_t pl_strategy;
 } worker_t;
 
