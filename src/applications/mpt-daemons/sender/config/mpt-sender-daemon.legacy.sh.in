@@ -3,7 +3,7 @@
 # source function library
 . /etc/rc.d/init.d/functions
 
-prog=mpt-sebder-daemon
+prog=mpt-sender-daemon
 
 # pull in sysconfig settings
 [ -f /@CMAKE_INSTALL_SYSCONFIG_PATH@/${prog} ] && . /@CMAKE_INSTALL_SYSCONFIG_PATH@/${prog}
