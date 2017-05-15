@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+# pull in sysconfig settings
+[ -f /@CMAKE_INSTALL_SYSCONFIG_PATH@/mpt-broker-inspector ] && . /@CMAKE_INSTALL_SYSCONFIG_PATH@/mpt-broker-inspector
+
+start() {
+	@CMAKE_INSTALL_PREFIX@/bin/mpt-broker-inspector -m $MAESTRO_BROKER_URL -L $MPT_LOG_DIR -l $MPT_LOG_LEVEL
+}
+
+stop() {
+	killall -TERM mpt-broker-inspector
+}
+
+restart() {
+	stop
+	start
+}

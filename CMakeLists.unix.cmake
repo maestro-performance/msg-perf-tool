@@ -4,15 +4,17 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	find_library(RT_LIB NAMES rt)
 	message(STATUS "RT library found at ${RT_LIB}")
 	
-	# Fixed directory for systemd
-	set(SYSTEMD_INSTALL_PREFIX "/" CACHE STRING "Install prefix for systemd files (for packaging only)")
+	SET(SYSTEMD_SUPPORT ON CACHE BOOL "Enable systemd support")
+	# Fixed directory for service files
+	set(SERVICE_INSTALL_PREFIX "/" CACHE STRING "Install prefix for service files (for packaging only)")
 
-	set(CMAKE_INSTALL_SYSTEMD_UNIT_PATH ${SYSTEMD_INSTALL_PREFIX}/usr/lib/systemd/system)
+	set(CMAKE_INSTALL_SYSTEMD_UNIT_PATH ${SERVICE_INSTALL_PREFIX}/usr/lib/systemd/system)
 	set(CMAKE_BUILD_SYSTEMD_UNIT_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSTEMD_UNIT_PATH})
 
 	# Fixed directory
-	set(CMAKE_INSTALL_SYSCONFIG_PATH ${SYSTEMD_INSTALL_PREFIX}/etc/sysconfig)
+	set(CMAKE_INSTALL_SYSCONFIG_PATH ${SERVICE_INSTALL_PREFIX}/etc/sysconfig)
 	set(CMAKE_BUILD_SYSCONFIG_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSCONFIG_PATH})
+	
 else (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	message(STATUS "Compiling for " ${CMAKE_SYSTEM_NAME} "")
 
@@ -27,8 +29,6 @@ endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_BINDIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_LIBDIR})
 set (CTEST_BINARY_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/${CMAKE_INSTALL_BINDIR})
-
-
 
 find_library(MATH_LIB NAMES m)
 message(STATUS "Math library found at ${MATH_LIB}")
@@ -92,23 +92,47 @@ message(STATUS "zlib library found at ${ZLIB_LIB}")
 # configuration and a <service_name.service.in, which is a systemd-compliant service 
 # file.
 macro(AddService SERVICE_CONFIG_SOURCE SERVICE_NAME)
-	configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.service.in
-		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/${SERVICE_NAME}.service
-		@ONLY
-	)
+	if (NOT SYSTEMD_SUPPORT)
+		configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.legacy.sh.in
+			${CMAKE_BINARY_DIR}/etc/init.d/${SERVICE_NAME}/${SERVICE_NAME}
+			@ONLY
+		)
 
-	configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.in
-		${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
-		@ONLY
-	)
+		configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.in
+			${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
+			@ONLY
+		)
 
-	install(FILES
-		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/${SERVICE_NAME}.service
-		DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNIT_PATH}
-	)
+		install(FILES
+			${CMAKE_BINARY_DIR}/etc/init.d/${SERVICE_NAME}/${SERVICE_NAME}
+			DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/init.d/
+			PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+		)
 
-	install(FILES
-		${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
-		DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
-	)
+		install(FILES
+			${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
+			DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
+		)
+
+	else (NOT SYSTEMD_SUPPORT)
+		configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.service.in
+			${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/${SERVICE_NAME}.service
+			@ONLY
+		)
+
+		configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.in
+			${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
+			@ONLY
+		)
+
+		install(FILES
+			${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/${SERVICE_NAME}.service
+			DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNIT_PATH}
+		)
+
+		install(FILES
+			${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
+			DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
+		)
+	endif (NOT SYSTEMD_SUPPORT)
 endmacro(AddService)
