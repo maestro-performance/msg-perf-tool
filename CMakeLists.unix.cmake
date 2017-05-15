@@ -92,7 +92,7 @@ message(STATUS "zlib library found at ${ZLIB_LIB}")
 # configuration and a <service_name.service.in, which is a systemd-compliant service 
 # file.
 macro(AddService SERVICE_CONFIG_SOURCE SERVICE_NAME)
-	if (NOT SYSTEMD_SUPPORT)
+	if (NOT ${SYSTEMD_SUPPORT})
 		configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.legacy.sh.in
 			${CMAKE_BINARY_DIR}/etc/init.d/${SERVICE_NAME}/${SERVICE_NAME}
 			@ONLY
@@ -114,7 +114,7 @@ macro(AddService SERVICE_CONFIG_SOURCE SERVICE_NAME)
 			DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
 		)
 
-	else (NOT SYSTEMD_SUPPORT)
+	else (NOT ${SYSTEMD_SUPPORT})
 		configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.service.in
 			${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/${SERVICE_NAME}.service
 			@ONLY
@@ -134,5 +134,5 @@ macro(AddService SERVICE_CONFIG_SOURCE SERVICE_NAME)
 			${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
 			DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
 		)
-	endif (NOT SYSTEMD_SUPPORT)
+	endif (NOT ${SYSTEMD_SUPPORT})
 endmacro(AddService)
