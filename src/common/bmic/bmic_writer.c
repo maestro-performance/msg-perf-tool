@@ -41,7 +41,7 @@ static gzFile bmic_writer_open_file(const char *dir, const char *name, gru_statu
 bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Creating broker report file");
+	logger(INFO, "Creating broker report file: %d/%s", dir, name);
 
 	report = bmic_writer_open_file(dir, name, status);
 	if (!report) {
@@ -54,8 +54,6 @@ bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *sta
 	gzprintf(report, "tenured inital;tenured committed;tenured max;tenured used;");
 	gzprintf(report, "pm inital;pm committed;pm max;pm used;");
 	gzprintf(report, "queue size;consumers;ack;exp;\n");
-
-	
 
 	return true;
 }

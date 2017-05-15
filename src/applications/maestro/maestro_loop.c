@@ -84,7 +84,6 @@ int maestro_loop(gru_status_t *status) {
 
 		if (strcmp(command, "collect") == 0) {
 			ret = maestro_cmd_collect(cmd_ctxt, queue, status);
-			
 		}
 
 		if (strcmp(command, "flush") == 0) {
