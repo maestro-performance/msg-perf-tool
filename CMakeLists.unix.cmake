@@ -5,11 +5,13 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	message(STATUS "RT library found at ${RT_LIB}")
 	
 	# Fixed directory for systemd
-	set(CMAKE_INSTALL_SYSTEMD_UNIT_PATH /usr/lib/systemd/system)
+	set(SYSTEMD_INSTALL_PREFIX "/" CACHE STRING "Install prefix for systemd files (for packaging only)")
+
+	set(CMAKE_INSTALL_SYSTEMD_UNIT_PATH ${SYSTEMD_INSTALL_PREFIX}/usr/lib/systemd/system)
 	set(CMAKE_BUILD_SYSTEMD_UNIT_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSTEMD_UNIT_PATH})
 
 	# Fixed directory
-	set(CMAKE_INSTALL_SYSCONFIG_PATH /etc/sysconfig)
+	set(CMAKE_INSTALL_SYSCONFIG_PATH ${SYSTEMD_INSTALL_PREFIX}/etc/sysconfig)
 	set(CMAKE_BUILD_SYSCONFIG_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSCONFIG_PATH})
 else (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	message(STATUS "Compiling for " ${CMAKE_SYSTEM_NAME} "")
@@ -84,3 +86,29 @@ find_library(ZLIB_LIB NAMES z libz)
 
 message(STATUS "zlib headers found on ${ZLIB_INCLUDE_DIR}")
 message(STATUS "zlib library found at ${ZLIB_LIB}")
+
+# Installs service configuration files (ie.: for systemd daemons). For systemd daemons 
+# It requires 2 files: a <service_name>.in file, containing the service startup 
+# configuration and a <service_name.service.in, which is a systemd-compliant service 
+# file.
+macro(AddService SERVICE_CONFIG_SOURCE SERVICE_NAME)
+	configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.service.in
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/${SERVICE_NAME}.service
+		@ONLY
+	)
+
+	configure_file(${SERVICE_CONFIG_SOURCE}/${SERVICE_NAME}.in
+		${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
+		@ONLY
+	)
+
+	install(FILES
+		${CMAKE_BUILD_SYSTEMD_UNIT_PATH}/${SERVICE_NAME}.service
+		DESTINATION ${CMAKE_INSTALL_SYSTEMD_UNIT_PATH}
+	)
+
+	install(FILES
+		${CMAKE_BUILD_SYSCONFIG_PATH}/${SERVICE_NAME}
+		DESTINATION ${CMAKE_INSTALL_SYSCONFIG_PATH}
+	)
+endmacro(AddService)
