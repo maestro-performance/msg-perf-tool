@@ -261,7 +261,7 @@ static bool brokerd_collect(gru_status_t *status) {
 	bmic_context_t ctxt = {0};
 
 	char filename[64] = {0};
-	if (brokerd_gen_unique_name(filename, sizeof(filename), status)) {
+	if (!brokerd_gen_unique_name(filename, sizeof(filename), status)) {
 		return false;
 	}
 
