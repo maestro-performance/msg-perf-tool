@@ -41,7 +41,7 @@ static gzFile bmic_writer_open_file(const char *dir, const char *name, gru_statu
 bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Creating broker report file: %d/%s", dir, name);
+	logger(INFO, "Creating broker report file: %s/%s", dir, name);
 
 	report = bmic_writer_open_file(dir, name, status);
 	if (!report) {
