@@ -20,7 +20,7 @@ start() {
 
 stop() {
 	echo -n $"Stopping $prog: "
-	killall -TERM ${prog} 2>/dev/null
+	killall -TERM @CMAKE_INSTALL_PREFIX@/bin/${prog} 2>/dev/null
 	echo
 }
 
