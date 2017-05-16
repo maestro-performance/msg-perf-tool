@@ -1,5 +1,4 @@
 ---
-BasedOnStyle: LLVM
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: 'false'
 AlignConsecutiveDeclarations: 'false'
@@ -11,23 +10,29 @@ AllowShortCaseLabelsOnASingleLine: 'false'
 AllowShortFunctionsOnASingleLine: 'None'
 AllowShortLoopsOnASingleLine: 'false'
 AllowShortIfStatementsOnASingleLine: 'false'
+AlwaysBreakAfterReturnType: None
+BasedOnStyle: LLVM
 BinPackArguments: 'false'
-BinPackParameters: 'true'
+BinPackParameters: 'false'
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Attach
 BreakBeforeTernaryOperators: 'true'
 BreakConstructorInitializersBeforeComma: 'true'
+BreakStringLiterals: false
 Cpp11BracedListStyle: true
 ColumnLimit: '90'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+ContinuationIndentWidth: 4
 IndentCaseLabels: 'true'
+IndentWidth: 4
+IndentWrappedFunctionNames: 'true'
 Language: Cpp
+MaxEmptyLinesToKeep: 2
 NamespaceIndentation: None
 PointerAlignment: Right
 SortIncludes: 'true'
 SpaceAfterCStyleCast: 'true'
 Standard: Cpp03
-IndentWidth: 4
 TabWidth: 4
 UseTab: Always
 ...
