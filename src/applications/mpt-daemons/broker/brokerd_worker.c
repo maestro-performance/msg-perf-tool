@@ -299,6 +299,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		mpt_java_mem_t java_mem = {0};
 		mpt_get_mem_info(&ctxt, jinfo.memory_model, &java_mem, status);
 		if (gru_status_error(status)) {
+			logger(ERROR, "%s", status->message);
 			break;
 		}
 
@@ -308,6 +309,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		mpt_get_queue_stats(&ctxt, &worker_options.uri.path[1], &qstats, status);
 
 		if (gru_status_error(status)) {
+			logger(ERROR, "%s", status->message);
 			break;
 		}
 		bmic_writer_queue_stat(&qstats);
@@ -319,6 +321,15 @@ static bool brokerd_collect(gru_status_t *status) {
 		bmic_writer_flush(status);
 		sleep(10);
 	}
+
+	if (!gru_status_success(status)) {
+		bmic_writer_finalize(status);
+		bmic_context_cleanup(&ctxt);
+		logger(INFO, "Broker inspector completed the inspection with errors");
+
+		return false;
+	}
+	
 
 	bmic_writer_finalize(status);
 	bmic_context_cleanup(&ctxt);
@@ -342,7 +353,7 @@ int brokerd_worker_start(const options_t *options) {
 		sleep(1);
 
 		if (started) {
-			if (brokerd_collect(&status)) {
+			if (!brokerd_collect(&status)) {
 				logger(ERROR, "Unable to collect broker data: %s", status.message);
 			}
 
