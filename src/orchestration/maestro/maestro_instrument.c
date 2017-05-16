@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,9 +15,8 @@
  */
 #include "maestro_instrument.h"
 
-maestro_instrument_t *maestro_instrument_new(const char *note, maestro_play_t play, 
-	gru_status_t *status) 
-{
+maestro_instrument_t *
+	maestro_instrument_new(const char *note, maestro_play_t play, gru_status_t *status) {
 	maestro_instrument_t *ret = gru_alloc(sizeof(maestro_instrument_t), status);
 	gru_alloc_check(ret, NULL);
 
@@ -25,12 +24,11 @@ maestro_instrument_t *maestro_instrument_new(const char *note, maestro_play_t pl
 
 	maestro_note_set_cmd(&ret->tessitura, note);
 	ret->tessitura.payload = NULL;
-	
+
 	return ret;
 }
 
-bool maestro_instrument_can_play(const maestro_instrument_t *instrument, 
-	const maestro_note_t *note)
-{
+bool maestro_instrument_can_play(const maestro_instrument_t *instrument,
+	const maestro_note_t *note) {
 	return maestro_note_equals(&instrument->tessitura, note->command);
 }

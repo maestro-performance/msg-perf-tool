@@ -18,22 +18,23 @@
 
 static int pagesize = 0;
 
-static bool shr_data_buff_create_sem(shr_data_buff_t *buff, const char *name, int initial, 
-	gru_status_t *status) 
-{
+static bool shr_data_buff_create_sem(shr_data_buff_t *buff,
+	const char *name,
+	int initial,
+	gru_status_t *status) {
 	char *rname = NULL;
 
 	if (asprintf(&rname, "/%s-read", name) == -1) {
 		gru_status_set(status, GRU_FAILURE, "Unable to format read semaphore name");
-		
+
 		return false;
 	}
 
-	buff->sem_read = sem_open(rname, O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, 
-		initial);
+	buff->sem_read =
+		sem_open(rname, O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH, initial);
 	if (buff->sem_read == SEM_FAILED) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open read semaphore: %s\n", 
-			strerror(errno));
+		gru_status_set(
+			status, GRU_FAILURE, "Unable to open read semaphore: %s\n", strerror(errno));
 
 		goto err_exit_1;
 	}
@@ -41,19 +42,20 @@ static bool shr_data_buff_create_sem(shr_data_buff_t *buff, const char *name, in
 	gru_dealloc_string(&rname);
 	return true;
 
-	err_exit_1:
+err_exit_1:
 	gru_dealloc_string(&rname);
-	
+
 	return false;
 }
 
-static shr_data_buff_t *shr_buff_new_reader(size_t len, const char *name, gru_status_t *status)
-{
+static shr_data_buff_t *
+	shr_buff_new_reader(size_t len, const char *name, gru_status_t *status) {
 	const int sem_initial_value = 0; // The initial semaphore vaue for read
 
 	shr_data_buff_t *ret = gru_alloc(sizeof(shr_data_buff_t), status);
 	if (!ret) {
-		gru_status_set(status, GRU_FAILURE, "Not enough memory for the shared data buffer");
+		gru_status_set(
+			status, GRU_FAILURE, "Not enough memory for the shared data buffer");
 
 		return NULL;
 	}
@@ -64,26 +66,31 @@ static shr_data_buff_t *shr_buff_new_reader(size_t len, const char *name, gru_st
 		goto err_exit_1;
 	}
 
-	ret->fd = shm_open(ret->name, O_RDONLY, 
-		S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	ret->fd = shm_open(ret->name, O_RDONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
 	if (ret->fd < 0) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open shared memory: %s\n", 
-			strerror(errno));
+		gru_status_set(
+			status, GRU_FAILURE, "Unable to open shared memory: %s\n", strerror(errno));
 
 		goto err_exit_2;
 	}
 
 #if defined __linux__
-	ret->ptr = mmap((caddr_t) 0, pagesize, PROT_READ, 
-		MAP_SHARED | MAP_LOCKED | MAP_POPULATE, ret->fd, 0);
-#else 
-	ret->ptr = mmap((caddr_t) 0, pagesize, PROT_READ, 
-		MAP_SHARED | MAP_HASSEMAPHORE, ret->fd, 0);
-#endif 
+	ret->ptr = mmap((caddr_t) 0,
+		pagesize,
+		PROT_READ,
+		MAP_SHARED | MAP_LOCKED | MAP_POPULATE,
+		ret->fd,
+		0);
+#else
+	ret->ptr =
+		mmap((caddr_t) 0, pagesize, PROT_READ, MAP_SHARED | MAP_HASSEMAPHORE, ret->fd, 0);
+#endif
 
 	if (ret->ptr == (caddr_t)(-1)) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open memory mapped file: %s\n", 
+		gru_status_set(status,
+			GRU_FAILURE,
+			"Unable to open memory mapped file: %s\n",
 			strerror(errno));
 
 		goto err_exit_3;
@@ -96,30 +103,30 @@ static shr_data_buff_t *shr_buff_new_reader(size_t len, const char *name, gru_st
 	ret->perm = BUFF_READ;
 	return ret;
 
-	err_exit_4:
+err_exit_4:
 	munmap(ret->ptr, pagesize);
 
-	err_exit_3:
+err_exit_3:
 	shm_unlink(ret->name);
 	close(ret->fd);
 
-	err_exit_2:
+err_exit_2:
 	gru_dealloc_string(&ret->name);
 
-	err_exit_1: 
+err_exit_1:
 	gru_dealloc((void **) &ret);
 
 	return NULL;
 }
 
-
-static shr_data_buff_t *shr_buff_new_writer(size_t len, const char *name, gru_status_t *status)
-{
+static shr_data_buff_t *
+	shr_buff_new_writer(size_t len, const char *name, gru_status_t *status) {
 	const int sem_initial_value = 1; // The initial semaphore vaue for write
 
 	shr_data_buff_t *ret = gru_alloc(sizeof(shr_data_buff_t), status);
 	if (!ret) {
-		gru_status_set(status, GRU_FAILURE, "Not enough memory for the shared data buffer");
+		gru_status_set(
+			status, GRU_FAILURE, "Not enough memory for the shared data buffer");
 
 		return NULL;
 	}
@@ -130,34 +137,41 @@ static shr_data_buff_t *shr_buff_new_writer(size_t len, const char *name, gru_st
 		goto err_exit_1;
 	}
 
-	ret->fd = shm_open(ret->name, O_RDWR | O_TRUNC | O_CREAT, 
-		S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-
+	ret->fd = shm_open(
+		ret->name, O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 
 	if (ret->fd < 0) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open shared memory: %s\n", 
-			strerror(errno));
+		gru_status_set(
+			status, GRU_FAILURE, "Unable to open shared memory: %s\n", strerror(errno));
 
 		goto err_exit_2;
 	}
 
 	if (ftruncate(ret->fd, pagesize) != 0) {
-		gru_status_set(status, GRU_FAILURE, "Unable to truncate memory mapped file: %s", 
+		gru_status_set(status,
+			GRU_FAILURE,
+			"Unable to truncate memory mapped file: %s",
 			strerror(errno));
 
 		goto err_exit_2;
 	}
-	
+
 #if defined __linux__
-	ret->ptr = mmap((caddr_t) 0, pagesize, PROT_WRITE, 
-		MAP_SHARED | MAP_LOCKED | MAP_POPULATE, ret->fd, 0);
-#else 
-	ret->ptr = mmap((caddr_t) 0, pagesize, PROT_WRITE, 
-		MAP_SHARED | MAP_HASSEMAPHORE, ret->fd, 0);
-#endif 
+	ret->ptr = mmap((caddr_t) 0,
+		pagesize,
+		PROT_WRITE,
+		MAP_SHARED | MAP_LOCKED | MAP_POPULATE,
+		ret->fd,
+		0);
+#else
+	ret->ptr = mmap(
+		(caddr_t) 0, pagesize, PROT_WRITE, MAP_SHARED | MAP_HASSEMAPHORE, ret->fd, 0);
+#endif
 
 	if (ret->ptr == (caddr_t)(-1)) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open memory mapped file: %s\n", 
+		gru_status_set(status,
+			GRU_FAILURE,
+			"Unable to open memory mapped file: %s\n",
 			strerror(errno));
 
 		goto err_exit_3;
@@ -170,32 +184,33 @@ static shr_data_buff_t *shr_buff_new_writer(size_t len, const char *name, gru_st
 	ret->perm = BUFF_WRITE;
 	return ret;
 
-	err_exit_4:
+err_exit_4:
 	munmap(ret->ptr, pagesize);
 
-	err_exit_3:
+err_exit_3:
 	close(ret->fd);
 
-	err_exit_2:
+err_exit_2:
 	gru_dealloc_string(&ret->name);
 
-	err_exit_1: 
+err_exit_1:
 	gru_dealloc((void **) &ret);
 
 	return NULL;
 }
 
-volatile shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm, size_t len, const char *name, 
-	gru_status_t *status)
-{
+volatile shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm,
+	size_t len,
+	const char *name,
+	gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	if (pagesize == 0) { 
+	if (pagesize == 0) {
 		pagesize = getpagesize();
 		logger(DEBUG, "System page size: %d. Requested size: %d", pagesize, len);
 		if (len > pagesize) {
-			gru_status_set(status, GRU_FAILURE, 
-				"The requested size is greater than the page size");
+			gru_status_set(
+				status, GRU_FAILURE, "The requested size is greater than the page size");
 
 			return NULL;
 		}
@@ -204,7 +219,7 @@ volatile shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm, size_t len, const c
 	if (perm == BUFF_READ) {
 		return shr_buff_new_reader(len, name, status);
 	}
-	
+
 	return shr_buff_new_writer(len, name, status);
 }
 
@@ -220,7 +235,7 @@ void shr_buff_detroy(volatile shr_data_buff_t **ptr) {
 	if (buff->perm == BUFF_READ) {
 		shm_unlink(buff->name);
 	}
-	
+
 	sem_close(buff->sem_read);
 
 	gru_dealloc_string(&buff->name);
@@ -237,8 +252,7 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 		if (errno == EAGAIN) {
 			return false;
 		}
-	}
-	else {
+	} else {
 		ts.tv_sec = ts.tv_sec + 2;
 		sem_timedwait(src->sem_read, &ts);
 
@@ -254,7 +268,6 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 	}
 
 #endif // __linux__
-	
 
 	memcpy(dest, src->ptr, len);
 	sem_post(src->sem_read);

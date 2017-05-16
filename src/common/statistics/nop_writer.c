@@ -19,21 +19,17 @@ bool nop_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *stat
 	return true;
 }
 
-
 bool nop_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
 	return true;
 }
-
 
 bool nop_lat_writer_flush(gru_status_t *status) {
 	return true;
 }
 
-
 bool nop_lat_writer_finalize(gru_status_t *status) {
 	return true;
 }
-
 
 bool nop_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
 	return true;
@@ -47,13 +43,11 @@ bool nop_tp_writer_flush(gru_status_t *status) {
 	return true;
 }
 
-
 bool nop_tp_writer_finalize(gru_status_t *status) {
 	return true;
 }
 
-
-/** 
+/**
  * Latency writer I/O assignment
  */
 void nop_writer_latency_assign(latency_writer_t *writer) {
@@ -62,7 +56,6 @@ void nop_writer_latency_assign(latency_writer_t *writer) {
 	writer->flush = nop_lat_writer_flush;
 	writer->finalize = nop_lat_writer_finalize;
 }
-
 
 /**
  * Throghput writer I/O assignment

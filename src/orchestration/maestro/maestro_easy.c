@@ -20,7 +20,7 @@ void maestro_easy_request(msg_content_data_t *out, const char *cmd) {
 
 	maestro_note_set_type(&note, MAESTRO_TYPE_REQUEST);
 	maestro_note_set_cmd(&note, cmd);
-	
+
 	maestro_serialize_note(&note, out);
 }
 
@@ -30,6 +30,6 @@ void maestro_easy_response(msg_content_data_t *out, const char *cmd) {
 
 	maestro_note_set_type(&note, MAESTRO_TYPE_RESPONSE);
 	maestro_note_set_cmd(&note, cmd);
-	
+
 	maestro_serialize_note(&note, out);
 }

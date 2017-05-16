@@ -32,11 +32,11 @@ typedef enum vmsl_stat_t_ {
 } vmsl_stat_t;
 
 typedef msg_ctxt_t *(*msg_init)(msg_opt_t opt, void *data, gru_status_t *status);
-typedef vmsl_stat_t (*msg_send)(msg_ctxt_t *ctxt, msg_content_data_t *data, 
-	gru_status_t *status);
+typedef vmsl_stat_t (
+	*msg_send)(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status);
 typedef vmsl_stat_t (*msg_subscribe)(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
-typedef vmsl_stat_t (*msg_receive)(
-	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+typedef vmsl_stat_t (
+	*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 typedef void (*msg_stop)(msg_ctxt_t *ctxt, gru_status_t *status);
 typedef void (*msg_destroy)(msg_ctxt_t *, gru_status_t *status);
 

@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,8 @@
 
 static gzFile report = NULL;
 
-static gzFile bmic_writer_open_file(const char *dir, const char *name, gru_status_t *status) {
+static gzFile
+	bmic_writer_open_file(const char *dir, const char *name, gru_status_t *status) {
 
 	char *fullpath = gru_path_format(dir, name, status);
 
@@ -37,7 +38,6 @@ static gzFile bmic_writer_open_file(const char *dir, const char *name, gru_statu
 	return f;
 }
 
-
 bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
@@ -47,8 +47,9 @@ bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *sta
 	if (!report) {
 		return false;
 	}
- 
-	gzprintf(report, "timestamp;load;open fds;free fds;free mem;swap free;swap committed;");
+
+	gzprintf(
+		report, "timestamp;load;open fds;free fds;free mem;swap free;swap committed;");
 	gzprintf(report, "eden inital;eden committed;eden max;eden used;");
 	gzprintf(report, "survivor inital;survivor committed;survivor max;survivor used;");
 	gzprintf(report, "tenured inital;tenured committed;tenured max;tenured used;");
@@ -61,7 +62,7 @@ bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *sta
 bool bmic_writer_flush(gru_status_t *status) {
 	if (gzflush(report, Z_SYNC_FLUSH) != 0) {
 		gru_status_strerror(status, GRU_FAILURE, errno);
-		
+
 		return false;
 	}
 
@@ -76,7 +77,7 @@ bool bmic_writer_current_time(gru_status_t *status) {
 		return false;
 	}
 
-	gzprintf(report,"%s;", curr_time_str);
+	gzprintf(report, "%s;", curr_time_str);
 	gru_dealloc_string(&curr_time_str);
 	return true;
 }
@@ -86,22 +87,30 @@ static inline uint64_t bmic_writer_osinfo_free_fd(const bmic_java_os_info_t *osi
 }
 
 void bmic_writer_osinfo(const bmic_java_os_info_t *osinfo) {
-	gzprintf(report,"%.1f;", osinfo->load_average);
-	gzprintf(report, "%" PRId64";%" PRId64 ";", osinfo->open_fd, 
+	gzprintf(report, "%.1f;", osinfo->load_average);
+	gzprintf(report,
+		"%" PRId64 ";%" PRId64 ";",
+		osinfo->open_fd,
 		bmic_writer_osinfo_free_fd(osinfo));
 
 	gzprintf(report, "%" PRId64 ";", gru_unit_mb(osinfo->mem_free));
-	gzprintf(report, "%" PRId64 ";%" PRId64";", gru_unit_mb(osinfo->swap_free),
-			gru_unit_mb(osinfo->swap_committed));
+	gzprintf(report,
+		"%" PRId64 ";%" PRId64 ";",
+		gru_unit_mb(osinfo->swap_free),
+		gru_unit_mb(osinfo->swap_committed));
 }
 
 static void bmic_write_mem(const bmic_java_mem_info_t *mem) {
-	gzprintf(report, "%" PRId64 ";%" PRId64 ";%" PRId64 ";%" PRId64 ";",
-		gru_unit_mb(mem->init), gru_unit_mb(mem->committed), gru_unit_mb(mem->max), 
+	gzprintf(report,
+		"%" PRId64 ";%" PRId64 ";%" PRId64 ";%" PRId64 ";",
+		gru_unit_mb(mem->init),
+		gru_unit_mb(mem->committed),
+		gru_unit_mb(mem->max),
 		gru_unit_mb(mem->used));
 }
 
-void bmic_writer_java_mem(const mpt_java_mem_t *java_mem, bmic_java_memory_model_t memory_model) {
+void bmic_writer_java_mem(const mpt_java_mem_t *java_mem,
+	bmic_java_memory_model_t memory_model) {
 	bmic_write_mem(&java_mem->eden);
 	bmic_write_mem(&java_mem->survivor);
 	bmic_write_mem(&java_mem->tenured);
@@ -114,11 +123,13 @@ void bmic_writer_java_mem(const mpt_java_mem_t *java_mem, bmic_java_memory_model
 }
 
 void bmic_writer_queue_stat(const bmic_queue_stat_t *stat) {
-	gzprintf(report, "%" PRId64 ";%" PRId64 ";%" PRId64 ";%" PRId64 "\n",
-		stat->queue_size, stat->consumer_count, stat->msg_ack_count, stat->msg_exp_count);
+	gzprintf(report,
+		"%" PRId64 ";%" PRId64 ";%" PRId64 ";%" PRId64 "\n",
+		stat->queue_size,
+		stat->consumer_count,
+		stat->msg_ack_count,
+		stat->msg_exp_count);
 }
-
-
 
 bool bmic_writer_finalize(gru_status_t *status) {
 	if (gzclose(report) != 0) {

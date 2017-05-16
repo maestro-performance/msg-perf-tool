@@ -23,14 +23,19 @@ static void show_help(char **argv) {
 	gru_cli_option_help("broker-url", "b", "broker URL to connect to");
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
-	gru_cli_option_help("duration", "d", "runs for the specificied amount of time. It must be suffixed by 's', 'm', 'h' or 'd' (ie.: 1h15s, 10m)");
+	gru_cli_option_help("duration",
+		"d",
+		"runs for the specificied amount of time. It "
+		"must be suffixed by 's', 'm', 'h' or 'd' (ie.: "
+		"1h15s, 10m)");
 	gru_cli_option_help("log-level",
 		"l",
 		"runs in the given verbose (info, stat, debug, etc) level mode");
 	gru_cli_option_help(
 		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
-	gru_cli_option_help(
-		"parallel-count", "p", "number of parallel connections to the broker (require a log directory for > 1)");
+	gru_cli_option_help("parallel-count",
+		"p",
+		"number of parallel connections to the broker (require a log directory for > 1)");
 
 	gru_cli_option_help("size", "s", "message size (in bytes)");
 	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
@@ -59,8 +64,7 @@ int main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {
-			{"broker-url", required_argument, 0, 'b'},
+		static struct option long_options[] = {{"broker-url", required_argument, 0, 'b'},
 			{"duration", required_argument, 0, 'd'},
 			{"log-level", required_argument, 0, 'l'},
 			{"log-dir", required_argument, 0, 'L'},
@@ -137,8 +141,7 @@ int main(int argc, char **argv) {
 
 	if (options->logdir) {
 		remap_log(options->logdir, "mpt-receiver", 0, getpid(), stderr, &status);
-	}
-	else {
+	} else {
 		if (options->parallel_count > 1) {
 			fprintf(stderr, "Multiple concurrent process require a log directory\n");
 
@@ -152,18 +155,19 @@ int main(int argc, char **argv) {
 	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
 		goto err_exit;
 	}
-	
+
 	logger(INFO, "Starting test");
 	if (receiver_start(&vmsl, options) == 0) {
-		logger(INFO, "Test execution with process ID %d finished successfully\n", getpid());
+		logger(
+			INFO, "Test execution with process ID %d finished successfully\n", getpid());
 
 		options_destroy(&options);
 		return EXIT_SUCCESS;
 	}
-	
-	err_exit:
+
+err_exit:
 	logger(INFO, "Test execution with process ID %d finished with errors\n", getpid());
-	
+
 	options_destroy(&options);
 	return EXIT_FAILURE;
 }

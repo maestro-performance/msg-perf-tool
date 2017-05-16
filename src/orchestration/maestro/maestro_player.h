@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,15 +21,15 @@
 #include <stdio.h>
 
 #include <collection/gru_list.h>
-#include <common/gru_status.h>
 #include <common/gru_alloc.h>
-#include <log/gru_logger.h>
+#include <common/gru_status.h>
 #include <contrib/options.h>
+#include <log/gru_logger.h>
 
-#include "vmsl.h"
-#include "msg_conn_info.h"
-#include "maestro_sheet.h"
 #include "maestro_player_info.h"
+#include "maestro_sheet.h"
+#include "msg_conn_info.h"
+#include "vmsl.h"
 
 extern bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl);
 
@@ -45,7 +45,8 @@ typedef struct maestro_player_t_ {
 } maestro_player_t;
 
 maestro_player_t *maestro_player_new();
-bool maestro_player_start(const options_t *options, maestro_sheet_t *sheet, 
+bool maestro_player_start(const options_t *options,
+	maestro_sheet_t *sheet,
 	gru_status_t *status);
 
 #endif /* MAESTRO_PLAYER_H */

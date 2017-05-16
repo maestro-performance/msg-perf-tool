@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,12 +20,12 @@ static void show_help(char **argv) {
 
 	gru_cli_option_help("help", "h", "show this help");
 	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
-	gru_cli_option_help("log-level", "l",
+	gru_cli_option_help("log-level",
+		"l",
 		"runs in the given verbose (info, stat, debug, etc) level mode");
-	gru_cli_option_help("log-dir", "L", 
-		"a directory to save the logs (mandatory for --daemon)");
+	gru_cli_option_help(
+		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
 }
-
 
 int main(int argc, char **argv) {
 	int c;
@@ -50,8 +50,7 @@ int main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {
-			{"log-level", required_argument, 0, 'l'},
+		static struct option long_options[] = {{"log-level", required_argument, 0, 'l'},
 			{"log-dir", required_argument, 0, 'L'},
 			{"maestro-url", required_argument, 0, 'm'},
 			{"help", no_argument, 0, 'h'},
@@ -107,10 +106,10 @@ int main(int argc, char **argv) {
 	}
 
 	init_controller(true, options->logdir, "mpt-receiver-daemon");
-	
+
 	if (receiverd_worker_start(options) != 0) {
 		printf("Unable to start the sender worker\n");
-		
+
 		goto err_exit;
 	}
 

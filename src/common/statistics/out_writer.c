@@ -21,7 +21,6 @@ bool out_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *stat
 	return true;
 }
 
-
 bool out_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
 	static suseconds_t last = 0;
 
@@ -33,35 +32,35 @@ bool out_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
 	return true;
 }
 
-
 bool out_lat_writer_flush(gru_status_t *status) {
 	fflush(stdout);
 	return true;
 }
 
-
 bool out_lat_writer_finalize(gru_status_t *status) {
 	return true;
 }
-
 
 bool out_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
 	return true;
 }
 
 bool out_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
-	char *str = gru_time_write_format(&tp->duration.end, "%Y-%m-%d %H:%M:%S", 
-		status);
+	char *str = gru_time_write_format(&tp->duration.end, "%Y-%m-%d %H:%M:%S", status);
 
 	if (unlikely(!str)) {
 		return false;
 	}
 
 	uint64_t milli_latency = gru_time_to_milli(&last_latency_duration);
-	
-	printf("%s\rSampling time: %s - Count: %" PRIu64 " msgs - Rate: %.2f msg/s - Last lat: %" PRIu64 
-		"ms \r", 
-		CLEAR_LINE, str, tp->count, tp->rate, milli_latency);
+
+	printf("%s\rSampling time: %s - Count: %" PRIu64
+		   " msgs - Rate: %.2f msg/s - Last lat: %" PRIu64 "ms \r",
+		CLEAR_LINE,
+		str,
+		tp->count,
+		tp->rate,
+		milli_latency);
 
 	gru_dealloc_string(&str);
 	fflush(stdout);
@@ -73,14 +72,12 @@ bool out_tp_writer_flush(gru_status_t *status) {
 	return true;
 }
 
-
 bool out_tp_writer_finalize(gru_status_t *status) {
 	printf("\n");
 	return true;
 }
 
-
-/** 
+/**
  * Latency writer I/O assignment
  */
 void out_writer_latency_assign(latency_writer_t *writer) {
@@ -89,7 +86,6 @@ void out_writer_latency_assign(latency_writer_t *writer) {
 	writer->flush = out_lat_writer_flush;
 	writer->finalize = out_lat_writer_finalize;
 }
-
 
 /**
  * Throghput writer I/O assignment

@@ -22,14 +22,14 @@ void calc_latency(stat_latency_t *out, gru_timestamp_t start, gru_timestamp_t en
 	timersub(&end, &start, &out->elapsed);
 }
 
-
-void calc_throughput(stat_throughput_t *out, gru_timestamp_t start, gru_timestamp_t end, 
-	uint64_t count)
-{
+void calc_throughput(stat_throughput_t *out,
+	gru_timestamp_t start,
+	gru_timestamp_t end,
+	uint64_t count) {
 	out->duration.start = start;
 	out->duration.end = end;
 	out->count = count;
-	
+
 	uint64_t elapsed = gru_time_elapsed_secs(start, end);
 	out->rate = ((double) count / elapsed);
 }

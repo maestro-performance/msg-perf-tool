@@ -34,22 +34,22 @@ probe_entry_t *net_entry(gru_status_t *status) {
 	return ret;
 }
 
-static char *net_get_filename(const char *devname, const char *what, gru_status_t *status) {
+static char *
+	net_get_filename(const char *devname, const char *what, gru_status_t *status) {
 	char *ret = NULL;
-	
-	if (asprintf(&ret,  "/sys/class/net/%s/statistics/%s", devname, what) == -1) {
+
+	if (asprintf(&ret, "/sys/class/net/%s/statistics/%s", devname, what) == -1) {
 		gru_status_set(status, GRU_FAILURE, "Not enough memory");
 
 		return NULL;
-
 	}
 
 	return ret;
 }
 
 static FILE *net_open_tx_file(const char *devname, gru_status_t *status) {
-	char *path = net_get_filename(devname, "tx_bytes", status); 
-	
+	char *path = net_get_filename(devname, "tx_bytes", status);
+
 	if (gru_status_error(status)) {
 		return NULL;
 	}
@@ -74,7 +74,7 @@ static FILE *net_open_rx_file(const char *devname, gru_status_t *status) {
 	if (gru_status_error(status)) {
 		return NULL;
 	}
-	
+
 	int rx_fd = open(path, O_RDONLY);
 	FILE *rx_file = fdopen(rx_fd, "r");
 	if (!rx_file) {
@@ -85,9 +85,10 @@ static FILE *net_open_rx_file(const char *devname, gru_status_t *status) {
 	return rx_file;
 }
 
-static bool net_file_exist(const char *devname, const char *filetype, gru_status_t *status) {
+static bool
+	net_file_exist(const char *devname, const char *filetype, gru_status_t *status) {
 	char *path = net_get_filename(devname, filetype, status);
-	
+
 	if (!gru_path_exists(path, status)) {
 		gru_dealloc_string(&path);
 		return false;
@@ -95,7 +96,6 @@ static bool net_file_exist(const char *devname, const char *filetype, gru_status
 
 	gru_dealloc_string(&path);
 	return true;
-
 }
 
 static bool net_files_exist(const char *devname, gru_status_t *status) {
@@ -106,7 +106,6 @@ static bool net_files_exist(const char *devname, gru_status_t *status) {
 	return false;
 }
 
-
 bool net_init(const options_t *options, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
@@ -114,7 +113,8 @@ bool net_init(const options_t *options, gru_status_t *status) {
 	logger(INFO, "Reading device %s", device);
 
 	if (!net_files_exist(device, status)) {
-		gru_status_set(status, GRU_FAILURE, 
+		gru_status_set(status,
+			GRU_FAILURE,
 			"Device files for reading network information do not exist");
 
 		return false;
@@ -143,11 +143,11 @@ int net_collect(gru_status_t *status) {
 
 	uint64_t last_tx_data = 0;
 	uint64_t last_rx_data = 0;
-	
+
 	while (true) {
 		/*
-		 * TODO: Possibly not the best way to do it, reopening 
-		 * the file at every iteraction. 
+		 * TODO: Possibly not the best way to do it, reopening
+		 * the file at every iteraction.
 		 */
 		FILE *tx_file = net_open_tx_file(device, status);
 		if (!tx_file) {
@@ -173,7 +173,7 @@ int net_collect(gru_status_t *status) {
 		if (last_tx_data == 0 || last_rx_data == 0) {
 			last_tx_data = curr_tx_data;
 			last_rx_data = curr_rx_data;
-			
+
 			sleep(1);
 			continue;
 		}
@@ -193,15 +193,15 @@ int net_collect(gru_status_t *status) {
 			return 1;
 		}
 
-		strftime(tm_creation_buff, sizeof(tm_creation_buff), "%Y-%m-%d %H:%M:%S", 
-			creation_tm);
+		strftime(
+			tm_creation_buff, sizeof(tm_creation_buff), "%Y-%m-%d %H:%M:%S", creation_tm);
 
 		fprintf(report, "%s;%ld;%ld\n", tm_creation_buff, tx_rate, rx_rate);
 		fflush(report);
 
 		last_tx_data = curr_tx_data;
 		last_rx_data = curr_rx_data;
-		
+
 		sleep(1);
 	}
 
@@ -209,7 +209,7 @@ int net_collect(gru_status_t *status) {
 }
 
 void net_stop() {
-	if (initialized) { 
+	if (initialized) {
 		fclose(report);
 	}
 }

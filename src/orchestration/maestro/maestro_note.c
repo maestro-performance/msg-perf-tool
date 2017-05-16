@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,9 +30,10 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 	gru_dealloc((void **) &note->payload);
 }
 
-bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note, 
-	gru_status_t *status)
-{
+bool maestro_note_parse(const void *data,
+	size_t size,
+	maestro_note_t *note,
+	gru_status_t *status) {
 	if (!data) {
 		gru_status_set(status, GRU_FAILURE, "Invalid data");
 
@@ -79,8 +80,7 @@ bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note,
 		}
 
 		memcpy(note->payload, ((char *) data) + MAESTRO_HEADER_SIZE, body_len);
-	}
-	else {
+	} else {
 		note->payload = NULL;
 	}
 
@@ -99,11 +99,13 @@ static void maestro_payload_set_id(maestro_payload_ping_reply_t *pl, const char 
 	memcpy(pl->id, id, sizeof(pl->id));
 }
 
-static void maestro_payload_set_elapsed(maestro_payload_ping_reply_t *pl, uint64_t elapsed) {
+static void maestro_payload_set_elapsed(maestro_payload_ping_reply_t *pl,
+	uint64_t elapsed) {
 	snprintf((char *) pl->elapsed, sizeof(pl->elapsed), "%li", elapsed);
 }
 
-static void maestro_payload_set_req_ts(maestro_payload_ping_request_t *pl, const char *ts) {
+static void maestro_payload_set_req_ts(maestro_payload_ping_request_t *pl,
+	const char *ts) {
 	memcpy(pl->ts, ts, sizeof(pl->ts));
 }
 
@@ -141,7 +143,6 @@ void maestro_note_set_cmd(maestro_note_t *note, const char *cmd) {
 	note->command[1] = cmd[1];
 }
 
-
 static void maestro_payload_set_opt(maestro_payload_set_t *pl, const char *opt) {
 	memcpy(pl->opt, opt, sizeof(pl->opt));
 }
@@ -155,7 +156,6 @@ void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *val
 	maestro_payload_set_value(&note->payload->request.set, value);
 }
 
-
 void maestro_note_stats_set_id(maestro_note_t *note, const char *id) {
 	maestro_set_payload_txt_field(note->payload->response.stats.id, id);
 }
@@ -164,7 +164,6 @@ void maestro_note_stats_set_child_count(maestro_note_t *note, uint32_t count) {
 	maestro_set_payload_uint32_field(note->payload->response.stats.child_count, count);
 }
 
-
 void maestro_note_stats_set_role(maestro_note_t *note, const char *role) {
 	maestro_set_payload_txt_field(note->payload->response.stats.role, role);
 }
@@ -172,7 +171,6 @@ void maestro_note_stats_set_role(maestro_note_t *note, const char *role) {
 void maestro_note_stats_set_roleinfo(maestro_note_t *note, const char *roleinfo) {
 	maestro_set_payload_txt_field(note->payload->response.stats.roleinfo, roleinfo);
 }
-
 
 void maestro_note_stats_set_stat_type(maestro_note_t *note, const char stat_type) {
 	note->payload->response.stats.stat_type = stat_type;
@@ -183,7 +181,8 @@ void maestro_note_stats_set_perf_ts(maestro_note_t *note, const char *ts) {
 }
 
 void maestro_note_stats_set_perf_count(maestro_note_t *note, uint64_t count) {
-	maestro_set_payload_uint64_field(note->payload->response.stats.stats.perf.count, count);
+	maestro_set_payload_uint64_field(
+		note->payload->response.stats.stats.perf.count, count);
 }
 
 void maestro_note_stats_set_perf_rate(maestro_note_t *note, double rate) {
@@ -191,5 +190,6 @@ void maestro_note_stats_set_perf_rate(maestro_note_t *note, double rate) {
 }
 
 void maestro_note_stats_set_perf_latency(maestro_note_t *note, double latency) {
-	maestro_set_payload_double_field(note->payload->response.stats.stats.perf.latency, latency);
+	maestro_set_payload_double_field(
+		note->payload->response.stats.stats.perf.latency, latency);
 }

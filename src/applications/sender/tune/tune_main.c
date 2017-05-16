@@ -42,7 +42,7 @@ int tune_main(int argc, char **argv) {
 
 	options_t *options = options_new();
 	set_options_object(options);
-	
+
 	gru_status_t status = gru_status_new();
 
 	if (!options) {
@@ -53,8 +53,7 @@ int tune_main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {
-			{"broker-url", required_argument, 0, 'b'},
+		static struct option long_options[] = {{"broker-url", required_argument, 0, 'b'},
 			{"log-level", required_argument, 0, 'l'},
 			{"log-dir", required_argument, 0, 'L'},
 			{"size", required_argument, 0, 's'},

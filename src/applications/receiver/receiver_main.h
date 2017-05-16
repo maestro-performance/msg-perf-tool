@@ -34,10 +34,10 @@ extern "C" {
 #include "contrib/options.h"
 #include "process_utils.h"
 
+#include "process_utils.h"
 #include "receiver_worker.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
-#include "process_utils.h"
 
 #ifdef __cplusplus
 }

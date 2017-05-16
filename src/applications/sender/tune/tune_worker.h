@@ -30,11 +30,11 @@
 
 #include <context/bmic_context.h>
 
-#include "contrib/options.h"
-#include "msgctxt.h"
-#include "msg_content_data.h"
-#include "vmsl.h"
 #include "bmic/bmic_utils.h"
+#include "contrib/options.h"
+#include "msg_content_data.h"
+#include "msgctxt.h"
+#include "vmsl.h"
 
 #include "abstract_worker.h"
 #include "worker_options.h"

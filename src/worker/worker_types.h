@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,14 +24,14 @@ extern "C" {
 #include <stdint.h>
 #include <time/gru_duration.h>
 
-#include "vmsl.h"
+#include "statistics/naming_utils.h"
 #include "statistics/stats_types.h"
 #include "statistics/stats_writer.h"
-#include "statistics/naming_utils.h"
 #include "strategies/payload/pl_strategy.h"
+#include "vmsl.h"
 
 #ifdef MPT_SHARED_BUFFERS
- #include "ipc/shared_data_buffer.h"
+#include "ipc/shared_data_buffer.h"
 #endif // MPT_SHARED_BUFFERS
 
 /**
@@ -43,7 +43,7 @@ typedef enum worker_ret_t_ {
 } worker_ret_t;
 
 /**
- * Worker flags 
+ * Worker flags
  */
 typedef enum worker_flags_t_ {
 	WRK_NONE = 0, /** None */
@@ -64,12 +64,12 @@ typedef struct worker_snapshot_t_ {
 	stat_throughput_t throughput;
 } worker_snapshot_t;
 
-typedef bool(*worker_iteration_check)(const worker_options_t *options, 
+typedef bool (*worker_iteration_check)(const worker_options_t *options,
 	const worker_snapshot_t *snapshot);
 
 /**
  * Abstracts the "operational" parts of the test execution, options, etc.
- */ 
+ */
 typedef struct worker_t_ {
 	char *name;
 	const vmsl_t *vmsl;
@@ -85,9 +85,9 @@ typedef struct worker_t_ {
 typedef struct worker_info_t_ {
 	pid_t child;
 	worker_snapshot_t snapshot;
-	
+
 #ifdef MPT_SHARED_BUFFERS
- 	volatile shr_data_buff_t *shr;
+	volatile shr_data_buff_t *shr;
 #endif // MPT_SHARED_BUFFERS
 
 } worker_info_t;
@@ -95,6 +95,5 @@ typedef struct worker_info_t_ {
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* WORKER_TYPES_H */

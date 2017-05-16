@@ -22,27 +22,27 @@ extern "C" {
 
 #include <inttypes.h>
 #include <signal.h>
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <sys/wait.h>
 
 #include <common/gru_status.h>
 
 #include "contrib/options.h"
+#include "msg_content_data.h"
 #include "msgctxt.h"
 #include "process_utils.h"
 #include "vmsl.h"
-#include "msg_content_data.h"
 
-#include "statistics/stats_types.h"
-#include "statistics/calculator.h"
-#include "statistics/stats_writer.h"
-#include "statistics/csv_writer.h"
-#include "statistics/out_writer.h"
-#include "statistics/nop_writer.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
+#include "statistics/calculator.h"
+#include "statistics/csv_writer.h"
+#include "statistics/nop_writer.h"
+#include "statistics/out_writer.h"
+#include "statistics/stats_types.h"
+#include "statistics/stats_writer.h"
 
 #include "abstract_worker.h"
 #include "worker_options.h"

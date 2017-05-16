@@ -18,9 +18,9 @@
 
 bool can_start = false;
 
-static void *receiver_handle_start(const maestro_note_t *request, maestro_note_t *response, 
-	const maestro_player_info_t *pinfo) 
-{
+static void *receiver_handle_start(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
@@ -30,43 +30,42 @@ static void *receiver_handle_start(const maestro_note_t *request, maestro_note_t
 
 static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	maestro_sheet_t *ret = maestro_sheet_new("/mpt/receiver", status);
-	
-	if (!ret) {	
+
+	if (!ret) {
 		return NULL;
 	}
 
-	maestro_instrument_t *instrument = maestro_instrument_new(MAESTRO_NOTE_START, 
-		receiver_handle_start, status);
+	maestro_instrument_t *instrument =
+		maestro_instrument_new(MAESTRO_NOTE_START, receiver_handle_start, status);
 
 	maestro_sheet_add_instrument(ret, instrument);
 
 	return ret;
 }
 
-static bool receiver_initialize_writer(stats_writer_t *writer, const options_t *options, 
-	gru_status_t *status) 
-{	
+static bool receiver_initialize_writer(stats_writer_t *writer,
+	const options_t *options,
+	gru_status_t *status) {
 	if (options->logdir) {
 		naming_info_t naming_info = {0};
-			
+
 		naming_info.source = "receiver";
-		
+
 		naming_info.pid = getpid();
 		naming_info.ppid = 0;
-		naming_info.location = options->logdir; 
+		naming_info.location = options->logdir;
 
-		return naming_initialize_writer(writer, FORMAT_CSV, NM_LATENCY | NM_THROUGHPUT, 
-			&naming_info, status);
-	}
-	else {
+		return naming_initialize_writer(
+			writer, FORMAT_CSV, NM_LATENCY | NM_THROUGHPUT, &naming_info, status);
+	} else {
 		if (options->parallel_count > 1) {
-			return naming_initialize_writer(writer, FORMAT_NOP, NM_LATENCY | NM_THROUGHPUT, 
-				NULL, status);
+			return naming_initialize_writer(
+				writer, FORMAT_NOP, NM_LATENCY | NM_THROUGHPUT, NULL, status);
 		}
 	}
-	
-	return naming_initialize_writer(writer, FORMAT_OUT, NM_LATENCY | NM_THROUGHPUT, NULL, 
-		status);
+
+	return naming_initialize_writer(
+		writer, FORMAT_OUT, NM_LATENCY | NM_THROUGHPUT, NULL, status);
 }
 
 static bool receiver_print_partial(worker_info_t *worker_info) {
@@ -76,23 +75,26 @@ static bool receiver_print_partial(worker_info_t *worker_info) {
 	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
 		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-		logger(INFO, "Partial summary: PID %d received %" PRIu64 " messages in %" PRIu64
-				" seconds (rate: %.2f msgs/sec)", worker_info->child,
-				snapshot.count, elapsed, snapshot.throughput.rate);
+		logger(INFO,
+			"Partial summary: PID %d received %" PRIu64 " messages in %" PRIu64
+			" seconds (rate: %.2f msgs/sec)",
+			worker_info->child,
+			snapshot.count,
+			elapsed,
+			snapshot.throughput.rate);
 	}
 
 	return true;
 }
 
-
 int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
-	
+
 	// maestro_sheet_t *sheet = new_receiver_sheet(&status);
 
 	// if (!maestro_player_start(options, sheet, &status)) {
-	// 	fprintf(stderr, "Unable to connect to maestro broker: %s\n", 
+	// 	fprintf(stderr, "Unable to connect to maestro broker: %s\n",
 	// 		status.message);
 
 	// 	return;
@@ -117,7 +119,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	worker_options_t wrk_opt = {0};
 	worker.options = &wrk_opt;
 
-	worker.options->uri = options->uri; 
+	worker.options->uri = options->uri;
 	if (options->count == 0) {
 		worker.options->duration_type = TEST_TIME;
 		worker.options->duration.time = options->duration;
@@ -127,7 +129,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	worker.options->message_size = options->message_size;
 	worker.options->throttle = options->throttle;
 	worker.name = "receiver";
-	
+
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	receiver_initialize_writer(worker.writer, options, &status);
@@ -136,7 +138,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	if (options->parallel_count == 1) {
 		worker.worker_flags = WRK_RECEIVER;
-		worker_ret_t ret = {0}; 
+		worker_ret_t ret = {0};
 		worker_snapshot_t snapshot = {0};
 
 		ret = abstract_receiver_worker_start(&worker, &snapshot, &status);
@@ -148,25 +150,25 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-		logger(INFO, 
+		logger(INFO,
 			"Summary: received %" PRIu64 " messages in %" PRIu64
 			" seconds (rate: %.2f msgs/sec)",
-			snapshot.count, elapsed, snapshot.throughput.rate);
-	}
-	else {
+			snapshot.count,
+			elapsed,
+			snapshot.throughput.rate);
+	} else {
 		worker.worker_flags = WRK_RECEIVER | WRK_FORKED;
-		worker.report_format = FORMAT_CSV; 
+		worker.report_format = FORMAT_CSV;
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 
-		gru_list_t *children = abstract_worker_clone(&worker, 
-			abstract_receiver_worker_start, &status);
+		gru_list_t *children =
+			abstract_worker_clone(&worker, abstract_receiver_worker_start, &status);
 
 		if (!children && !gru_status_success(&status)) {
 			logger(ERROR, "Unable to initialize children: %s", status.message);
 
 			return 1;
-		}
-		else {
+		} else {
 			if (!children) {
 				return 0;
 			}
@@ -174,14 +176,13 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 		while (gru_list_count(children) > 0) {
 			mpt_trace("There are still %d children running", gru_list_count(children));
-			abstract_worker_watchdog(children, receiver_print_partial); 
-			
+			abstract_worker_watchdog(children, receiver_print_partial);
+
 			sleep(1);
 		}
 
 		gru_list_destroy(&children);
 	}
-
 
 	return 0;
 }

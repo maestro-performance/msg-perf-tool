@@ -71,7 +71,7 @@ void options_destroy(options_t **obj) {
 	free(opt->iface);
 	free(opt->logdir);
 	free(opt);
-	
+
 	*obj = NULL;
 }
 

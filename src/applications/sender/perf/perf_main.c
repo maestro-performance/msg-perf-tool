@@ -25,25 +25,31 @@ static void show_help(char **argv) {
 	gru_cli_option_help("broker-url", "b", "broker URL to connect to");
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
-	gru_cli_option_help("duration", "d", "runs for the specificied amount of time. It must be suffixed by 's', 'm', 'h' or 'd' (ie.: 1h15s, 10m)");
+	gru_cli_option_help("duration",
+		"d",
+		"runs for the specificied amount of time. It "
+		"must be suffixed by 's', 'm', 'h' or 'd' (ie.: "
+		"1h15s, 10m)");
 	gru_cli_option_help("log-level",
 		"l",
 		"runs in the given verbose (info, stat, debug, etc) level mode");
 	gru_cli_option_help(
 		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
 	gru_cli_option_help("no-probes", "N", "disable probes");
-	gru_cli_option_help(
-		"parallel-count", "p", "number of parallel connections to the broker (require a log directory for > 1)");
+	gru_cli_option_help("parallel-count",
+		"p",
+		"number of parallel connections to the broker (require a log directory for > 1)");
 
-	gru_cli_option_help("size", "s", "message size (in bytes). Use ~ to set a 5%% variability to the message size");
+	gru_cli_option_help("size",
+		"s",
+		"message size (in bytes). Use ~ to set a 5%% variability to the message size");
 	gru_cli_option_help("throttle",
 		"t",
 		"sets a fixed rate of messages (in messages per second per connection)");
 	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
 	gru_cli_option_help("interface", "i", "network interface for the network probe");
-	gru_cli_option_help("probes", "P", 
-		"comma-separated list of probes to enable (default: net,bmic)");
-		
+	gru_cli_option_help(
+		"probes", "P", "comma-separated list of probes to enable (default: net,bmic)");
 }
 
 int perf_main(int argc, char **argv) {
@@ -69,8 +75,7 @@ int perf_main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {
-			{"broker-url", required_argument, 0, 'b'},
+		static struct option long_options[] = {{"broker-url", required_argument, 0, 'b'},
 			{"count", required_argument, 0, 'c'},
 			{"log-level", required_argument, 0, 'l'},
 			{"parallel-count", required_argument, 0, 'p'},
@@ -86,7 +91,8 @@ int perf_main(int argc, char **argv) {
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:c:l:p:d:s:L:t:DNi:m:P:h", long_options, &option_index);
+		c = getopt_long(
+			argc, argv, "b:c:l:p:d:s:L:t:DNi:m:P:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -122,10 +128,9 @@ int perf_main(int argc, char **argv) {
 			case 's':
 				if (optarg[0] == '~') {
 					options->message_size = atoi(optarg + 1);
-					
+
 					options->variable_size = true;
-				}
-				else {
+				} else {
 					options->message_size = atoi(optarg);
 				}
 				break;
@@ -175,11 +180,9 @@ int perf_main(int argc, char **argv) {
 		}
 	}
 
-	
 	if (options->logdir) {
 		remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
-	}
-	else {
+	} else {
 		if (options->parallel_count > 1) {
 			fprintf(stderr, "Multiple concurrent process require a log directory\n");
 
@@ -200,15 +203,13 @@ int perf_main(int argc, char **argv) {
 		goto err_exit;
 	}
 
-	
-
 #ifdef LINUX_BUILD
 	probe_scheduler_start(&status);
 #endif // LINUX_BUILD
 
-
 	if (perf_worker_start(&vmsl, options) == 0) {
-		logger(INFO, "Test execution with process ID %d finished successfully\n", getpid());
+		logger(
+			INFO, "Test execution with process ID %d finished successfully\n", getpid());
 
 #ifdef LINUX_BUILD
 		probe_scheduler_stop();
@@ -222,8 +223,7 @@ int perf_main(int argc, char **argv) {
 	probe_scheduler_stop();
 #endif // LINUX_BUILD
 
-
-	err_exit:
+err_exit:
 	logger(INFO, "Test execution with process ID %d finished with errors\n", getpid());
 
 	options_destroy(&options);

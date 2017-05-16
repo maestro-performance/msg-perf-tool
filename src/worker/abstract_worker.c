@@ -15,7 +15,8 @@
  */
 #include "abstract_worker.h"
 
-static const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status) {
+static const char *
+	worker_name(const worker_t *worker, pid_t child, gru_status_t *status) {
 	char *cname = NULL;
 
 	if (asprintf(&cname, "%s-%d", worker->name, child) == -1) {
@@ -27,7 +28,9 @@ static const char *worker_name(const worker_t *worker, pid_t child, gru_status_t
 	return cname;
 }
 
-static void abstract_worker_msg_opt(msg_opt_t *opt, msg_direction_t direction, const worker_options_t *options) {
+static void abstract_worker_msg_opt(msg_opt_t *opt,
+	msg_direction_t direction,
+	const worker_options_t *options) {
 	opt->direction = direction;
 	opt->qos = MSG_QOS_AT_MOST_ONCE;
 	opt->statistics = MSG_STAT_DEFAULT;
@@ -36,24 +39,24 @@ static void abstract_worker_msg_opt(msg_opt_t *opt, msg_direction_t direction, c
 	opt->uri = options->uri;
 }
 
-static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_t *worker, gru_status_t *status) 
-{
+static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_t *worker,
+	gru_status_t *status) {
 
 #ifdef MPT_SHARED_BUFFERS
 	const char *cname = worker_name(worker, getpid(), status);
-	
+
 	if (!cname) {
 		return NULL;
 	}
 
-	volatile shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
-		cname, status);
+	volatile shr_data_buff_t *shr =
+		shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);
 	gru_dealloc_const_string(&cname);
 
 	if (!shr) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s", 
-			status->message);
-			
+		gru_status_set(
+			status, GRU_FAILURE, "Unable to open a write buffer: %s", status->message);
+
 		gru_dealloc_const_string(&cname);
 
 		return NULL;
@@ -68,13 +71,13 @@ static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_
 	return shr;
 }
 
-worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snapshot_t *snapshot, 
-	gru_status_t *status) 
-{
+worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
+	worker_snapshot_t *snapshot,
+	gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	const uint32_t sample_interval = 10;
 	uint64_t last_count = 0;
-	msg_content_data_t content_storage = {0}; 
+	msg_content_data_t content_storage = {0};
 
 	msg_opt_t opt = {0};
 	abstract_worker_msg_opt(&opt, MSG_DIRECTION_RECEIVER, worker->options);
@@ -100,13 +103,13 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	// TODO: requires a content strategy
 	msg_content_data_init(&content_storage, worker->options->message_size, status);
 	if (!gru_status_success(status)) {
-	 	goto err_exit;
+		goto err_exit;
 	}
 
 	snapshot->start = gru_time_now();
 	snapshot->now = snapshot->start;
 	gru_timestamp_t last_sample_ts = snapshot->start; // Last sampling timestamp
-	
+
 	logger(DEBUG, "Initializing receiver loop");
 	while (worker->can_continue(worker->options, snapshot)) {
 		vmsl_stat_t rstat = worker->vmsl->receive(msg_ctxt, &content_storage, status);
@@ -120,7 +123,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 		snapshot->now = gru_time_now();
 		if (rstat & VMSL_NO_DATA) {
 			/*
-			 * After some measurements, it turns out that 25ms seem to provide the right 
+			 * After some measurements, it turns out that 25ms seem to provide the right
 			 * balance between responsiveness and throughput.
 			 */
 			usleep(25000);
@@ -128,7 +131,6 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 		}
 
 		snapshot->count++;
-		
 
 		calc_latency(&snapshot->latency, content_storage.created, snapshot->now);
 		if (unlikely(!worker->writer->latency.write(&snapshot->latency, status))) {
@@ -140,10 +142,12 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 
 		if (gru_time_elapsed_secs(last_sample_ts, snapshot->now) >= sample_interval) {
 			uint64_t processed_count = snapshot->count - last_count;
-			
-			calc_throughput(&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
 
-			if (unlikely(!worker->writer->throughput.write(&snapshot->throughput, status))) {
+			calc_throughput(
+				&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
+
+			if (unlikely(
+					!worker->writer->throughput.write(&snapshot->throughput, status))) {
 				logger(ERROR, "Unable to write throughput data: %s", status->message);
 
 				gru_status_reset(status);
@@ -153,8 +157,8 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 #ifdef MPT_SHARED_BUFFERS
 			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
 #endif // MPT_SHARED_BUFFERS
-			
-		 	last_count = snapshot->count;
+
+			last_count = snapshot->count;
 			last_sample_ts = snapshot->now;
 			fflush(NULL);
 		}
@@ -167,15 +171,17 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker, worker_snaps
 	worker->writer->latency.finalize(status);
 	worker->writer->throughput.finalize(status);
 
-	calc_throughput(&snapshot->throughput, snapshot->start, snapshot->now, 
-		snapshot->count);
+	calc_throughput(
+		&snapshot->throughput, snapshot->start, snapshot->now, snapshot->count);
 
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
 
-	logger(INFO, 
+	logger(INFO,
 		"Summary: received %" PRIu64 " messages in %" PRIu64
 		" seconds (last measured rate: %.2f msgs/sec)",
-		snapshot->count, elapsed, snapshot->throughput.rate);
+		snapshot->count,
+		elapsed,
+		snapshot->throughput.rate);
 
 #ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
@@ -199,14 +205,13 @@ err_exit:
 	return WORKER_FAILURE;
 }
 
-
-worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapshot_t *snapshot, 
-	gru_status_t *status) 
-{
+worker_ret_t abstract_sender_worker_start(const worker_t *worker,
+	worker_snapshot_t *snapshot,
+	gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	const uint32_t sample_interval = 10;
 	uint64_t last_count = 0;
-	msg_content_data_t content_storage = {0}; 
+	msg_content_data_t content_storage = {0};
 
 	msg_opt_t opt = {0};
 	abstract_worker_msg_opt(&opt, MSG_DIRECTION_SENDER, worker->options);
@@ -224,11 +229,10 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 
 #endif // MPT_SHARED_BUFFERS
 
-	
-	if (!worker->pl_strategy.init(&content_storage, worker->options->message_size, status)) {
+	if (!worker->pl_strategy.init(
+			&content_storage, worker->options->message_size, status)) {
 		goto err_exit;
 	}
-	
 
 	snapshot->start = gru_time_now();
 	snapshot->now = snapshot->start;
@@ -256,17 +260,19 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 
 		if (gru_time_elapsed_secs(last_sample_ts, snapshot->now) >= sample_interval) {
 			uint64_t processed_count = snapshot->count - last_count;
-			
-			calc_throughput(&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
 
-			if (unlikely(!worker->writer->throughput.write(&snapshot->throughput, status))) {
+			calc_throughput(
+				&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
+
+			if (unlikely(
+					!worker->writer->throughput.write(&snapshot->throughput, status))) {
 				logger(ERROR, "Unable to write throughput data: %s", status->message);
 
 				gru_status_reset(status);
 				break;
-			} 
-			
-		 	last_count = snapshot->count;
+			}
+
+			last_count = snapshot->count;
 			last_sample_ts = snapshot->now;
 
 #ifdef MPT_SHARED_BUFFERS
@@ -277,7 +283,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 		}
 
 		if (worker->options->throttle > 0) {
-				usleep(idle_usec);
+			usleep(idle_usec);
 		}
 	}
 	logger(DEBUG, "Finalizing sender loop");
@@ -287,14 +293,16 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker, worker_snapsho
 
 	worker->writer->throughput.finalize(status);
 
-	calc_throughput(&snapshot->throughput, snapshot->start, snapshot->now, 
-		snapshot->count);
-	
+	calc_throughput(
+		&snapshot->throughput, snapshot->start, snapshot->now, snapshot->count);
+
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
-	logger(INFO, 
-			"Summary: sent %" PRIu64 " messages in %" PRIu64
-			" seconds (last measured rate: %.2f msgs/sec)",
-			snapshot->count, elapsed, snapshot->throughput.rate);
+	logger(INFO,
+		"Summary: sent %" PRIu64 " messages in %" PRIu64
+		" seconds (last measured rate: %.2f msgs/sec)",
+		snapshot->count,
+		elapsed,
+		snapshot->throughput.rate);
 
 #ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
@@ -318,10 +326,9 @@ err_exit:
 	return WORKER_FAILURE;
 }
 
-
-gru_list_t *abstract_worker_clone(worker_t *worker, abstract_worker_start worker_start, 
-	gru_status_t *status) 
-{
+gru_list_t *abstract_worker_clone(worker_t *worker,
+	abstract_worker_start worker_start,
+	gru_status_t *status) {
 	gru_list_t *ret = gru_list_new(status);
 	if (!ret) {
 		return NULL;
@@ -339,30 +346,32 @@ gru_list_t *abstract_worker_clone(worker_t *worker, abstract_worker_start worker
 			const options_t *options = get_options_object();
 
 			remap_log(options->logdir, worker->name, getppid(), getpid(), stderr, status);
-			
+
 			naming_info_t naming_info = {0};
-			
+
 			naming_info.source = worker->name;
-			naming_info.location = options->logdir; 
+			naming_info.location = options->logdir;
 			naming_info.pid = getpid();
 			naming_info.ppid = getppid();
 
-			bool nmret = naming_initialize_writer(worker->writer, worker->report_format, 
-				worker->naming_options, &naming_info, status);
+			bool nmret = naming_initialize_writer(worker->writer,
+				worker->report_format,
+				worker->naming_options,
+				&naming_info,
+				status);
 			if (!nmret) {
 				return NULL;
 			}
-			
+
 			install_interrupt_handler();
 			worker_ret_t wret = worker_start(worker, &snapshot, status);
 			if (wret != WORKER_SUCCESS) {
 				logger(ERROR, "Unable to execute worker: %s", status->message);
 			}
-			
+
 			logger(INFO, "Test execution terminated");
 			return NULL;
-		}
-		else {
+		} else {
 			worker_wait_setup();
 
 			worker_info_t *worker_info = gru_alloc(sizeof(worker_info_t), status);
@@ -384,13 +393,15 @@ gru_list_t *abstract_worker_clone(worker_t *worker, abstract_worker_start worker
 			logger(INFO, "Child %d gave the ok signal", child);
 			fflush(NULL);
 
-			worker_info->shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), 
-				cname, status);
+			worker_info->shr =
+				shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);
 
 			if (!worker_info->shr) {
-				gru_status_set(status, GRU_FAILURE, "Unable to open a read buffer: %s", 
+				gru_status_set(status,
+					GRU_FAILURE,
+					"Unable to open a read buffer: %s",
 					status->message);
-			
+
 				kill(child, SIGKILL);
 				break;
 			}
@@ -400,9 +411,11 @@ gru_list_t *abstract_worker_clone(worker_t *worker, abstract_worker_start worker
 				gru_dealloc((void **) &worker_info);
 				kill(child, SIGKILL);
 
-				gru_status_set(status, GRU_FAILURE, "Unable register new worker: %s", 
+				gru_status_set(status,
+					GRU_FAILURE,
+					"Unable register new worker: %s",
 					status->message);
-			
+
 				break;
 			}
 		}
@@ -411,8 +424,8 @@ gru_list_t *abstract_worker_clone(worker_t *worker, abstract_worker_start worker
 	return ret;
 }
 
-
-bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler handler) {
+bool abstract_worker_watchdog(gru_list_t *list,
+	abstract_worker_watchdog_handler handler) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
@@ -424,7 +437,7 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
-		
+
 		int wstatus = 0;
 		pid_t pid = waitpid(worker_info->child, &wstatus, WNOHANG);
 
@@ -432,23 +445,23 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 		if (pid == 0) {
 			if (handler(worker_info)) {
 				node = node->next;
-			}
-			else {
+			} else {
 				return false;
 			}
-		} 
-		else {
+		} else {
 			if (WIFEXITED(wstatus)) {
-				logger(INFO, "Child %d finished with status %d", worker_info->child,
+				logger(INFO,
+					"Child %d finished with status %d",
+					worker_info->child,
 					WEXITSTATUS(wstatus));
-			}
-			else if (WIFSIGNALED(wstatus)) {
-				logger(INFO, "Child %d received a signal %d", worker_info->child,
+			} else if (WIFSIGNALED(wstatus)) {
+				logger(INFO,
+					"Child %d received a signal %d",
+					worker_info->child,
 					WTERMSIG(wstatus));
-			}
-			else if (WIFSTOPPED(wstatus)) {
-				logger(ERROR, "Child %d stopped %d", worker_info->child,
-					WSTOPSIG(wstatus));
+			} else if (WIFSTOPPED(wstatus)) {
+				logger(
+					ERROR, "Child %d stopped %d", worker_info->child, WSTOPSIG(wstatus));
 			}
 
 			gru_node_t *orphan = node;
@@ -465,7 +478,6 @@ bool abstract_worker_watchdog(gru_list_t *list, abstract_worker_watchdog_handler
 
 	return true;
 }
-
 
 bool abstract_worker_stop(gru_list_t *list) {
 	gru_node_t *node = NULL;
@@ -486,43 +498,50 @@ bool abstract_worker_stop(gru_list_t *list) {
 			node = node->next;
 			continue;
 		}
-		
+
 		uint16_t retry = 3;
 		pid_t pid = 0;
 
-		do { 	
+		do {
 			int wstatus = 0;
-			
+
 			pid = waitpid(worker_info->child, &wstatus, WNOHANG);
 
 			// waitpid returns 0 if WNOHANG and there's no change of state for the process
 			if (pid != 0) {
 				if (WIFEXITED(wstatus)) {
-					logger(INFO, "Child %d stopped successfully with status %d", worker_info->child,
+					logger(INFO,
+						"Child %d stopped successfully with status %d",
+						worker_info->child,
 						WEXITSTATUS(wstatus));
 				} else if (WIFSIGNALED(wstatus)) {
-					logger(INFO, "Child %d stopped successfully signal %d", worker_info->child,
+					logger(INFO,
+						"Child %d stopped successfully signal %d",
+						worker_info->child,
 						WTERMSIG(wstatus));
 				} else if (WIFSTOPPED(wstatus)) {
-					logger(WARNING, "Child %d stopped abnormally %d", worker_info->child,
+					logger(WARNING,
+						"Child %d stopped abnormally %d",
+						worker_info->child,
 						WSTOPSIG(wstatus));
 				}
 
 				break;
-			}
-			else {
+			} else {
 				if (pid == -1) {
-					logger(WARNING, "Failed to stop child %d: %s", worker_info->child,
+					logger(WARNING,
+						"Failed to stop child %d: %s",
+						worker_info->child,
 						strerror(errno));
 
 					break;
-				}
-				else {
+				} else {
 					usleep(10000);
 					retry--;
 
 					if (retry == 0) {
-						logger(WARNING, "Killing child process %d because refuses to stop for good", 
+						logger(WARNING,
+							"Killing child process %d because refuses to stop for good",
 							worker_info->child);
 						kill(worker_info->child, SIGKILL);
 					}

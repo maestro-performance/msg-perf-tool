@@ -34,11 +34,9 @@ int main(int argc, char **argv) {
 			return perf_main((argc - 1), &argv[1]);
 		} else if (strncmp(argv[1], "tune", 4) == 0) {
 			return tune_main((argc - 1), &argv[1]);
-		}
-		 else if (strncmp(argv[1], "--help", 6) == 0) {
+		} else if (strncmp(argv[1], "--help", 6) == 0) {
 			show_help();
-		}
-		else {
+		} else {
 			show_help();
 			return EXIT_FAILURE;
 		}

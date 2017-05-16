@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -58,10 +58,11 @@ bool bmic_writer_current_time(gru_status_t *status);
  */
 void bmic_writer_osinfo(const bmic_java_os_info_t *osinfo);
 
-/** 
+/**
  * Writes java memory
  */
-void bmic_writer_java_mem(const mpt_java_mem_t *jmeminfo, bmic_java_memory_model_t memory_model);
+void bmic_writer_java_mem(const mpt_java_mem_t *jmeminfo,
+	bmic_java_memory_model_t memory_model);
 
 /**
  * Writes queue statistics
@@ -76,6 +77,5 @@ bool bmic_writer_finalize(gru_status_t *status);
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* BMIC_WRITER_H */

@@ -27,31 +27,30 @@ static void tune_print_stat(uint32_t steps, const char *msg, ...) {
 	va_end(ap);
 }
 
-
-
-static bool tune_initialize_out_writer(stats_writer_t *writer, const options_t *options, 
-	gru_status_t *status) 
-{
+static bool tune_initialize_out_writer(stats_writer_t *writer,
+	const options_t *options,
+	gru_status_t *status) {
 	out_writer_latency_assign(&writer->latency);
 	out_writer_throughput_assign(&writer->throughput);
 
 	return true;
 }
 
-
-static bool tune_exec_step(const options_t *options, const vmsl_t *vmsl,
-	const gru_duration_t duration, const uint32_t throttle, worker_snapshot_t *snapshot) 
-{
+static bool tune_exec_step(const options_t *options,
+	const vmsl_t *vmsl,
+	const gru_duration_t duration,
+	const uint32_t throttle,
+	worker_snapshot_t *snapshot) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
-	
+
 	worker_t worker = {0};
 
 	worker.vmsl = vmsl;
 	worker_options_t wrk_opt = {0};
 	worker.options = &wrk_opt;
 
-	worker.options->uri = options->uri; 
+	worker.options->uri = options->uri;
 	if (options->count == 0) {
 		worker.options->duration_type = TEST_TIME;
 		worker.options->duration.time = duration;
@@ -69,8 +68,8 @@ static bool tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 	pl_strategy_assign(&worker.pl_strategy, options->variable_size);
 
 	worker.can_continue = worker_check;
-	
-	worker_ret_t ret = {0}; 
+
+	worker_ret_t ret = {0};
 
 	ret = abstract_sender_worker_start(&worker, snapshot, &status);
 	if (ret != WORKER_SUCCESS) {
@@ -81,24 +80,28 @@ static bool tune_exec_step(const options_t *options, const vmsl_t *vmsl,
 
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
 
-	logger(INFO, 
-	 	"Summary: received %" PRIu64 " messages in %" PRIu64
-	 	" seconds (rate: %.2f msgs/sec)",
-	 	snapshot->count, elapsed, snapshot->throughput.rate);
-	
+	logger(INFO,
+		"Summary: received %" PRIu64 " messages in %" PRIu64
+		" seconds (rate: %.2f msgs/sec)",
+		snapshot->count,
+		elapsed,
+		snapshot->throughput.rate);
+
 	return true;
 }
 
-uint32_t tune_calc_approximate(worker_snapshot_t snapshot, bmic_queue_stat_t qstat,
-	gru_duration_t duration, gru_status_t *status) {
+uint32_t tune_calc_approximate(worker_snapshot_t snapshot,
+	bmic_queue_stat_t qstat,
+	gru_duration_t duration,
+	gru_status_t *status) {
 
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-	double approximate = ((double) (snapshot.count - qstat.queue_size)) / (double) elapsed;
+	double approximate =
+		((double) (snapshot.count - qstat.queue_size)) / (double) elapsed;
 
 	return (uint32_t) trunc(approximate);
 }
-
 
 int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	gru_status_t status = gru_status_new();
@@ -132,13 +135,11 @@ int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		gru_duration_t duration_object = gru_duration_from_minutes(duration[i]);
 		tune_print_stat(i, "Duration %" PRIu64 " minutes\n", duration[i]);
 
-		
 		worker_snapshot_t snapshot = {0};
 
 		if (!tune_exec_step(options, vmsl, duration_object, approximate, &snapshot)) {
 			fprintf(stderr, "Step %d did not finish successfully", i);
-		}
-		else { 
+		} else {
 			tune_print_stat(i, "Step %d finished sending data. Reading queue stats\n", i);
 		}
 

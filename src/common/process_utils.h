@@ -19,12 +19,12 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
-#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/types.h>
 
 #include <common/gru_status.h>
 #include <io/gru_ioutils.h>
@@ -36,7 +36,11 @@
 extern "C" {
 #endif
 
-bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, FILE *fd,
+bool remap_log(const char *dir,
+	const char *base_name,
+	pid_t parent,
+	pid_t pid,
+	FILE *fd,
 	gru_status_t *status);
 void init_controller(bool daemon, const char *logdir, const char *controller_name);
 

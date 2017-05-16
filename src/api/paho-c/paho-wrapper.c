@@ -54,14 +54,14 @@ msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
 	const char *connect_url =
 		gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE, status);
 
-	logger(DEBUG, "Creating a client to %s with path %s ", connect_url, 
-            paho_ctxt->uri.path);
+	logger(
+		DEBUG, "Creating a client to %s with path %s ", connect_url, paho_ctxt->uri.path);
 	int rc = 0;
 	rc = MQTTClient_create(&paho_ctxt->client,
-			connect_url,
-			opt.conn_info.id,
-			MQTTCLIENT_PERSISTENCE_NONE,
-			NULL);
+		connect_url,
+		opt.conn_info.id,
+		MQTTCLIENT_PERSISTENCE_NONE,
+		NULL);
 
 	if (rc != MQTTCLIENT_SUCCESS) {
 		logger(FATAL, "Unable to create MQTT client handle: %d", rc);
@@ -90,10 +90,9 @@ msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
 }
 
 void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
-	
-	
+
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
-	
+
 	int rc = MQTTClient_disconnect(paho_ctxt->client, 10000);
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS:
@@ -122,7 +121,6 @@ struct paho_perf_pl {
 static struct paho_perf_pl paho_serialize_latency_info(msg_content_data_t *msg_content) {
 	struct paho_perf_pl ret = {0};
 	gru_timestamp_t ts = gru_time_now();
-	
 
 	char *formatted_ts = gru_time_write_str(&ts);
 
@@ -140,7 +138,7 @@ static void paho_serialize_clean(struct paho_perf_pl *pl) {
 vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status) {
 	MQTTClient_deliveryToken token;
 	MQTTClient_message pubmsg = MQTTClient_message_initializer;
-	
+
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
 	// QoS0, At most once:
@@ -150,37 +148,42 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 
 	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) {
 		if (unlikely((data->size + TS_SIZE) > INT_MAX)) {
-			gru_status_set(status, GRU_FAILURE, 
-				"Data to big to serialize on MQTT protocol: max %d / size: %ld", 
-					INT_MAX, data->size);
+			gru_status_set(status,
+				GRU_FAILURE,
+				"Data to big to serialize on MQTT protocol: max %d / size: %ld",
+				INT_MAX,
+				data->size);
 
 			return VMSL_ERROR;
 		}
-		
+
 		struct paho_perf_pl pl = paho_serialize_latency_info(data);
 
 		pubmsg.payload = pl.data;
 		pubmsg.payloadlen = pl.size;
 
 		logger_t logger = gru_logger_get();
-		logger(DEBUG, "Sending message with latency information '%s' to %s", 
-			data->data, ctxt->msg_opts.uri.path);
+		logger(DEBUG,
+			"Sending message with latency information '%s' to %s",
+			data->data,
+			ctxt->msg_opts.uri.path);
 
 		rc = MQTTClient_publishMessage(
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
 		paho_serialize_clean(&pl);
-	}
-	else {
+	} else {
 		logger_t logger = gru_logger_get();
 
 		logger(DEBUG, "Sending message '%s' to %s", data->data, ctxt->msg_opts.uri.path);
 
 		pubmsg.payload = data->data;
-		
+
 		if (unlikely(data->size > INT_MAX)) {
-			gru_status_set(status, GRU_FAILURE, 
-				"Data to big to serialize on MQTT protocol: max %d / size: %ld", 
-					INT_MAX, data->size);
+			gru_status_set(status,
+				GRU_FAILURE,
+				"Data to big to serialize on MQTT protocol: max %d / size: %ld",
+				INT_MAX,
+				data->size);
 
 			return VMSL_ERROR;
 		}
@@ -217,7 +220,6 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 	return VMSL_SUCCESS;
 }
 
-
 vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
@@ -225,8 +227,8 @@ vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 
 	logger(DEBUG, "Subscribing to %s", paho_ctxt->uri.path);
 
-	int rc = MQTTClient_subscribe(
-		paho_ctxt->client, paho_ctxt->uri.path, QOS_AT_MOST_ONCE);
+	int rc =
+		MQTTClient_subscribe(paho_ctxt->client, paho_ctxt->uri.path, QOS_AT_MOST_ONCE);
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS:
@@ -242,8 +244,8 @@ vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
 	return VMSL_SUCCESS;
 }
 
-vmsl_stat_t paho_receive(
-	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
+vmsl_stat_t
+	paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	MQTTClient_message *msg = NULL;
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 	unsigned long timeout = 10000L;
@@ -256,7 +258,7 @@ vmsl_stat_t paho_receive(
 		case MQTTCLIENT_SUCCESS: {
 			if (!msg) {
 				// No data received, so send a ping to prevent remote disconnect
-				MQTTClient_yield(); 
+				MQTTClient_yield();
 				return VMSL_SUCCESS | VMSL_NO_DATA;
 			}
 
@@ -274,7 +276,7 @@ vmsl_stat_t paho_receive(
 		}
 	}
 
-	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) { 
+	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) {
 		char header[18] = {0};
 		sscanf(msg->payload, "%17s", header);
 
@@ -283,8 +285,7 @@ vmsl_stat_t paho_receive(
 
 	if (msg->payloadlen > content->capacity) {
 		memcpy(content->data, msg->payload, content->capacity - 1);
-	}
-	else {
+	} else {
 		memcpy(content->data, msg->payload, msg->payloadlen);
 	}
 	content->size = msg->payloadlen;

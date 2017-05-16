@@ -103,8 +103,8 @@ bool probe_scheduler_start(gru_status_t *status) {
 	const options_t *options = get_options_object();
 	logger_t logger = gru_logger_get();
 
-	if (!options->probing) { 
-		logger(INFO, "Disabling probes"); 
+	if (!options->probing) {
+		logger(INFO, "Disabling probes");
 		return true;
 	}
 
@@ -118,7 +118,6 @@ bool probe_scheduler_start(gru_status_t *status) {
 		return false;
 	}
 
-	
 	uint32_t num_mod = gru_list_count(options->probes);
 
 	for (uint32_t i = 0; i < num_mod; i++) {
@@ -135,8 +134,7 @@ bool probe_scheduler_start(gru_status_t *status) {
 		probe_entry_t *probe = probe_scheduler_load_probe(lib, ename);
 		if (probe) {
 			gru_list_append(list, probe);
-		}
-		else {
+		} else {
 			logger(ERROR, "Unable load probe: probe-%s", mod_name);
 		}
 	}
@@ -156,8 +154,8 @@ static void probe_scheduler_stop_probe(const void *nodedata, void *payload) {
 
 void probe_scheduler_stop() {
 	const options_t *options = get_options_object();
-	
-	if (options->probing) { 
-		gru_list_for_each(list, probe_scheduler_stop_probe, NULL);	
+
+	if (options->probing) {
+		gru_list_for_each(list, probe_scheduler_stop_probe, NULL);
 	}
 }

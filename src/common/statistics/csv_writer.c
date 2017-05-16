@@ -38,13 +38,12 @@ gzFile csv_write_open_file(const char *dir, const char *name, gru_status_t *stat
 	return f;
 }
 
-
 static gzFile csv_write_initialize(char *directory, char *name, gru_status_t *status) {
 	gzFile ret = NULL;
 
 	if (!directory || !name) {
-		gru_status_set(status, GRU_FAILURE, 
-			"Path and name are required for the CSV writer");
+		gru_status_set(
+			status, GRU_FAILURE, "Path and name are required for the CSV writer");
 
 		return NULL;
 	}
@@ -69,7 +68,7 @@ static bool csv_writer_finalize(gzFile file, gru_status_t *status) {
 static bool csv_writer_flush(gzFile file, gru_status_t *status) {
 	if (gzflush(file, Z_SYNC_FLUSH) != 0) {
 		gru_status_strerror(status, GRU_FAILURE, errno);
-		
+
 		return false;
 	}
 
@@ -78,8 +77,8 @@ static bool csv_writer_flush(gzFile file, gru_status_t *status) {
 
 bool csv_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
 	if (!io_info) {
-		gru_status_set(status, GRU_FAILURE, 
-			"The I/O information is required for the CSV writer");
+		gru_status_set(
+			status, GRU_FAILURE, "The I/O information is required for the CSV writer");
 
 		return false;
 	}
@@ -89,21 +88,19 @@ bool csv_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *stat
 	if (!lat_file) {
 		return false;
 	}
-	
+
 	gzprintf(lat_file, "creation;latency\n");
 	return csv_lat_writer_flush(status);
 }
 
-
-
 bool csv_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
-	char *str = gru_time_write_format(&latency->duration.start, "%Y-%m-%d %H:%M:%S", 
-		status);
+	char *str =
+		gru_time_write_format(&latency->duration.start, "%Y-%m-%d %H:%M:%S", status);
 
 	if (unlikely(!str)) {
 		return false;
 	}
-	
+
 	uint64_t milli_latency = gru_time_to_milli(&latency->elapsed);
 	uint32_t milli = (uint32_t) latency->duration.start.tv_usec / 1000;
 
@@ -113,21 +110,18 @@ bool csv_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
 	return true;
 }
 
-
 bool csv_lat_writer_flush(gru_status_t *status) {
 	return csv_writer_flush(lat_file, status);
 }
-
 
 bool csv_lat_writer_finalize(gru_status_t *status) {
 	return csv_writer_finalize(lat_file, status);
 }
 
-
 bool csv_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
 	if (!io_info) {
-		gru_status_set(status, GRU_FAILURE, 
-			"The I/O information is required for the CSV writer");
+		gru_status_set(
+			status, GRU_FAILURE, "The I/O information is required for the CSV writer");
 
 		return false;
 	}
@@ -137,15 +131,13 @@ bool csv_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *statu
 	if (!tp_file) {
 		return false;
 	}
-	
+
 	gzprintf(tp_file, "timestamp;count;rate\n");
 	return csv_tp_writer_flush(status);
 }
 
-
 bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
-	char *str = gru_time_write_format(&tp->duration.end, "%Y-%m-%d %H:%M:%S", 
-		status);
+	char *str = gru_time_write_format(&tp->duration.end, "%Y-%m-%d %H:%M:%S", status);
 
 	if (unlikely(!str)) {
 		return false;
@@ -156,16 +148,13 @@ bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
 	return true;
 }
 
-
 bool csv_tp_writer_flush(gru_status_t *status) {
 	return csv_writer_flush(tp_file, status);
 }
 
-
 bool csv_tp_writer_finalize(gru_status_t *status) {
 	return csv_writer_finalize(tp_file, status);
 }
-
 
 void csv_writer_latency_assign(latency_writer_t *writer) {
 	writer->initialize = csv_lat_writer_initialize;

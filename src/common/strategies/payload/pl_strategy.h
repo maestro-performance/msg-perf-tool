@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@ extern "C" {
  */
 typedef bool (*pl_st_init)(msg_content_data_t *data, size_t size, gru_status_t *status);
 
-/** 
+/**
  * Payload data loading
  */
 typedef uint64_t (*pl_st_load)(msg_content_data_t *data);
@@ -51,6 +51,5 @@ typedef struct pl_strategy_t_ {
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* PL_STRATEGY_H */

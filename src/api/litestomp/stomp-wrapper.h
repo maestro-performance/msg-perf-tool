@@ -35,10 +35,12 @@ msg_ctxt_t *litestomp_init(msg_opt_t opt, void *data, gru_status_t *status);
 void litestomp_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 
-vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status);
+vmsl_stat_t
+	litestomp_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status);
 vmsl_stat_t litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status);
-vmsl_stat_t litestomp_receive(
-	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
+	msg_content_data_t *content,
+	gru_status_t *status);
 
 bool litestomp_vmsl_assign(vmsl_t *vmsl);
 

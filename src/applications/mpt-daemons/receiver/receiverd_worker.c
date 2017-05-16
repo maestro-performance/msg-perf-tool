@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,16 +19,20 @@ bool started = false;
 worker_options_t worker_options = {0};
 static gru_list_t *children = NULL;
 
-static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t *response, 
-	const maestro_player_info_t *pinfo) 
-{
+static void *receiverd_handle_set(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
 	maestro_payload_set_t body = request->payload->request.set;
 
-	logger(INFO, "Setting option: %.%s to %.*s", (int) sizeof(body.opt), body.opt, 
-		(int) sizeof(body.value), body.value);
+	logger(INFO,
+		"Setting option: %.%s to %.*s",
+		(int) sizeof(body.opt),
+		body.opt,
+		(int) sizeof(body.value),
+		body.value);
 
 	char tmp_opt[MAESTRO_NOTE_OPT_LEN + 1] = {0};
 	char tmp_val[MAESTRO_NOTE_OPT_VALUE_LEN + 1] = {0};
@@ -42,19 +46,19 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 		worker_options.uri = gru_uri_parse(tmp_val, &status);
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
-		
+
 		return NULL;
 	}
 
-	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, MAESTRO_NOTE_OPT_LEN) == 0) {
+	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, MAESTRO_NOTE_OPT_LEN) ==
+		0) {
 		logger(INFO, "Setting duration option");
 
 		gru_duration_t duration = gru_duration_new();
 		if (!gru_duration_parse(&duration, tmp_val)) {
 			worker_options.duration_type = MESSAGE_COUNT;
 			worker_options.duration.count = atol(tmp_val);
-		}
-		else {
+		} else {
 			worker_options.duration_type = TEST_TIME;
 			worker_options.duration.time = duration;
 		}
@@ -74,7 +78,8 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 		return NULL;
 	}
 
-	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, MAESTRO_NOTE_OPT_LEN) == 0) {
+	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, MAESTRO_NOTE_OPT_LEN) ==
+		0) {
 		logger(INFO, "Setting parallel count option");
 
 		worker_options.parallel_count = (uint16_t) atoi(tmp_val);
@@ -95,7 +100,7 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 
 		worker_options.throttle = atoi(tmp_val);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
-		
+
 		return NULL;
 	}
 
@@ -104,10 +109,9 @@ static void *receiverd_handle_set(const maestro_note_t *request, maestro_note_t 
 	return NULL;
 }
 
-
-static void *receiverd_handle_flush(const maestro_note_t *request, maestro_note_t *response, 
-	const maestro_player_info_t *pinfo) 
-{
+static void *receiverd_handle_flush(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Flushing all buffers as requested");
@@ -117,21 +121,21 @@ static void *receiverd_handle_flush(const maestro_note_t *request, maestro_note_
 	return NULL;
 }
 
-static void *receiverd_handle_ping(const maestro_note_t *request, maestro_note_t *response, 
-	const maestro_player_info_t *pinfo) 
-{
+static void *receiverd_handle_ping(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a ping request: %s", pinfo->id);
 
 	gru_timestamp_t now = gru_time_now();
 
-	char *safe_ts = strndup(request->payload->request.ping.ts, 
-		sizeof(request->payload->request.ping.ts));
+	char *safe_ts = strndup(
+		request->payload->request.ping.ts, sizeof(request->payload->request.ping.ts));
 
 	gru_timestamp_t created = gru_time_read_str(safe_ts);
 	uint64_t diff = gru_time_elapsed_milli(created, now);
-	
+
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PING);
 	maestro_note_ping_set_elapsed(response, diff);
 	maestro_note_ping_set_id(response, pinfo->id);
@@ -139,16 +143,15 @@ static void *receiverd_handle_ping(const maestro_note_t *request, maestro_note_t
 	return NULL;
 }
 
-static void *receiverd_handle_start(const maestro_note_t *request, maestro_note_t *response, 
-	const maestro_player_info_t *pinfo) 
-{
+static void *receiverd_handle_start(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
 	if (started == true || children != NULL) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
-	}
-	else {
+	} else {
 		started = true;
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -158,9 +161,9 @@ static void *receiverd_handle_start(const maestro_note_t *request, maestro_note_
 	return NULL;
 }
 
-static void *receiverd_handle_stop(const maestro_note_t *request, maestro_note_t *response, 
-	const maestro_player_info_t *pinfo) 
-{
+static void *receiverd_handle_stop(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a stop request");
@@ -180,9 +183,9 @@ static void *receiverd_handle_stop(const maestro_note_t *request, maestro_note_t
 	return NULL;
 }
 
-static void *receiverd_handle_stats(const maestro_note_t *request, maestro_note_t *response,
-	const maestro_player_info_t *pinfo)
-{
+static void *receiverd_handle_stats(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a stats request: %s", pinfo->id);
@@ -234,50 +237,51 @@ static void *receiverd_handle_stats(const maestro_note_t *request, maestro_note_
 
 static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	maestro_sheet_t *ret = maestro_sheet_new("/mpt/receiver", status);
-	
-	if (!ret) {	
+
+	if (!ret) {
 		return NULL;
 	}
 
-	maestro_instrument_t *start_instrument = maestro_instrument_new(MAESTRO_NOTE_START, 
-		receiverd_handle_start, status);
+	maestro_instrument_t *start_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_START, receiverd_handle_start, status);
 
 	maestro_sheet_add_instrument(ret, start_instrument);
 
-	maestro_instrument_t *stop_instrument = maestro_instrument_new(MAESTRO_NOTE_STOP, 
-		receiverd_handle_stop, status);
+	maestro_instrument_t *stop_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_STOP, receiverd_handle_stop, status);
 
 	maestro_sheet_add_instrument(ret, stop_instrument);
 
-	maestro_instrument_t *flush_instrument = maestro_instrument_new(MAESTRO_NOTE_FLUSH, 
-		receiverd_handle_flush, status);
+	maestro_instrument_t *flush_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_FLUSH, receiverd_handle_flush, status);
 
 	maestro_sheet_add_instrument(ret, flush_instrument);
 
-	maestro_instrument_t *set_instrument = maestro_instrument_new(MAESTRO_NOTE_SET, 
-		receiverd_handle_set, status);
+	maestro_instrument_t *set_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_SET, receiverd_handle_set, status);
 
 	maestro_sheet_add_instrument(ret, set_instrument);
 
-	maestro_instrument_t *ping_instrument = maestro_instrument_new(MAESTRO_NOTE_PING, 
-		receiverd_handle_ping, status);
+	maestro_instrument_t *ping_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_PING, receiverd_handle_ping, status);
 
 	maestro_sheet_add_instrument(ret, ping_instrument);
 
-	maestro_instrument_t *stats_instrument = maestro_instrument_new(MAESTRO_NOTE_STATS,
-		receiverd_handle_stats, status);
+	maestro_instrument_t *stats_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_STATS, receiverd_handle_stats, status);
 
 	maestro_sheet_add_instrument(ret, stats_instrument);
 
 	return ret;
 }
 
-
 static bool receiverd_copy(worker_info_t *worker_info) {
-	if (!shr_buff_read(worker_info->shr, &worker_info->snapshot, sizeof(worker_snapshot_t))) {
+	if (!shr_buff_read(
+			worker_info->shr, &worker_info->snapshot, sizeof(worker_snapshot_t))) {
 		logger_t logger = gru_logger_get();
 
-		logger(WARNING, "Unable to obtain performance snapshot from receiver child %d", 
+		logger(WARNING,
+			"Unable to obtain performance snapshot from receiver child %d",
 			worker_info->child);
 	}
 
@@ -287,7 +291,7 @@ static bool receiverd_copy(worker_info_t *worker_info) {
 static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
-	
+
 	worker_t worker = {0};
 
 	worker.vmsl = vmsl;
@@ -298,8 +302,8 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	worker.name = "receiverd";
 	worker.worker_flags = WRK_RECEIVER | WRK_DAEMON | WRK_FORKED;
 	worker.can_continue = worker_check;
-	
-	worker.report_format = FORMAT_CSV; 
+
+	worker.report_format = FORMAT_CSV;
 	worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 
 	children = abstract_worker_clone(&worker, abstract_receiver_worker_start, &status);
@@ -308,8 +312,7 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);
 
 		return true;
-	}
-	else {
+	} else {
 		// Child return
 		if (!children) {
 			return false;
@@ -318,7 +321,7 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 
 	while (children && gru_list_count(children) > 0) {
 		mpt_trace("There are still %d children running", gru_list_count(children));
-		abstract_worker_watchdog(children, receiverd_copy); 
+		abstract_worker_watchdog(children, receiverd_copy);
 
 		sleep(1);
 	}
@@ -327,20 +330,17 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	return true;
 }
 
-
 int receiverd_worker_start(const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 	maestro_sheet_t *sheet = new_receiver_sheet(&status);
 
 	if (!maestro_player_start(options, sheet, &status)) {
-		logger(FATAL, "Unable to connect to maestro broker: %s\n", 
-			status.message);
+		logger(FATAL, "Unable to connect to maestro broker: %s\n", status.message);
 
 		return 1;
 	}
 
-	
 	while (true) {
 		sleep(1);
 
@@ -348,17 +348,15 @@ int receiverd_worker_start(const options_t *options) {
 			vmsl_t vmsl = vmsl_init();
 
 			if (!vmsl_assign_by_url(&worker_options.uri, &vmsl)) {
-				char *uri = gru_uri_simple_format(&worker_options.uri, &status); 
+				char *uri = gru_uri_simple_format(&worker_options.uri, &status);
 
 				if (!uri) {
 					logger(ERROR, "Unable to assign a VMSL: %s", status.message);
-				}
-				else { 
+				} else {
 					logger(ERROR, "Unable to assign a VMSL for the URI: %s", uri);
 					gru_dealloc_string(&uri);
 				}
-			}
-			else {
+			} else {
 				if (!receiverd_worker_execute(&vmsl)) {
 					// Child return
 					break;

@@ -13,15 +13,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
- #include "maestro_main.h"
+#include "maestro_main.h"
 
 static void show_help(char **argv) {
 	gru_cli_program_usage("mpt-maestro", argv[0]);
 
 	gru_cli_option_help("help", "h", "show this help");
-    gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
+	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
 	gru_cli_option_help("log-level",
-		"l", "runs in the given verbose (info, debug, trace, etc) level mode");
+		"l",
+		"runs in the given verbose (info, debug, trace, etc) level mode");
 }
 
 int main(int argc, char **argv) {
@@ -30,7 +31,7 @@ int main(int argc, char **argv) {
 
 	options_t *options = options_new();
 	set_options_object(options);
-	
+
 	gru_status_t status = gru_status_new();
 
 	if (!options) {
@@ -47,8 +48,7 @@ int main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {
-			{"maestro-url", required_argument, 0, 'm'},
+		static struct option long_options[] = {{"maestro-url", required_argument, 0, 'm'},
 			{"log-level", required_argument, 0, 'l'},
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
@@ -84,8 +84,7 @@ int main(int argc, char **argv) {
 
 	if (child == 0) {
 		maestro_forward_daemon_run(options);
-	}
-	else {
+	} else {
 		if (child > 0) {
 			fprintf(stdout, "Forward daemon started\n");
 			if (maestro_loop(&status) != 0) {
@@ -95,8 +94,7 @@ int main(int argc, char **argv) {
 			kill(child, SIGTERM);
 			int rc = 0;
 			waitpid(child, &rc, 0);
-		}
-		else {
+		} else {
 			fprintf(stderr, "Unable to launch child process");
 			goto err_exit;
 		}

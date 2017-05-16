@@ -38,7 +38,6 @@ int bmic_collect(gru_status_t *status);
 void bmic_stop();
 const char *bmic_name();
 
-
 #ifdef __cplusplus
 }
 #endif

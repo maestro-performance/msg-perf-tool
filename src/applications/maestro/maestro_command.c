@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,19 +16,20 @@
 
 #include "maestro_command.h"
 
-
-static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt, gru_uri_t uri, gru_status_t *status) {
+static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt,
+	gru_uri_t uri,
+	gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	msg_opt_t opt = {
-		.direction = MSG_DIRECTION_SENDER, 
-		.qos = MSG_QOS_AT_MOST_ONCE, 
+		.direction = MSG_DIRECTION_SENDER,
+		.qos = MSG_QOS_AT_MOST_ONCE,
 		.statistics = MSG_STAT_NONE,
 	};
 
 	msg_conn_info_gen_id(&opt.conn_info);
 	opt.uri = uri;
-	
+
 	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(opt, NULL, status);
 
 	if (!cmd_ctxt->msg_ctxt) {
@@ -39,13 +40,14 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt, gru_uri_t uri, gru_
 	return 0;
 }
 
-
 static int maestro_cmd_disconnect(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	cmd_ctxt->vmsl.stop(cmd_ctxt->msg_ctxt, status);
 	return 0;
 }
 
-static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt, const char *cmd, gru_status_t *status) {
+static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt,
+	const char *cmd,
+	gru_status_t *status) {
 	const options_t *options = get_options_object();
 
 	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
@@ -54,10 +56,10 @@ static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt, const char 
 	}
 
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
-	
+
 	msg_content_data_t req = {0};
 	maestro_easy_request(&req, cmd);
-	
+
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
 		fprintf(stderr, "Failed to send command");
@@ -75,7 +77,6 @@ static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt, const char 
 	return 0;
 }
 
-
 int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_START, status);
 }
@@ -86,24 +87,29 @@ int maestro_cmd_stop_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
 	if (maestro_note_equals(note, MAESTRO_NOTE_PING)) {
-		printf("ID: %.*s Time: %.*s ms\n", 
-			(int) sizeof(note->payload->response.ping.id), note->payload->response.ping.id, 
-			(int) sizeof(note->payload->response.ping.elapsed), note->payload->response.ping.elapsed);
+		printf("ID: %.*s Time: %.*s ms\n",
+			(int) sizeof(note->payload->response.ping.id),
+			note->payload->response.ping.id,
+			(int) sizeof(note->payload->response.ping.elapsed),
+			note->payload->response.ping.elapsed);
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_PROTOCOL_ERROR)) {
 		printf("One of more of the commands did not complete successfully\n");
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_STATS)) {
 		printf("ID: %.*s Childs: %.*s childs Count: %.*s Rate: %.*s Latency: %.*s\n",
-			(int) sizeof(note->payload->response.stats.id), note->payload->response.stats.id,
-			(int) sizeof(note->payload->response.stats.child_count), note->payload->response.stats.child_count,
-			(int) sizeof(note->payload->response.stats.stats.perf.count), note->payload->response.stats.stats.perf.count,
-			(int) sizeof(note->payload->response.stats.stats.perf.rate), note->payload->response.stats.stats.perf.rate,
-			(int) sizeof(note->payload->response.stats.stats.perf.latency), note->payload->response.stats.stats.perf.latency);
-	}
-	else if (maestro_note_equals(note, MAESTRO_NOTE_OK)) {
+			(int) sizeof(note->payload->response.stats.id),
+			note->payload->response.stats.id,
+			(int) sizeof(note->payload->response.stats.child_count),
+			note->payload->response.stats.child_count,
+			(int) sizeof(note->payload->response.stats.stats.perf.count),
+			note->payload->response.stats.stats.perf.count,
+			(int) sizeof(note->payload->response.stats.stats.perf.rate),
+			note->payload->response.stats.stats.perf.rate,
+			(int) sizeof(note->payload->response.stats.stats.perf.latency),
+			note->payload->response.stats.stats.perf.latency);
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_OK)) {
 		printf("Peer reply OK\n");
 	}
 }
-
 
 int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *status) {
 	ssize_t ret = 0;
@@ -112,22 +118,19 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 
 		ret = msgrcv(queue, &buf, sizeof(buf), 0, IPC_NOWAIT);
 		if (ret < 0) {
-			if (errno == ENOMSG) { 
+			if (errno == ENOMSG) {
 				break;
-			}
-			else {
+			} else {
 				fprintf(stdout, "Failed to read from the local forward queue\n");
-				
+
 				return 1;
 			}
-		}
-		else {
+		} else {
 			maestro_note_t note = {0};
 
 			if (!maestro_note_parse(buf, ret, &note, status)) {
 				fprintf(stderr, "Unknown protocol data\n");
-			}
-			else {
+			} else {
 				maestro_cmd_print_data(&note);
 			}
 
@@ -138,14 +141,14 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, int queue, gru_status_t *s
 	return 0;
 }
 
-
 int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_FLUSH, status);
 }
 
-
-static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt, 
-	const char *val, gru_status_t *status) {
+static int maestro_cmd_set_opt_by_name(msg_content_data_t *data,
+	const char *opt,
+	const char *val,
+	gru_status_t *status) {
 	maestro_note_t note = {0};
 
 	maestro_note_set_type(&note, MAESTRO_TYPE_REQUEST);
@@ -159,13 +162,13 @@ static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_BROKER, val);
 	} else if (strcmp(opt, "duration") == 0) {
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, val);
-	} else if  (strcmp(opt, "log-level") == 0) {
+	} else if (strcmp(opt, "log-level") == 0) {
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, val);
-	} else if  (strcmp(opt, "parallel-count") == 0) {
+	} else if (strcmp(opt, "parallel-count") == 0) {
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, val);
-	} else if  (strcmp(opt, "message-size") == 0) {
+	} else if (strcmp(opt, "message-size") == 0) {
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, val);
-	} else if  (strcmp(opt, "throttle") == 0) {
+	} else if (strcmp(opt, "throttle") == 0) {
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_THROTTLE, val);
 	} else {
 		return -1;
@@ -176,10 +179,10 @@ static int maestro_cmd_set_opt_by_name(msg_content_data_t *data, const char *opt
 	return 0;
 }
 
-
-int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_status_t *status) {
+int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt,
+	gru_list_t *strings,
+	gru_status_t *status) {
 	const options_t *options = get_options_object();
-
 
 	const gru_node_t *node = gru_list_get(strings, 1);
 	if (!node) {
@@ -189,11 +192,11 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_s
 
 	char *opt = gru_node_get_data_ptr(char, node);
 
-	if (!node->next) { 
+	if (!node->next) {
 		gru_status_set(status, GRU_FAILURE, "Missing option value: parser error");
 		return 1;
 	}
-	
+
 	char *val = gru_node_get_data_ptr(char, node->next);
 	if (!val) {
 		gru_status_set(status, GRU_FAILURE, "Missing option value: invalid CLI data");
@@ -206,9 +209,9 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings, gru_s
 	}
 
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
-	
+
 	msg_content_data_t req = {0};
-	if (maestro_cmd_set_opt_by_name(&req, opt, val, status) == -1)  {
+	if (maestro_cmd_set_opt_by_name(&req, opt, val, status) == -1) {
 		gru_status_set(status, GRU_FAILURE, "Invalid option: %s", opt);
 
 		return 1;
@@ -257,7 +260,7 @@ int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	}
 
 	gru_uri_set_path(&cmd_ctxt->msg_ctxt->msg_opts.uri, "/mpt/receiver");
-	
+
 	msg_content_data_t req = {0};
 	maestro_cmd_request_ping(&req, status);
 	if (!gru_status_success(status)) {

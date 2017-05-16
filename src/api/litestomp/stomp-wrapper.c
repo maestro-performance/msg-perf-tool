@@ -40,7 +40,6 @@ msg_ctxt_t *litestomp_init(msg_opt_t opt, void *data, gru_status_t *status) {
 		goto err_exit1;
 	}
 
-	
 	url = gru_uri_simple_format(&opt.uri, status);
 	if (!url) {
 		goto err_exit1;
@@ -104,8 +103,8 @@ void litestomp_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	}
 }
 
-vmsl_stat_t litestomp_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status) 
-{
+vmsl_stat_t
+	litestomp_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status) {
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 	logger_t logger = gru_logger_get();
 
@@ -185,8 +184,9 @@ vmsl_stat_t litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *stat
 	return VMSL_SUCCESS;
 }
 
-vmsl_stat_t litestomp_receive(
-	msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
+vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
+	msg_content_data_t *content,
+	gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 
@@ -210,14 +210,12 @@ vmsl_stat_t litestomp_receive(
 
 		stomp_message_destroy(&message);
 		return VMSL_ERROR;
-	}
-	else if (stat & STOMP_NO_DATA) {
+	} else if (stat & STOMP_NO_DATA) {
 		stomp_message_destroy(&message);
 		return VMSL_SUCCESS | VMSL_NO_DATA;
 	}
 
-	
-	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) { 
+	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) {
 		const char *ctime = stomp_exchange_get(
 			stomp_ctxt->messenger->exchange_properties, STOMP_CREATION_TIME);
 

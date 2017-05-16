@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,17 +20,16 @@ static pthread_t player;
 
 static void *maestro_run(void *en) {
 	logger_t logger = gru_logger_get();
-	
+
 	logger(DEBUG, "Player is running");
 	while (!cancel) {
-		
+
 		sleep(1);
 	}
 
 	logger(DEBUG, "Maestro is terminating");
 	return NULL;
 }
-
 
 void maestro_init() {
 	int sys_ret = pthread_create(&m, NULL, maestro_run, entry);
@@ -41,4 +40,4 @@ void maestro_init() {
 	}
 }
 
-void 
+void

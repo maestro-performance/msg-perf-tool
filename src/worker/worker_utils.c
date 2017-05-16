@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
- #include "worker_utils.h"
+#include "worker_utils.h"
 
 bool worker_check(const worker_options_t *options, const worker_snapshot_t *snapshot) {
 	if (is_interrupted()) {

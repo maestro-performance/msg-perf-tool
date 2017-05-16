@@ -17,7 +17,11 @@
 
 static bool interrupted = false;
 
-bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, FILE *fd,
+bool remap_log(const char *dir,
+	const char *base_name,
+	pid_t parent,
+	pid_t pid,
+	FILE *fd,
 	gru_status_t *status) {
 	char name[64];
 
@@ -32,8 +36,13 @@ bool remap_log(const char *dir, const char *base_name, pid_t parent, pid_t pid, 
 	return gru_io_remap(dir, name, fd, status);
 }
 
-bool remap_log_with_prefix(const char *dir, const char *base_name, char *prefix, 
-	pid_t parent, pid_t pid, FILE *fd, gru_status_t *status) {
+bool remap_log_with_prefix(const char *dir,
+	const char *base_name,
+	char *prefix,
+	pid_t parent,
+	pid_t pid,
+	FILE *fd,
+	gru_status_t *status) {
 	char name[64];
 
 	bzero(name, sizeof(name));
@@ -41,7 +50,8 @@ bool remap_log_with_prefix(const char *dir, const char *base_name, char *prefix,
 	if (parent == 0) {
 		snprintf(name, sizeof(name) - 1, "%s-%s-%d.log", prefix, base_name, pid);
 	} else {
-		snprintf(name, sizeof(name) - 1, "%s-%s-%d-%d.log", prefix, base_name, parent, pid);
+		snprintf(
+			name, sizeof(name) - 1, "%s-%s-%d-%d.log", prefix, base_name, parent, pid);
 	}
 
 	return gru_io_remap(dir, name, fd, status);
@@ -137,11 +147,11 @@ inline bool is_interrupted() {
 
 int create_queue(key_t key, gru_status_t *status) {
 	int msg_flag = IPC_CREAT | 0666;
-	
+
 	int queue_id = msgget(key, msg_flag);
 	if (queue_id < 0) {
-		gru_status_set(status, GRU_FAILURE, 
-			"Unable to create a POSIX queue: %s", strerror(errno));
+		gru_status_set(
+			status, GRU_FAILURE, "Unable to create a POSIX queue: %s", strerror(errno));
 
 		return -1;
 	}

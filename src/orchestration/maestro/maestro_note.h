@@ -1,12 +1,12 @@
 /**
  *    Copyright 2017 Otavio Rodolfo Piske
- * 
+ *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,10 +16,10 @@
 #ifndef MAESTRO_NOTE_H
 #define MAESTRO_NOTE_H
 
-#include <stdlib.h>
-#include <stdbool.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <common/gru_status.h>
 
@@ -62,17 +62,18 @@
 /** Internal server error */
 #define MAESTRO_NOTE_INTERNAL_ERROR "F1"
 
-
 /** Lengh of the opt field in a set note */
 #define MAESTRO_NOTE_OPT_LEN 2
 
 /** Lengh of the value field in a set note */
-#define MAESTRO_NOTE_OPT_VALUE_LEN (MAESTRO_NOTE_PAYLOAD_MAX_LENGTH - MAESTRO_NOTE_OPT_LEN)
+#define MAESTRO_NOTE_OPT_VALUE_LEN                                                       \
+	(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH - MAESTRO_NOTE_OPT_LEN)
 
 /** Set broker address */
 #define MAESTRO_NOTE_OPT_SET_BROKER "00"
 
-/** Set duration type (count or duration). Values are defined as parameters to the message */
+/** Set duration type (count or duration). Values are defined as parameters to the message
+ */
 #define MAESTRO_NOTE_OPT_SET_DURATION_TYPE "01"
 
 /** Set the log level */
@@ -108,14 +109,13 @@ typedef struct maestro_payload_stats_perf_t_ {
 typedef struct maestro_payload_stats_reply_t_ {
 	char id[MAESTRO_CLIENT_ID_SIZE];
 	char child_count[5];
-	char role[10]; // sender / receiver / jmonitor / nmonitor / 
+	char role[10]; // sender / receiver / jmonitor / nmonitor /
 	char roleinfo[8]; // ie: node number on the cluster, etc
 	char stat_type; // perf (lat/tp), other
 	union {
 		maestro_payload_stats_perf_t perf;
 	} stats;
 } maestro_payload_stats_reply_t;
-
 
 typedef struct maestro_payload_set_t_ {
 	char opt[MAESTRO_NOTE_OPT_LEN];
@@ -139,20 +139,19 @@ typedef struct maestro_note_t_ {
 	maestro_payload_t *payload;
 } maestro_note_t;
 
-
-#define maestro_set_payload_txt_field(field, source) \
+#define maestro_set_payload_txt_field(field, source)                                     \
 	sprintf(field, "%-*s", (int) sizeof(field), source)
 
-#define maestro_set_payload_uint32_field(field, value) \
+#define maestro_set_payload_uint32_field(field, value)                                   \
 	sprintf(field, "%-*" PRIu32 "", (int) sizeof(field), value)
 
-#define maestro_set_payload_uint64_field(field, value) \
+#define maestro_set_payload_uint64_field(field, value)                                   \
 	sprintf(field, "%-*" PRIu64 "", (int) sizeof(field), value)
 
-#define maestro_set_payload_double_field(field, value) \
+#define maestro_set_payload_double_field(field, value)                                   \
 	sprintf(field, "%-*.2f", (int) sizeof(field), value)
 
-/** 
+/**
  * Prepare a note for receiving a payload (ie.: allocate memory for the payload)
  * @return true if successfull of false otherwise
  */
@@ -165,28 +164,30 @@ void maestro_note_payload_cleanup(maestro_note_t *note);
 
 /**
  * Parse a note
- * @param data data to parse 
- * @param size data size 
- * @param note output note 
- * @param status status structure in case of error 
+ * @param data data to parse
+ * @param size data size
+ * @param note output note
+ * @param status status structure in case of error
  * @return true if successfully parsed or false otherwise
  */
-bool maestro_note_parse(const void *data, size_t size, maestro_note_t *note, 
+bool maestro_note_parse(const void *data,
+	size_t size,
+	maestro_note_t *note,
 	gru_status_t *status);
 bool maestro_note_equals(const maestro_note_t *note, const char *cmd);
 
-/** 
- * Sets the client ID in the ping response 
+/**
+ * Sets the client ID in the ping response
  */
 void maestro_note_ping_set_id(maestro_note_t *note, const char *id);
 
-/** 
+/**
  * Sets the timestamp in the ping request
  */
 void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts);
 
 /**
- * Sets the elapsed time in the ping response 
+ * Sets the elapsed time in the ping response
  */
 void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t ts);
 

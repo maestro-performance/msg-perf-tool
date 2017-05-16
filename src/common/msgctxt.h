@@ -27,13 +27,11 @@ extern "C" {
 #include <log/gru_logger.h>
 #include <network/gru_uri.h>
 
-#include "msg_direction.h"
 #include "msg_conn_info.h"
 #include "msg_content_data.h"
+#include "msg_direction.h"
 
 typedef void (*msg_content_loader)(msg_content_data_t *content_data);
-
-
 
 typedef enum msg_qos_t_ {
 	MSG_QOS_AT_MOST_ONCE,
