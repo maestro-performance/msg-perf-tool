@@ -31,7 +31,7 @@ static int maestro_loop_cmd(maestro_cmd_ctxt_t *cmd_ctxt, const char *cmd, gru_l
 	}
 
 	if (strcmp(cmd, "collect") == 0) {
-		return maestro_cmd_collect(cmd_ctxt, status);
+		return maestro_cmd_collect(cmd_ctxt, strings, status);
 	}
 
 	if (strcmp(cmd, "flush") == 0) {

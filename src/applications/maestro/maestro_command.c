@@ -111,7 +111,22 @@ static void maestro_cmd_print_data(maestro_note_t *note) {
 	}
 }
 
-int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+static const char *maestro_cmd_get_string(const gru_list_t *strings, uint32_t pos) {
+	if (!strings) {
+		return NULL;
+	}
+
+	const gru_node_t *node = gru_list_get(strings, pos);
+	if (!node) {
+		return NULL;
+	}
+
+	return gru_node_get_data_ptr(char, node);
+}
+
+static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
+	gru_status_t *status)
+{
 	ssize_t ret = 0;
 	while (true) {
 		char buf[MAESTRO_NOTE_SIZE] = {0};
@@ -139,6 +154,32 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	}
 
 	return 0;
+}
+
+int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
+	gru_status_t *status)
+{
+	const char *count_str = maestro_cmd_get_string(strings, 1);
+	const char *interval_str = maestro_cmd_get_string(strings, 2);
+
+
+	if (count_str && interval_str) {
+		uint32_t count = atoi(count_str);
+		uint32_t interval = atoi(interval_str);
+
+		for (int i = 0; i < count; i++) {
+			int ret = maestro_cmd_do_collect(cmd_ctxt, strings, status);
+			if (ret != 0) {
+				return ret;
+			}
+			sleep(interval);
+		}
+
+		return 0;
+	}
+	else {
+		return maestro_cmd_do_collect(cmd_ctxt, strings, status);
+	}
 }
 
 int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {

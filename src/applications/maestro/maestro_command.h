@@ -35,7 +35,8 @@
 int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 int maestro_cmd_stop_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 
-int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
+int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
+	gru_status_t *status);
 int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt,
 	gru_list_t *strings,
