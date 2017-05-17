@@ -96,6 +96,7 @@ static void *maestro_player_run(void *player) {
 	}
 
 	logger(INFO, "Maestro player is terminating");
+	msg_content_data_destroy(&mdata);
 	return NULL;
 }
 
