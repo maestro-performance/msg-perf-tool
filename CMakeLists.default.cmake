@@ -23,19 +23,19 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 			add_definitions(-DMPT_DEBUG=2)
 	endif (BUILD_WITH_EXTRA_DEBUG)
 
-	set(CMAKE_C_FLAGS "-Wall -Wshadow -Wconversion -Wno-sign-conversion -fstrict-aliasing -std=c99 ${CMAKE_USER_C_FLAGS}" CACHE STRING
+	set(CMAKE_C_FLAGS "-Wall -Wshadow -Wconversion -Wno-sign-conversion -fstrict-aliasing -fstack-protector-all -std=c99 ${CMAKE_USER_C_FLAGS}" CACHE STRING
 		"Flags used by the compiler during all build types." FORCE
 	)
 
-	set(CMAKE_C_FLAGS_DEBUG "-fdiagnostics-color=auto -g -fstrict-aliasing ${CMAKE_USER_C_FLAGS}"  CACHE STRING
+	set(CMAKE_C_FLAGS_DEBUG "-fdiagnostics-color=auto -g ${CMAKE_USER_C_FLAGS}"  CACHE STRING
 		"Flags used by the compiler during debug build." FORCE
 	)
 
-	set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -D_FORTIFY_SOURCE=1 -fstrict-aliasing ${CMAKE_USER_C_FLAGS}" CACHE STRING
+	set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer -D_FORTIFY_SOURCE=1 ${CMAKE_USER_C_FLAGS}" CACHE STRING
 		"Flags used by the compiler during release build." FORCE
 	)
 
-	set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2 -D_FORTIFY_SOURCE=1 -fstrict-aliasing ${CMAKE_USER_C_FLAGS}" CACHE STRING
+	set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O2 -D_FORTIFY_SOURCE=1 ${CMAKE_USER_C_FLAGS}" CACHE STRING
 		"Flags used by the compiler during release build with debug information." FORCE
 	)
 endif (CMAKE_COMPILER_IS_GNUCXX)
