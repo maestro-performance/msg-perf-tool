@@ -375,22 +375,6 @@ static int proton_do_receive(pn_messenger_t *messenger,
 	return 0;
 }
 
-static gru_timestamp_t proton_timestamp_to_mpt_timestamp_t(pn_timestamp_t timestamp) {
-	gru_timestamp_t ret = {0};
-
-	double ts = ((double) timestamp / 1000);
-	double integral;
-
-	ret.tv_usec = modf(ts, &integral) * 1000000;
-	ret.tv_sec = integral;
-
-	logger_t logger = gru_logger_get();
-
-	logger(TRACE, "Returning: %lu / %lu / %f", ret.tv_sec, ret.tv_usec, integral);
-
-	return ret;
-}
-
 vmsl_stat_t
 	proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
@@ -426,7 +410,7 @@ vmsl_stat_t
 
 		if (proton_ts > 0) {
 			mpt_trace("Creation timestamp collected");
-			content->created = proton_timestamp_to_mpt_timestamp_t(proton_ts);
+			content->created = gru_time_from_milli(proton_ts);
 		} else {
 			logger(DEBUG, "Unable to collect creation timestamp");
 			gru_status_set(status, GRU_FAILURE, "A timestamp was not set for a message");
