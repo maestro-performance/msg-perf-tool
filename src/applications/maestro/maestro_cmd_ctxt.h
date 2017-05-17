@@ -24,9 +24,12 @@
 #include "vmsl.h"
 #include "vmsl_assign.h"
 
+#include "maestro_forward_queue.h"
+
 typedef struct maestro_cmd_ctxt_t_ {
 	vmsl_t vmsl;
 	msg_ctxt_t *msg_ctxt;
+	int queue;
 } maestro_cmd_ctxt_t;
 
 maestro_cmd_ctxt_t *maestro_cmd_ctxt_init(const gru_uri_t *uri, gru_status_t *status);

@@ -26,7 +26,6 @@
 
 #include "maestro_cmd_ctxt.h"
 #include "maestro_command.h"
-#include "maestro_forward_queue.h"
 
 int maestro_loop(gru_status_t *status);
 void maestro_loop_reply(const options_t *options, gru_status_t *status);
