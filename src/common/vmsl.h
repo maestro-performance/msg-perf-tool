@@ -52,11 +52,11 @@ typedef struct vmsl_t_ {
 vmsl_t vmsl_init();
 
 static inline bool vmsl_stat_success(vmsl_stat_t stat) {
-	return stat & VMSL_SUCCESS ? true : false;
+	return (stat & VMSL_SUCCESS) ? true : false;
 }
 
 static inline bool vmsl_stat_error(vmsl_stat_t stat) {
-	return stat & VMSL_SUCCESS ? false : true;
+	return (stat & VMSL_SUCCESS) ? false : true;
 }
 
 #ifdef __cplusplus
