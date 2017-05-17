@@ -162,7 +162,6 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
 	const char *count_str = maestro_cmd_get_string(strings, 1);
 	const char *interval_str = maestro_cmd_get_string(strings, 2);
 
-
 	if (count_str && interval_str) {
 		uint32_t count = atoi(count_str);
 		uint32_t interval = atoi(interval_str);
@@ -324,6 +323,37 @@ int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	return 0;
 }
 
-int maestro_cmd_stats(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
-	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STATS, status);
+int maestro_cmd_stats(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
+	gru_status_t *status)
+{
+	const char *count_str = maestro_cmd_get_string(strings, 1);
+	const char *interval_str = maestro_cmd_get_string(strings, 2);
+
+	if (count_str && interval_str) {
+		uint32_t count = atoi(count_str);
+		uint32_t interval = atoi(interval_str);
+
+		for (int i = 0; i < count; i++) {
+			int ret = 0;
+
+			ret = maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STATS, status);
+			if (ret != 0) {
+				return ret;
+			}
+
+			ret = maestro_cmd_do_collect(cmd_ctxt, NULL, status);
+			if (ret != 0) {
+				return ret;
+			}
+
+			sleep(interval);
+		}
+
+		return 0;
+	}
+	else {
+		return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STATS, status);
+	}
+
+
 }

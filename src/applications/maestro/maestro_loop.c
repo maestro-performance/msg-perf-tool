@@ -47,7 +47,7 @@ static int maestro_loop_cmd(maestro_cmd_ctxt_t *cmd_ctxt, const char *cmd, gru_l
 	}
 
 	if (strcmp(cmd, "stats") == 0) {
-		return maestro_cmd_stats(cmd_ctxt, status);
+		return maestro_cmd_stats(cmd_ctxt, strings, status);
 	}
 
 	return -1;
