@@ -42,6 +42,8 @@
 #include "worker_types.h"
 #include "worker_utils.h"
 
+#include "daemon_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

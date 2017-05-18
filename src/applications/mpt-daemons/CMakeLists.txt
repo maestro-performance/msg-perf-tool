@@ -5,6 +5,12 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	AddService(broker/config mpt-broker-inspector)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
+include_directories(common)
+
+add_library(
+	mpt-daemon-common STATIC
+    common/daemon_common.c
+)
 
 add_executable(
 	mpt-receiver-daemon
@@ -14,6 +20,7 @@ add_executable(
 
 target_link_libraries(
 	mpt-receiver-daemon
+	mpt-daemon-common
 	mpt-common
 	mpt-api-common
 	mpt-orchestration-maestro
@@ -34,6 +41,7 @@ add_executable(
 
 target_link_libraries(
 	mpt-sender-daemon
+	mpt-daemon-common
 	mpt-common
 	mpt-api-common
 	mpt-orchestration-maestro
@@ -54,6 +62,7 @@ add_executable(
 
 target_link_libraries(
 	mpt-broker-inspector
+	mpt-daemon-common
 	mpt-common
 	mpt-api-common
 	mpt-orchestration-maestro

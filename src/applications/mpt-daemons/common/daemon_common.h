@@ -13,8 +13,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef BROKERD_WORKER_H
-#define BROKERD_WORKER_H
+#ifndef DAEMON_COMMON_H
+#define DAEMON_COMMON_H
 
 #include <inttypes.h>
 #include <signal.h>
@@ -23,39 +23,32 @@
 
 #include <common/gru_status.h>
 
-#include <context/bmic_context.h>
-
-#include "bmic/bmic_utils.h"
-#include "bmic/bmic_writer.h"
 #include "contrib/options.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
 #include "maestro/maestro_sheet.h"
-#include "msg_content_data.h"
-#include "msgctxt.h"
-#include "process_utils.h"
-#include "statistics/calculator.h"
-#include "statistics/csv_writer.h"
-#include "statistics/stats_types.h"
-#include "statistics/stats_writer.h"
-#include "vmsl.h"
 
 #include "abstract_worker.h"
 #include "worker_options.h"
 #include "worker_types.h"
 #include "worker_utils.h"
 
-#include "daemon_common.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int brokerd_worker_start(const options_t *options);
+void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response,
+	worker_options_t *worker_options);
+void *commond_handle_flush(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo);
+void *commond_handle_ping(const maestro_note_t *request, maestro_note_t *response,
+	const maestro_player_info_t *pinfo);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* BROKERD_WORKER_H */
+
+#endif /* DAEMON_COMMON_H */
