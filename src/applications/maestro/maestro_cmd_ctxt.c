@@ -47,7 +47,10 @@ void maestro_cmd_ctxt_destroy(maestro_cmd_ctxt_t **ptr) {
 	}
 
 	gru_status_t tmp = gru_status_new();
-	ctxt->vmsl.stop(ctxt->msg_ctxt, &tmp);
+
+	if (ctxt->msg_ctxt) {
+		ctxt->vmsl.stop(ctxt->msg_ctxt, &tmp);
+	}
 
 	gru_dealloc((void **) ptr);
 }
