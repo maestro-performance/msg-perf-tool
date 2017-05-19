@@ -47,11 +47,14 @@
 /** Set options */
 #define MAESTRO_NOTE_SET "04"
 
-/** Send a ping request */
-#define MAESTRO_NOTE_PING "10"
-
 /** Stats request */
 #define MAESTRO_NOTE_STATS "05"
+
+/** Stats request */
+#define MAESTRO_NOTE_HALT "09"
+
+/** Send a ping request */
+#define MAESTRO_NOTE_PING "10"
 
 /** Response OK */
 #define MAESTRO_NOTE_OK "E0"

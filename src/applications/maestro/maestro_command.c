@@ -354,6 +354,10 @@ int maestro_cmd_stats(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
 	else {
 		return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STATS, status);
 	}
+}
 
-
+int maestro_cmd_halt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
+	gru_status_t *status)
+{
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_HALT, status);
 }

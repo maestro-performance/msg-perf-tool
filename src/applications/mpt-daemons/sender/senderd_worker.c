@@ -16,6 +16,7 @@
 #include "senderd_worker.h"
 
 bool started = false;
+bool halt = false;
 worker_options_t worker_options = {0};
 static gru_list_t *children = NULL;
 
@@ -64,6 +65,19 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 	return NULL;
 }
 
+static void *senderd_handle_halt(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Just received a halt request");
+	senderd_handle_stop(request, response, pinfo);
+	halt = true;
+	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+
+	return NULL;
+}
+
 static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	maestro_sheet_t *ret = maestro_sheet_new("/mpt/receiver", status);
 
@@ -95,6 +109,11 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 		maestro_instrument_new(MAESTRO_NOTE_PING, commond_handle_ping, status);
 
 	maestro_sheet_add_instrument(ret, ping_instrument);
+
+	maestro_instrument_t *halt_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_HALT, senderd_handle_halt, status);
+
+	maestro_sheet_add_instrument(ret, halt_instrument);
 
 	return ret;
 }
@@ -168,7 +187,7 @@ int senderd_worker_start(const options_t *options) {
 		return 1;
 	}
 
-	while (true) {
+	while (!halt) {
 		sleep(1);
 
 		if (started) {

@@ -16,6 +16,8 @@
 #include "receiverd_worker.h"
 
 bool started = false;
+bool halt = false;
+
 worker_options_t worker_options = {0};
 static gru_list_t *children = NULL;
 
@@ -64,6 +66,19 @@ static void *receiverd_handle_stop(const maestro_note_t *request,
 	}
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+	return NULL;
+}
+
+static void *receiverd_handle_halt(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Just received a halt request");
+	receiverd_handle_stop(request, response, pinfo);
+	halt = true;
+	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+
 	return NULL;
 }
 
@@ -156,6 +171,11 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 
 	maestro_sheet_add_instrument(ret, stats_instrument);
 
+	maestro_instrument_t *halt_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_HALT, receiverd_handle_halt, status);
+
+	maestro_sheet_add_instrument(ret, halt_instrument);
+
 	return ret;
 }
 
@@ -225,7 +245,7 @@ int receiverd_worker_start(const options_t *options) {
 		return 1;
 	}
 
-	while (true) {
+	while (!halt) {
 		sleep(1);
 
 		if (started) {

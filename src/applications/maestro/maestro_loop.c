@@ -50,6 +50,10 @@ static int maestro_loop_cmd(maestro_cmd_ctxt_t *cmd_ctxt, const char *cmd, gru_l
 		return maestro_cmd_stats(cmd_ctxt, strings, status);
 	}
 
+	if (strcmp(cmd, "halt") == 0) {
+		return maestro_cmd_halt(cmd_ctxt, strings, status);
+	}
+
 	return -1;
 }
 
