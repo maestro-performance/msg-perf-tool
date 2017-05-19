@@ -399,6 +399,10 @@ vmsl_stat_t
 		nmsgs = pn_messenger_incoming(proton_ctxt->messenger);
 		cur = 0;
 		last_ack = 0;
+
+		if (nmsgs == 0) {
+			return VMSL_SUCCESS | VMSL_NO_DATA;
+		}
 	}
 
 	pn_message_t *message = pn_message();
