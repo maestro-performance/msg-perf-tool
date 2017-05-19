@@ -114,6 +114,10 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 	while (worker->can_continue(worker->options, snapshot)) {
 		vmsl_stat_t rstat = worker->vmsl->receive(msg_ctxt, &content_storage, status);
 		if (unlikely(vmsl_stat_error(rstat))) {
+			if (rstat & VMSL_NO_TIMESTAMP) {
+				continue;
+			}
+
 			logger(ERROR, "Error receiving data: %s", status->message);
 
 			gru_status_reset(status);

@@ -412,10 +412,13 @@ vmsl_stat_t
 			mpt_trace("Creation timestamp collected");
 			content->created = gru_time_from_milli(proton_ts);
 		} else {
-			logger(DEBUG, "Unable to collect creation timestamp");
+			sleep(1);
+			logger(DEBUG, "Unable to collect creation timestamp: %" PRId64 " is invalid",
+				proton_ts);
 			gru_status_set(status, GRU_FAILURE, "A timestamp was not set for a message");
 
-			goto err_exit;
+			pn_message_free(message);
+			return VMSL_ERROR | VMSL_NO_TIMESTAMP;
 		}
 	} else if (ret != 0) {
 		gru_status_set(status, GRU_FAILURE, "Error receiving a message");

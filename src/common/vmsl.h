@@ -29,6 +29,7 @@ typedef enum vmsl_stat_t_ {
 	VMSL_ERROR = 0,
 	VMSL_SUCCESS = 1,
 	VMSL_NO_DATA = 2,
+	VMSL_NO_TIMESTAMP = 4,
 } vmsl_stat_t;
 
 typedef msg_ctxt_t *(*msg_init)(msg_opt_t opt, void *data, gru_status_t *status);
