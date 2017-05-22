@@ -69,6 +69,7 @@ void options_destroy(options_t **obj) {
 	}
 
 	gru_split_clean(opt->probes);
+	gru_list_destroy(&opt->probes);
 
 	gru_uri_cleanup(&opt->maestro_uri);
 	gru_uri_cleanup(&opt->uri);
