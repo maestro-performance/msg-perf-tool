@@ -59,6 +59,9 @@ void options_destroy(options_t **obj);
 void set_options_object(options_t *ojb);
 const options_t *get_options_object(void);
 
+bool options_set_broker_uri(options_t *obj, const char *url, gru_status_t *status);
+bool options_set_maestro_uri(options_t *obj, const char *url, gru_status_t *status);
+
 #ifdef __cplusplus
 }
 #endif

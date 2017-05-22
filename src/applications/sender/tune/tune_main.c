@@ -67,8 +67,7 @@ int tune_main(int argc, char **argv) {
 
 		switch (c) {
 			case 'b':
-				options->uri = gru_uri_parse(optarg, &status);
-				if (gru_status_error(&status)) {
+				if (!options_set_broker_uri(options, optarg, &status)) {
 					fprintf(stderr, "%s", status.message);
 					goto err_exit;
 				}

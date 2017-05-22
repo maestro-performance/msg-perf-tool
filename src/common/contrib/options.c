@@ -86,3 +86,25 @@ void set_options_object(options_t *obj) {
 const options_t *get_options_object(void) {
 	return options;
 }
+
+bool options_set_broker_uri(options_t *obj, const char *url, gru_status_t *status) {
+	gru_uri_cleanup(&obj->uri);
+
+	options->uri = gru_uri_parse(url, status);
+	if (gru_status_error(status)) {
+		return false;
+	}
+
+	return true;
+}
+
+bool options_set_maestro_uri(options_t *obj, const char *url, gru_status_t *status) {
+	gru_uri_cleanup(&obj->maestro_uri);
+
+	options->maestro_uri = gru_uri_parse(url, status);
+	if (gru_status_error(status)) {
+		return false;
+	}
+
+	return true;
+}

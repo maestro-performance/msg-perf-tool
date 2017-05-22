@@ -74,8 +74,7 @@ int main(int argc, char **argv) {
 				}
 				break;
 			case 'm':
-				options->maestro_uri = gru_uri_parse(optarg, &status);
-				if (gru_status_error(&status)) {
+				if (!options_set_maestro_uri(options, optarg, &status)) {
 					fprintf(stderr, "%s", status.message);
 					goto err_exit;
 				}

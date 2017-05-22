@@ -82,8 +82,7 @@ int main(int argc, char **argv) {
 
 		switch (c) {
 			case 'b':
-				options->uri = gru_uri_parse(optarg, &status);
-				if (gru_status_error(&status)) {
+				if (!options_set_broker_uri(options, optarg, &status)) {
 					fprintf(stderr, "%s", status.message);
 
 					options_destroy(&options);
@@ -121,8 +120,7 @@ int main(int argc, char **argv) {
 				options->daemon = true;
 				break;
 			case 'm':
-				options->maestro_uri = gru_uri_parse(optarg, &status);
-				if (gru_status_error(&status)) {
+				if (!options_set_maestro_uri(options, optarg, &status)) {
 					fprintf(stderr, "%s", status.message);
 
 					options_destroy(&options);
