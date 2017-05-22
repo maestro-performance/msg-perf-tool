@@ -48,5 +48,6 @@ maestro_player_t *maestro_player_new();
 bool maestro_player_start(const options_t *options,
 	maestro_sheet_t *sheet,
 	gru_status_t *status);
+bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status);
 
 #endif /* MAESTRO_PLAYER_H */

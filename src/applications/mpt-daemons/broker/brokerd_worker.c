@@ -278,5 +278,7 @@ int brokerd_worker_start(const options_t *options) {
 		fflush(NULL);
 	}
 
+	maestro_player_stop(sheet, &status);
+
 	return 0;
 }

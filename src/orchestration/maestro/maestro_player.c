@@ -15,6 +15,8 @@
  */
 #include "maestro_player.h"
 
+static maestro_player_t *splayer;
+
 maestro_player_t *maestro_player_new() {
 	maestro_player_t *ret = gru_alloc(sizeof(maestro_player_t), NULL);
 
@@ -97,6 +99,8 @@ static void *maestro_player_run(void *player) {
 
 	logger(INFO, "Maestro player is terminating");
 	msg_content_data_destroy(&mdata);
+
+
 	return NULL;
 }
 
@@ -147,10 +151,24 @@ bool maestro_player_start(const options_t *options,
 		goto err_exit;
 	}
 
+	splayer = maestro_player;
 	return true;
 
 err_exit:
 
 	gru_uri_cleanup(&maestro_player->uri);
 	return false;
+}
+
+bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status) {
+	void *res;
+	splayer->cancel = true;
+
+	pthread_join(splayer->thread, &res);
+
+	splayer->mmsl.stop(splayer->ctxt, status);
+	splayer->mmsl.destroy(splayer->ctxt, status);
+	splayer = NULL;
+
+	return true;
 }

@@ -180,6 +180,7 @@ int senderd_worker_start(const options_t *options) {
 	gru_status_t status = gru_status_new();
 	maestro_sheet_t *sheet = new_receiver_sheet(&status);
 	logger_t logger = gru_logger_get();
+	bool parent = true;
 
 	if (!maestro_player_start(options, sheet, &status)) {
 		logger(FATAL, "Unable to connect to maestro broker: %s\n", status.message);
@@ -203,7 +204,8 @@ int senderd_worker_start(const options_t *options) {
 					gru_dealloc_string(&uri);
 				}
 			} else {
-				if (!senderd_worker_execute(&vmsl)) {
+				parent = senderd_worker_execute(&vmsl);
+				if (!parent) {
 					// Child return
 					break;
 				}
@@ -213,6 +215,10 @@ int senderd_worker_start(const options_t *options) {
 		}
 
 		fflush(NULL);
+	}
+
+	if (parent) {
+		maestro_player_stop(sheet, &status);
 	}
 
 	return 0;
