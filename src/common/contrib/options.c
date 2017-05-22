@@ -68,6 +68,8 @@ void options_destroy(options_t **obj) {
 		return;
 	}
 
+	gru_split_clean(opt->probes);
+
 	free(opt->iface);
 	free(opt->logdir);
 	free(opt);
