@@ -131,7 +131,7 @@ void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 
 		for (int i = 0; i < 10; i++) {
 			if (!pn_messenger_stopped(proton_ctxt->messenger)) {
-				usleep(10000);
+				usleep(100000);
 			}
 			else {
 				stopped = true;
@@ -139,8 +139,9 @@ void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 		}
 
 		if (!stopped) {
-			gru_status_set(status, GRU_FAILURE,
-				"Proton did not stop within the required wait time");
+			logger_t logger = gru_logger_get();
+
+			logger(WARNING, "Proton did not stop within the required wait time");
 		}
 	}
 }
