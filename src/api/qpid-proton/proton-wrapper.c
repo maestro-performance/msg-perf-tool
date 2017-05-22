@@ -134,6 +134,10 @@ void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	pn_messenger_free(proton_ctxt->messenger);
 	proton_context_destroy(&proton_ctxt);
 
+	if (url) {
+		gru_dealloc_string(&url);
+	}
+
 	msg_ctxt_destroy(&ctxt);
 }
 
