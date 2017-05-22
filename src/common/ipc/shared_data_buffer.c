@@ -20,7 +20,7 @@ static int pagesize = 0;
 
 static bool shr_data_buff_create_sem(shr_data_buff_t *buff,
 	const char *name,
-	int initial,
+	const int initial,
 	gru_status_t *status) {
 	char *rname = NULL;
 
