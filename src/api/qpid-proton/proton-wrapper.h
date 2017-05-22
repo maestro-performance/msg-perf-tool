@@ -17,6 +17,7 @@
 #define PROTON_WRAPPER_H
 
 #include <math.h>
+#include <stdbool.h>
 #include <sys/time.h>
 
 #include <proton/message.h>

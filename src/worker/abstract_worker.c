@@ -39,6 +39,10 @@ static void abstract_worker_msg_opt(msg_opt_t *opt,
 	opt->uri = options->uri;
 }
 
+static void abstract_worker_msg_opt_cleanup(msg_opt_t *opt) {
+	msg_conn_info_cleanup(&opt->conn_info);
+}
+
 static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_t *worker,
 	gru_status_t *status) {
 
@@ -192,6 +196,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 #endif // MPT_SHARED_BUFFERS
 
 	msg_content_data_release(&content_storage);
+	abstract_worker_msg_opt_cleanup(&opt);
 	return WORKER_SUCCESS;
 
 err_exit:
@@ -204,6 +209,7 @@ err_exit:
 	if (msg_ctxt) {
 		worker->vmsl->destroy(msg_ctxt, status);
 	}
+	abstract_worker_msg_opt_cleanup(&opt);
 
 	gru_status_reset(status);
 	return WORKER_FAILURE;
@@ -313,6 +319,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 #endif // MPT_SHARED_BUFFERS
 
 	worker->pl_strategy.cleanup(&content_storage);
+	abstract_worker_msg_opt_cleanup(&opt);
 	return WORKER_SUCCESS;
 
 err_exit:
@@ -325,6 +332,8 @@ err_exit:
 #ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
 #endif // MPT_SHARED_BUFFERS
+
+	abstract_worker_msg_opt_cleanup(&opt);
 
 	gru_status_reset(status);
 	return WORKER_FAILURE;

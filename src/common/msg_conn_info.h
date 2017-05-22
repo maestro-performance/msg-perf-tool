@@ -40,5 +40,6 @@ typedef struct msg_conn_info_t_ { char *id; } msg_conn_info_t;
 
 void msg_conn_info_gen_id(msg_conn_info_t *conn_info);
 void msg_conn_info_gen_id_char(char **out);
+void msg_conn_info_cleanup(msg_conn_info_t *conn_info);
 
 #endif /* MSG_CONN_INFO_H */

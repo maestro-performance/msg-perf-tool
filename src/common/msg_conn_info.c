@@ -34,3 +34,7 @@ void msg_conn_info_gen_id_char(char **out) {
 	*out = gru_alloc(uuid_size, NULL);
 	uuid_unparse_lower(id, *out);
 }
+
+void msg_conn_info_cleanup(msg_conn_info_t *conn_info) {
+	gru_dealloc_string(&conn_info->id);
+}
