@@ -32,7 +32,5 @@ void msg_ctxt_destroy(msg_ctxt_t **ctxt) {
 		return;
 	}
 
-
-	gru_uri_cleanup(&ptr->msg_opts.uri);
 	gru_dealloc(ctxt);
 }
