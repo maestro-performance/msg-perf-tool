@@ -125,7 +125,24 @@ err_exit:
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-	pn_messenger_stop(proton_ctxt->messenger);
+	int ret = pn_messenger_stop(proton_ctxt->messenger);
+	if (ret == PN_INPROGRESS) {
+		bool stopped = false;
+
+		for (int i = 0; i < 10; i++) {
+			if (!pn_messenger_stopped(proton_ctxt->messenger)) {
+				usleep(10000);
+			}
+			else {
+				stopped = true;
+			}
+		}
+
+		if (!stopped) {
+			gru_status_set(status, GRU_FAILURE,
+				"Proton did not stop within the required wait time");
+		}
+	}
 }
 
 void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
