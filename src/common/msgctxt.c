@@ -26,6 +26,13 @@ msg_ctxt_t *msg_ctxt_init(gru_status_t *status) {
 }
 
 void msg_ctxt_destroy(msg_ctxt_t **ctxt) {
-	free(*ctxt);
-	*ctxt = NULL;
+	msg_ctxt_t *ptr = *ctxt;
+
+	if (!ptr) {
+		return;
+	}
+
+
+	gru_uri_cleanup(&ptr->msg_opts.uri);
+	gru_dealloc(ctxt);
 }
