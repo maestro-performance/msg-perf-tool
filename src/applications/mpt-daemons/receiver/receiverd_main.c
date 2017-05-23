@@ -104,16 +104,22 @@ int main(int argc, char **argv) {
 		goto err_exit;
 	}
 
-	init_controller(true, options->logdir, "mpt-receiver-daemon");
+	int cret = init_controller(options->logdir, "mpt-receiver-daemon");
+	if (cret == 0) {
+		if (receiverd_worker_start(options) != 0) {
+			printf("Unable to start the sender worker\n");
 
-	if (receiverd_worker_start(options) != 0) {
-		printf("Unable to start the sender worker\n");
+			goto err_exit;
+		}
 
-		goto err_exit;
+		fcloseall();
+
+		options_destroy(&options);
+		return EXIT_SUCCESS;
+	} else if (cret > 0) {
+		options_destroy(&options);
+		return EXIT_SUCCESS;
 	}
-
-	options_destroy(&options);
-	return EXIT_SUCCESS;
 
 err_exit:
 	options_destroy(&options);

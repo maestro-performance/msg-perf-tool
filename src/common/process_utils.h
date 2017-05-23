@@ -42,7 +42,7 @@ bool remap_log(const char *dir,
 	pid_t pid,
 	FILE *fd,
 	gru_status_t *status);
-void init_controller(bool daemon, const char *logdir, const char *controller_name);
+int init_controller(const char *logdir, const char *controller_name);
 
 bool is_interrupted();
 

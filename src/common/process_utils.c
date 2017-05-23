@@ -62,44 +62,44 @@ bool remap_log_with_prefix(const char *dir,
  * @param background (ie: daemon mode ...)
  * @param logdir
  * @param controller_name
+ * @return The controller PID if the parent, 0 if the child of the controller of -1 in
+ * case of error.
  */
-void init_controller(bool background, const char *logdir, const char *controller_name) {
-	if (background) {
-		int controller = fork();
+int init_controller(const char *logdir, const char *controller_name) {
+	int controller = fork();
 
-		if (controller == 0) {
-			setsid();
+	if (controller == 0) {
+		setsid();
 
-			int fd = open("/dev/null", O_RDWR, 0);
+		int fd = open("/dev/null", O_RDWR, 0);
 
-			if (fd != -1) {
-				dup2(fd, STDIN_FILENO);
-				dup2(fd, STDOUT_FILENO);
-				dup2(fd, STDERR_FILENO);
+		if (fd != -1) {
+			dup2(fd, STDIN_FILENO);
+			dup2(fd, STDOUT_FILENO);
+			dup2(fd, STDERR_FILENO);
 
-				if (fd > 2) {
-					close(fd);
-				}
-			}
-
-			gru_status_t status = {0};
-
-			bool ret = remap_log(logdir, controller_name, 0, getpid(), stderr, &status);
-
-			if (!ret) {
-				fprintf(
-					stderr, "Unable to initialize the controller: %s", status.message);
-				exit(1);
-			}
-		} else {
-			if (controller > 0) {
-				printf("%d\n", controller);
-				exit(0);
-			} else {
-				fprintf(stderr, "Unable to create child process");
-				exit(1);
+			if (fd > 2) {
+				close(fd);
 			}
 		}
+
+		gru_status_t status = {0};
+
+		bool ret = remap_log(logdir, controller_name, 0, getpid(), stderr, &status);
+
+		if (!ret) {
+			fprintf(
+				stderr, "Unable to initialize the controller: %s", status.message);
+			return -1;
+		}
+
+		return 0;
+	} else if (controller > 0) {
+		printf("%d\n", controller);
+		return controller;
+	} else {
+		fprintf(stderr, "Unable to create child process");
+		return -1;
 	}
 }
 
