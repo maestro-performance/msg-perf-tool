@@ -30,6 +30,22 @@ static int maestro_loop_cmd(maestro_cmd_ctxt_t *cmd_ctxt, const char *cmd, gru_l
 		return maestro_cmd_stop_receiver(cmd_ctxt, status);
 	}
 
+	if (strcmp(cmd, "start-sender") == 0) {
+		return maestro_cmd_start_sender(cmd_ctxt, status);
+	}
+
+	if (strcmp(cmd, "stop-sender") == 0) {
+		return maestro_cmd_stop_sender(cmd_ctxt, status);
+	}
+
+	if (strcmp(cmd, "start-inspector") == 0) {
+		return maestro_cmd_start_inspector(cmd_ctxt, status);
+	}
+
+	if (strcmp(cmd, "stop-inspector") == 0) {
+		return maestro_cmd_stop_inspector(cmd_ctxt, status);
+	}
+
 	if (strcmp(cmd, "collect") == 0) {
 		return maestro_cmd_collect(cmd_ctxt, strings, status);
 	}

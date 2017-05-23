@@ -36,7 +36,7 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	}
 
 	maestro_instrument_t *instrument =
-		maestro_instrument_new(MAESTRO_NOTE_START, receiver_handle_start, status);
+		maestro_instrument_new(MAESTRO_NOTE_START_RECEIVER, receiver_handle_start, status);
 
 	maestro_sheet_add_instrument(ret, instrument);
 

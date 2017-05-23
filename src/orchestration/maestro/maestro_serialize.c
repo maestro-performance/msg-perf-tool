@@ -49,9 +49,17 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 		ret = maestro_serialize_header_only(note, out);
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_INTERNAL_ERROR)) {
 		ret = maestro_serialize_header_only(note, out);
-	} else if (maestro_note_equals(note, MAESTRO_NOTE_START)) {
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_START_RECEIVER)) {
 		ret = maestro_serialize_header_only(note, out);
-	} else if (maestro_note_equals(note, MAESTRO_NOTE_STOP)) {
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_STOP_RECEIVER)) {
+		ret = maestro_serialize_header_only(note, out);
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_START_SENDER)) {
+		ret = maestro_serialize_header_only(note, out);
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_STOP_SENDER)) {
+		ret = maestro_serialize_header_only(note, out);
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_START_INSPECTOR)) {
+		ret = maestro_serialize_header_only(note, out);
+	} else if (maestro_note_equals(note, MAESTRO_NOTE_STOP_INSPECTOR)) {
 		ret = maestro_serialize_header_only(note, out);
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_HALT)) {
 		ret = maestro_serialize_header_only(note, out);

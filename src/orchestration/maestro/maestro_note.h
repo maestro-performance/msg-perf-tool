@@ -35,20 +35,30 @@
 #define MAESTRO_TYPE_REQUEST '0'
 #define MAESTRO_TYPE_RESPONSE '1'
 
-/** Start execution */
-#define MAESTRO_NOTE_START "01"
 
-/** Stop execution **/
-#define MAESTRO_NOTE_STOP "02"
+/** Receiver execution **/
+#define MAESTRO_NOTE_START_RECEIVER "20"
+
+#define MAESTRO_NOTE_STOP_RECEIVER "21"
+
+/** Sender execution */
+#define MAESTRO_NOTE_START_SENDER "22"
+
+#define MAESTRO_NOTE_STOP_SENDER "23"
+
+/** Inspector execution **/
+#define MAESTRO_NOTE_START_INSPECTOR "24"
+
+#define MAESTRO_NOTE_STOP_INSPECTOR "25"
 
 /** Flush all buffers */
-#define MAESTRO_NOTE_FLUSH "03"
+#define MAESTRO_NOTE_FLUSH "06"
 
 /** Set options */
-#define MAESTRO_NOTE_SET "04"
+#define MAESTRO_NOTE_SET "07"
 
 /** Stats request */
-#define MAESTRO_NOTE_STATS "05"
+#define MAESTRO_NOTE_STATS "08"
 
 /** Stats request */
 #define MAESTRO_NOTE_HALT "09"

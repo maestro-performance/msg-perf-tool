@@ -78,11 +78,39 @@ static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt,
 }
 
 int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
-	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_START, status);
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_START_RECEIVER, status);
 }
 
 int maestro_cmd_stop_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
-	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STOP, status);
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STOP_RECEIVER, status);
+}
+
+int maestro_cmd_start_sender(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_START_SENDER, status);
+}
+
+int maestro_cmd_stop_sender(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STOP_SENDER, status);
+}
+
+int maestro_cmd_start_inspector(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_START_INSPECTOR, status);
+}
+
+int maestro_cmd_stop_inspector(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_NOTE_STOP_INSPECTOR, status);
+}
+
+int maestro_cmd_start_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	maestro_cmd_start_inspector(cmd_ctxt, status);
+	maestro_cmd_start_receiver(cmd_ctxt, status);
+	return maestro_cmd_start_sender(cmd_ctxt, status);
+}
+
+int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	maestro_cmd_stop_sender(cmd_ctxt, status);
+	maestro_cmd_start_receiver(cmd_ctxt, status);
+	return maestro_cmd_start_inspector(cmd_ctxt, status);
 }
 
 static void maestro_cmd_print_data(maestro_note_t *note) {

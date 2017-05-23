@@ -86,12 +86,12 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	}
 
 	maestro_instrument_t *start_instrument =
-		maestro_instrument_new(MAESTRO_NOTE_START, senderd_handle_start, status);
+		maestro_instrument_new(MAESTRO_NOTE_START_SENDER, senderd_handle_start, status);
 
 	maestro_sheet_add_instrument(ret, start_instrument);
 
 	maestro_instrument_t *stop_instrument =
-		maestro_instrument_new(MAESTRO_NOTE_STOP, senderd_handle_stop, status);
+		maestro_instrument_new(MAESTRO_NOTE_STOP_SENDER, senderd_handle_stop, status);
 
 	maestro_sheet_add_instrument(ret, stop_instrument);
 
@@ -185,6 +185,8 @@ int senderd_worker_start(const options_t *options) {
 	if (!maestro_player_start(options, sheet, &status)) {
 		logger(FATAL, "Unable to connect to maestro broker: %s\n", status.message);
 
+		maestro_player_stop(sheet, &status);
+		maestro_sheet_destroy(&sheet);
 		return 1;
 	}
 
