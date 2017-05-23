@@ -44,7 +44,6 @@ typedef struct maestro_player_t_ {
 	bool cancel;
 } maestro_player_t;
 
-maestro_player_t *maestro_player_new();
 bool maestro_player_start(const options_t *options,
 	maestro_sheet_t *sheet,
 	gru_status_t *status);

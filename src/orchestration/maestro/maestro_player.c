@@ -17,12 +17,21 @@
 
 static maestro_player_t *splayer;
 
-maestro_player_t *maestro_player_new() {
+static maestro_player_t *maestro_player_new() {
 	maestro_player_t *ret = gru_alloc(sizeof(maestro_player_t), NULL);
 
 	ret->mmsl = vmsl_init();
 
 	return ret;
+}
+
+static void maestro_player_destroy(maestro_player_t **ptr, gru_status_t *status) {
+	maestro_player_t *pl = *ptr;
+
+	pl->mmsl.stop(splayer->ctxt, status);
+	pl->mmsl.destroy(splayer->ctxt, status);
+
+	gru_dealloc((void **) ptr);
 }
 
 static bool maestro_player_connect(maestro_player_t *player, gru_status_t *status) {
@@ -160,14 +169,15 @@ err_exit:
 	return false;
 }
 
+
+
 bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status) {
 	void *res;
 	splayer->cancel = true;
 
 	pthread_join(splayer->thread, &res);
 
-	splayer->mmsl.stop(splayer->ctxt, status);
-	splayer->mmsl.destroy(splayer->ctxt, status);
+	maestro_player_destroy(&splayer, status);
 	splayer = NULL;
 
 	return true;
