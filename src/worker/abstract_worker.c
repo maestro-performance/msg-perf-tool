@@ -408,6 +408,7 @@ gru_list_t *abstract_worker_clone(worker_t *worker,
 
 			worker_info->shr =
 				shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);
+			gru_dealloc_const_string(&cname);
 
 			if (!worker_info->shr) {
 				gru_status_set(status,
