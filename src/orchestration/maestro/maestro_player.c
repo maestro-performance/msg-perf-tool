@@ -31,6 +31,8 @@ static void maestro_player_destroy(maestro_player_t **ptr, gru_status_t *status)
 	pl->mmsl.stop(splayer->ctxt, status);
 	pl->mmsl.destroy(splayer->ctxt, status);
 
+	gru_uri_cleanup(&pl->uri);
+
 	gru_dealloc((void **) ptr);
 }
 
