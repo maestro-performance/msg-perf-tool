@@ -63,8 +63,10 @@ msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
 		MQTTCLIENT_PERSISTENCE_NONE,
 		NULL);
 
+	gru_dealloc_const_string(&connect_url);
 	if (rc != MQTTCLIENT_SUCCESS) {
 		logger(FATAL, "Unable to create MQTT client handle: %d", rc);
+
 
 		exit(-1);
 	}
@@ -75,7 +77,6 @@ msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
 	conn_opts.keepAliveInterval = 20;
 	conn_opts.cleansession = 1;
 
-	logger(DEBUG, "Connecting to %s", connect_url);
 	rc = MQTTClient_connect(paho_ctxt->client, &conn_opts);
 	if (rc != MQTTCLIENT_SUCCESS) {
 		logger(FATAL, "Unable to connect: %d", rc);
