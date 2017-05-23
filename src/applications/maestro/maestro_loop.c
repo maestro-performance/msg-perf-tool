@@ -46,6 +46,14 @@ static int maestro_loop_cmd(maestro_cmd_ctxt_t *cmd_ctxt, const char *cmd, gru_l
 		return maestro_cmd_stop_inspector(cmd_ctxt, status);
 	}
 
+	if (strcmp(cmd, "start-all") == 0) {
+		return maestro_cmd_start_all(cmd_ctxt, status);
+	}
+
+	if (strcmp(cmd, "stop-all") == 0) {
+		return maestro_cmd_stop_all(cmd_ctxt, status);
+	}
+
 	if (strcmp(cmd, "collect") == 0) {
 		return maestro_cmd_collect(cmd_ctxt, strings, status);
 	}
