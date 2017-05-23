@@ -34,7 +34,12 @@ typedef struct maestro_instrument_t_ {
 
 maestro_instrument_t *
 	maestro_instrument_new(const char *note, maestro_play_t play, gru_status_t *status);
+void maestro_instrument_destroy(maestro_instrument_t **ptr);
 bool maestro_instrument_can_play(const maestro_instrument_t *instrument,
 	const maestro_note_t *note);
+
+static inline void maestro_instrument_destroy_wrapper(void **ptr) {
+	maestro_instrument_destroy((maestro_instrument_t **) ptr);
+}
 
 #endif /* MAESTRO_INSTRUMENT_H */
