@@ -221,5 +221,7 @@ int senderd_worker_start(const options_t *options) {
 		maestro_player_stop(sheet, &status);
 	}
 
+	maestro_sheet_destroy(&sheet);
+
 	return 0;
 }

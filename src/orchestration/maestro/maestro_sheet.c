@@ -39,6 +39,18 @@ maestro_sheet_t *maestro_sheet_new(const char *location, gru_status_t *status) {
 	return ret;
 }
 
+
+
+void maestro_sheet_destroy(maestro_sheet_t **ptr) {
+	maestro_sheet_t *sheet = *ptr;
+
+	if (!sheet) {
+		return;
+	}
+
+	gru_list_clean(sheet->instruments, maestro_instrument_destroy_wrapper);
+}
+
 void maestro_sheet_add_instrument(maestro_sheet_t *sheet,
 	maestro_instrument_t *instrument) {
 	gru_list_append(sheet->instruments, instrument);

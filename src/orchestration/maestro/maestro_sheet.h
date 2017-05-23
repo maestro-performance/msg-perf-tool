@@ -34,6 +34,7 @@ typedef struct maestro_sheet_t_ {
 } maestro_sheet_t;
 
 maestro_sheet_t *maestro_sheet_new(const char *location, gru_status_t *status);
+void maestro_sheet_destroy(maestro_sheet_t **ptr);
 
 void maestro_sheet_add_instrument(maestro_sheet_t *sheet,
 	maestro_instrument_t *instrument);
