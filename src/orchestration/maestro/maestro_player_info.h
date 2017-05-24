@@ -16,6 +16,9 @@
 #ifndef MAESTRO_PLAYER_INFO_H
 #define MAESTRO_PLAYER_INFO_H
 
-typedef struct maestro_player_info_t_ { char *id; } maestro_player_info_t;
+typedef struct maestro_player_info_t_ {
+	char *id;
+	char *name;
+} maestro_player_info_t;
 
 #endif /* MAESTRO_PLAYER_INFO_H */

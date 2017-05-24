@@ -7,5 +7,7 @@ MPT_LOG_DIR=/var/log/mpt
 # The log level
 MPT_LOG_LEVEL=info
 
+NODE_NAME=undefined-sender-daemon
+
 # Ensure to export library dir if not using a standard location
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@

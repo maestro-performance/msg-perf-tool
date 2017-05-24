@@ -115,7 +115,9 @@ int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
 	if (maestro_note_equals(note, MAESTRO_NOTE_PING)) {
-		printf("ID: %.*s Time: %.*s ms\n",
+		printf("Name: %.*s ID: %.*s Time: %.*s ms\n",
+			(int) sizeof(note->payload->response.ping.name),
+			note->payload->response.ping.name,
 			(int) sizeof(note->payload->response.ping.id),
 			note->payload->response.ping.id,
 			(int) sizeof(note->payload->response.ping.elapsed),
@@ -164,7 +166,9 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 			if (errno == ENOMSG) {
 				break;
 			} else {
-				fprintf(stdout, "Failed to read from the local forward queue\n");
+				int err = errno;
+				fprintf(stdout, "Failed to read %d bytes from the local forward queue: %s\n",
+					sizeof(buf), strerror(err));
 
 				return 1;
 			}

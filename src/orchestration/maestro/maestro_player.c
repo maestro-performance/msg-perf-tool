@@ -137,6 +137,7 @@ bool maestro_player_start(const options_t *options,
 		return false;
 	}
 
+	maestro_player->player_info.name = options->name;
 	msg_conn_info_gen_id_char(&maestro_player->player_info.id);
 	if (!maestro_player->player_info.id) {
 		logger(ERROR, "Unable to generate a player ID");

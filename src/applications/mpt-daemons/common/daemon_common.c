@@ -128,7 +128,7 @@ void *commond_handle_ping(const maestro_note_t *request, maestro_note_t *respons
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Ping request: %s", pinfo->id);
+	logger(INFO, "Ping request: %s / %s", pinfo->id, pinfo->name);
 
 	gru_timestamp_t now = gru_time_now();
 
@@ -139,8 +139,9 @@ void *commond_handle_ping(const maestro_note_t *request, maestro_note_t *respons
 	uint64_t diff = gru_time_elapsed_milli(created, now);
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PING);
-	maestro_note_ping_set_elapsed(response, diff);
 	maestro_note_ping_set_id(response, pinfo->id);
+	maestro_note_ping_set_name(response, pinfo->name);
+	maestro_note_ping_set_elapsed(response, diff);
 
 	return NULL;
 }

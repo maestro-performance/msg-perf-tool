@@ -19,12 +19,13 @@ static void show_help(char **argv) {
 	gru_cli_program_usage("mpt-receiver-daemon", argv[0]);
 
 	gru_cli_option_help("help", "h", "show this help");
-	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
 	gru_cli_option_help("log-level",
 		"l",
 		"runs in the given verbose (info, stat, debug, etc) level mode");
 	gru_cli_option_help(
 		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
+	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
+	gru_cli_option_help("name", "n", "the node name");
 }
 
 int main(int argc, char **argv) {
@@ -53,10 +54,11 @@ int main(int argc, char **argv) {
 		static struct option long_options[] = {{"log-level", required_argument, 0, 'l'},
 			{"log-dir", required_argument, 0, 'L'},
 			{"maestro-url", required_argument, 0, 'm'},
+			{"name", required_argument, 0, 'n'},
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "l:L:m:h", long_options, &option_index);
+		c = getopt_long(argc, argv, "l:L:m:n:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -77,6 +79,13 @@ int main(int argc, char **argv) {
 				options->maestro_uri = gru_uri_parse(optarg, &status);
 				if (gru_status_error(&status)) {
 					fprintf(stderr, "%s", status.message);
+					goto err_exit;
+				}
+				break;
+			case 'n':
+				options->name = strdup(optarg);
+				if (!options->name) {
+					fprintf(stderr, "Unable to create memory for the node name setting\n");
 					goto err_exit;
 				}
 				break;

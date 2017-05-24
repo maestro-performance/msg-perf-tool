@@ -27,7 +27,7 @@
 
 #define MAESTRO_NOTE_TYPE_LENGTH 1
 #define MAESTRO_NOTE_CMD_LENGTH 2
-#define MAESTRO_NOTE_PAYLOAD_MAX_LENGTH 216
+#define MAESTRO_NOTE_PAYLOAD_MAX_LENGTH 253
 
 #define MAESTRO_HEADER_SIZE (MAESTRO_NOTE_TYPE_LENGTH + MAESTRO_NOTE_CMD_LENGTH)
 #define MAESTRO_NOTE_SIZE (MAESTRO_HEADER_SIZE + MAESTRO_NOTE_PAYLOAD_MAX_LENGTH)
@@ -103,12 +103,15 @@
 
 #define MAESTRO_CLIENT_ID_SIZE 36
 
+#define MAESTRO_CLIENT_NAME_SIZE 72
+
 typedef struct maestro_payload_ping_request_t_ {
 	char ts[18];
 } maestro_payload_ping_request_t;
 
 typedef struct maestro_payload_ping_reply_t_ {
 	char id[MAESTRO_CLIENT_ID_SIZE];
+	char name[MAESTRO_CLIENT_NAME_SIZE];
 	char elapsed[18];
 } maestro_payload_ping_reply_t;
 
@@ -193,6 +196,11 @@ bool maestro_note_equals(const maestro_note_t *note, const char *cmd);
  * Sets the client ID in the ping response
  */
 void maestro_note_ping_set_id(maestro_note_t *note, const char *id);
+
+/**
+ * Sets the client name in the ping response
+ */
+void maestro_note_ping_set_name(maestro_note_t *note, const char *name);
 
 /**
  * Sets the timestamp in the ping request

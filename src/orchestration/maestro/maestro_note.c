@@ -95,22 +95,17 @@ bool maestro_note_equals(const maestro_note_t *note, const char *cmd) {
 	return false;
 }
 
-static void maestro_payload_set_id(maestro_payload_ping_reply_t *pl, const char *id) {
-	memcpy(pl->id, id, sizeof(pl->id));
-}
-
-static void maestro_payload_set_elapsed(maestro_payload_ping_reply_t *pl,
-	uint64_t elapsed) {
-	snprintf((char *) pl->elapsed, sizeof(pl->elapsed), "%li", elapsed);
-}
-
 static void maestro_payload_set_req_ts(maestro_payload_ping_request_t *pl,
 	const char *ts) {
 	memcpy(pl->ts, ts, sizeof(pl->ts));
 }
 
 void maestro_note_ping_set_id(maestro_note_t *note, const char *id) {
-	maestro_payload_set_id(&note->payload->response.ping, id);
+	maestro_set_payload_txt_field(note->payload->response.ping.id, id);
+}
+
+void maestro_note_ping_set_name(maestro_note_t *note, const char *name) {
+	maestro_set_payload_txt_field(note->payload->response.ping.name, name);
 }
 
 void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts) {
@@ -118,7 +113,7 @@ void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts) {
 }
 
 void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t elapsed) {
-	maestro_payload_set_elapsed(&note->payload->response.ping, elapsed);
+	maestro_set_payload_uint64_field(note->payload->response.ping.elapsed, elapsed);
 }
 
 void maestro_note_set_type(maestro_note_t *note, const char type) {

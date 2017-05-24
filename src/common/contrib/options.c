@@ -43,6 +43,14 @@ void options_set_defaults(options_t *ret) {
 	ret->throttle = 0;
 	ret->iface = strdup("eth0");
 	ret->probes = gru_split("net,bmic", ',', &status);
+
+	char hostname[256] = {0};
+	if (gethostname(&hostname, sizeof(hostname)) == 0) {
+		ret->name = strdup(hostname);
+	}
+	else {
+		ret->name = strdup("undefined");
+	}
 }
 
 options_t *options_new() {
@@ -75,6 +83,7 @@ void options_destroy(options_t **obj) {
 
 	free(opt->iface);
 	free(opt->logdir);
+	free(opt->name);
 	free(opt);
 
 	*obj = NULL;
