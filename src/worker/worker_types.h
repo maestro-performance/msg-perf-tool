@@ -32,6 +32,8 @@ extern "C" {
 
 #include "ipc/shared_data_buffer.h"
 
+#include "worker_options.h"
+
 /**
  * Common return type for the worker
  */

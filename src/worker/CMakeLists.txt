@@ -3,6 +3,7 @@ add_library(
         abstract_worker.c
         worker_utils.c
         worker_wait.c
+        worker_info.c
 )
 
 target_link_libraries(
