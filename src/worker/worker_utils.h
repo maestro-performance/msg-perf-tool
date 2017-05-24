@@ -29,10 +29,19 @@ extern "C" {
 #include "worker_options.h"
 #include "worker_types.h"
 
-
+/**
+ * Checks whether to continue processing or not
+ */
 bool worker_check(const worker_options_t *options, const worker_snapshot_t *snapshot);
 
+/**
+ * Formats a worker name based on its details (such as the pid)
+ */
 const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status);
+
+/**
+ * Creates a new shared buffer for child-to-parent data exchange
+ */
 volatile shr_data_buff_t *worker_shared_buffer_new(const worker_t *worker,
 	gru_status_t *status);
 
