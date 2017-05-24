@@ -109,8 +109,8 @@ int maestro_cmd_start_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 
 int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	maestro_cmd_stop_sender(cmd_ctxt, status);
-	maestro_cmd_start_receiver(cmd_ctxt, status);
-	return maestro_cmd_start_inspector(cmd_ctxt, status);
+	maestro_cmd_stop_receiver(cmd_ctxt, status);
+	return maestro_cmd_stop_inspector(cmd_ctxt, status);
 }
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
