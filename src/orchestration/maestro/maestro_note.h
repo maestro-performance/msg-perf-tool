@@ -124,6 +124,7 @@ typedef struct maestro_payload_stats_perf_t_ {
 
 typedef struct maestro_payload_stats_reply_t_ {
 	char id[MAESTRO_CLIENT_ID_SIZE];
+	char name[MAESTRO_CLIENT_NAME_SIZE];
 	char child_count[5];
 	char role[10]; // sender / receiver / jmonitor / nmonitor /
 	char roleinfo[8]; // ie: node number on the cluster, etc
@@ -221,6 +222,11 @@ void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *val
  * Sets the ID in the stats response
  */
 void maestro_note_stats_set_id(maestro_note_t *note, const char *id);
+
+/**
+ * Sets the name in the stats response
+ */
+void maestro_note_stats_set_name(maestro_note_t *note, const char *name);
 
 /**
  * Sets the child count in the stats response

@@ -100,12 +100,14 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 		note->type == MAESTRO_TYPE_RESPONSE) {
 		// '10527ef92d6-96ad-4ff6-ab3a-d547395f2c0b3receiverperfR1493977868.543546971993841.20165.00'
 		ret = msg_content_data_serialize(out,
-			"%c%-*s%-*s%-*s%-*s%-*s%c%-*s%-*s%-*s%-*s",
+			"%c%-*s%-*s%-*s%-*s%-*s%-*s%c%-*s%-*s%-*s%-*s",
 			note->type,
 			(int) sizeof(note->command),
 			note->command,
 			(int) sizeof(note->payload->response.stats.id),
 			note->payload->response.stats.id,
+			(int) sizeof(note->payload->response.stats.name),
+			note->payload->response.stats.name,
 			(int) sizeof(note->payload->response.stats.child_count),
 			note->payload->response.stats.child_count,
 			(int) sizeof(note->payload->response.stats.role),

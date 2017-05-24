@@ -155,6 +155,10 @@ void maestro_note_stats_set_id(maestro_note_t *note, const char *id) {
 	maestro_set_payload_txt_field(note->payload->response.stats.id, id);
 }
 
+void maestro_note_stats_set_name(maestro_note_t *note, const char *name) {
+	maestro_set_payload_txt_field(note->payload->response.stats.name, name);
+}
+
 void maestro_note_stats_set_child_count(maestro_note_t *note, uint32_t count) {
 	maestro_set_payload_uint32_field(note->payload->response.stats.child_count, count);
 }

@@ -125,7 +125,9 @@ static void maestro_cmd_print_data(maestro_note_t *note) {
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_PROTOCOL_ERROR)) {
 		printf("One of more of the commands did not complete successfully\n");
 	} else if (maestro_note_equals(note, MAESTRO_NOTE_STATS)) {
-		printf("ID: %.*s Children: %.*s Count: %.*s Rate: %.*s Latency: %.*s\n",
+		printf("Name: %.*s ID: %.*s Children: %.*s Count: %.*s Rate: %.*s Latency: %.*s\n",
+			(int) sizeof(note->payload->response.stats.name),
+			note->payload->response.stats.name,
 			(int) sizeof(note->payload->response.stats.id),
 			note->payload->response.stats.id,
 			(int) sizeof(note->payload->response.stats.child_count),

@@ -113,6 +113,7 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_STATS);
 	maestro_note_stats_set_id(response, pinfo->id);
+	maestro_note_stats_set_name(response, pinfo->name);
 
 	uint32_t childs = gru_list_count(children);
 	maestro_note_stats_set_child_count(response, childs);
