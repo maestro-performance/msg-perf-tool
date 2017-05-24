@@ -30,9 +30,7 @@ extern "C" {
 #include "strategies/payload/pl_strategy.h"
 #include "vmsl.h"
 
-#ifdef MPT_SHARED_BUFFERS
 #include "ipc/shared_data_buffer.h"
-#endif // MPT_SHARED_BUFFERS
 
 /**
  * Common return type for the worker
@@ -86,9 +84,7 @@ typedef struct worker_info_t_ {
 	pid_t child;
 	worker_snapshot_t snapshot;
 
-#ifdef MPT_SHARED_BUFFERS
 	volatile shr_data_buff_t *shr;
-#endif // MPT_SHARED_BUFFERS
 
 } worker_info_t;
 

@@ -47,9 +47,7 @@ extern "C" {
 #include "worker_types.h"
 #include "worker_wait.h"
 
-#ifdef MPT_SHARED_BUFFERS
 #include "ipc/shared_data_buffer.h"
-#endif // MPT_SHARED_BUFFERS
 
 typedef worker_ret_t (*abstract_worker_start)(const worker_t *worker,
 	worker_snapshot_t *snapshot,

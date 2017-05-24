@@ -46,7 +46,6 @@ static void abstract_worker_msg_opt_cleanup(msg_opt_t *opt) {
 static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_t *worker,
 	gru_status_t *status) {
 
-#ifdef MPT_SHARED_BUFFERS
 	const char *cname = worker_name(worker, getpid(), status);
 
 	if (!cname) {
@@ -70,7 +69,6 @@ static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_
 	if (worker->worker_flags & WRK_FORKED) {
 		kill(getppid(), SIGUSR2);
 	}
-#endif // MPT_SHARED_BUFFERS
 
 	return shr;
 }
@@ -96,13 +94,10 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 		goto err_exit;
 	}
 
-#ifdef MPT_SHARED_BUFFERS
 	volatile shr_data_buff_t *shr = abstract_worker_new_shared_buffer(worker, status);
 	if (!shr) {
 		goto err_exit;
 	}
-
-#endif // MPT_SHARED_BUFFERS
 
 	// TODO: requires a content strategy
 	msg_content_data_init(&content_storage, worker->options->message_size, status);
@@ -162,9 +157,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 				break;
 			}
 
-#ifdef MPT_SHARED_BUFFERS
 			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
-#endif // MPT_SHARED_BUFFERS
 
 			last_count = snapshot->count;
 			last_sample_ts = snapshot->now;
@@ -191,18 +184,14 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 		elapsed,
 		snapshot->throughput.rate);
 
-#ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
-#endif // MPT_SHARED_BUFFERS
 
 	msg_content_data_release(&content_storage);
 	abstract_worker_msg_opt_cleanup(&opt);
 	return WORKER_SUCCESS;
 
 err_exit:
-#ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
-#endif // MPT_SHARED_BUFFERS
 
 	msg_content_data_release(&content_storage);
 
@@ -231,13 +220,10 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 		goto err_exit;
 	}
 
-#ifdef MPT_SHARED_BUFFERS
 	volatile shr_data_buff_t *shr = abstract_worker_new_shared_buffer(worker, status);
 	if (!shr) {
 		goto err_exit;
 	}
-
-#endif // MPT_SHARED_BUFFERS
 
 	if (!worker->pl_strategy.init(
 			&content_storage, worker->options->message_size, status)) {
@@ -285,9 +271,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 			last_count = snapshot->count;
 			last_sample_ts = snapshot->now;
 
-#ifdef MPT_SHARED_BUFFERS
 			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
-#endif // MPT_SHARED_BUFFERS
 
 			fflush(NULL);
 		}
@@ -314,9 +298,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 		elapsed,
 		snapshot->throughput.rate);
 
-#ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
-#endif // MPT_SHARED_BUFFERS
 
 	worker->pl_strategy.cleanup(&content_storage);
 	abstract_worker_msg_opt_cleanup(&opt);
@@ -329,9 +311,7 @@ err_exit:
 		worker->vmsl->destroy(msg_ctxt, status);
 	}
 
-#ifdef MPT_SHARED_BUFFERS
 	shr_buff_detroy(&shr);
-#endif // MPT_SHARED_BUFFERS
 
 	abstract_worker_msg_opt_cleanup(&opt);
 

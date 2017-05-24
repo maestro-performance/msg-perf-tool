@@ -16,7 +16,6 @@ set(BUILD_WITH_EXTRA_DEBUG OFF CACHE BOOL "Build extra debug information")
 set(BUILD_WITH_UNIT_TESTS ON CACHE BOOL "Build unit tests")
 
 add_definitions(-DPROJECT_NAME="${PROJECT_NAME}" -DMPT_VERSION="${MPT_VERSION}")
-add_definitions(-DMPT_SHARED_BUFFERS)
 
 if (UNIX)
 	message(STATUS "Adding Unix related build rules")
@@ -32,18 +31,18 @@ SET(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
 SET(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
 SET(MQTT_SUPPORT ON CACHE BOOL "Enable MQTT 3.x support")
 
-include_directories(${GRU_INCLUDE_DIR} 
-    ${JSON_INCLUDE_DIR} 
-    ${BMIC_INCLUDE_DIR} 
+include_directories(${GRU_INCLUDE_DIR}
+    ${JSON_INCLUDE_DIR}
+    ${BMIC_INCLUDE_DIR}
     ${URIPARSER_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR})
 
-link_libraries(${MATH_LIB} 
+link_libraries(${MATH_LIB}
     ${RT_LIB}
-    ${GRU_LIB} 
-    ${BMIC_BASE_LIB} 
-    ${BMIC_MANAGEMENT_LIB} 
-    ${BMIC_PRODUCT_LIB} 
+    ${GRU_LIB}
+    ${BMIC_BASE_LIB}
+    ${BMIC_MANAGEMENT_LIB}
+    ${BMIC_PRODUCT_LIB}
     ${URIPARSER_LIB}
     ${UUID_LIB}
     ${ZLIB_LIB}
