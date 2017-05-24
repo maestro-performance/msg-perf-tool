@@ -170,10 +170,12 @@ int perf_main(int argc, char **argv) {
 				break;
 			case 'h':
 				show_help(argv);
+				options_destroy(&options);
 				return EXIT_SUCCESS;
 			default:
 				printf("Invalid or missing option\n");
 				show_help(argv);
+				options_destroy(&options);
 				return EXIT_FAILURE;
 		}
 	}
@@ -184,13 +186,13 @@ int perf_main(int argc, char **argv) {
 		if (options->parallel_count > 1) {
 			fprintf(stderr, "Multiple concurrent process require a log directory\n");
 
-			return EXIT_FAILURE;
+			goto err_exit;
 		}
 
 		if (options->probing) {
 			fprintf(stderr, "Log directory is mandatory for running probes\n");
 
-			return EXIT_FAILURE;
+			goto err_exit;
 		}
 	}
 
