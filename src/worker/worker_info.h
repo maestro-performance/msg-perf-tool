@@ -32,7 +32,20 @@ extern "C" {
 #include "worker_utils.h"
 #include "worker_options.h"
 
+/**
+ * Creates a new worker information structure
+ * @param worker the worker to store information about
+ * @param child the PID of the worker
+ * @param status the status holder
+ * @return A pointer to a worker information structure of NULL if not found
+ */
 worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t *status);
+
+void worker_info_destroy(worker_info_t **ptr);
+
+static inline void worker_info_destroy_wrapper(void **ptr) {
+	worker_info_destroy((worker_info_t **) ptr);
+}
 
 #ifdef __cplusplus
 }

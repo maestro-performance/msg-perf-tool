@@ -333,43 +333,9 @@ gru_list_t *abstract_worker_clone(worker_t *worker,
 				break;
 			}
 
-			// worker_info_t *worker_info = gru_alloc(sizeof(worker_info_t), status);
-			// if (!worker_info) {
-			// 	break;
-			// }
-
-			// worker_info->child = child;
-
-			// const char *cname = worker_name(worker, child, status);
-			// if (!cname) {
-			// 	kill(child, SIGKILL);
-			// 	break;
-			// }
-
-			// logger(INFO, "Created child %d and waiting for the continue signal", child);
-			// worker_wait();
-
-			// logger(INFO, "Child %d gave the ok signal", child);
-			// fflush(NULL);
-
-			// worker_info->shr =
-			// 	shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);
-			// gru_dealloc_const_string(&cname);
-
-			// if (!worker_info->shr) {
-			// 	gru_status_set(status,
-			// 		GRU_FAILURE,
-			// 		"Unable to open a read buffer: %s",
-			// 		status->message);
-
-			// 	kill(child, SIGKILL);
-			// 	break;
-			// }
-
 			if (!gru_list_append(ret, worker_info)) {
-				shr_buff_detroy(&worker_info->shr);
-				gru_dealloc((void **) &worker_info);
 				kill(child, SIGKILL);
+				worker_info_destroy(&worker_info);
 
 				gru_status_set(status,
 					GRU_FAILURE,

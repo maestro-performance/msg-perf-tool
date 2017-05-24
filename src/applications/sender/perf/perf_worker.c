@@ -137,6 +137,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 			sleep(1);
 		}
 
+		gru_list_clean(children, worker_info_destroy_wrapper);
 		gru_list_destroy(&children);
 	}
 

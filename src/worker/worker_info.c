@@ -18,10 +18,10 @@
 worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	worker_info_t *worker_info = gru_alloc(sizeof(worker_info_t), status);
-	gru_alloc_check(worker_info, NULL);
+	worker_info_t *ret = gru_alloc(sizeof(worker_info_t), status);
+	gru_alloc_check(ret, NULL);
 
-	worker_info->child = child;
+	ret->child = child;
 
 	const char *cname = worker_name(worker, child, status);
 	if (!cname) {
@@ -37,11 +37,10 @@ worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t
 	logger(DEBUG, "Child %d gave the ok signal", child);
 	fflush(NULL);
 
-	worker_info->shr =
-		shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);
+	ret->shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);
 	gru_dealloc_const_string(&cname);
 
-	if (!worker_info->shr) {
+	if (!ret->shr) {
 		gru_status_set(status, GRU_FAILURE, "Unable to open a read buffer: %s",
 			status->message);
 
@@ -49,5 +48,18 @@ worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t
 		return NULL;
 	}
 
-	return worker_info;
+	return ret;
+}
+
+
+
+void worker_info_destroy(worker_info_t **ptr) {
+	worker_info_t *wi = *ptr;
+
+	if (!wi) {
+		return;
+	}
+
+	shr_buff_detroy(&wi->shr);
+	gru_dealloc((void **) ptr);
 }

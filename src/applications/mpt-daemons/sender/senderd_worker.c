@@ -55,6 +55,7 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 		if (!abstract_worker_stop(children)) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
+			gru_list_clean(children, worker_info_destroy_wrapper);
 			gru_list_destroy(&children);
 
 			return NULL;
@@ -171,6 +172,7 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 		sleep(1);
 	}
 
+	gru_list_clean(children, worker_info_destroy_wrapper);
 	gru_list_destroy(&children);
 
 	return true;

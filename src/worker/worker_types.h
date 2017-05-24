@@ -85,9 +85,7 @@ typedef struct worker_t_ {
 typedef struct worker_info_t_ {
 	pid_t child;
 	worker_snapshot_t snapshot;
-
 	volatile shr_data_buff_t *shr;
-
 } worker_info_t;
 
 #ifdef __cplusplus
