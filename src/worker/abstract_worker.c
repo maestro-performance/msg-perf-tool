@@ -373,6 +373,8 @@ gru_list_t *abstract_worker_clone(worker_t *worker,
 				&naming_info,
 				status);
 			if (!nmret) {
+				logger(ERROR, "Error initializing performance report writer: %s",
+					 status->message);
 				return NULL;
 			}
 

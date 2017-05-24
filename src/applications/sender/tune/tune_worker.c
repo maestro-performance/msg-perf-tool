@@ -64,7 +64,10 @@ static bool tune_exec_step(const options_t *options,
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
-	tune_initialize_out_writer(worker.writer, options, &status);
+	if (!tune_initialize_out_writer(worker.writer, options, &status)) {
+		logger(FATAL, "Error initializing performance report writer: %s", status.message);
+		return 1;
+	}
 	pl_strategy_assign(&worker.pl_strategy, options->variable_size);
 
 	worker.can_continue = worker_check;

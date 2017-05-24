@@ -132,7 +132,10 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
-	receiver_initialize_writer(worker.writer, options, &status);
+	if (!receiver_initialize_writer(worker.writer, options, &status)) {
+		logger(FATAL, "Error initializing performance report writer: %s", status.message);
+		return 1;
+	}
 
 	worker.can_continue = worker_check;
 
