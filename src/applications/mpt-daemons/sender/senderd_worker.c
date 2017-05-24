@@ -79,6 +79,58 @@ static void *senderd_handle_halt(const maestro_note_t *request,
 	return NULL;
 }
 
+static void *senderd_handle_stats(const maestro_note_t *request,
+	maestro_note_t *response,
+	const maestro_player_info_t *pinfo) {
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Just received a stats request: %s", pinfo->id);
+
+	if (children == NULL) {
+		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
+		return NULL;
+	}
+
+	gru_node_t *node = children->root;
+
+	uint64_t total_msg = 0;
+	uint64_t total_lat = 0;
+	double total_rate = 0.0;
+
+	while (node) {
+		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
+
+		total_msg += worker_info->snapshot.count;
+		total_rate += worker_info->snapshot.throughput.rate;
+
+		node = node->next;
+	}
+
+	maestro_note_set_cmd(response, MAESTRO_NOTE_STATS);
+	maestro_note_stats_set_id(response, pinfo->id);
+	maestro_note_stats_set_name(response, pinfo->name);
+
+	uint32_t childs = gru_list_count(children);
+	maestro_note_stats_set_child_count(response, childs);
+	logger(INFO, "Number of childs evaluated: %d", childs);
+
+	maestro_note_stats_set_role(response, "sender");
+	maestro_note_stats_set_roleinfo(response, "perf");
+	maestro_note_stats_set_stat_type(response, 'S');
+
+	gru_timestamp_t now = gru_time_now();
+	char *formatted_ts = gru_time_write_str(&now);
+
+	maestro_note_stats_set_perf_ts(response, formatted_ts);
+	gru_dealloc_string(&formatted_ts);
+
+	maestro_note_stats_set_perf_count(response, total_msg);
+	maestro_note_stats_set_perf_rate(response, (total_rate / childs));
+	maestro_note_stats_set_perf_latency(response, 0);
+
+	return NULL;
+}
+
 static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 	maestro_sheet_t *ret = maestro_sheet_new("/mpt/receiver", status);
 
@@ -110,6 +162,11 @@ static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
 		maestro_instrument_new(MAESTRO_NOTE_PING, commond_handle_ping, status);
 
 	maestro_sheet_add_instrument(ret, ping_instrument);
+
+	maestro_instrument_t *stats_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_STATS, senderd_handle_stats, status);
+
+	maestro_sheet_add_instrument(ret, stats_instrument);
 
 	maestro_instrument_t *halt_instrument =
 		maestro_instrument_new(MAESTRO_NOTE_HALT, senderd_handle_halt, status);
