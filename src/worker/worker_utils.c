@@ -32,3 +32,43 @@ bool worker_check(const worker_options_t *options, const worker_snapshot_t *snap
 
 	return false;
 }
+
+const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status) {
+	char *cname = NULL;
+
+	if (asprintf(&cname, "%s-%d", worker->name, child) == -1) {
+		gru_status_set(status, GRU_FAILURE, "Not enough memory to format name");
+
+		return NULL;
+	}
+
+	return cname;
+}
+
+volatile shr_data_buff_t *worker_shared_buffer_new(const worker_t *worker,
+	gru_status_t *status)
+{
+	const char *cname = worker_name(worker, getpid(), status);
+
+	if (!cname) {
+		return NULL;
+	}
+
+	volatile shr_data_buff_t *shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t),
+		cname, status);
+	gru_dealloc_const_string(&cname);
+
+	if (!shr) {
+		gru_status_set(status, GRU_FAILURE, "Unable to open a write buffer: %s",
+			status->message);
+
+		return NULL;
+	}
+
+	// If forked, then we need to signal the parent process that it's ok to continue
+	if (worker->worker_flags & WRK_FORKED) {
+		kill(getppid(), SIGUSR2);
+	}
+
+	return shr;
+}

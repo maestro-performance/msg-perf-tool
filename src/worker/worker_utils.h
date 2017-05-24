@@ -20,12 +20,21 @@
 extern "C" {
 #endif
 
+#include <common/gru_status.h>
+#include <common/gru_alloc.h>
+
 #include "process_utils.h"
+#include "ipc/shared_data_buffer.h"
 
 #include "worker_options.h"
 #include "worker_types.h"
 
+
 bool worker_check(const worker_options_t *options, const worker_snapshot_t *snapshot);
+
+const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status);
+volatile shr_data_buff_t *worker_shared_buffer_new(const worker_t *worker,
+	gru_status_t *status);
 
 #ifdef __cplusplus
 }

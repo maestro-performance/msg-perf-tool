@@ -15,19 +15,6 @@
  */
 #include "abstract_worker.h"
 
-static const char *
-	worker_name(const worker_t *worker, pid_t child, gru_status_t *status) {
-	char *cname = NULL;
-
-	if (asprintf(&cname, "%s-%d", worker->name, child) == -1) {
-		gru_status_set(status, GRU_FAILURE, "Not enough memory to format name");
-
-		return NULL;
-	}
-
-	return cname;
-}
-
 static void abstract_worker_msg_opt(msg_opt_t *opt,
 	msg_direction_t direction,
 	const worker_options_t *options) {
@@ -43,35 +30,6 @@ static void abstract_worker_msg_opt_cleanup(msg_opt_t *opt) {
 	msg_conn_info_cleanup(&opt->conn_info);
 }
 
-static volatile shr_data_buff_t *abstract_worker_new_shared_buffer(const worker_t *worker,
-	gru_status_t *status) {
-
-	const char *cname = worker_name(worker, getpid(), status);
-
-	if (!cname) {
-		return NULL;
-	}
-
-	volatile shr_data_buff_t *shr =
-		shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);
-	gru_dealloc_const_string(&cname);
-
-	if (!shr) {
-		gru_status_set(
-			status, GRU_FAILURE, "Unable to open a write buffer: %s", status->message);
-
-		gru_dealloc_const_string(&cname);
-
-		return NULL;
-	}
-
-	// If forked, then we need to signal the parent process that it's ok to continue
-	if (worker->worker_flags & WRK_FORKED) {
-		kill(getppid(), SIGUSR2);
-	}
-
-	return shr;
-}
 
 worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 	worker_snapshot_t *snapshot,
@@ -94,7 +52,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 		goto err_exit;
 	}
 
-	volatile shr_data_buff_t *shr = abstract_worker_new_shared_buffer(worker, status);
+	volatile shr_data_buff_t *shr = worker_shared_buffer_new(worker, status);
 	if (!shr) {
 		goto err_exit;
 	}
@@ -220,7 +178,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 		goto err_exit;
 	}
 
-	volatile shr_data_buff_t *shr = abstract_worker_new_shared_buffer(worker, status);
+	volatile shr_data_buff_t *shr = worker_shared_buffer_new(worker, status);
 	if (!shr) {
 		goto err_exit;
 	}
