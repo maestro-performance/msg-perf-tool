@@ -22,7 +22,6 @@ static void show_help(char **argv) {
 
 	gru_cli_option_help("broker-url", "b", "broker URL to connect to");
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
-	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
 	gru_cli_option_help("duration",
 		"d",
 		"runs for the specificied amount of time. It "
@@ -70,12 +69,11 @@ int main(int argc, char **argv) {
 			{"log-dir", required_argument, 0, 'L'},
 			{"parallel-count", required_argument, 0, 'p'},
 			{"message-size", required_argument, 0, 's'},
-			{"daemon", no_argument, 0, 'D'},
 			{"maestro-url", required_argument, 0, 'm'},
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:d:l:L:p:s:Dm:h", long_options, &option_index);
+		c = getopt_long(argc, argv, "b:d:l:L:p:s:m:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -115,9 +113,6 @@ int main(int argc, char **argv) {
 					options_destroy(&options);
 					return EXIT_FAILURE;
 				}
-				break;
-			case 'D':
-				options->daemon = true;
 				break;
 			case 'm':
 				if (!options_set_maestro_uri(options, optarg, &status)) {

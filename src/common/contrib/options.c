@@ -39,7 +39,6 @@ void options_set_defaults(options_t *ret) {
 	ret->message_size = 32;
 	ret->variable_size = false;
 	ret->duration = gru_duration_new();
-	ret->daemon = false;
 	ret->probing = true;
 	ret->throttle = 0;
 	ret->iface = strdup("eth0");

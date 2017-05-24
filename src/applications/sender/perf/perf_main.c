@@ -24,7 +24,6 @@ static void show_help(char **argv) {
 
 	gru_cli_option_help("broker-url", "b", "broker URL to connect to");
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
-	gru_cli_option_help("daemon", "D", "run as a daemon in the background");
 	gru_cli_option_help("duration",
 		"d",
 		"runs for the specificied amount of time. It "
@@ -83,7 +82,6 @@ int perf_main(int argc, char **argv) {
 			{"size", required_argument, 0, 's'},
 			{"log-dir", required_argument, 0, 'L'},
 			{"throttle", required_argument, 0, 't'},
-			{"daemon", no_argument, 0, 'D'},
 			{"no-probes", no_argument, 0, 'N'},
 			{"interface", required_argument, 0, 'i'},
 			{"maestro-url", required_argument, 0, 'm'},
@@ -92,7 +90,7 @@ int perf_main(int argc, char **argv) {
 			{0, 0, 0, 0}};
 
 		c = getopt_long(
-			argc, argv, "b:c:l:p:d:s:L:t:DNi:m:P:h", long_options, &option_index);
+			argc, argv, "b:c:l:p:d:s:L:t:Ni:m:P:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -144,9 +142,6 @@ int perf_main(int argc, char **argv) {
 				break;
 			case 't':
 				options->throttle = atoi(optarg);
-				break;
-			case 'D':
-				options->daemon = true;
 				break;
 			case 'N':
 				options->probing = false;

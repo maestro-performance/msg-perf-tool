@@ -46,7 +46,6 @@ typedef struct options_t_ {
 	bool variable_size;
 	log_level_t log_level;
 	gru_duration_t duration;
-	bool daemon;
 	uint32_t throttle;
 	bool probing;
 	gru_list_t *probes;
