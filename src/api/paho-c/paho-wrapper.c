@@ -114,6 +114,8 @@ void paho_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	MQTTClient_destroy(&paho_ctxt->client);
 
 	gru_uri_cleanup(&paho_ctxt->uri);
+	paho_context_destroy(&paho_ctxt);
+	msg_ctxt_destroy(&ctxt);
 }
 
 struct paho_perf_pl {
