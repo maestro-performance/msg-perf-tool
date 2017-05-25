@@ -31,6 +31,7 @@ extern "C" {
 #include "worker_types.h"
 #include "worker_utils.h"
 #include "worker_options.h"
+#include "worker_wait.h"
 
 /**
  * Creates a new worker information structure
