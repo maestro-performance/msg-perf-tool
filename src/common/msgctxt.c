@@ -32,5 +32,5 @@ void msg_ctxt_destroy(msg_ctxt_t **ctxt) {
 		return;
 	}
 
-	gru_dealloc(ctxt);
+	gru_dealloc((void **) ctxt);
 }
