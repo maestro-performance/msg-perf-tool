@@ -238,7 +238,7 @@ void shr_buff_detroy(volatile shr_data_buff_t **ptr) {
 
 	sem_close(buff->sem_read);
 
-	gru_dealloc_string(&buff->name);
+	gru_dealloc_string((char **) &buff->name);
 	gru_dealloc((void **) ptr);
 }
 
