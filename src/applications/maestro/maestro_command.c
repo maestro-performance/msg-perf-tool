@@ -28,7 +28,11 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt,
 	};
 
 	msg_conn_info_gen_id(&opt.conn_info);
-	opt.uri = uri;
+	opt.uri = gru_uri_clone(uri, status);
+	if (gru_status_error(status)) {
+		logger(ERROR, "Failed to set connection URL: %s", status->message);
+		return -1;
+	}
 
 	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(opt, NULL, status);
 
@@ -42,6 +46,10 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt,
 
 static int maestro_cmd_disconnect(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	cmd_ctxt->vmsl.stop(cmd_ctxt->msg_ctxt, status);
+
+	gru_uri_cleanup(&cmd_ctxt->msg_ctxt->msg_opts.uri);
+	msg_conn_info_cleanup(&cmd_ctxt->msg_ctxt->msg_opts.conn_info);
+
 	return 0;
 }
 

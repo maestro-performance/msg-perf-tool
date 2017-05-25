@@ -135,6 +135,11 @@ int maestro_loop(gru_status_t *status) {
 		}
 	} while (true);
 
+	if (strings) {
+		gru_split_clean(strings);
+		gru_list_destroy(&strings);
+	}
+
 	maestro_cmd_ctxt_destroy(&cmd_ctxt);
 
 	return 0;
