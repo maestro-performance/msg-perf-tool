@@ -80,7 +80,8 @@ static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *na
 
 	probe_entry_t *(*new_entry)(gru_status_t *);
 
-	new_entry = (probe_entry_t * (*) (gru_status_t *) ) dlsym(handle, name);
+	// new_entry = (probe_entry_t * (*) (gru_status_t *) ) dlsym(handle, name);
+	*(void **) (&new_entry) = dlsym(handle, name);
 	error = dlerror();
 	if (error) {
 		logger(ERROR, "Unable to open handle: %s\n", error);
