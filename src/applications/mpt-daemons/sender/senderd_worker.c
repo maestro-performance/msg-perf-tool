@@ -94,7 +94,6 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 	gru_node_t *node = children->root;
 
 	uint64_t total_msg = 0;
-	uint64_t total_lat = 0;
 	double total_rate = 0.0;
 
 	while (node) {
