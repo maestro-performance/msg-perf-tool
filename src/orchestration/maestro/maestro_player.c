@@ -28,8 +28,8 @@ static maestro_player_t *maestro_player_new() {
 static void maestro_player_destroy(maestro_player_t **ptr, gru_status_t *status) {
 	maestro_player_t *pl = *ptr;
 
-	pl->mmsl.stop(splayer->ctxt, status);
-	pl->mmsl.destroy(splayer->ctxt, status);
+	pl->mmsl.stop(pl->ctxt, status);
+	pl->mmsl.destroy(pl->ctxt, status);
 
 	gru_uri_cleanup(&pl->uri);
 

@@ -295,6 +295,7 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt,
 	msg_content_data_t req = {0};
 	if (maestro_cmd_set_opt_by_name(&req, opt, val, status) == -1) {
 		gru_status_set(status, GRU_FAILURE, "Invalid option: %s", opt);
+		maestro_cmd_disconnect(cmd_ctxt, status);
 
 		return 1;
 	}
@@ -302,6 +303,8 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt,
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
 	if (rstat != VMSL_SUCCESS) {
 		fprintf(stderr, "Failed to send command");
+		maestro_cmd_disconnect(cmd_ctxt, status);
+
 		return 1;
 	}
 
