@@ -31,7 +31,6 @@ static void show_help(char **argv) {
 }
 
 int tune_main(int argc, char **argv) {
-	int c = 0;
 	int option_index = 0;
 
 	if (argc < 2) {
@@ -40,15 +39,14 @@ int tune_main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	options_t *options = options_new();
-	set_options_object(options);
-
 	gru_status_t status = gru_status_new();
-
+	options_t *options = options_new(&status);
 	if (!options) {
+		fprintf(stderr, "Unable to create options object: %s", status.message);
 		return EXIT_FAILURE;
 	}
 
+	set_options_object(options);
 	gru_logger_set(gru_logger_default_printer);
 
 	while (1) {
@@ -60,7 +58,7 @@ int tune_main(int argc, char **argv) {
 			{"help", false, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:l:L:s:h", long_options, &option_index);
+		int c = getopt_long(argc, argv, "b:l:L:s:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}

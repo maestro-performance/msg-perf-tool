@@ -17,19 +17,17 @@
 
 static options_t *options = NULL;
 
-void options_set_defaults(options_t *ret) {
-	gru_status_t status = gru_status_new();
-
-	ret->uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", &status);
+static bool options_set_defaults(options_t *ret, gru_status_t *status) {
+	ret->uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", status);
 	if (gru_status_error(&status)) {
-		fprintf(stderr, "%s", status.message);
-		return;
+		fprintf(stderr, "%s", status->message);
+		return false;
 	}
 
-	ret->maestro_uri = gru_uri_parse("mqtt://localhost:1883/mpt/maestro", &status);
+	ret->maestro_uri = gru_uri_parse("mqtt://localhost:1883/mpt/maestro", status);
 	if (gru_status_error(&status)) {
-		fprintf(stderr, "%s", status.message);
-		return;
+		fprintf(stderr, "%s", status->message);
+		return false;
 	}
 
 	ret->logdir = NULL;
@@ -42,7 +40,7 @@ void options_set_defaults(options_t *ret) {
 	ret->probing = true;
 	ret->throttle = 0;
 	ret->iface = strdup("eth0");
-	ret->probes = gru_split("net,bmic", ',', &status);
+	ret->probes = gru_split("net,bmic", ',', status);
 
 	char hostname[256] = {0};
 	if (gethostname(&hostname, sizeof(hostname)) == 0) {
@@ -51,19 +49,19 @@ void options_set_defaults(options_t *ret) {
 	else {
 		ret->name = strdup("undefined");
 	}
+
+	return true;
 }
 
-options_t *options_new() {
-	options_t *ret = (options_t *) calloc(1, sizeof(options_t));
+options_t *options_new(gru_status_t *status) {
+	options_t *ret = gru_alloc(sizeof(options_t), status);
+	gru_alloc_check(ret, NULL);
 
-	if (!ret) {
-		fprintf(stderr, "Not enough memory to allocate for options object\n");
+	if (!options_set_defaults(ret, status)) {
+		gru_dealloc((void **) &ret);
 
 		return NULL;
 	}
-
-	ret->logdir = NULL;
-	options_set_defaults(ret);
 
 	return ret;
 }
@@ -81,12 +79,11 @@ void options_destroy(options_t **obj) {
 	gru_uri_cleanup(&opt->maestro_uri);
 	gru_uri_cleanup(&opt->uri);
 
-	free(opt->iface);
-	free(opt->logdir);
-	free(opt->name);
-	free(opt);
+	gru_dealloc_string(&opt->iface);
+	gru_dealloc_string(&opt->logdir);
+	gru_dealloc_string(&opt->name);
 
-	*obj = NULL;
+	gru_dealloc((void **) opt);
 }
 
 void set_options_object(options_t *obj) {
@@ -115,6 +112,50 @@ bool options_set_maestro_uri(options_t *obj, const char *url, gru_status_t *stat
 
 	options->maestro_uri = gru_uri_parse(url, status);
 	if (gru_status_error(status)) {
+		return false;
+	}
+
+	return true;
+}
+
+bool options_set_name(options_t *obj, const char *name) {
+	gru_dealloc_string(&obj->name);
+	obj->name = strdup(name);
+	if (!obj->name) {
+		return false;
+	}
+
+	return true;
+}
+
+bool options_set_logdir(options_t *obj, const char *logdir) {
+	gru_dealloc_string(&obj->logdir);
+	obj->logdir = strdup(logdir);
+	if (!obj->logdir) {
+		return false;
+	}
+
+	return true;
+}
+
+bool options_set_iface(options_t *obj, const char *iface) {
+	gru_dealloc_string(&obj->iface);
+	obj->iface = strdup(iface);
+	if (!obj->iface) {
+		return false;
+	}
+
+	return true;
+}
+
+bool options_set_probes(options_t *obj, const char *probes, gru_status_t *status) {
+	if (obj->probes) {
+		gru_split_clean(obj->probes);
+		gru_list_destroy(&obj->probes);
+	}
+
+	obj->probes = gru_split(optarg, ',', status);
+	if (!obj->probes) {
 		return false;
 	}
 

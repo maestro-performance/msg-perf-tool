@@ -41,17 +41,7 @@ static void show_help(char **argv) {
 }
 
 int main(int argc, char **argv) {
-	int c;
 	int option_index = 0;
-
-	options_t *options = options_new();
-	set_options_object(options);
-
-	gru_status_t status = gru_status_new();
-
-	if (!options) {
-		return EXIT_FAILURE;
-	}
 
 	if (argc < 2) {
 		show_help(argv);
@@ -59,10 +49,17 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
+	gru_status_t status = gru_status_new();
+	options_t *options = options_new(&status);
+	if (!options) {
+		fprintf(stderr, "Unable to create options object: %s", status.message);
+		return EXIT_FAILURE;
+	}
+
+	set_options_object(options);
 	gru_logger_set(gru_logger_default_printer);
 
 	while (1) {
-
 		static struct option long_options[] = {{"broker-url", required_argument, 0, 'b'},
 			{"duration", required_argument, 0, 'd'},
 			{"log-level", required_argument, 0, 'l'},
@@ -73,7 +70,7 @@ int main(int argc, char **argv) {
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "b:d:l:L:p:s:m:h", long_options, &option_index);
+		int c = getopt_long(argc, argv, "b:d:l:L:p:s:m:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -81,18 +78,16 @@ int main(int argc, char **argv) {
 		switch (c) {
 			case 'b':
 				if (!options_set_broker_uri(options, optarg, &status)) {
-					fprintf(stderr, "%s", status.message);
+					fprintf(stderr, "%s\n", status.message);
 
-					options_destroy(&options);
-					return EXIT_FAILURE;
+					goto err_exit;
 				}
 				break;
 			case 'd':
 				if (!gru_duration_parse(&options->duration, optarg)) {
-					fprintf(stderr, "Invalid input duration: %s\n", optarg);
+					fprintf(stderr, "Invalid duration: %s\n", optarg);
 
-					options_destroy(&options);
-					return EXIT_FAILURE;
+					goto err_exit;
 				}
 				break;
 			case 'l':
@@ -106,30 +101,29 @@ int main(int argc, char **argv) {
 				options->message_size = atoll(optarg);
 				break;
 			case 'L':
-				options->logdir = strdup(optarg);
-				if (!options->logdir) {
-					fprintf(stderr, "Unable to create memory for the log dir setting\n");
+				if (!options_set_logdir(options, optarg)) {
+					fprintf(stderr, "Unable to allocate memory for setting the log directory\n");
 
-					options_destroy(&options);
-					return EXIT_FAILURE;
+					goto err_exit;
 				}
 				break;
 			case 'm':
 				if (!options_set_maestro_uri(options, optarg, &status)) {
-					fprintf(stderr, "%s", status.message);
+					fprintf(stderr, "%s\n", status.message);
 
-					options_destroy(&options);
-					return EXIT_FAILURE;
+					goto err_exit;
 				}
 				break;
 			case 'h':
 				show_help(argv);
 				options_destroy(&options);
+
 				return EXIT_SUCCESS;
 			default:
 				printf("Invalid or missing option\n");
 				show_help(argv);
 				options_destroy(&options);
+
 				return EXIT_FAILURE;
 		}
 	}

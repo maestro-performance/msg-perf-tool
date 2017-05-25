@@ -54,7 +54,7 @@ typedef struct options_t_ {
 	char *name;
 } options_t;
 
-options_t *options_new();
+options_t *options_new(gru_status_t *status);
 void options_destroy(options_t **obj);
 
 void set_options_object(options_t *ojb);
@@ -62,6 +62,10 @@ const options_t *get_options_object(void);
 
 bool options_set_broker_uri(options_t *obj, const char *url, gru_status_t *status);
 bool options_set_maestro_uri(options_t *obj, const char *url, gru_status_t *status);
+bool options_set_name(options_t *obj, const char *name);
+bool options_set_logdir(options_t *obj, const char *logdir);
+bool options_set_iface(options_t *obj, const char *iface);
+bool options_set_probes(options_t *obj, const char *probes, gru_status_t *status);
 
 #ifdef __cplusplus
 }

@@ -26,17 +26,7 @@ static void show_help(char **argv) {
 }
 
 int main(int argc, char **argv) {
-	int c;
 	int option_index = 0;
-
-	options_t *options = options_new();
-	set_options_object(options);
-
-	gru_status_t status = gru_status_new();
-
-	if (!options) {
-		return EXIT_FAILURE;
-	}
 
 	if (argc < 2) {
 		show_help(argv);
@@ -44,6 +34,14 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
+	gru_status_t status = gru_status_new();
+	options_t *options = options_new(&status);
+	if (!options) {
+		fprintf(stderr, "Unable to create options object: %s", status.message);
+		return EXIT_FAILURE;
+	}
+
+	set_options_object(options);
 	gru_logger_set(gru_logger_default_printer);
 
 	while (1) {
@@ -53,16 +51,16 @@ int main(int argc, char **argv) {
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		c = getopt_long(argc, argv, "m:l:h", long_options, &option_index);
+		int c = getopt_long(argc, argv, "m:l:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
 
 		switch (c) {
 			case 'm':
-				options->maestro_uri = gru_uri_parse(optarg, &status);
-				if (gru_status_error(&status)) {
-					fprintf(stderr, "%s", status.message);
+				if (!options_set_maestro_uri(options, optarg, &status)) {
+					fprintf(stderr, "%s\n", status.message);
+
 					goto err_exit;
 				}
 				break;
@@ -72,10 +70,14 @@ int main(int argc, char **argv) {
 				break;
 			case 'h':
 				show_help(argv);
+				options_destroy(&options);
+
 				return EXIT_SUCCESS;
 			default:
 				printf("Invalid or missing option\n");
 				show_help(argv);
+				options_destroy(&options);
+
 				return EXIT_SUCCESS;
 		}
 	}
