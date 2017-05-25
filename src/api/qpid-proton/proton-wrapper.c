@@ -153,7 +153,7 @@ void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	proton_context_destroy(&proton_ctxt);
 
 	if (url) {
-		gru_dealloc_string(&url);
+		gru_dealloc_const_string(&url);
 	}
 
 	msg_ctxt_destroy(&ctxt);
