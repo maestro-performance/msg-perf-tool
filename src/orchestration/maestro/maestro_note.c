@@ -138,17 +138,9 @@ void maestro_note_set_cmd(maestro_note_t *note, const char *cmd) {
 	note->command[1] = cmd[1];
 }
 
-static void maestro_payload_set_opt(maestro_payload_set_t *pl, const char *opt) {
-	memcpy(pl->opt, opt, sizeof(pl->opt));
-}
-
-static void maestro_payload_set_value(maestro_payload_set_t *pl, const char *value) {
-	memcpy(pl->value, value, sizeof(pl->value));
-}
-
 void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *value) {
-	maestro_payload_set_opt(&note->payload->request.set, opt);
-	maestro_payload_set_value(&note->payload->request.set, value);
+	maestro_set_payload_txt_field(note->payload->request.set.opt, opt);
+	maestro_set_payload_txt_field(note->payload->request.set.value, value);
 }
 
 void maestro_note_stats_set_id(maestro_note_t *note, const char *id) {
