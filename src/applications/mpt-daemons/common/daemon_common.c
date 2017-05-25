@@ -36,10 +36,15 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	strncpy(tmp_opt, body.opt, sizeof(body.opt));
 	strncpy(tmp_val, body.value, sizeof(body.value));
 
+	gru_trim(tmp_val, sizeof(tmp_val));
+
 	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_BROKER, MAESTRO_NOTE_OPT_LEN) == 0) {
-		logger(INFO, "Setting broker to: %s", tmp_val);
+		logger(INFO, "Setting broker to: %s.", tmp_val);
 
 		worker_options->uri = gru_uri_parse(tmp_val, &status);
+		if (gru_status_error(&status)) {
+			logger(ERROR, "Unable to set broker setting: %s", status.message);
+		}
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 
