@@ -19,13 +19,13 @@ static options_t *options = NULL;
 
 static bool options_set_defaults(options_t *ret, gru_status_t *status) {
 	ret->uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", status);
-	if (gru_status_error(&status)) {
+	if (gru_status_error(status)) {
 		fprintf(stderr, "%s", status->message);
 		return false;
 	}
 
 	ret->maestro_uri = gru_uri_parse("mqtt://localhost:1883/mpt/maestro", status);
-	if (gru_status_error(&status)) {
+	if (gru_status_error(status)) {
 		fprintf(stderr, "%s", status->message);
 		return false;
 	}
@@ -43,7 +43,7 @@ static bool options_set_defaults(options_t *ret, gru_status_t *status) {
 	ret->probes = gru_split("net,bmic", ',', status);
 
 	char hostname[256] = {0};
-	if (gethostname(&hostname, sizeof(hostname)) == 0) {
+	if (gethostname(hostname, sizeof(hostname)) == 0) {
 		ret->name = strdup(hostname);
 	}
 	else {
