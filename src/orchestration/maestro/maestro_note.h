@@ -157,7 +157,7 @@ typedef struct maestro_note_t_ {
 } maestro_note_t;
 
 #define maestro_set_payload_txt_field(field, source)                                     \
-	sprintf(field, "%-*s", (int) sizeof(field), source)
+	sprintf(field, "%-*s", ((int) sizeof(field) - 1), source)
 
 #define maestro_set_payload_uint32_field(field, value)                                   \
 	sprintf(field, "%-*" PRIu32 "", (int) sizeof(field), value)
