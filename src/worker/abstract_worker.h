@@ -45,8 +45,8 @@ extern "C" {
 
 #include "worker_options.h"
 #include "worker_types.h"
-#include "worker_wait.h"
 #include "worker_utils.h"
+#include "worker_info.h"
 
 typedef worker_ret_t (*abstract_worker_start)(const worker_t *worker,
 	worker_snapshot_t *snapshot,
