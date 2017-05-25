@@ -24,7 +24,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	maestro_payload_set_t body = request->payload->request.set;
 
 	logger(INFO,
-		"Setting option: %.%s to %.*s",
+		"Setting option: %.*s to %.*s",
 		(int) sizeof(body.opt),
 		body.opt,
 		(int) sizeof(body.value),
