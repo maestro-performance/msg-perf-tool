@@ -112,6 +112,20 @@ bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_l
 	return true;
 }
 
+bool msg_content_data_copy(msg_content_data_t *cont, const void *data, size_t size) {
+	gru_status_t status = gru_status_new();
+
+	cont->data = gru_alloc(size, &status);
+	gru_alloc_check(cont->data, false);
+
+	cont->capacity = size;
+	cont->size = size;
+
+	memcpy(cont->data, data, size);
+
+	return true;
+}
+
 bool msg_content_data_serialize(msg_content_data_t *cont, const char *fmt, ...) {
 	va_list ap;
 
@@ -121,3 +135,4 @@ bool msg_content_data_serialize(msg_content_data_t *cont, const char *fmt, ...) 
 
 	return ret;
 }
+
