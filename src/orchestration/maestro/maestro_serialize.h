@@ -26,6 +26,14 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 // TODO: move to a serializer module
 bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd);
 
+
+/**
+ * Deserialize a note
+ * @param in data to parse
+ * @param note output note
+ * @param status status structure in case of error
+ * @return true if successfully parsed or false otherwise
+ */
 bool maestro_deserialize_note(const msg_content_data_t *in, maestro_note_t *note,
 	gru_status_t *status);
 

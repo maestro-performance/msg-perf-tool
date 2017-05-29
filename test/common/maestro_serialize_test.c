@@ -100,6 +100,11 @@ static int maestro_serialize_cmd_ok_test() {
 		goto err_exit;
 	}
 
+	if (!maestro_note_equals(&ok, MAESTRO_NOTE_OK)) {
+		fprintf(stderr, "Unexpected maestro command: %.*s\n", 2, ok.command);
+		goto err_exit;
+	}
+
 	msg_content_data_release(&content);
 	return EXIT_SUCCESS;
 

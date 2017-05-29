@@ -30,65 +30,8 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 	gru_dealloc((void **) &note->payload);
 }
 
-bool maestro_note_parse(const void *data,
-	size_t size,
-	maestro_note_t *note,
-	gru_status_t *status) {
-	if (!data) {
-		gru_status_set(status, GRU_FAILURE, "Invalid data");
-
-		return false;
-	}
-
-	if (!note) {
-		gru_status_set(status, GRU_FAILURE, "Missing output structure");
-
-		return false;
-	}
-
-	const char *str = (const char *) data;
-	if (!isxdigit(str[0])) {
-		gru_status_set(status, GRU_FAILURE, "Invalid note type at position 0");
-
-		return false;
-	}
-	note->type = str[0];
-
-	if (!isxdigit(str[1]) || !isxdigit(str[2])) {
-		gru_status_set(status, GRU_FAILURE, "Invalid note command");
-
-		return false;
-	}
-
-	if (size < MAESTRO_HEADER_SIZE) {
-		gru_status_set(status, GRU_FAILURE, "Not enough data to parse response data");
-
-		return false;
-	}
-
-	bzero(note->command, sizeof(note->command));
-	note->command[0] = str[1];
-	note->command[1] = str[2];
-
-	size_t body_len = size - MAESTRO_HEADER_SIZE;
-
-	if (body_len > 0) {
-		if (!maestro_note_payload_prepare(note, status)) {
-			gru_status_set(status, GRU_FAILURE, "Not enough memory to parse body");
-
-			return false;
-		}
-
-		memcpy(note->payload, ((char *) data) + MAESTRO_HEADER_SIZE, body_len);
-	} else {
-		note->payload = NULL;
-	}
-
-	return true;
-}
-
 bool maestro_note_equals(const maestro_note_t *note, const char *cmd) {
-	if (strncmp(note->command, cmd, MAESTRO_NOTE_CMD_LENGTH) == 0) {
+	if (note->command == atoi(cmd)) {
 		return true;
 	}
 
@@ -122,20 +65,12 @@ void maestro_note_set_type(maestro_note_t *note, const char type) {
 
 void maestro_note_set_cmd(maestro_note_t *note, const char *cmd) {
 	if (cmd == NULL) {
-		strncpy(note->command, MAESTRO_NOTE_PROTOCOL_ERROR, sizeof(note->command));
+		note->command = atoi(MAESTRO_NOTE_PROTOCOL_ERROR);
 
 		return;
 	}
 
-	if (strlen(cmd) != MAESTRO_NOTE_CMD_LENGTH) {
-		strncpy(note->command, MAESTRO_NOTE_PROTOCOL_ERROR, sizeof(note->command));
-
-		return;
-	}
-
-	bzero(note->command, sizeof(note->command));
-	note->command[0] = cmd[0];
-	note->command[1] = cmd[1];
+	note->command = atoi(cmd);
 }
 
 void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *value) {

@@ -152,7 +152,7 @@ typedef union maestro_payload_t_ {
 
 typedef struct maestro_note_t_ {
 	char type;
-	char command[2];
+	int64_t command;
 	maestro_payload_t *payload;
 } maestro_note_t;
 
@@ -179,18 +179,7 @@ bool maestro_note_payload_prepare(maestro_note_t *note, gru_status_t *status);
  */
 void maestro_note_payload_cleanup(maestro_note_t *note);
 
-/**
- * Parse a note
- * @param data data to parse
- * @param size data size
- * @param note output note
- * @param status status structure in case of error
- * @return true if successfully parsed or false otherwise
- */
-bool maestro_note_parse(const void *data,
-	size_t size,
-	maestro_note_t *note,
-	gru_status_t *status);
+
 bool maestro_note_equals(const maestro_note_t *note, const char *cmd);
 
 /**

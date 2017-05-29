@@ -100,7 +100,7 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 
 	maestro_note_set_type(&response, MAESTRO_TYPE_RESPONSE);
 
-	if (!maestro_note_parse(req->data, req->size, &request, status)) {
+	if (!maestro_deserialize_note(req, &request, status)) {
 		logger(
 			ERROR, "Unable to parse request %s: %s", (char *) req->data, status->message);
 

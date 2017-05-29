@@ -34,5 +34,5 @@ void maestro_instrument_destroy(maestro_instrument_t **ptr) {
 
 bool maestro_instrument_can_play(const maestro_instrument_t *instrument,
 	const maestro_note_t *note) {
-	return maestro_note_equals(&instrument->tessitura, note->command);
+	return (instrument->tessitura.command == note->command);
 }

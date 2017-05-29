@@ -35,8 +35,8 @@ static bool maestro_serialize_header_only(const maestro_note_t *note,
 
 	msgpack_pack_char(&pk, note->type);
 
-	msgpack_pack_str(&pk, 2);
-	msgpack_pack_str_body(&pk, note->command, 2);
+
+	msgpack_pack_int64(&pk, note->command);
 
 	print(sbuf.data, sbuf.size);
 
@@ -235,7 +235,7 @@ bool maestro_deserialize_note(const msg_content_data_t *in, maestro_note_t *note
 		return false;
 	}
 	else {
-		if (!maestro_deserialize_note_set(msg.data, note->command, status)) {
+		if (!maestro_deserialize_note_set(msg.data, &note->command, status)) {
 			goto err_exit;
 		}
 	}

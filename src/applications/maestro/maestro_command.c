@@ -184,8 +184,11 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 			}
 		} else {
 			maestro_note_t note = {0};
+			msg_content_data_t msg;
 
-			if (!maestro_note_parse(buf, ret, &note, status)) {
+			msg_content_data_copy(&msg, &buf, ret);
+
+			if (!maestro_deserialize_note(&msg, &note, status)) {
 				fprintf(stderr, "Unknown protocol data\n");
 			} else {
 				maestro_cmd_print_data(&note);
