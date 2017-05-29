@@ -35,6 +35,8 @@ msg_content_data_t *msg_content_data_new(size_t size, gru_status_t *status) {
 }
 
 void msg_content_data_init(msg_content_data_t *mdata, size_t size, gru_status_t *status) {
+	msg_content_data_release(mdata);
+
 	mdata->data = gru_alloc(size, status);
 
 	if (!mdata->data) {
@@ -113,6 +115,8 @@ bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_l
 }
 
 bool msg_content_data_copy(msg_content_data_t *cont, const void *data, size_t size) {
+	msg_content_data_release(cont);
+
 	gru_status_t status = gru_status_new();
 
 	cont->data = gru_alloc(size, &status);
