@@ -16,6 +16,8 @@
 #ifndef MAESTRO_SERIALIZE_H
 #define MAESTRO_SERIALIZE_H
 
+#include <msgpack.h>
+
 #include "maestro_note.h"
 #include "msg_content_data.h"
 
@@ -23,6 +25,9 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 
 // TODO: move to a serializer module
 bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd);
+
+bool maestro_deserialize_note(const msg_content_data_t *in, maestro_note_t *note,
+	gru_status_t *status);
 
 bool maestro_note_ok_response(msg_content_data_t *cont);
 

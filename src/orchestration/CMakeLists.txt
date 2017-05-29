@@ -14,10 +14,11 @@ add_library(
 )
 
 target_link_libraries(
-	mpt-orchestration-maestro
-	mpt-common
+        mpt-orchestration-maestro
+        mpt-common
         mpt-api-common
         pthread
+        ${MSGPACK_LIB}
 )
 
 install(TARGETS mpt-orchestration-maestro

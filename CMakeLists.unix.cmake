@@ -3,7 +3,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	find_library(RT_LIB NAMES rt)
 	message(STATUS "RT library found at ${RT_LIB}")
-	
+
 	SET(SYSTEMD_SUPPORT ON CACHE BOOL "Enable systemd support")
 	# Fixed directory for service files
 	set(SERVICE_INSTALL_PREFIX "/" CACHE STRING "Install prefix for service files (for packaging only)")
@@ -14,7 +14,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	# Fixed directory
 	set(CMAKE_INSTALL_SYSCONFIG_PATH ${SERVICE_INSTALL_PREFIX}/etc/sysconfig)
 	set(CMAKE_BUILD_SYSCONFIG_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSCONFIG_PATH})
-	
+
 else (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	message(STATUS "Compiling for " ${CMAKE_SYSTEM_NAME} "")
 
@@ -87,9 +87,15 @@ find_library(ZLIB_LIB NAMES z libz)
 message(STATUS "zlib headers found on ${ZLIB_INCLUDE_DIR}")
 message(STATUS "zlib library found at ${ZLIB_LIB}")
 
-# Installs service configuration files (ie.: for systemd daemons). For systemd daemons 
-# It requires 2 files: a <service_name>.in file, containing the service startup 
-# configuration and a <service_name.service.in, which is a systemd-compliant service 
+find_path(MSGPACK_INCLUDE_DIR msgpack.h)
+find_library(MSGPACK_LIB NAMES msgpackc libmsgpackc)
+
+message(STATUS "MessagePack headers found on ${MSGPACK_INCLUDE_DIR}")
+message(STATUS "MessagePack library found at ${MSGPACK_LIB}")
+
+# Installs service configuration files (ie.: for systemd daemons). For systemd daemons
+# It requires 2 files: a <service_name>.in file, containing the service startup
+# configuration and a <service_name.service.in, which is a systemd-compliant service
 # file.
 macro(AddService SERVICE_CONFIG_SOURCE SERVICE_NAME)
 	if (NOT ${SYSTEMD_SUPPORT})

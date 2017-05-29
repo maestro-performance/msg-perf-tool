@@ -15,12 +15,36 @@
  */
 #include "maestro_serialize.h"
 
+
+void print(char const* buf, unsigned int len)
+{
+    size_t i = 0;
+    for(; i < len ; ++i)
+        printf("%02x ", 0xff & buf[i]);
+    printf("\n");
+}
+
 static bool maestro_serialize_header_only(const maestro_note_t *note,
 	msg_content_data_t *out) {
-	bool ret = msg_content_data_serialize(
-		out, "%c%.*s", note->type, sizeof(note->command), note->command);
 
-	return ret;
+	msgpack_sbuffer sbuf;
+	msgpack_packer pk;
+
+	msgpack_sbuffer_init(&sbuf);
+	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+	msgpack_pack_char(&pk, note->type);
+
+	msgpack_pack_str(&pk, 2);
+	msgpack_pack_str_body(&pk, note->command, 2);
+
+	print(sbuf.data, sbuf.size);
+
+	msg_content_data_copy(out, sbuf.data, sbuf.size);
+
+	msgpack_sbuffer_destroy(&sbuf);
+
+	return true;
 }
 
 static bool maestro_note_set_request(const maestro_note_t *note,
@@ -137,4 +161,89 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 	}
 
 	return ret;
+}
+
+static bool maestro_deserialize_note_set(const msgpack_object obj, void *out, gru_status_t *status) {
+	switch (obj.type) {
+		case MSGPACK_OBJECT_BOOLEAN: {
+			(*(bool *) out) = obj.via.boolean;
+			break;
+		}
+		case MSGPACK_OBJECT_POSITIVE_INTEGER: {
+			(*(int64_t *) out) = obj.via.i64;
+			break;
+		}
+		case MSGPACK_OBJECT_NEGATIVE_INTEGER: {
+			(*(uint64_t *) out) = obj.via.u64;
+			break;
+		}
+		case MSGPACK_OBJECT_FLOAT: {
+			(*(double *) out) = obj.via.f64;
+			break;
+		}
+		case MSGPACK_OBJECT_STR: {
+			snprintf((char *) out, obj.via.str.size, "%.*s", obj.via.str.size,
+				obj.via.str.ptr);
+			break;
+		}
+		case MSGPACK_OBJECT_NIL:
+		case MSGPACK_OBJECT_ARRAY:
+		case MSGPACK_OBJECT_MAP:
+		case MSGPACK_OBJECT_BIN:
+		case MSGPACK_OBJECT_EXT:
+		default: {
+			gru_status_set(status, GRU_FAILURE, "Unsupported type: %d", obj.type);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool maestro_deserialize_note(const msg_content_data_t *in, maestro_note_t *note,
+	gru_status_t *status)
+{
+	size_t offset = 0;
+	msgpack_unpacked msg;
+
+	msgpack_unpacked_init(&msg);
+
+	msgpack_unpack_return ret;
+
+	// Deserialize type
+	ret = msgpack_unpack_next(&msg, in->data, in->size, &offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status, GRU_FAILURE, "Unable to unpack protocol data: invalid and/or missing note type");
+
+		return false;
+	}
+
+	if (msg.data.type != MSGPACK_OBJECT_POSITIVE_INTEGER) {
+		gru_status_set(status, GRU_FAILURE,  "Unable to unpack protocol data: invalid note type");
+	}
+	else {
+		if (!maestro_deserialize_note_set(msg.data, &note->type, status)) {
+			goto err_exit;
+		}
+	}
+
+
+	ret = msgpack_unpack_next(&msg, in->data, in->size, &offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status, GRU_FAILURE, "Unable to unpack protocol data: invalid and/or missing command");
+
+		return false;
+	}
+	else {
+		if (!maestro_deserialize_note_set(msg.data, note->command, status)) {
+			goto err_exit;
+		}
+	}
+
+	msgpack_unpacked_destroy(&msg);
+	return true;
+
+	err_exit:
+	msgpack_unpacked_destroy(&msg);
+	return false;
 }

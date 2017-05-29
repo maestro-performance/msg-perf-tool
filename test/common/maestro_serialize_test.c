@@ -18,6 +18,8 @@
 #include "maestro/maestro_note.h"
 #include "maestro/maestro_serialize.h"
 
+#include <msgpack.h>
+
 static void sample_stats(maestro_note_t *response) {
 	maestro_note_set_type(response, MAESTRO_TYPE_RESPONSE);
 	maestro_note_set_cmd(response, MAESTRO_NOTE_STATS);
@@ -40,7 +42,7 @@ static void sample_stats(maestro_note_t *response) {
 	maestro_note_stats_set_perf_latency(response, 11.2);
 }
 
-int main(int argc, char **argv) {
+static int maestro_serialize_stats_test() {
 	maestro_note_t sample = {0};
 	gru_status_t status = gru_status_new();
 
@@ -68,4 +70,44 @@ int main(int argc, char **argv) {
 	msg_content_data_release(&content);
 	maestro_note_payload_cleanup(&sample);
 	return EXIT_SUCCESS;
+}
+
+
+static void unpack(const void *ptr, int size, maestro_note_t *note) {
+
+}
+
+static int maestro_serialize_cmd_ok_test() {
+	gru_status_t status = gru_status_new();
+	maestro_note_t note = {0};
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_RESPONSE);
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_OK);
+
+	msg_content_data_t content = {0};
+	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
+
+	maestro_serialize_note(&note, &content);
+
+	maestro_note_t ok = {0};
+	if (!maestro_deserialize_note(&content, &ok, &status)) {
+		fprintf(stderr, "Failed to deserialize note: %s\n", status.message);
+		goto err_exit;
+	}
+
+	if (ok.type != MAESTRO_TYPE_RESPONSE) {
+		fprintf(stderr, "Invalid type: %c\n", ok.type);
+		goto err_exit;
+	}
+
+	msg_content_data_release(&content);
+	return EXIT_SUCCESS;
+
+	err_exit:
+	msg_content_data_release(&content);
+	return EXIT_FAILURE;
+}
+
+int main(int argc, char **argv) {
+	return maestro_serialize_cmd_ok_test();
 }
