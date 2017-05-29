@@ -20,7 +20,7 @@
 #include "maestro_serialize.h"
 #include "msg_content_data.h"
 
-void maestro_easy_request(msg_content_data_t *out, const char *cmd);
-void maestro_easy_response(msg_content_data_t *out, const char *cmd);
+void maestro_easy_request(msg_content_data_t *out, maestro_command_t cmd);
+void maestro_easy_response(msg_content_data_t *out,maestro_command_t cmd);
 
 #endif /* MAESTRO_EASY_H */

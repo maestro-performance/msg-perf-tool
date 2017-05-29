@@ -27,15 +27,11 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 		return;
 	}
 
-	gru_dealloc((void **) &note->payload);
-}
-
-bool maestro_note_equals(const maestro_note_t *note, const char *cmd) {
-	if (note->command == atoi(cmd)) {
-		return true;
+	if (note->type == MAESTRO_TYPE_REQUEST && note->command == MAESTRO_NOTE_SET) {
+		gru_dealloc((void **) &note->payload->request.set.value);
 	}
 
-	return false;
+	gru_dealloc((void **) &note->payload);
 }
 
 static void maestro_payload_set_req_ts(maestro_payload_ping_request_t *pl,
@@ -63,19 +59,15 @@ void maestro_note_set_type(maestro_note_t *note, const char type) {
 	note->type = type;
 }
 
-void maestro_note_set_cmd(maestro_note_t *note, const char *cmd) {
-	if (cmd == NULL) {
-		note->command = atoi(MAESTRO_NOTE_PROTOCOL_ERROR);
-
-		return;
-	}
-
-	note->command = atoi(cmd);
+void maestro_note_set_cmd(maestro_note_t *note, maestro_command_t cmd) {
+	note->command = cmd;
 }
 
-void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *value) {
-	maestro_set_payload_txt_field(note->payload->request.set.opt, opt);
-	maestro_set_payload_txt_field(note->payload->request.set.value, value);
+void maestro_note_set_opt(maestro_note_t *note, int64_t opt, const char *value) {
+	maestro_note_payload_prepare(note, NULL);
+
+	note->payload->request.set.opt = opt;
+	note->payload->request.set.value = strdup(value);
 }
 
 void maestro_note_stats_set_id(maestro_note_t *note, const char *id) {

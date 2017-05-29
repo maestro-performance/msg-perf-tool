@@ -16,13 +16,13 @@
 #include "maestro_instrument.h"
 
 maestro_instrument_t *
-	maestro_instrument_new(const char *note, maestro_play_t play, gru_status_t *status) {
+	maestro_instrument_new(maestro_command_t cmd, maestro_play_t play, gru_status_t *status) {
 	maestro_instrument_t *ret = gru_alloc(sizeof(maestro_instrument_t), status);
 	gru_alloc_check(ret, NULL);
 
 	ret->play = play;
 
-	maestro_note_set_cmd(&ret->tessitura, note);
+	maestro_note_set_cmd(&ret->tessitura, cmd);
 	ret->tessitura.payload = NULL;
 
 	return ret;

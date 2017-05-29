@@ -35,71 +35,52 @@
 #define MAESTRO_TYPE_REQUEST '0'
 #define MAESTRO_TYPE_RESPONSE '1'
 
+typedef enum maestro_command_t_ {
+	/** Receiver execution **/
+	MAESTRO_NOTE_START_RECEIVER,
+	MAESTRO_NOTE_STOP_RECEIVER,
+	/** Sender execution */
+	MAESTRO_NOTE_START_SENDER,
+	MAESTRO_NOTE_STOP_SENDER,
+	/** Inspector execution **/
+	MAESTRO_NOTE_START_INSPECTOR,
+	MAESTRO_NOTE_STOP_INSPECTOR,
+	MAESTRO_NOTE_FLUSH,
+	MAESTRO_NOTE_SET,
+	MAESTRO_NOTE_STATS,
+	MAESTRO_NOTE_HALT,
+	MAESTRO_NOTE_PING,
+	MAESTRO_NOTE_OK,
+	MAESTRO_NOTE_PROTOCOL_ERROR,
+	MAESTRO_NOTE_INTERNAL_ERROR
+} maestro_command_t;
 
-/** Receiver execution **/
-#define MAESTRO_NOTE_START_RECEIVER "20"
-
-#define MAESTRO_NOTE_STOP_RECEIVER "21"
-
-/** Sender execution */
-#define MAESTRO_NOTE_START_SENDER "22"
-
-#define MAESTRO_NOTE_STOP_SENDER "23"
-
-/** Inspector execution **/
-#define MAESTRO_NOTE_START_INSPECTOR "24"
-
-#define MAESTRO_NOTE_STOP_INSPECTOR "25"
-
-/** Flush all buffers */
-#define MAESTRO_NOTE_FLUSH "06"
-
-/** Set options */
-#define MAESTRO_NOTE_SET "07"
-
-/** Stats request */
-#define MAESTRO_NOTE_STATS "08"
-
-/** Stats request */
-#define MAESTRO_NOTE_HALT "09"
-
-/** Send a ping request */
-#define MAESTRO_NOTE_PING "10"
-
-/** Response OK */
-#define MAESTRO_NOTE_OK "E0"
-
-/** Protocol error response */
-#define MAESTRO_NOTE_PROTOCOL_ERROR "F0"
-
-/** Internal server error */
-#define MAESTRO_NOTE_INTERNAL_ERROR "F1"
 
 /** Lengh of the opt field in a set note */
 #define MAESTRO_NOTE_OPT_LEN 2
 
-/** Lengh of the value field in a set note */
 #define MAESTRO_NOTE_OPT_VALUE_LEN                                                       \
-	(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH - MAESTRO_NOTE_OPT_LEN)
+       (MAESTRO_NOTE_PAYLOAD_MAX_LENGTH - MAESTRO_NOTE_OPT_LEN)
 
-/** Set broker address */
-#define MAESTRO_NOTE_OPT_SET_BROKER "00"
 
-/** Set duration type (count or duration). Values are defined as parameters to the message
- */
-#define MAESTRO_NOTE_OPT_SET_DURATION_TYPE "01"
 
-/** Set the log level */
-#define MAESTRO_NOTE_OPT_SET_LOG_LEVEL "02"
+typedef enum set_opts_t_ {
+	/** Broker address */
+	MAESTRO_NOTE_OPT_SET_BROKER = 0,
+	/** Duration type (count or duration).
+	 * Values are defined as parameters to the message
+ 	*/
+	MAESTRO_NOTE_OPT_SET_DURATION_TYPE,
+	/** Set the log level */
+	MAESTRO_NOTE_OPT_SET_LOG_LEVEL,
+	/** Set the parallel count */
+	MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT,
+	/** Set message size */
+	MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE,
+	/** Set throtle */
+	MAESTRO_NOTE_OPT_SET_THROTTLE
+} set_opts_t;
 
-/** Set the parallel count */
-#define MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT "03"
-
-/** Set a fixed message size */
-#define MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE "04"
-
-/** Set throtle */
-#define MAESTRO_NOTE_OPT_SET_THROTTLE "05"
 
 #define MAESTRO_CLIENT_ID_SIZE 36
 
@@ -135,8 +116,8 @@ typedef struct maestro_payload_stats_reply_t_ {
 } maestro_payload_stats_reply_t;
 
 typedef struct maestro_payload_set_t_ {
-	char opt[MAESTRO_NOTE_OPT_LEN];
-	char value[MAESTRO_NOTE_OPT_VALUE_LEN];
+	int64_t opt;
+	char *value;
 } maestro_payload_set_t;
 
 typedef union maestro_payload_t_ {
@@ -157,7 +138,7 @@ typedef struct maestro_note_t_ {
 } maestro_note_t;
 
 #define maestro_set_payload_txt_field(field, source)                                     \
-	sprintf(field, "%-*s", ((int) sizeof(field) - 1), source)
+	snprintf(field, (int) sizeof(field), "%-*s", ((int) sizeof(field) - 1), source)
 
 #define maestro_set_payload_uint32_field(field, value)                                   \
 	sprintf(field, "%-*" PRIu32 "", (int) sizeof(field), value)
@@ -178,9 +159,6 @@ bool maestro_note_payload_prepare(maestro_note_t *note, gru_status_t *status);
  * Frees memory used by a payload
  */
 void maestro_note_payload_cleanup(maestro_note_t *note);
-
-
-bool maestro_note_equals(const maestro_note_t *note, const char *cmd);
 
 /**
  * Sets the client ID in the ping response
@@ -203,9 +181,9 @@ void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts);
 void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t ts);
 
 void maestro_note_set_type(maestro_note_t *note, const char type);
-void maestro_note_set_cmd(maestro_note_t *note, const char *cmd);
+void maestro_note_set_cmd(maestro_note_t *note, maestro_command_t cmd);
 
-void maestro_note_set_opt(maestro_note_t *note, const char *opt, const char *value);
+void maestro_note_set_opt(maestro_note_t *note, int64_t opt, const char *value);
 
 /**
  * Sets the ID in the stats response

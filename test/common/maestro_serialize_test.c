@@ -73,11 +73,7 @@ static int maestro_serialize_stats_test() {
 }
 
 
-static void unpack(const void *ptr, int size, maestro_note_t *note) {
-
-}
-
-static int maestro_serialize_cmd_ok_test() {
+static bool maestro_serialize_cmd_ok_test() {
 	gru_status_t status = gru_status_new();
 	maestro_note_t note = {0};
 
@@ -100,19 +96,81 @@ static int maestro_serialize_cmd_ok_test() {
 		goto err_exit;
 	}
 
-	if (!maestro_note_equals(&ok, MAESTRO_NOTE_OK)) {
+	if (ok.command != MAESTRO_NOTE_OK) {
 		fprintf(stderr, "Unexpected maestro command: %.*s\n", 2, ok.command);
 		goto err_exit;
 	}
 
 	msg_content_data_release(&content);
-	return EXIT_SUCCESS;
+	return true;
 
 	err_exit:
 	msg_content_data_release(&content);
-	return EXIT_FAILURE;
+	return false;
 }
 
+
+static bool maestro_serialize_cmd_set_opt_test() {
+	gru_status_t status = gru_status_new();
+	maestro_note_t note = {0};
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_REQUEST);
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_SET);
+	maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_BROKER, "amqp://test.host:5672/queue");
+
+	msg_content_data_t content = {0};
+	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
+
+	maestro_serialize_note(&note, &content);
+
+	maestro_note_t ok = {0};
+	if (!maestro_deserialize_note(&content, &ok, &status)) {
+		fprintf(stderr, "Failed to deserialize note: %s\n", status.message);
+		goto err_exit;
+	}
+
+	if (ok.type != MAESTRO_TYPE_REQUEST) {
+		fprintf(stderr, "Invalid type: %c\n", ok.type);
+		goto err_exit;
+	}
+
+	if (ok.command != MAESTRO_NOTE_SET) {
+		fprintf(stderr, "Unexpected maestro command: %.*s\n", 2, ok.command);
+		goto err_exit;
+	}
+
+	if (ok.payload->request.set.opt != MAESTRO_NOTE_OPT_SET_BROKER) {
+		fprintf(stderr, "Unexpected set command: %.*s\n", 2, ok.payload->request.set.opt);
+		goto err_exit;
+	}
+
+	if (strcmp(ok.payload->request.set.value, "amqp://test.host:5672/queue") != 0) {
+		fprintf(stderr, "Unexpected set value: %s\n", ok.payload->request.set.value);
+		goto err_exit;
+	}
+
+	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&ok);
+	maestro_note_payload_cleanup(&note);
+	return true;
+
+	err_exit:
+	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&ok);
+	maestro_note_payload_cleanup(&note);
+	return false;
+}
+
+
 int main(int argc, char **argv) {
-	return maestro_serialize_cmd_ok_test();
+	if (!maestro_serialize_cmd_ok_test()) {
+		return EXIT_FAILURE;
+	}
+
+	if (!maestro_serialize_cmd_set_opt_test()) {
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+
 }

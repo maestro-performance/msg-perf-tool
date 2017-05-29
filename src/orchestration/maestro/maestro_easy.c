@@ -15,7 +15,7 @@
  */
 #include "maestro_easy.h"
 
-void maestro_easy_request(msg_content_data_t *out, const char *cmd) {
+void maestro_easy_request(msg_content_data_t *out, maestro_command_t cmd) {
 	maestro_note_t note = {0};
 
 	maestro_note_set_type(&note, MAESTRO_TYPE_REQUEST);
@@ -24,7 +24,7 @@ void maestro_easy_request(msg_content_data_t *out, const char *cmd) {
 	maestro_serialize_note(&note, out);
 }
 
-void maestro_easy_response(msg_content_data_t *out, const char *cmd) {
+void maestro_easy_response(msg_content_data_t *out,maestro_command_t cmd) {
 
 	maestro_note_t note = {0};
 

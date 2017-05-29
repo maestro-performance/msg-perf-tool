@@ -30,15 +30,15 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		(int) sizeof(body.value),
 		body.value);
 
-	char tmp_opt[MAESTRO_NOTE_OPT_LEN + 1] = {0};
+
 	char tmp_val[MAESTRO_NOTE_OPT_VALUE_LEN + 1] = {0};
 
-	strncpy(tmp_opt, body.opt, sizeof(body.opt));
+
 	strncpy(tmp_val, body.value, sizeof(body.value));
 
 	gru_trim(tmp_val, sizeof(tmp_val));
 
-	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_BROKER, MAESTRO_NOTE_OPT_LEN) == 0) {
+	if (body.opt == MAESTRO_NOTE_OPT_SET_BROKER) {
 		logger(INFO, "Setting broker to: %s.", tmp_val);
 
 		worker_options->uri = gru_uri_parse(tmp_val, &status);
@@ -51,8 +51,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		return NULL;
 	}
 
-	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_DURATION_TYPE, MAESTRO_NOTE_OPT_LEN) ==
-		0) {
+	if (body.opt == MAESTRO_NOTE_OPT_SET_DURATION_TYPE) {
 		logger(INFO, "Setting duration option");
 
 		gru_duration_t duration = gru_duration_new();
@@ -69,7 +68,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		return NULL;
 	}
 
-	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_LOG_LEVEL, MAESTRO_NOTE_OPT_LEN) == 0) {
+	if (body.opt == MAESTRO_NOTE_OPT_SET_LOG_LEVEL) {
 		logger(INFO, "Setting log-level option");
 
 		worker_options->log_level = gru_logger_get_level(tmp_val);
@@ -79,8 +78,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		return NULL;
 	}
 
-	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT, MAESTRO_NOTE_OPT_LEN) ==
-		0) {
+	if (body.opt == MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT) {
 		logger(INFO, "Setting parallel count option");
 
 		worker_options->parallel_count = (uint16_t) atoi(tmp_val);
@@ -88,7 +86,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		return NULL;
 	}
 
-	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE, MAESTRO_NOTE_OPT_LEN) == 0) {
+	if (body.opt == MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE) {
 		logger(INFO, "Setting message size option");
 
 		if (tmp_val[0] == '~') {
@@ -103,7 +101,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		return NULL;
 	}
 
-	if (strncmp(body.opt, MAESTRO_NOTE_OPT_SET_THROTTLE, MAESTRO_NOTE_OPT_LEN) == 0) {
+	if (body.opt == MAESTRO_NOTE_OPT_SET_THROTTLE) {
 		logger(INFO, "Setting throttle option");
 
 		worker_options->throttle = atoi(tmp_val);

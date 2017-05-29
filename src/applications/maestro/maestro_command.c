@@ -54,7 +54,7 @@ static int maestro_cmd_disconnect(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *st
 }
 
 static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt,
-	const char *cmd,
+	maestro_command_t cmd,
 	gru_status_t *status) {
 	const options_t *options = get_options_object();
 
@@ -122,7 +122,7 @@ int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 }
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
-	if (maestro_note_equals(note, MAESTRO_NOTE_PING)) {
+	if (note->command == MAESTRO_NOTE_PING) {
 		printf("Name: %.*s ID: %.*s Time: %.*s ms\n",
 			(int) sizeof(note->payload->response.ping.name),
 			note->payload->response.ping.name,
@@ -130,9 +130,9 @@ static void maestro_cmd_print_data(maestro_note_t *note) {
 			note->payload->response.ping.id,
 			(int) sizeof(note->payload->response.ping.elapsed),
 			note->payload->response.ping.elapsed);
-	} else if (maestro_note_equals(note, MAESTRO_NOTE_PROTOCOL_ERROR)) {
+	} else if (note->command == MAESTRO_NOTE_PROTOCOL_ERROR) {
 		printf("One of more of the commands did not complete successfully\n");
-	} else if (maestro_note_equals(note, MAESTRO_NOTE_STATS)) {
+	} else if (note->command == MAESTRO_NOTE_STATS) {
 		printf("Name: %.*s ID: %.*s Children: %.*s Count: %.*s Rate: %.*s Latency: %.*s\n",
 			(int) sizeof(note->payload->response.stats.name),
 			note->payload->response.stats.name,
@@ -146,7 +146,7 @@ static void maestro_cmd_print_data(maestro_note_t *note) {
 			note->payload->response.stats.stats.perf.rate,
 			(int) sizeof(note->payload->response.stats.stats.perf.latency),
 			note->payload->response.stats.stats.perf.latency);
-	} else if (maestro_note_equals(note, MAESTRO_NOTE_OK)) {
+	} else if (note->command == MAESTRO_NOTE_OK) {
 		printf("Peer reply OK\n");
 	}
 }
