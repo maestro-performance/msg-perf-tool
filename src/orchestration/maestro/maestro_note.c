@@ -31,6 +31,10 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 		gru_dealloc((void **) &note->payload->request.set.value);
 	}
 
+	if (note->type == MAESTRO_TYPE_REQUEST && note->command == MAESTRO_NOTE_PING) {
+	  gru_dealloc((void **) &note->payload->request.ping.ts);
+	}
+
 	gru_dealloc((void **) &note->payload);
 }
 
