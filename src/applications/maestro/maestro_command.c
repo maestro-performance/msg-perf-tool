@@ -123,28 +123,19 @@ int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
 	if (note->command == MAESTRO_NOTE_PING) {
-		printf("Name: %.*s ID: %.*s Time: %.*s ms\n",
-			(int) sizeof(note->payload->response.ping.name),
+		printf("Name: %10s ID: %40s Time: %"PRIu64" ms\n",
 			note->payload->response.ping.name,
-			(int) sizeof(note->payload->response.ping.id),
 			note->payload->response.ping.id,
-			(int) sizeof(note->payload->response.ping.elapsed),
 			note->payload->response.ping.elapsed);
 	} else if (note->command == MAESTRO_NOTE_PROTOCOL_ERROR) {
 		printf("One of more of the commands did not complete successfully\n");
 	} else if (note->command == MAESTRO_NOTE_STATS) {
-		printf("Name: %.*s ID: %.*s Children: %.*s Count: %.*s Rate: %.*s Latency: %.*s\n",
-			(int) sizeof(note->payload->response.stats.name),
+		printf("Name: %10s ID: %40s Children: %"PRIu32" Count: %"PRIu64" Rate: %.2f Latency: %.2f\n",
 			note->payload->response.stats.name,
-			(int) sizeof(note->payload->response.stats.id),
 			note->payload->response.stats.id,
-			(int) sizeof(note->payload->response.stats.child_count),
 			note->payload->response.stats.child_count,
-			(int) sizeof(note->payload->response.stats.stats.perf.count),
 			note->payload->response.stats.stats.perf.count,
-			(int) sizeof(note->payload->response.stats.stats.perf.rate),
 			note->payload->response.stats.stats.perf.rate,
-			(int) sizeof(note->payload->response.stats.stats.perf.latency),
 			note->payload->response.stats.stats.perf.latency);
 	} else if (note->command == MAESTRO_NOTE_OK) {
 		printf("Peer reply OK\n");
@@ -177,7 +168,7 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 				break;
 			} else {
 				int err = errno;
-				fprintf(stdout, "Failed to read %d bytes from the local forward queue: %s\n",
+				fprintf(stdout, "Failed to read %"PRIu64" bytes from the local forward queue: %s\n",
 					sizeof(buf), strerror(err));
 
 				return 1;
