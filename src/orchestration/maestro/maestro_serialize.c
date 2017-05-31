@@ -58,7 +58,7 @@ static bool maestro_note_set_request(const maestro_note_t *note,
 	return true;
 }
 
-static bool maestro_note_ping_request(const maestro_note_t *note, msg_content_data_t *out) {
+static bool maestro_serialize_ping_request(const maestro_note_t *note, msg_content_data_t *out) {
 	msgpack_sbuffer sbuf;
 	msgpack_packer pk;
 
@@ -78,9 +78,6 @@ static bool maestro_note_ping_request(const maestro_note_t *note, msg_content_da
 	msgpack_sbuffer_destroy(&sbuf);
 
 	return true;
-
-
-
 }
 
 bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out) {
@@ -107,7 +104,10 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 		}
 		case MAESTRO_NOTE_PING: {
 			if (note->type == MAESTRO_TYPE_REQUEST) {
-				ret = maestro_note_ping_request(note, out);
+				ret = maestro_serialize_ping_request(note, out);
+			}
+		  	else {
+
 			}
 			//  if (maestro_note_equals(note, MAESTRO_NOTE_PING) && note->type == MAESTRO_TYPE_RESPONSE) {
 			// ret = msg_content_data_serialize(out,
