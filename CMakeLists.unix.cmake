@@ -93,6 +93,16 @@ find_library(MSGPACK_LIB NAMES msgpackc libmsgpackc)
 message(STATUS "MessagePack headers found on ${MSGPACK_INCLUDE_DIR}")
 message(STATUS "MessagePack library found at ${MSGPACK_LIB}")
 
+include(CheckSymbolExists)
+check_symbol_exists(msgpack_pack_char msgpack.h HAVE_MSGPACK_CHAR)
+DefineIfSet(HAVE_MSGPACK_CHAR)
+
+check_symbol_exists(msgpack_pack_str msgpack.h HAVE_MSGPACK_STR)
+DefineIfSet(HAVE_MSGPACK_STR)
+
+check_symbol_exists(msgpack_pack_str_body msgpack.h HAVE_MSGPACK_STR_BODY)
+DefineIfSet(HAVE_MSGPACK_STR_BODY)
+
 # Installs service configuration files (ie.: for systemd daemons). For systemd daemons
 # It requires 2 files: a <service_name>.in file, containing the service startup
 # configuration and a <service_name.service.in, which is a systemd-compliant service
