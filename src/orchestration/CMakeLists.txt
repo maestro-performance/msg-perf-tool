@@ -9,8 +9,6 @@ if (UNIX)
 				maestro/maestro_deserialize.c)
 endif (UNIX)
 
-include_directories({MSGPACK_INCLUDE_DIR})
-
 add_library(
 	mpt-orchestration-maestro SHARED
         ${MAESTRO_FILES}
@@ -21,7 +19,6 @@ target_link_libraries(
         mpt-common
         mpt-api-common
         pthread
-        ${MSGPACK_LIB}
 )
 
 install(TARGETS mpt-orchestration-maestro
