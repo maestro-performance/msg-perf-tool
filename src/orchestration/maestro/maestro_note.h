@@ -81,11 +81,6 @@ typedef enum set_opts_t_ {
 	MAESTRO_NOTE_OPT_SET_THROTTLE
 } set_opts_t;
 
-
-#define MAESTRO_CLIENT_ID_SIZE 36
-
-#define MAESTRO_CLIENT_NAME_SIZE 72
-
 typedef struct maestro_payload_ping_request_t_ {
 	char *ts;
 } maestro_payload_ping_request_t;
@@ -97,19 +92,23 @@ typedef struct maestro_payload_ping_reply_t_ {
 } maestro_payload_ping_reply_t;
 
 typedef struct maestro_payload_stats_perf_t_ {
-	char timestamp[GRU_TS_STRING_MAX];
-	char count[24];
-	char rate[10];
-	char latency[16];
+	char *timestamp;
+	uint64_t count;
+	double rate;
+	double latency;
 } maestro_payload_stats_perf_t;
 
+typedef enum maestro_payload_stat_type_t_ {
+  	MAESTRO_STAT_PERF
+} maestro_payload_stat_type_t;
+
 typedef struct maestro_payload_stats_reply_t_ {
-	char id[MAESTRO_CLIENT_ID_SIZE];
-	char name[MAESTRO_CLIENT_NAME_SIZE];
-	char child_count[5];
-	char role[10]; // sender / receiver / jmonitor / nmonitor /
-	char roleinfo[8]; // ie: node number on the cluster, etc
-	char stat_type; // perf (lat/tp), other
+  	char *id;
+  	char *name;
+	uint32_t child_count;
+	char *role; // sender / receiver / jmonitor / nmonitor /
+	char *roleinfo; // ie: node number on the cluster, etc
+  	maestro_payload_stat_type_t stat_type;
 	union {
 		maestro_payload_stats_perf_t perf;
 	} stats;
@@ -213,7 +212,7 @@ void maestro_note_stats_set_roleinfo(maestro_note_t *note, const char *roleinfo)
 /**
  * Sets the stat type in the stats response
  */
-void maestro_note_stats_set_stat_type(maestro_note_t *note, const char stat_type);
+void maestro_note_stats_set_stat_type(maestro_note_t *note, maestro_payload_stat_type_t stat_type);
 
 /**
  * Sets the timestamp for the performance statistics

@@ -28,16 +28,24 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 	}
 
 	if (note->type == MAESTRO_TYPE_REQUEST && note->command == MAESTRO_NOTE_SET) {
-		gru_dealloc((void **) &note->payload->request.set.value);
+		gru_dealloc_string(&note->payload->request.set.value);
 	}
 
 	if (note->type == MAESTRO_TYPE_REQUEST && note->command == MAESTRO_NOTE_PING) {
-	  gru_dealloc((void **) &note->payload->request.ping.ts);
+		gru_dealloc_string(&note->payload->request.ping.ts);
 	}
 
 	if (note->type == MAESTRO_TYPE_RESPONSE && note->command == MAESTRO_NOTE_PING) {
-	  gru_dealloc((void **) &note->payload->response.ping.id);
-	  gru_dealloc((void **) &note->payload->response.ping.name);
+		gru_dealloc_string(&note->payload->response.ping.id);
+		gru_dealloc_string(&note->payload->response.ping.name);
+	}
+
+	if (note->type == MAESTRO_TYPE_RESPONSE && note->command == MAESTRO_NOTE_STATS) {
+		gru_dealloc_string(&note->payload->response.stats.name);
+		gru_dealloc_string(&note->payload->response.stats.id);
+		gru_dealloc_string(&note->payload->response.stats.role);
+		gru_dealloc_string(&note->payload->response.stats.roleinfo);
+		gru_dealloc_string(&note->payload->response.stats.stats.perf.timestamp);
 	}
 
 	gru_dealloc((void **) &note->payload);
@@ -75,43 +83,41 @@ void maestro_note_set_opt(maestro_note_t *note, int64_t opt, const char *value) 
 }
 
 void maestro_note_stats_set_id(maestro_note_t *note, const char *id) {
-	maestro_set_payload_txt_field(note->payload->response.stats.id, id);
+	note->payload->response.stats.id = strdup(id);
 }
 
 void maestro_note_stats_set_name(maestro_note_t *note, const char *name) {
-	maestro_set_payload_txt_field(note->payload->response.stats.name, name);
+	note->payload->response.stats.name = strdup(name);
 }
 
 void maestro_note_stats_set_child_count(maestro_note_t *note, uint32_t count) {
-	maestro_set_payload_uint32_field(note->payload->response.stats.child_count, count);
+	note->payload->response.stats.child_count = count;
 }
 
 void maestro_note_stats_set_role(maestro_note_t *note, const char *role) {
-	maestro_set_payload_txt_field(note->payload->response.stats.role, role);
+	note->payload->response.stats.role = strdup(role);
 }
 
 void maestro_note_stats_set_roleinfo(maestro_note_t *note, const char *roleinfo) {
-	maestro_set_payload_txt_field(note->payload->response.stats.roleinfo, roleinfo);
+	note->payload->response.stats.roleinfo = strdup(roleinfo);
 }
 
-void maestro_note_stats_set_stat_type(maestro_note_t *note, const char stat_type) {
+void maestro_note_stats_set_stat_type(maestro_note_t *note, maestro_payload_stat_type_t stat_type) {
 	note->payload->response.stats.stat_type = stat_type;
 }
 
 void maestro_note_stats_set_perf_ts(maestro_note_t *note, const char *ts) {
-	maestro_set_payload_txt_field(note->payload->response.stats.stats.perf.timestamp, ts);
+	note->payload->response.stats.stats.perf.timestamp = strdup(ts);
 }
 
 void maestro_note_stats_set_perf_count(maestro_note_t *note, uint64_t count) {
-	maestro_set_payload_uint64_field(
-		note->payload->response.stats.stats.perf.count, count);
+	note->payload->response.stats.stats.perf.count = count;
 }
 
 void maestro_note_stats_set_perf_rate(maestro_note_t *note, double rate) {
-	maestro_set_payload_double_field(note->payload->response.stats.stats.perf.rate, rate);
+	note->payload->response.stats.stats.perf.rate = rate;
 }
 
 void maestro_note_stats_set_perf_latency(maestro_note_t *note, double latency) {
-	maestro_set_payload_double_field(
-		note->payload->response.stats.stats.perf.latency, latency);
+	note->payload->response.stats.stats.perf.latency = latency;
 }

@@ -115,7 +115,7 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 
 	maestro_note_stats_set_role(response, "sender");
 	maestro_note_stats_set_roleinfo(response, "perf");
-	maestro_note_stats_set_stat_type(response, 'S');
+	maestro_note_stats_set_stat_type(response, MAESTRO_STAT_PERF);
 
 	gru_timestamp_t now = gru_time_now();
 	char *formatted_ts = gru_time_write_str(&now);

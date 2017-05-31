@@ -20,6 +20,7 @@
 #include "maestro/maestro_deserialize.h"
 
 #include <msgpack.h>
+#include <maestro/maestro_note.h>
 
 static void sample_stats(maestro_note_t *response) {
 	maestro_note_set_type(response, MAESTRO_TYPE_RESPONSE);
@@ -288,20 +289,153 @@ static bool maestro_serialize_cmd_set_opt_test() {
 }
 
 
+static bool maestro_serialize_cmd_stats_response_test() {
+	gru_status_t status = gru_status_new();
+	maestro_note_t note = {0};
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_RESPONSE);
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_STATS);
+	if (!maestro_note_payload_prepare(&note, &status)) {
+		return false;
+	}
+
+	msg_content_data_t content = {0};
+	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
+
+	maestro_note_stats_set_id(&note, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+	maestro_note_stats_set_name(&note, "test@localhost.localdomain");
+	maestro_note_stats_set_child_count(&note, 6);
+
+	maestro_note_stats_set_role(&note, "receiver");
+	maestro_note_stats_set_roleinfo(&note, "perf");
+	maestro_note_stats_set_stat_type(&note, 'R');
+
+	gru_timestamp_t now = gru_time_now();
+	char *formatted_ts = gru_time_write_str(&now);
+
+	maestro_note_stats_set_perf_ts(&note, formatted_ts);
+	gru_dealloc_string(&formatted_ts);
+
+	maestro_note_stats_set_perf_count(&note, 10000);
+	maestro_note_stats_set_perf_rate(&note, (535 / 6));
+	maestro_note_stats_set_perf_latency(&note, 45.6);
+
+	maestro_serialize_note(&note, &content);
+	maestro_note_payload_cleanup(&note);
+
+	maestro_note_t deserialized = {0};
+	if (!maestro_deserialize_note(&content, &deserialized, &status)) {
+		fprintf(stderr, "Failed to deserialize note: %s\n", status.message);
+		goto err_exit;
+	}
+
+	if (deserialized.type != MAESTRO_TYPE_RESPONSE) {
+		fprintf(stderr, "Invalid type: %c\n", deserialized.type);
+		goto err_exit;
+	}
+
+	if (deserialized.command != MAESTRO_NOTE_STATS) {
+		fprintf(
+			stderr, "Unexpected maestro command: %" PRIi64 "\n", deserialized.command);
+		goto err_exit;
+	}
+
+	if (strcmp(deserialized.payload->response.stats.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3") != 0) {
+		fprintf(stderr, "Unexpected stat id: %s != %s\n",
+				deserialized.payload->response.stats.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+		goto err_exit;
+	}
+
+	if (strcmp(deserialized.payload->response.stats.name, "test@localhost.localdomain") != 0) {
+		fprintf(stderr, "Unexpected stat name: %s != %s\n",
+				deserialized.payload->response.stats.name, "test@localhost.localdomain");
+		goto err_exit;
+	}
+
+	if (deserialized.payload->response.stats.child_count != 6) {
+		fprintf(stderr, "Unexpected stat child cound: %ld != %ld\n",
+				deserialized.payload->response.stats.child_count, 6);
+		goto err_exit;
+	}
+
+	if (deserialized.payload->response.stats.child_count != 6) {
+		fprintf(stderr, "Unexpected stat child count: %ld != %ld\n",
+				deserialized.payload->response.stats.child_count, 6);
+		goto err_exit;
+	}
+
+	if (strcmp(deserialized.payload->response.stats.role, "receiver") != 0) {
+		fprintf(stderr, "Unexpected stat role: %s != %s\n",
+				deserialized.payload->response.stats.role, "receiver");
+		goto err_exit;
+	}
+
+	if (strcmp(deserialized.payload->response.stats.roleinfo, "perf") != 0) {
+		fprintf(stderr, "Unexpected stat role info: %s != %s\n",
+				deserialized.payload->response.stats.roleinfo, "perf");
+		goto err_exit;
+	}
+
+	if (deserialized.payload->response.stats.stats.perf.count != 10000) {
+		fprintf(stderr, "Unexpected stat message count: %ld != %ld\n",
+				deserialized.payload->response.stats.stats.perf.count, 10000);
+		goto err_exit;
+	}
+
+
+	if (deserialized.payload->response.stats.stats.perf.rate != (535 / 6)) {
+		fprintf(stderr, "Unexpected stat child cound: %f != %f\n",
+				deserialized.payload->response.stats.stats.perf.rate, (535 / 6));
+		goto err_exit;
+	}
+
+	if (deserialized.payload->response.stats.stats.perf.latency != 45.6) {
+		fprintf(stderr, "Unexpected stat child cound: %f != %f\n",
+				deserialized.payload->response.stats.stats.perf.latency, 45.6);
+		goto err_exit;
+	}
+
+	gru_dealloc_string(&formatted_ts);
+	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&note);
+	return true;
+
+	err_exit:
+	gru_dealloc_string(&formatted_ts);
+	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&note);
+	return false;
+}
+
+
 int main(int argc, char **argv) {
-	if (!maestro_serialize_cmd_ok_test()) {
+	if (argc < 2) {
+		fprintf(stderr, "Missing test case name\n");
+
 		return EXIT_FAILURE;
 	}
 
-	if (!maestro_serialize_cmd_set_opt_test()) {
-		return EXIT_FAILURE;
-	}
-
-	if (!maestro_serialize_cmd_ping_request_test()) {
-		return EXIT_FAILURE;
-	}
-
-	if (!maestro_serialize_cmd_ping_response_test()) {
+	if (strncmp(argv[1], "ok", 4) == 0) {
+		if (!maestro_serialize_cmd_ok_test()) {
+			return EXIT_FAILURE;
+		}
+	} else if (strncmp(argv[1], "set-opt", 4) == 0) {
+		if (!maestro_serialize_cmd_set_opt_test()) {
+			return EXIT_FAILURE;
+		}
+	} else if (strncmp(argv[1], "ping-request", 6) == 0) {
+		if (!maestro_serialize_cmd_ping_request_test()) {
+			return EXIT_FAILURE;
+		}
+	} else if (strncmp(argv[1], "ping-response", 6) == 0) {
+		if (!maestro_serialize_cmd_ping_response_test()) {
+			return EXIT_FAILURE;
+		}
+	} else if (strncmp(argv[1], "stats-response", 6) == 0) {
+		if (!maestro_serialize_cmd_stats_response_test()) {
+			return EXIT_FAILURE;
+		}
+	} else {
 		return EXIT_FAILURE;
 	}
 

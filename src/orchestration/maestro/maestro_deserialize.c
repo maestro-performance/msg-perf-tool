@@ -14,6 +14,7 @@
  *    limitations under the License.
  */
 #include "maestro_deserialize.h"
+#include "maestro_note.h"
 
 static bool maestro_deserialize_note_assign(const msgpack_object obj,
 	void *out,
@@ -194,6 +195,182 @@ static bool maestro_deserialize_note_ping_response(const msg_content_data_t *in,
   return true;
 }
 
+
+static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in,
+												   maestro_note_t *note,
+												   msgpack_unpacked *msg,
+												   size_t *offset,
+												   gru_status_t *status) {
+	if (!maestro_note_payload_prepare(note, status)) {
+		return false;
+	}
+
+	// Stats - client ID
+	msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing ID");
+
+		return false;
+	}
+
+	note->payload->response.stats.id = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.stats.id, false);
+
+	if (!maestro_deserialize_note_assign(
+		msg->data, note->payload->response.stats.id, status)) {
+		return false;
+	}
+
+	// Stats - client name
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing name");
+
+		return false;
+	}
+
+	note->payload->response.stats.name = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.stats.name, false);
+
+	if (!maestro_deserialize_note_assign(
+		msg->data, note->payload->response.stats.name, status)) {
+		return false;
+	}
+
+	// Stats - child count
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing child count");
+
+		return false;
+	}
+
+
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.child_count, status)) {
+		return false;
+	}
+
+	// Stats - role
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing role");
+
+		return false;
+	}
+
+	note->payload->response.stats.role = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.stats.role, false);
+
+	if (!maestro_deserialize_note_assign(msg->data, note->payload->response.stats.role, status)) {
+		return false;
+	}
+
+	// Stats - roleinfo
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing roleinfo");
+
+		return false;
+	}
+
+	note->payload->response.stats.roleinfo = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.stats.roleinfo, false);
+
+	if (!maestro_deserialize_note_assign(
+		msg->data, note->payload->response.stats.roleinfo, status)) {
+		return false;
+	}
+
+
+	// Stats - stats type
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing stat type");
+
+		return false;
+	}
+
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.stat_type, status)) {
+		return false;
+	}
+
+	// Stats - perf TS
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing perf timestamp");
+
+		return false;
+	}
+
+
+	note->payload->response.stats.stats.perf.timestamp = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.stats.stats.perf.timestamp, false);
+
+	if (!maestro_deserialize_note_assign(
+		msg->data, note->payload->response.stats.stats.perf.timestamp, status)) {
+		return false;
+	}
+
+	// Stats - perf count
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing perf count");
+
+		return false;
+	}
+
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.stats.perf.count, status)) {
+		return false;
+	}
+
+	// Stats - perf count
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing perf rate");
+
+		return false;
+	}
+
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.stats.perf.rate, status)) {
+		return false;
+	}
+
+	// Stats - perf latency
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack stats response: invalid and/or missing perf latency");
+
+		return false;
+	}
+
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.stats.perf.latency, status)) {
+		return false;
+	}
+
+	return true;
+}
+
+
 bool maestro_deserialize_note(const msg_content_data_t *in,
 	maestro_note_t *note,
 	gru_status_t *status) {
@@ -249,15 +426,18 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 		}
 		case MAESTRO_NOTE_PING: {
 			if (note->type == MAESTRO_TYPE_REQUEST) {
-				pl_ret = maestro_deserialize_note_ping_request(
-					in, note, &msg, &offset, status);
+				pl_ret = maestro_deserialize_note_ping_request(in, note, &msg, &offset, status);
 			}
 			else {
-			  pl_ret = maestro_deserialize_note_ping_response(
-				  in, note, &msg, &offset, status);
+			  pl_ret = maestro_deserialize_note_ping_response(in, note, &msg, &offset, status);
 			}
 
 			break;
+		}
+		case MAESTRO_NOTE_STATS: {
+			if (note->type == MAESTRO_TYPE_RESPONSE) {
+				pl_ret = maestro_deserialize_note_stats_response(in, note, &msg, &offset, status);
+			}
 		}
 	}
 
