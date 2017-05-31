@@ -43,11 +43,6 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 	gru_dealloc((void **) &note->payload);
 }
 
-static void maestro_payload_set_req_ts(maestro_payload_ping_request_t *pl,
-	const char *ts) {
-	memcpy(pl->ts, ts, sizeof(pl->ts));
-}
-
 void maestro_note_ping_set_id(maestro_note_t *note, const char *id) {
 	note->payload->response.ping.id = strdup(id);
 }
