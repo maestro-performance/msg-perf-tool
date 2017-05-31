@@ -19,9 +19,6 @@
 #include "maestro/maestro_serialize.h"
 #include "maestro/maestro_deserialize.h"
 
-#include <msgpack.h>
-#include <maestro/maestro_note.h>
-
 static void sample_stats(maestro_note_t *response) {
 	maestro_note_set_type(response, MAESTRO_TYPE_RESPONSE);
 	maestro_note_set_cmd(response, MAESTRO_NOTE_STATS);
