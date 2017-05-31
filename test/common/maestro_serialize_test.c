@@ -64,12 +64,67 @@ static int maestro_serialize_stats_test() {
 
 	maestro_serialize_note(&sample, &content);
 
-	printf("Wrote %d bytes (expected %d)\n", content.size, MAESTRO_NOTE_SIZE);
+	printf("Wrote %"PRIu64" bytes (expected %d)\n", content.size, MAESTRO_NOTE_SIZE);
 	printf("Data: %-*s|||\n", MAESTRO_NOTE_SIZE, (char *) content.data);
 
 	msg_content_data_release(&content);
 	maestro_note_payload_cleanup(&sample);
 	return EXIT_SUCCESS;
+}
+
+
+static bool maestro_serialize_cmd_ping_request_test() {
+	gru_status_t status = gru_status_new();
+	maestro_note_t note = {0};
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_REQUEST);
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_PING);
+	if (!maestro_note_payload_prepare(&note, &status)) {
+		return false;
+	}
+
+	msg_content_data_t content = {0};
+	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
+
+	gru_timestamp_t ts = gru_time_now();
+	char *formatted_ts = gru_time_write_str(&ts);
+	maestro_note_ping_set_ts(&note, formatted_ts);
+
+	maestro_serialize_note(&note, &content);
+	maestro_note_payload_cleanup(&note);
+
+	maestro_note_t deserialized = {0};
+	if (!maestro_deserialize_note(&content, &deserialized, &status)) {
+		fprintf(stderr, "Failed to deserialize note: %s\n", status.message);
+		goto err_exit;
+	}
+
+	if (deserialized.type != MAESTRO_TYPE_REQUEST) {
+		fprintf(stderr, "Invalid type: %c\n", deserialized.type);
+		goto err_exit;
+	}
+
+	if (deserialized.command != MAESTRO_NOTE_PING) {
+		fprintf(stderr, "Unexpected maestro command: %"PRIi64"\n", deserialized.command);
+		goto err_exit;
+	}
+
+	if (strcmp(deserialized.payload->request.ping.ts, formatted_ts) != 0) {
+		fprintf(stderr, "Unexpected ping timestamp: %s != %s\n",
+			deserialized.payload->request.ping.ts, formatted_ts);
+		goto err_exit;
+	}
+
+	gru_dealloc_string(&formatted_ts);
+	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&note);
+	return true;
+
+	err_exit:
+	gru_dealloc_string(&formatted_ts);
+	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&note);
+	return false;
 }
 
 
@@ -97,7 +152,7 @@ static bool maestro_serialize_cmd_ok_test() {
 	}
 
 	if (ok.command != MAESTRO_NOTE_OK) {
-		fprintf(stderr, "Unexpected maestro command: %.*s\n", 2, ok.command);
+		fprintf(stderr, "Unexpected maestro command: %li\n", ok.command);
 		goto err_exit;
 	}
 
@@ -123,40 +178,40 @@ static bool maestro_serialize_cmd_set_opt_test() {
 
 	maestro_serialize_note(&note, &content);
 
-	maestro_note_t ok = {0};
-	if (!maestro_deserialize_note(&content, &ok, &status)) {
+	maestro_note_t deserialized = {0};
+	if (!maestro_deserialize_note(&content, &deserialized, &status)) {
 		fprintf(stderr, "Failed to deserialize note: %s\n", status.message);
 		goto err_exit;
 	}
 
-	if (ok.type != MAESTRO_TYPE_REQUEST) {
-		fprintf(stderr, "Invalid type: %c\n", ok.type);
+	if (deserialized.type != MAESTRO_TYPE_REQUEST) {
+		fprintf(stderr, "Invalid type: %c\n", deserialized.type);
 		goto err_exit;
 	}
 
-	if (ok.command != MAESTRO_NOTE_SET) {
-		fprintf(stderr, "Unexpected maestro command: %.*s\n", 2, ok.command);
+	if (deserialized.command != MAESTRO_NOTE_SET) {
+		fprintf(stderr, "Unexpected maestro command: %li\n", deserialized.command);
 		goto err_exit;
 	}
 
-	if (ok.payload->request.set.opt != MAESTRO_NOTE_OPT_SET_BROKER) {
-		fprintf(stderr, "Unexpected set command: %.*s\n", 2, ok.payload->request.set.opt);
+	if (deserialized.payload->request.set.opt != MAESTRO_NOTE_OPT_SET_BROKER) {
+		fprintf(stderr, "Unexpected set command: %li\n", deserialized.payload->request.set.opt);
 		goto err_exit;
 	}
 
-	if (strcmp(ok.payload->request.set.value, "amqp://test.host:5672/queue") != 0) {
-		fprintf(stderr, "Unexpected set value: %s\n", ok.payload->request.set.value);
+	if (strcmp(deserialized.payload->request.set.value, "amqp://test.host:5672/queue") != 0) {
+		fprintf(stderr, "Unexpected set value: %s\n", deserialized.payload->request.set.value);
 		goto err_exit;
 	}
 
 	msg_content_data_release(&content);
-	maestro_note_payload_cleanup(&ok);
+	maestro_note_payload_cleanup(&deserialized);
 	maestro_note_payload_cleanup(&note);
 	return true;
 
 	err_exit:
 	msg_content_data_release(&content);
-	maestro_note_payload_cleanup(&ok);
+	maestro_note_payload_cleanup(&deserialized);
 	maestro_note_payload_cleanup(&note);
 	return false;
 }
@@ -168,6 +223,10 @@ int main(int argc, char **argv) {
 	}
 
 	if (!maestro_serialize_cmd_set_opt_test()) {
+		return EXIT_FAILURE;
+	}
+
+	if (!maestro_serialize_cmd_ping_request_test()) {
 		return EXIT_FAILURE;
 	}
 

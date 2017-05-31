@@ -48,7 +48,7 @@ void maestro_note_ping_set_name(maestro_note_t *note, const char *name) {
 }
 
 void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts) {
-	maestro_payload_set_req_ts(&note->payload->request.ping, ts);
+	note->payload->request.ping.ts = strdup(ts);
 }
 
 void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t elapsed) {

@@ -87,7 +87,7 @@ typedef enum set_opts_t_ {
 #define MAESTRO_CLIENT_NAME_SIZE 72
 
 typedef struct maestro_payload_ping_request_t_ {
-	char ts[18];
+	char *ts;
 } maestro_payload_ping_request_t;
 
 typedef struct maestro_payload_ping_reply_t_ {

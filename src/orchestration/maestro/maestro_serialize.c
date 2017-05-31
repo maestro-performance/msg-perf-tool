@@ -58,6 +58,31 @@ static bool maestro_note_set_request(const maestro_note_t *note,
 	return true;
 }
 
+static bool maestro_note_ping_request(const maestro_note_t *note, msg_content_data_t *out) {
+	msgpack_sbuffer sbuf;
+	msgpack_packer pk;
+
+	msgpack_sbuffer_init(&sbuf);
+	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+	msgpack_pack_char(&pk, note->type);
+	msgpack_pack_int64(&pk, note->command);
+	msgpack_pack_int64(&pk, note->payload->request.set.opt);
+
+	msgpack_pack_str(&pk, strlen(note->payload->request.ping.ts));
+	msgpack_pack_str_body(&pk, note->payload->request.ping.ts,
+		strlen(note->payload->request.ping.ts));
+
+	msg_content_data_copy(out, sbuf.data, sbuf.size);
+
+	msgpack_sbuffer_destroy(&sbuf);
+
+	return true;
+
+
+
+}
+
 bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out) {
 	bool ret = false;
 
@@ -81,6 +106,9 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 			break;
 		}
 		case MAESTRO_NOTE_PING: {
+			if (note->type == MAESTRO_TYPE_REQUEST) {
+				ret = maestro_note_ping_request(note, out);
+			}
 			//  if (maestro_note_equals(note, MAESTRO_NOTE_PING) && note->type == MAESTRO_TYPE_RESPONSE) {
 			// ret = msg_content_data_serialize(out,
 			// 	"%c%-*s%-*s%-*s%-*s",
@@ -233,6 +261,28 @@ static bool maestro_deserialize_note_set_request(const msg_content_data_t *in,
 	}
 
 	return true;
+}
+
+static bool maestro_deserialize_note_ping_request(const msg_content_data_t *in, maestro_note_t *note,
+	msgpack_unpacked *msg, size_t *offset, gru_status_t *status)
+{
+	if (!maestro_note_payload_prepare(note, status)) {
+		return false;
+	}
+
+	// Ping timestamp
+	msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status, GRU_FAILURE, "Unable to unpack ping timestamp: invalid and/or missing timestamp");
+
+		return false;
+	}
+
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->request.ping.ts, status)) {
+		return false;
+	}
+
+	return true;
 
 }
 
@@ -263,7 +313,6 @@ bool maestro_deserialize_note(const msg_content_data_t *in, maestro_note_t *note
 		}
 	}
 
-
 	ret = msgpack_unpack_next(&msg, in->data, in->size, &offset);
 	if (ret != MSGPACK_UNPACK_SUCCESS) {
 		gru_status_set(status, GRU_FAILURE, "Unable to unpack protocol data: invalid and/or missing command");
@@ -276,15 +325,27 @@ bool maestro_deserialize_note(const msg_content_data_t *in, maestro_note_t *note
 		}
 	}
 
+	bool pl_ret = true;
+
 	switch (note->command) {
 		case MAESTRO_NOTE_SET: {
 			if (note->type == MAESTRO_TYPE_REQUEST) {
-				if (!maestro_deserialize_note_set_request(in, note, &msg, &offset, status)) {
-					goto err_exit;
-				}
-
+				pl_ret = maestro_deserialize_note_set_request(in, note, &msg, &offset, status);
 			}
+
+			break;
 		}
+		case MAESTRO_NOTE_PING: {
+			if (note->type == MAESTRO_TYPE_REQUEST) {
+				pl_ret = maestro_deserialize_note_ping_request(in, note, &msg, &offset, status);
+			}
+
+			break;
+		}
+	}
+
+	if (!pl_ret) {
+		goto err_exit;
 	}
 
 	msgpack_unpacked_destroy(&msg);
