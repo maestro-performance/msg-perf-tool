@@ -121,8 +121,11 @@ static bool maestro_deserialize_note_ping_request(const msg_content_data_t *in,
 		return false;
 	}
 
+  	note->payload->request.ping.ts = gru_alloc(msg->data.via.str.size + 1, status);
+  	gru_alloc_check(note->payload->request.ping.ts, false);
+
 	if (!maestro_deserialize_note_assign(
-			msg->data, &note->payload->request.ping.ts, status)) {
+			msg->data, note->payload->request.ping.ts, status)) {
 		return false;
 	}
 
