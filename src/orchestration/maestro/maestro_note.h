@@ -91,9 +91,9 @@ typedef struct maestro_payload_ping_request_t_ {
 } maestro_payload_ping_request_t;
 
 typedef struct maestro_payload_ping_reply_t_ {
-	char id[MAESTRO_CLIENT_ID_SIZE];
-	char name[MAESTRO_CLIENT_NAME_SIZE];
-	char elapsed[18];
+	char *id;
+	char *name;
+  	uint64_t elapsed;
 } maestro_payload_ping_reply_t;
 
 typedef struct maestro_payload_stats_perf_t_ {

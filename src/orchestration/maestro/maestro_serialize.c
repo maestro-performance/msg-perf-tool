@@ -79,6 +79,33 @@ static bool maestro_serialize_ping_request(const maestro_note_t *note, msg_conte
 	return true;
 }
 
+static bool maestro_serialize_ping_response(const maestro_note_t *note,
+	msg_content_data_t *out) {
+	msgpack_sbuffer sbuf;
+	msgpack_packer pk;
+
+	msgpack_sbuffer_init(&sbuf);
+	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+	msgpack_pack_char(&pk, note->type);
+	msgpack_pack_int64(&pk, note->command);
+
+	msgpack_pack_str(&pk, strlen(note->payload->response.ping.id));
+	msgpack_pack_str_body(
+		&pk, note->payload->response.ping.id, strlen(note->payload->response.ping.id));
+
+  	msgpack_pack_str(&pk, strlen(note->payload->response.ping.name));
+  	msgpack_pack_str_body(
+	  &pk, note->payload->response.ping.name, strlen(note->payload->response.ping.name));
+
+  	msgpack_pack_uint64(&pk, note->payload->response.ping.elapsed);
+	msg_content_data_copy(out, sbuf.data, sbuf.size);
+
+	msgpack_sbuffer_destroy(&sbuf);
+
+	return true;
+}
+
 bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out) {
 	bool ret = false;
 
@@ -106,34 +133,10 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 				ret = maestro_serialize_ping_request(note, out);
 			}
 		  	else {
-
+				ret = maestro_serialize_ping_response(note, out);
 			}
-			//  if (maestro_note_equals(note, MAESTRO_NOTE_PING) && note->type == MAESTRO_TYPE_RESPONSE) {
-			// ret = msg_content_data_serialize(out,
-			// 	"%c%-*s%-*s%-*s%-*s",
-			// 	note->type,
-			// 	sizeof(note->command),
-			// 	note->command,
-			// 	sizeof(note->payload->response.ping.id),
-			// 	note->payload->response.ping.id,
-			// 	sizeof(note->payload->response.ping.name),
-			// 	note->payload->response.ping.name,
-			// 	sizeof(note->payload->response.ping.elapsed),
-			// 	note->payload->response.ping.elapsed);
-			// out->size =
-			// 	1 + (int) sizeof(note->command) + sizeof(maestro_payload_ping_reply_t);
-			// } else if (maestro_note_equals(note, MAESTRO_NOTE_PING) &&
-			// 	note->type == MAESTRO_TYPE_REQUEST) {
-			// 	ret = msg_content_data_serialize(out,
-			// 		"%c%.*s%.*s",
-			// 		note->type,
-			// 		sizeof(note->command),
-			// 		note->command,
-			// 		sizeof(note->payload->request.ping.ts),
-			// 		note->payload->request.ping.ts);
-			// 		break;
-			break;
 
+			break;
 		}
 
 	}

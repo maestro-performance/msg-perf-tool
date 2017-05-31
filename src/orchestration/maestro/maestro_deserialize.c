@@ -132,6 +132,68 @@ static bool maestro_deserialize_note_ping_request(const msg_content_data_t *in,
 	return true;
 }
 
+static bool maestro_deserialize_note_ping_response(const msg_content_data_t *in,
+												  maestro_note_t *note,
+												  msgpack_unpacked *msg,
+												  size_t *offset,
+												  gru_status_t *status) {
+  if (!maestro_note_payload_prepare(note, status)) {
+	return false;
+  }
+
+  // Ping - client ID
+  msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+  if (ret != MSGPACK_UNPACK_SUCCESS) {
+	gru_status_set(status,
+				   GRU_FAILURE,
+				   "Unable to unpack ping response: invalid and/or missing ID");
+
+	return false;
+  }
+
+  note->payload->response.ping.id = gru_alloc(msg->data.via.str.size + 1, status);
+  gru_alloc_check(note->payload->response.ping.id, false);
+
+  if (!maestro_deserialize_note_assign(
+	  msg->data, note->payload->response.ping.id, status)) {
+	return false;
+  }
+
+  // Ping - client name
+  ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+  if (ret != MSGPACK_UNPACK_SUCCESS) {
+	gru_status_set(status,
+				   GRU_FAILURE,
+				   "Unable to unpack ping response: invalid and/or missing name");
+
+	return false;
+  }
+
+  note->payload->response.ping.name = gru_alloc(msg->data.via.str.size + 1, status);
+  gru_alloc_check(note->payload->response.ping.name, false);
+
+  if (!maestro_deserialize_note_assign(
+	  msg->data, note->payload->response.ping.name, status)) {
+	return false;
+  }
+
+  // Ping - elapsed
+  ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+  if (ret != MSGPACK_UNPACK_SUCCESS) {
+	gru_status_set(status,
+				   GRU_FAILURE,
+				   "Unable to unpack ping response: invalid and/or missing elapsed time");
+
+	return false;
+  }
+
+  if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.ping.elapsed, status)) {
+	return false;
+  }
+
+  return true;
+}
+
 bool maestro_deserialize_note(const msg_content_data_t *in,
 	maestro_note_t *note,
 	gru_status_t *status) {
@@ -189,6 +251,10 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 			if (note->type == MAESTRO_TYPE_REQUEST) {
 				pl_ret = maestro_deserialize_note_ping_request(
 					in, note, &msg, &offset, status);
+			}
+			else {
+			  pl_ret = maestro_deserialize_note_ping_response(
+				  in, note, &msg, &offset, status);
 			}
 
 			break;

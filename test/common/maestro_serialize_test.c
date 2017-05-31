@@ -119,10 +119,80 @@ static bool maestro_serialize_cmd_ping_request_test() {
 	gru_dealloc_string(&formatted_ts);
 	msg_content_data_release(&content);
 	maestro_note_payload_cleanup(&note);
+  	maestro_note_payload_cleanup(&deserialized);
 	return true;
 
 	err_exit:
 	gru_dealloc_string(&formatted_ts);
+	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&note);
+  	maestro_note_payload_cleanup(&deserialized);
+	return false;
+}
+
+
+static bool maestro_serialize_cmd_ping_response_test() {
+	gru_status_t status = gru_status_new();
+	maestro_note_t note = {0};
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_RESPONSE);
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_PING);
+	if (!maestro_note_payload_prepare(&note, &status)) {
+		return false;
+	}
+
+	msg_content_data_t content = {0};
+	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
+
+	maestro_note_ping_set_id(&note, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+  	maestro_note_ping_set_name(&note, "test@localhost.localdomain");
+  	maestro_note_ping_set_elapsed(&note, 30);
+
+	maestro_serialize_note(&note, &content);
+	maestro_note_payload_cleanup(&note);
+
+	maestro_note_t deserialized = {0};
+	if (!maestro_deserialize_note(&content, &deserialized, &status)) {
+		fprintf(stderr, "Failed to deserialize note: %s\n", status.message);
+		goto err_exit;
+	}
+
+	if (deserialized.type != MAESTRO_TYPE_RESPONSE) {
+		fprintf(stderr, "Invalid type: %c\n", deserialized.type);
+		goto err_exit;
+	}
+
+	if (deserialized.command != MAESTRO_NOTE_PING) {
+		fprintf(
+			stderr, "Unexpected maestro command: %" PRIi64 "\n", deserialized.command);
+		goto err_exit;
+	}
+
+	if (strcmp(deserialized.payload->response.ping.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3") != 0) {
+		fprintf(stderr, "Unexpected ping id: %s != %s\n",
+				deserialized.payload->response.ping.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+		goto err_exit;
+	}
+
+	if (strcmp(deserialized.payload->response.ping.name, "test@localhost.localdomain") != 0) {
+	  	fprintf(stderr, "Unexpected ping name: %s != %s\n",
+			  deserialized.payload->response.ping.name, "test@localhost.localdomain");
+	  	goto err_exit;
+	}
+
+  	if (deserialized.payload->response.ping.elapsed != 30) {
+		fprintf(stderr, "Unexpected ping elapsed time: %ld != %ld\n",
+				deserialized.payload->response.ping.elapsed, 30);
+		goto err_exit;
+	}
+
+
+  msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&note);
+	return true;
+
+	err_exit:
+
 	msg_content_data_release(&content);
 	maestro_note_payload_cleanup(&note);
 	return false;
@@ -228,6 +298,10 @@ int main(int argc, char **argv) {
 	}
 
 	if (!maestro_serialize_cmd_ping_request_test()) {
+		return EXIT_FAILURE;
+	}
+
+	if (!maestro_serialize_cmd_ping_response_test()) {
 		return EXIT_FAILURE;
 	}
 
