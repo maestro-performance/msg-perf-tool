@@ -179,7 +179,7 @@ static bool maestro_serialize_cmd_ping_response_test() {
 	}
 
   	if (deserialized.payload->response.ping.elapsed != 30) {
-		fprintf(stderr, "Unexpected ping elapsed time: %ld != %ld\n",
+		fprintf(stderr, "Unexpected ping elapsed time: %"PRId64" != %"PRId32"\n",
 				deserialized.payload->response.ping.elapsed, 30);
 		goto err_exit;
 	}
@@ -350,13 +350,7 @@ static bool maestro_serialize_cmd_stats_response_test() {
 	}
 
 	if (deserialized.payload->response.stats.child_count != 6) {
-		fprintf(stderr, "Unexpected stat child cound: %ld != %ld\n",
-				deserialized.payload->response.stats.child_count, 6);
-		goto err_exit;
-	}
-
-	if (deserialized.payload->response.stats.child_count != 6) {
-		fprintf(stderr, "Unexpected stat child count: %ld != %ld\n",
+		fprintf(stderr, "Unexpected stat child count: %"PRIu32" != %"PRIu32"\n",
 				deserialized.payload->response.stats.child_count, 6);
 		goto err_exit;
 	}
@@ -374,7 +368,7 @@ static bool maestro_serialize_cmd_stats_response_test() {
 	}
 
 	if (deserialized.payload->response.stats.stats.perf.count != 10000) {
-		fprintf(stderr, "Unexpected stat message count: %ld != %ld\n",
+		fprintf(stderr, "Unexpected stat message count: %"PRIu64" != %"PRIu32"\n",
 				deserialized.payload->response.stats.stats.perf.count, 10000);
 		goto err_exit;
 	}
@@ -382,7 +376,7 @@ static bool maestro_serialize_cmd_stats_response_test() {
 
 	if (deserialized.payload->response.stats.stats.perf.rate != (535 / 6)) {
 		fprintf(stderr, "Unexpected stat child cound: %f != %f\n",
-				deserialized.payload->response.stats.stats.perf.rate, (535 / 6));
+				deserialized.payload->response.stats.stats.perf.rate, (double) (535 / 6));
 		goto err_exit;
 	}
 
