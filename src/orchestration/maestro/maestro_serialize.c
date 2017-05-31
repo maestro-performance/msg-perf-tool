@@ -120,6 +120,7 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 		case MAESTRO_NOTE_START_INSPECTOR:
 		case MAESTRO_NOTE_STOP_INSPECTOR:
 		case MAESTRO_NOTE_FLUSH:
+		case MAESTRO_NOTE_STATS:
 		case MAESTRO_NOTE_HALT: {
 			ret = maestro_serialize_header_only(note, out);
 			break;
