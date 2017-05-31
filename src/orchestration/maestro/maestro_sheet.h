@@ -27,6 +27,7 @@
 #include "maestro_instrument.h"
 #include "maestro_note.h"
 #include "maestro_serialize.h"
+#include "maestro_deserialize.h"
 
 typedef struct maestro_sheet_t_ {
 	char *location; /** Sheet location (ie.: /mpt/sender/<ppid>) **/

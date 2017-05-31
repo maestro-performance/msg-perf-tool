@@ -31,6 +31,7 @@
 #include "maestro/maestro_easy.h"
 #include "maestro/maestro_note.h"
 #include "maestro/maestro_serialize.h"
+#include "maestro/maestro_deserialize.h"
 
 int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 int maestro_cmd_stop_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);

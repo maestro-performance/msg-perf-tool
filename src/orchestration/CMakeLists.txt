@@ -5,7 +5,8 @@ if (UNIX)
                 maestro/maestro_sheet.c
                 maestro/maestro_player.c
                 maestro/maestro_serialize.c
-                maestro/maestro_easy.c)
+                maestro/maestro_easy.c
+				maestro/maestro_deserialize.c)
 endif (UNIX)
 
 add_library(

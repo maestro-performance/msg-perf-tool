@@ -17,6 +17,7 @@
 #include "msg_content_data.h"
 #include "maestro/maestro_note.h"
 #include "maestro/maestro_serialize.h"
+#include "maestro/maestro_deserialize.h"
 
 #include <msgpack.h>
 
