@@ -39,25 +39,25 @@ add_test(
 )
 
 add_test(
-		NAME maestro_serialize_test_set_opt
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
-		COMMAND maestro_serialize_test "set-opt"
+	NAME maestro_serialize_test_set_opt
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
+	COMMAND maestro_serialize_test "set-opt"
 )
 
 add_test(
-		NAME maestro_serialize_test_ping_request
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
-		COMMAND maestro_serialize_test "ping-request"
+	NAME maestro_serialize_test_ping_request
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
+	COMMAND maestro_serialize_test "ping-request"
 )
 
 add_test(
-		NAME maestro_serialize_test_ping_response
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
-		COMMAND maestro_serialize_test "ping-response"
+	NAME maestro_serialize_test_ping_response
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
+	COMMAND maestro_serialize_test "ping-response"
 )
 
 add_test(
-		NAME maestro_serialize_test_stats_response
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
-		COMMAND maestro_serialize_test "stats-response"
+	NAME maestro_serialize_test_stats_response
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
+	COMMAND maestro_serialize_test "stats-response"
 )
