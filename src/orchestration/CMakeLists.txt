@@ -9,6 +9,8 @@ if (UNIX)
 				maestro/maestro_deserialize.c)
 endif (UNIX)
 
+include_directories({MSGPACK_INCLUDE_DIR})
+
 add_library(
 	mpt-orchestration-maestro SHARED
         ${MAESTRO_FILES}
