@@ -136,18 +136,6 @@ typedef struct maestro_note_t_ {
 	maestro_payload_t *payload;
 } maestro_note_t;
 
-#define maestro_set_payload_txt_field(field, source)                                     \
-	snprintf(field, (int) sizeof(field), "%-*s", ((int) sizeof(field) - 1), source)
-
-#define maestro_set_payload_uint32_field(field, value)                                   \
-	sprintf(field, "%-*" PRIu32 "", (int) sizeof(field), value)
-
-#define maestro_set_payload_uint64_field(field, value)                                   \
-	sprintf(field, "%-*" PRIu64 "", (int) sizeof(field), value)
-
-#define maestro_set_payload_double_field(field, value)                                   \
-	sprintf(field, "%-*.2f", (int) sizeof(field), value)
-
 /**
  * Prepare a note for receiving a payload (ie.: allocate memory for the payload)
  * @return true if successfull of false otherwise
