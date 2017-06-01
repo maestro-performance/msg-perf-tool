@@ -44,11 +44,6 @@ static bool maestro_deserialize_note_assign(const msgpack_object obj,
 				obj.via.str.ptr);
 			break;
 		}
-		case MSGPACK_OBJECT_NIL:
-		case MSGPACK_OBJECT_ARRAY:
-		case MSGPACK_OBJECT_MAP:
-		case MSGPACK_OBJECT_BIN:
-		case MSGPACK_OBJECT_EXT:
 		default: {
 			gru_status_set(status, GRU_FAILURE, "Unsupported type: %d", obj.type);
 			return false;
