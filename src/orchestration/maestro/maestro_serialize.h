@@ -24,7 +24,7 @@
 #if MSGPACK_VERSION_MAJOR == 0
  #define msgpack_pack_char(pk, d) msgpack_pack_int(pk, d)
  #define msgpack_pack_str(pk, d) msgpack_pack_raw(pk, d)
- #define msgpack_pack_str_body(pk, d) msgpack_pack_raw_body(pk, d)
+ #define msgpack_pack_str_body(pk, v, d) msgpack_pack_raw_body(pk, v, d)
 
  #define MSGPACK_OBJECT_STR MSGPACK_OBJECT_RAW
 #endif // HAVE_MSGPACK_STR_BODY
