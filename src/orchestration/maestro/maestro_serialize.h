@@ -20,14 +20,7 @@
 
 #include "maestro_note.h"
 #include "msg_content_data.h"
-
-#if MSGPACK_VERSION_MAJOR == 0
- #define msgpack_pack_char(pk, d) msgpack_pack_int(pk, d)
- #define msgpack_pack_str(pk, d) msgpack_pack_raw(pk, d)
- #define msgpack_pack_str_body(pk, v, d) msgpack_pack_raw_body(pk, v, d)
-
- #define MSGPACK_OBJECT_STR MSGPACK_OBJECT_RAW
-#endif // HAVE_MSGPACK_STR_BODY
+#include "maestro_msgpack_util.h"
 
 bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out);
 

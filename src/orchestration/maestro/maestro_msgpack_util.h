@@ -13,33 +13,29 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef MPT_MAESTRO_DESERIALIZE_H
-#define MPT_MAESTRO_DESERIALIZE_H
+#ifndef MPT_MAESTRO_MSGPACK_UTIL_H_
+#define MPT_MAESTRO_MSGPACK_UTIL_H_
 
 #include <msgpack.h>
-
-#include "maestro_note.h"
-#include "msg_content_data.h"
-
-#include "maestro_msgpack_util.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * Deserialize a note
- * @param in data to parse
- * @param note output note
- * @param status status structure in case of error
- * @return true if successfully parsed or false otherwise
- */
-bool maestro_deserialize_note(const msg_content_data_t *in, maestro_note_t *note,
-							  gru_status_t *status);
+#if MSGPACK_VERSION_MAJOR == 0
+
+ #define msgpack_pack_char(pk, d) msgpack_pack_int(pk, d)
+ #define msgpack_pack_str(pk, d) msgpack_pack_raw(pk, d)
+ #define msgpack_pack_str_body(pk, v, d) msgpack_pack_raw_body(pk, v, d)
+
+ #define MSGPACK_OBJECT_STR MSGPACK_OBJECT_RAW
+ #define MSGPACK_OBJECT_FLOAT MSGPACK_OBJECT_DOUBLE
+
+#endif // HAVE_MSGPACK_STR_BODY
 
 #ifdef __cplusplus
 }
 #endif
 
 
-#endif //MPT_MAESTRO_DESERIALIZE_H
+#endif //MPT_MAESTRO_MSGPACK_UTIL_H_
