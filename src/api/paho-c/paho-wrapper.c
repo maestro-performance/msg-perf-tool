@@ -104,8 +104,6 @@ void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 			logger(WARNING, "Unable to disconnect from the server: %d", rc);
 		}
 	}
-
-	return;
 }
 
 void paho_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
