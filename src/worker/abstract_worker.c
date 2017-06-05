@@ -434,7 +434,8 @@ bool abstract_worker_stop(gru_list_t *list) {
 			pid = waitpid(worker_info->child, &wstatus, WNOHANG);
 
 			// waitpid returns 0 if WNOHANG and there's no change of state for the process
-			if (pid != 0) {
+			// otherwise it returns the pid of the process
+			if (pid > 0) {
 				if (WIFEXITED(wstatus)) {
 					logger(INFO,
 						"Child %d stopped successfully with status %d",
