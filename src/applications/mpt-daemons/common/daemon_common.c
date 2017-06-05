@@ -23,7 +23,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 
 	maestro_payload_set_t body = request->payload->request.set;
 
-	logger(INFO, "Setting option: %s to %s", body.opt, body.value);
+	logger(DEBUG, "Handling a set option request");
 
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_BROKER) {
