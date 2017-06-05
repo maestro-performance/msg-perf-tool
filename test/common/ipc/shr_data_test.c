@@ -16,7 +16,7 @@
 #include <limits.h>
 #include <semaphore.h>
 #include <signal.h>
-
+#include <strings.h>
 #include <sys/wait.h>
 
 #include <common/gru_status.h>
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 			int wstatus = 0;
 			pid_t wret = waitpid(child, &wstatus, WNOHANG);
 
-			if (wret != 0) {
+			if (wret > 0) {
 				if (WIFEXITED(wstatus)) {
 					fprintf(stderr,
 						"Child %d finished with status %d\n",
@@ -93,6 +93,13 @@ int main(int argc, char **argv) {
 					return EXIT_FAILURE;
 				} else if (WIFSTOPPED(wstatus)) {
 					fprintf(stderr, "Child %d stopped %d", child, WSTOPSIG(wstatus));
+
+					return EXIT_FAILURE;
+				}
+			}
+			else {
+				if (wret == -1) {
+					fprintf(stderr, "Error on waitpid(): %s", strerror(errno));
 
 					return EXIT_FAILURE;
 				}
