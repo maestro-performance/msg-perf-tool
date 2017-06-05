@@ -63,14 +63,12 @@ static bool maestro_serialize_cmd_ping_request_test() {
 
 	gru_dealloc_string(&formatted_ts);
 	msg_content_data_release(&content);
-	maestro_note_payload_cleanup(&note);
   	maestro_note_payload_cleanup(&deserialized);
 	return true;
 
 	err_exit:
 	gru_dealloc_string(&formatted_ts);
 	msg_content_data_release(&content);
-	maestro_note_payload_cleanup(&note);
   	maestro_note_payload_cleanup(&deserialized);
 	return false;
 }
