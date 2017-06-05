@@ -23,25 +23,11 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 
 	maestro_payload_set_t body = request->payload->request.set;
 
-	logger(INFO,
-		"Setting option: %.*s to %.*s",
-		(int) sizeof(body.opt),
-		body.opt,
-		(int) sizeof(body.value),
-		body.value);
+	logger(INFO, "Setting option: %s to %s", body.opt, body.value);
 
-
-	char tmp_val[MAESTRO_NOTE_OPT_VALUE_LEN + 1] = {0};
-
-
-	strncpy(tmp_val, body.value, sizeof(body.value));
-
-	gru_trim(tmp_val, sizeof(tmp_val));
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_BROKER) {
-		logger(INFO, "Setting broker to: %s.", tmp_val);
-
-		worker_options->uri = gru_uri_parse(tmp_val, &status);
+		worker_options->uri = gru_uri_parse(body.value, &status);
 		if (gru_status_error(&status)) {
 			logger(ERROR, "Unable to set broker setting: %s", status.message);
 		}
@@ -55,9 +41,9 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		logger(INFO, "Setting duration option");
 
 		gru_duration_t duration = gru_duration_new();
-		if (!gru_duration_parse(&duration, tmp_val)) {
+		if (!gru_duration_parse(&duration, body.value)) {
 			worker_options->duration_type = MESSAGE_COUNT;
-			worker_options->duration.count = atol(tmp_val);
+			worker_options->duration.count = atol(body.value);
 		} else {
 			worker_options->duration_type = TEST_TIME;
 			worker_options->duration.time = duration;
@@ -71,7 +57,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	if (body.opt == MAESTRO_NOTE_OPT_SET_LOG_LEVEL) {
 		logger(INFO, "Setting log-level option");
 
-		worker_options->log_level = gru_logger_get_level(tmp_val);
+		worker_options->log_level = gru_logger_get_level(body.value);
 		gru_logger_set_mininum(worker_options->log_level);
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -81,7 +67,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	if (body.opt == MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT) {
 		logger(INFO, "Setting parallel count option");
 
-		worker_options->parallel_count = (uint16_t) atoi(tmp_val);
+		worker_options->parallel_count = (uint16_t) atoi(body.value);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
@@ -89,12 +75,12 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	if (body.opt == MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE) {
 		logger(INFO, "Setting message size option");
 
-		if (tmp_val[0] == '~') {
-			worker_options->message_size = atoi(tmp_val + 1);
+		if (body.value[0] == '~') {
+			worker_options->message_size = atoi(body.value + 1);
 			worker_options->variable_size = true;
 		}
 		else {
-			worker_options->message_size = atoi(tmp_val);
+			worker_options->message_size = atoi(body.value);
 		}
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -104,13 +90,13 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	if (body.opt == MAESTRO_NOTE_OPT_SET_THROTTLE) {
 		logger(INFO, "Setting throttle option");
 
-		worker_options->throttle = atoi(tmp_val);
+		worker_options->throttle = atoi(body.value);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 
 		return NULL;
 	}
 
-	logger(ERROR, "Invalid option to set: %02s", body.opt);
+	logger(ERROR, "Invalid option to set: %d", body.opt);
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PROTOCOL_ERROR);
 	return NULL;
 }
@@ -135,10 +121,7 @@ void *commond_handle_ping(const maestro_note_t *request, maestro_note_t *respons
 
 	gru_timestamp_t now = gru_time_now();
 
-	char *safe_ts = strndup(
-		request->payload->request.ping.ts, sizeof(request->payload->request.ping.ts));
-
-	gru_timestamp_t created = gru_time_read_str(safe_ts);
+	gru_timestamp_t created = gru_time_read_str(request->payload->request.ping.ts);
 	uint64_t diff = gru_time_elapsed_milli(created, now);
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PING);
