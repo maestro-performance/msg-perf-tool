@@ -111,7 +111,7 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 
 	uint32_t childs = gru_list_count(children);
 	maestro_note_stats_set_child_count(response, childs);
-	logger(INFO, "Number of childs evaluated: %d", childs);
+	logger(INFO, "Number of children evaluated: %d", childs);
 
 	maestro_note_stats_set_role(response, "sender");
 	maestro_note_stats_set_roleinfo(response, "perf");
