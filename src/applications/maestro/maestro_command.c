@@ -175,7 +175,7 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 			}
 		} else {
 			maestro_note_t note = {0};
-			msg_content_data_t msg;
+			msg_content_data_t msg = {0};
 
 			msg_content_data_copy(&msg, &buf, ret);
 
