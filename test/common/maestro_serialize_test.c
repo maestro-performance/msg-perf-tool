@@ -331,15 +331,11 @@ static bool maestro_serialize_cmd_stats_response_test() {
 		goto err_exit;
 	}
 
-	gru_dealloc_string(&formatted_ts);
 	msg_content_data_release(&content);
-	maestro_note_payload_cleanup(&note);
 	return true;
 
 	err_exit:
-	gru_dealloc_string(&formatted_ts);
 	msg_content_data_release(&content);
-	maestro_note_payload_cleanup(&note);
 	return false;
 }
 
