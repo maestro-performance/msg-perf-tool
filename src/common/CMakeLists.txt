@@ -16,6 +16,7 @@ add_library(
         bmic/bmic_utils.c
         bmic/bmic_writer.c
         vmsl.c
+        vmslh.c
         msg_conn_info.c
         msgctxt.c
         process_utils.c
