@@ -19,8 +19,9 @@ void proton_set_properties(void *ctxt, void *payload) {
 	pn_message_t *message = (pn_message_t*) payload;
 	pn_data_t *properties = pn_message_properties(message);
 
+	pn_data_put_map(properties);
 	pn_data_enter(properties);
-	pn_data_put_string(properties, pn_bytes(sizeof("key")-1, "key"));
+	pn_data_put_string(properties, pn_bytes(sizeof("key_handler")-1, "key_handler"));
 	pn_data_put_string(properties, pn_bytes(sizeof("pair")-1, "pair"));
 	pn_data_exit(properties);
 }
