@@ -132,8 +132,7 @@ void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 		for (int i = 0; i < 10; i++) {
 			if (!pn_messenger_stopped(proton_ctxt->messenger)) {
 				usleep(100000);
-			}
-			else {
+			} else {
 				stopped = true;
 			}
 		}
@@ -245,6 +244,9 @@ static void proton_set_message_properties(msg_ctxt_t *ctxt,
 	pn_message_set_ttl(message, 50000);
 
 	pn_message_set_creation_time(message, proton_now(status));
+
+
+	pn_message_set_content_type(message, "text/plain");
 }
 
 static vmsl_stat_t proton_do_send(pn_messenger_t *messenger,
@@ -287,6 +289,9 @@ vmsl_stat_t
 
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
+
+	vmslh_run(proton_ctxt->before_send, proton_ctxt, message);
+
 	ret = proton_do_send(proton_ctxt->messenger, message, status);
 	if (vmsl_stat_error(ret)) {
 		return ret;
@@ -295,6 +300,8 @@ vmsl_stat_t
 	if (unlikely(ctxt->msg_opts.qos != MSG_QOS_AT_MOST_ONCE)) {
 		proton_commit(proton_ctxt->messenger, status);
 	}
+
+	vmslh_run(proton_ctxt->after_send, proton_ctxt, message);
 
 	pn_message_free(message);
 	return VMSL_SUCCESS;
@@ -429,6 +436,7 @@ vmsl_stat_t
 
 	pn_message_t *message = pn_message();
 
+	vmslh_run(proton_ctxt->before_receive, proton_ctxt, message);
 	int ret = proton_do_receive(proton_ctxt->messenger, message, content);
 
 	if (ret == 0 && (ctxt->msg_opts.statistics & MSG_STAT_LATENCY)) {
@@ -451,6 +459,7 @@ vmsl_stat_t
 		goto err_exit;
 	}
 	cur++;
+	vmslh_run(proton_ctxt->after_receive, proton_ctxt, message);
 
 	// Settles the messages after every 'window' count
 	if ((last_ack + window) == cur) {

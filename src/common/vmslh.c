@@ -32,6 +32,10 @@ bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, gru_status_t *statu
 }
 
 void vmslh_run(gru_list_t *list, void *ctxt, void *payload) {
+	if (!list) {
+		return;
+	}
+
 	gru_node_t *node = list->root;
 
 	while (node) {

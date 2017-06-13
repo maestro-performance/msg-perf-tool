@@ -15,6 +15,7 @@ add_library(
 	mpt-proton SHARED
 	proton-context.c
 	proton-wrapper.c
+	proton-handlers.c
 )
 
 target_link_libraries(

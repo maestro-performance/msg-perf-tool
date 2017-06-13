@@ -29,6 +29,7 @@
 #include "msgctxt.h"
 #include "proton-context.h"
 #include "vmsl.h"
+#include "vmslh.h"
 
 #ifdef __cplusplus
 extern "C" {
