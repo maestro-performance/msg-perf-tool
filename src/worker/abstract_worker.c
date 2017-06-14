@@ -47,7 +47,12 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 		goto err_exit;
 	}
 
-	vmsl_stat_t ret = worker->vmsl->subscribe(msg_ctxt, NULL, status);
+	vmsl_stat_t ret = worker->vmsl->start(msg_ctxt, status);
+	if (vmsl_stat_error(ret)) {
+		goto err_exit;
+	}
+
+	ret = worker->vmsl->subscribe(msg_ctxt, NULL, status);
 	if (vmsl_stat_error(ret)) {
 		goto err_exit;
 	}
@@ -178,6 +183,11 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 		goto err_exit;
 	}
 
+	vmsl_stat_t ret = worker->vmsl->start(msg_ctxt, status);
+	if (vmsl_stat_error(ret)) {
+		goto err_exit;
+	}
+
 	volatile shr_data_buff_t *shr = worker_shared_buffer_new(worker, status);
 	if (!shr) {
 		goto err_exit;
@@ -201,7 +211,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 	while (worker->can_continue(worker->options, snapshot)) {
 		worker->pl_strategy.load(&content_storage);
 
-		vmsl_stat_t ret = worker->vmsl->send(msg_ctxt, &content_storage, status);
+		ret = worker->vmsl->send(msg_ctxt, &content_storage, status);
 		if (vmsl_stat_error(ret)) {
 			logger(ERROR, "Error sending data: %s", status->message);
 

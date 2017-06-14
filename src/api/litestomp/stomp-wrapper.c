@@ -22,7 +22,7 @@ static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (stomp_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *litestomp_init(msg_opt_t opt, void *data, gru_status_t *status) {
+msg_ctxt_t *litestomp_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing stomp wrapper");
@@ -32,7 +32,7 @@ msg_ctxt_t *litestomp_init(msg_opt_t opt, void *data, gru_status_t *status) {
 		return NULL;
 	}
 
-	stomp_ctxt_t *stomp_ctxt = litestomp_context_init();
+	stomp_ctxt_t *stomp_ctxt = litestomp_context_init(handlers);
 
 	if (!stomp_ctxt) {
 		logger(FATAL, "Unable to initialize the stomp context");
@@ -48,7 +48,7 @@ msg_ctxt_t *litestomp_init(msg_opt_t opt, void *data, gru_status_t *status) {
 	stomp_messenger_t *messenger = stomp_messenger_init();
 
 	if (!messenger) {
-		fprintf(stderr, "Unable to initialize stomp messenger\n");
+		logger(FATAL, "Unable to initialize stomp messenger\n");
 		goto err_exit1;
 	}
 
@@ -56,16 +56,6 @@ msg_ctxt_t *litestomp_init(msg_opt_t opt, void *data, gru_status_t *status) {
 	 * Sets the endpoint address
 	 */
 	stomp_status_code_t stat = stomp_set_endpoint(messenger, url);
-	if (stat != STOMP_SUCCESS) {
-		fprintf(stderr, "%s\n", messenger->status.message);
-
-		goto err_exit2;
-	}
-
-	/*
-	 * Connects to the endpoint
-	 */
-	stat = stomp_connect(messenger, NULL, 5000);
 	if (stat != STOMP_SUCCESS) {
 		fprintf(stderr, "%s\n", messenger->status.message);
 
@@ -84,6 +74,22 @@ err_exit2:
 err_exit1:
 	msg_ctxt_destroy(&msg_ctxt);
 	return NULL;
+}
+
+vmsl_stat_t litestomp_start(msg_ctxt_t *ctxt, gru_status_t *status) {
+	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
+
+	/*
+	 * Connects to the endpoint
+	 */
+	stomp_status_code_t stat = stomp_connect(stomp_ctxt->messenger, NULL, 5000);
+	if (stat != STOMP_SUCCESS) {
+		gru_status_set(status, GRU_FAILURE, "%s\n", stomp_ctxt->messenger->status.message);
+
+		return VMSL_ERROR;
+	}
+
+	return VMSL_SUCCESS;
 }
 
 void litestomp_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
@@ -232,6 +238,7 @@ bool litestomp_vmsl_assign(vmsl_t *vmsl) {
 	logger(INFO, "Initializing STOMP protocol");
 
 	vmsl->init = litestomp_init;
+	vmsl->start = litestomp_start;
 	vmsl->receive = litestomp_receive;
 	vmsl->subscribe = litestomp_subscribe;
 	vmsl->send = litestomp_send;

@@ -25,12 +25,15 @@ extern "C" {
 
 #include <MQTTClient.h>
 
+#include "vmslh.h"
+
 typedef struct paho_ctxt_t_ {
 	MQTTClient client;
 	gru_uri_t uri;
+  vmslh_handlers_t *handlers;
 } paho_ctxt_t;
 
-paho_ctxt_t *paho_context_init();
+paho_ctxt_t *paho_context_init(vmslh_handlers_t *handlers);
 void paho_context_destroy(paho_ctxt_t **ctxt);
 
 #ifdef __cplusplus

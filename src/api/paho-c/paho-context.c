@@ -15,12 +15,14 @@
  */
 #include "paho-context.h"
 
-paho_ctxt_t *paho_context_init() {
+paho_ctxt_t *paho_context_init(vmslh_handlers_t *handlers) {
 	paho_ctxt_t *ret = malloc(sizeof(paho_ctxt_t));
 
 	if (!ret) {
 		return NULL;
 	}
+
+	ret->handlers = handlers;
 
 	return ret;
 }

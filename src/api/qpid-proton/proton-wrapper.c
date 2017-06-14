@@ -71,7 +71,7 @@ static void proton_set_recv_options(pn_messenger_t *messenger, msg_opt_t opt) {
 	}
 }
 
-msg_ctxt_t *proton_init(msg_opt_t opt, void *data, gru_status_t *status) {
+msg_ctxt_t *proton_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing proton wrapper");
@@ -81,7 +81,7 @@ msg_ctxt_t *proton_init(msg_opt_t opt, void *data, gru_status_t *status) {
 		return NULL;
 	}
 
-	proton_ctxt_t *proton_ctxt = proton_context_init();
+	proton_ctxt_t *proton_ctxt = proton_context_init(handlers);
 
 	if (!proton_ctxt) {
 		logger(FATAL, "Unable to initialize the proton context");
@@ -89,29 +89,7 @@ msg_ctxt_t *proton_init(msg_opt_t opt, void *data, gru_status_t *status) {
 		goto err_exit;
 	}
 
-	pn_messenger_t *messenger = pn_messenger(NULL);
-
-	logger(DEBUG, "Initializing the proton messenger");
-	int err = pn_messenger_start(messenger);
-	if (err) {
-		logger(FATAL, "Unable to start the proton messenger");
-
-		proton_context_destroy(&proton_ctxt);
-		goto err_exit;
-	}
-
-	if (opt.direction == MSG_DIRECTION_SENDER) {
-		proton_set_send_options(messenger, opt);
-	} else {
-		proton_set_recv_options(messenger, opt);
-	}
-
-	url = gru_uri_simple_format(&opt.uri, status);
-	if (gru_status_error(status)) {
-		goto err_exit;
-	}
-
-	proton_ctxt->messenger = messenger;
+	proton_ctxt->messenger = pn_messenger(NULL);
 	msg_ctxt->api_context = proton_ctxt;
 	msg_ctxt->msg_opts = opt;
 
@@ -120,6 +98,32 @@ msg_ctxt_t *proton_init(msg_opt_t opt, void *data, gru_status_t *status) {
 err_exit:
 	msg_ctxt_destroy(&msg_ctxt);
 	return NULL;
+}
+
+vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
+	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
+	logger_t logger = gru_logger_get();
+
+	logger(DEBUG, "Initializing the proton messenger");
+	int err = pn_messenger_start(proton_ctxt->messenger);
+	if (err) {
+		gru_status_set(status, GRU_FAILURE, "Unable to start the proton messenger");
+
+		return VMSL_ERROR;
+	}
+
+	if (ctxt->msg_opts.direction == MSG_DIRECTION_SENDER) {
+		proton_set_send_options(proton_ctxt->messenger, ctxt->msg_opts);
+	} else {
+		proton_set_recv_options(proton_ctxt->messenger, ctxt->msg_opts);
+	}
+
+	url = gru_uri_simple_format(&ctxt->msg_opts.uri, status);
+	if (gru_status_error(status)) {
+		return VMSL_ERROR;
+	}
+
+	return VMSL_SUCCESS;
 }
 
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
@@ -290,8 +294,6 @@ vmsl_stat_t
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 
-	vmslh_run(proton_ctxt->before_send, proton_ctxt, message);
-
 	ret = proton_do_send(proton_ctxt->messenger, message, status);
 	if (vmsl_stat_error(ret)) {
 		return ret;
@@ -300,8 +302,6 @@ vmsl_stat_t
 	if (unlikely(ctxt->msg_opts.qos != MSG_QOS_AT_MOST_ONCE)) {
 		proton_commit(proton_ctxt->messenger, status);
 	}
-
-	vmslh_run(proton_ctxt->after_send, proton_ctxt, message);
 
 	pn_message_free(message);
 	return VMSL_SUCCESS;
@@ -436,7 +436,6 @@ vmsl_stat_t
 
 	pn_message_t *message = pn_message();
 
-	vmslh_run(proton_ctxt->before_receive, proton_ctxt, message);
 	int ret = proton_do_receive(proton_ctxt->messenger, message, content);
 
 	if (ret == 0 && (ctxt->msg_opts.statistics & MSG_STAT_LATENCY)) {
@@ -459,7 +458,6 @@ vmsl_stat_t
 		goto err_exit;
 	}
 	cur++;
-	vmslh_run(proton_ctxt->after_receive, proton_ctxt, message);
 
 	// Settles the messages after every 'window' count
 	if ((last_ack + window) == cur) {
@@ -499,6 +497,7 @@ bool proton_vmsl_assign(vmsl_t *vmsl) {
 	logger(INFO, "Initializing AMQP protocol");
 
 	vmsl->init = proton_init;
+	vmsl->start = proton_start;
 	vmsl->receive = proton_receive;
 	vmsl->subscribe = proton_subscribe;
 	vmsl->send = proton_send;

@@ -55,6 +55,11 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 		return false;
 	}
 
+	vmsl_stat_t ret = player->mmsl.start(player->ctxt, status);
+	if (vmsl_stat_error(ret)) {
+		return false;
+	}
+
 	player->mmsl.subscribe(player->ctxt, NULL, status);
 
 	return true;

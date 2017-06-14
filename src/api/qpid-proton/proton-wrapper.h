@@ -28,6 +28,7 @@
 #include "mpt-debug.h"
 #include "msgctxt.h"
 #include "proton-context.h"
+#include "proton-handlers.h"
 #include "vmsl.h"
 #include "vmslh.h"
 
@@ -35,7 +36,8 @@
 extern "C" {
 #endif
 
-msg_ctxt_t *proton_init(msg_opt_t opt, void *data, gru_status_t *status);
+msg_ctxt_t *proton_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status);
+vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status);
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 

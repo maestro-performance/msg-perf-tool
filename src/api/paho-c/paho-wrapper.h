@@ -25,6 +25,7 @@
 #include "msgctxt.h"
 #include "paho-context.h"
 #include "vmsl.h"
+#include "vmslh.h"
 
 #define QOS_AT_MOST_ONCE 1
 #define TIMEOUT 10000L
@@ -33,7 +34,9 @@
 extern "C" {
 #endif
 
-msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status);
+msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status);
+vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status);
+
 void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void paho_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 

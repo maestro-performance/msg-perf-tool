@@ -21,20 +21,25 @@
 #include <common/gru_alloc.h>
 #include <collection/gru_list.h>
 
-typedef void (*vmslh_callback_fn)(void *ctxt, void *payload);
+typedef void (*vmslh_callback_fn)(void *ctxt, void *msg, void *payload);
 
 typedef struct vmslh_callback_t_ {
   vmslh_callback_fn call;
+  void *payload;
 } vmslh_callback_t;
 
-typedef struct vmslh_send_t_ {
-  gru_list_t *before;
-  gru_list_t *after;
-} vmslh_send_t;
+typedef struct vmslh_handlers_t_ {
+  gru_list_t *before_connect;
+  gru_list_t *after_connect;
+  gru_list_t *before_send;
+  gru_list_t *after_send;
+  gru_list_t *before_receive;
+  gru_list_t *after_receive;
+} vmslh_handlers_t;
 
 
-bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, gru_status_t *status);
-void vmslh_run(gru_list_t *list, void *ctxt, void *payload);
+bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_status_t *status);
+void vmslh_run(gru_list_t *list, void *ctxt, void *msg);
 
 
 #endif //MPT_VMSLH_H

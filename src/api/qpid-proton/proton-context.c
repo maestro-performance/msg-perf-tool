@@ -15,7 +15,7 @@
  */
 #include "proton-context.h"
 
-proton_ctxt_t *proton_context_init() {
+proton_ctxt_t *proton_context_init(vmslh_handlers_t *handlers) {
 	proton_ctxt_t *ret = malloc(sizeof(proton_ctxt_t));
 
 	if (!ret) {
@@ -24,6 +24,8 @@ proton_ctxt_t *proton_context_init() {
 		logger(FATAL, "Unable to initialize proton context");
 		exit(1);
 	}
+
+	ret->handlers = handlers;
 
 	return ret;
 }

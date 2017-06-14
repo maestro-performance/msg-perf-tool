@@ -15,11 +15,12 @@
 */
 #include "vmslh.h"
 
-bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, gru_status_t *status) {
+bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_status_t *status) {
 	vmslh_callback_t *wrapper = gru_alloc(sizeof(vmslh_callback_t), status);
 	gru_alloc_check(wrapper, false);
 
 	wrapper->call = callback;
+	wrapper->payload = payload;
 
 	if (!gru_list_append(list, wrapper)) {
 		gru_dealloc((void **)&wrapper);
@@ -31,7 +32,7 @@ bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, gru_status_t *statu
 	return true;
 }
 
-void vmslh_run(gru_list_t *list, void *ctxt, void *payload) {
+void vmslh_run(gru_list_t *list, void *ctxt, void *msg) {
 	if (!list) {
 		return;
 	}
@@ -41,7 +42,7 @@ void vmslh_run(gru_list_t *list, void *ctxt, void *payload) {
 	while (node) {
 		vmslh_callback_t *callback = (vmslh_callback_t *) node->data;
 
-		callback->call(ctxt, payload);
+		callback->call(ctxt, msg, callback->payload);
 
 		node = node->next;
 	}

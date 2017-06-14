@@ -24,9 +24,14 @@ extern "C" {
 
 #include <log/gru_logger.h>
 
-typedef struct stomp_ctxt_t_ { stomp_messenger_t *messenger; } stomp_ctxt_t;
+#include "vmslh.h"
 
-stomp_ctxt_t *litestomp_context_init();
+typedef struct stomp_ctxt_t_ {
+  	stomp_messenger_t *messenger;
+	vmslh_handlers_t *handlers;
+} stomp_ctxt_t;
+
+stomp_ctxt_t *litestomp_context_init(vmslh_handlers_t *handlers);
 void litestomp_context_destroy(stomp_ctxt_t **ctxt);
 
 #ifdef __cplusplus

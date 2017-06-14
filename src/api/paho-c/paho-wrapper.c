@@ -23,7 +23,7 @@ static inline paho_ctxt_t *paho_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (paho_ctxt_t *) ctxt->api_context;
 }
 
-msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
+msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	logger(DEBUG, "Initializing Paho wrapper");
@@ -35,7 +35,7 @@ msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
 		exit(1);
 	}
 
-	paho_ctxt_t *paho_ctxt = paho_context_init();
+	paho_ctxt_t *paho_ctxt = paho_context_init(handlers);
 
 	if (!paho_ctxt) {
 		logger(FATAL, "Unable to initialize the paho context");
@@ -51,24 +51,32 @@ msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
 		exit(1);
 	}
 
-	const char *connect_url =
-		gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE, status);
 
-	logger(
-		DEBUG, "Creating a client to %s with path %s ", connect_url, paho_ctxt->uri.path);
-	int rc = 0;
-	rc = MQTTClient_create(&paho_ctxt->client,
-		connect_url,
-		opt.conn_info.id,
-		MQTTCLIENT_PERSISTENCE_NONE,
-		NULL);
+	msg_ctxt->api_context = paho_ctxt;
+	msg_ctxt->msg_opts = opt;
+
+	return msg_ctxt;
+}
+
+vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
+	logger_t logger = gru_logger_get();
+	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
+
+	const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE, status);
+
+	logger(DEBUG, "Creating a client to %s with path %s ", connect_url,
+		   paho_ctxt->uri.path);
+
+	int rc = MQTTClient_create(&paho_ctxt->client,
+						   connect_url, ctxt->msg_opts.conn_info.id,
+						   MQTTCLIENT_PERSISTENCE_NONE,
+						   NULL);
 
 	gru_dealloc_const_string(&connect_url);
 	if (rc != MQTTCLIENT_SUCCESS) {
-		logger(FATAL, "Unable to create MQTT client handle: %d", rc);
+		gru_status_set(status, GRU_FAILURE, "Unable to create MQTT client handle: %d", rc);
 
-
-		exit(-1);
+		return VMSL_ERROR;
 	}
 
 	logger(DEBUG, "Setting connection options");
@@ -79,15 +87,12 @@ msg_ctxt_t *paho_init(msg_opt_t opt, void *data, gru_status_t *status) {
 
 	rc = MQTTClient_connect(paho_ctxt->client, &conn_opts);
 	if (rc != MQTTCLIENT_SUCCESS) {
-		logger(FATAL, "Unable to connect: %d", rc);
+		gru_status_set(status, GRU_FAILURE, "Unable to connect: %d", rc);
 
-		exit(-1);
+		return VMSL_ERROR;
 	}
 
-	msg_ctxt->api_context = paho_ctxt;
-	msg_ctxt->msg_opts = opt;
-
-	return msg_ctxt;
+	return VMSL_SUCCESS;
 }
 
 void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
@@ -302,6 +307,7 @@ bool paho_vmsl_assign(vmsl_t *vmsl) {
 	logger(INFO, "Initializing MQTT protocol");
 
 	vmsl->init = paho_init;
+	vmsl->start = paho_start;
 	vmsl->receive = paho_receive;
 	vmsl->subscribe = paho_subscribe;
 	vmsl->send = paho_send;

@@ -24,16 +24,14 @@ extern "C" {
 
 #include <proton/messenger.h>
 #include <collection/gru_list.h>
+#include <vmslh.h>
 
 typedef struct proton_ctxt_t_ {
-  pn_messenger_t *messenger;
-  gru_list_t *before_send;
-  gru_list_t *after_send;
-  gru_list_t *before_receive;
-  gru_list_t *after_receive;
+	pn_messenger_t *messenger;
+	vmslh_handlers_t *handlers;
 } proton_ctxt_t;
 
-proton_ctxt_t *proton_context_init();
+proton_ctxt_t *proton_context_init(vmslh_handlers_t *handlers);
 void proton_context_destroy(proton_ctxt_t **ctxt);
 
 #ifdef __cplusplus
