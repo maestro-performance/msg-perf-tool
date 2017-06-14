@@ -85,11 +85,19 @@ vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 	conn_opts.keepAliveInterval = 20;
 	conn_opts.cleansession = 1;
 
+	if (paho_ctxt->handlers) {
+		vmslh_run(paho_ctxt->handlers->before_connect, paho_ctxt, NULL);
+	}
+
 	rc = MQTTClient_connect(paho_ctxt->client, &conn_opts);
 	if (rc != MQTTCLIENT_SUCCESS) {
 		gru_status_set(status, GRU_FAILURE, "Unable to connect: %d", rc);
 
 		return VMSL_ERROR;
+	}
+
+	if (paho_ctxt->handlers) {
+		vmslh_run(paho_ctxt->handlers->after_connect, paho_ctxt, NULL);
 	}
 
 	return VMSL_SUCCESS;
@@ -176,6 +184,10 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 			data->data,
 			ctxt->msg_opts.uri.path);
 
+		if (paho_ctxt->handlers) {
+			vmslh_run(paho_ctxt->handlers->before_send, paho_ctxt, &pubmsg);
+		}
+
 		rc = MQTTClient_publishMessage(
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
 		paho_serialize_clean(&pl);
@@ -198,8 +210,16 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 
 		pubmsg.payloadlen = (int) data->size;
 
+		if (paho_ctxt->handlers) {
+			vmslh_run(paho_ctxt->handlers->before_send, paho_ctxt, &pubmsg);
+		}
+
 		rc = MQTTClient_publishMessage(
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
+	}
+
+	if (paho_ctxt->handlers) {
+		vmslh_run(paho_ctxt->handlers->after_send, paho_ctxt, &pubmsg);
 	}
 
 	switch (rc) {
@@ -260,6 +280,11 @@ vmsl_stat_t
 
 	int tlen = 0;
 	char *topic_name;
+
+	if (paho_ctxt->handlers) {
+		vmslh_run(paho_ctxt->handlers->before_receive, paho_ctxt, NULL);
+	}
+
 	int rc = MQTTClient_receive(paho_ctxt->client, &topic_name, &tlen, &msg, timeout);
 
 	switch (rc) {
@@ -282,6 +307,10 @@ vmsl_stat_t
 			gru_status_set(status, GRU_FAILURE, "Unable to receive data: error %d", rc);
 			return VMSL_ERROR;
 		}
+	}
+
+	if (paho_ctxt->handlers) {
+		vmslh_run(paho_ctxt->handlers->after_receive, paho_ctxt, msg);
 	}
 
 	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) {

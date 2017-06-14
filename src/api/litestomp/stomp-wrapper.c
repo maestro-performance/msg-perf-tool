@@ -79,6 +79,10 @@ err_exit1:
 vmsl_stat_t litestomp_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 
+	if (stomp_ctxt->handlers) {
+		vmslh_run(stomp_ctxt->handlers->before_connect, stomp_ctxt, NULL);
+	}
+
 	/*
 	 * Connects to the endpoint
 	 */
@@ -87,6 +91,10 @@ vmsl_stat_t litestomp_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 		gru_status_set(status, GRU_FAILURE, "%s\n", stomp_ctxt->messenger->status.message);
 
 		return VMSL_ERROR;
+	}
+
+	if (stomp_ctxt->handlers) {
+		vmslh_run(stomp_ctxt->handlers->after_connect, stomp_ctxt, NULL);
 	}
 
 	return VMSL_SUCCESS;
@@ -148,6 +156,10 @@ vmsl_stat_t
 
 	send_header.transaction_id = -1;
 
+	if (stomp_ctxt->handlers) {
+		vmslh_run(stomp_ctxt->handlers->before_send, stomp_ctxt, message);
+	}
+
 	/*
 	 * Sends the message
 	 */
@@ -159,6 +171,10 @@ vmsl_stat_t
 
 		stomp_message_destroy(&message);
 		return VMSL_ERROR;
+	}
+
+	if (stomp_ctxt->handlers) {
+		vmslh_run(stomp_ctxt->handlers->after_send, stomp_ctxt, message);
 	}
 
 	stomp_message_destroy(&message);
@@ -206,6 +222,10 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 		return VMSL_ERROR;
 	}
 
+	if (stomp_ctxt->handlers) {
+		vmslh_run(stomp_ctxt->handlers->before_receive, stomp_ctxt, message);
+	}
+
 	stomp_receive_header_t receive_header = {0};
 	stomp_status_code_t stat =
 		stomp_receive(stomp_ctxt->messenger, &receive_header, message);
@@ -219,6 +239,10 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 	} else if (stat & STOMP_NO_DATA) {
 		stomp_message_destroy(&message);
 		return VMSL_SUCCESS | VMSL_NO_DATA;
+	}
+
+	if (stomp_ctxt->handlers) {
+		vmslh_run(stomp_ctxt->handlers->before_receive, stomp_ctxt, message);
 	}
 
 	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) {

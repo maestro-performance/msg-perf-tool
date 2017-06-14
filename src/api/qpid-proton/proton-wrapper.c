@@ -104,6 +104,10 @@ vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 	logger_t logger = gru_logger_get();
 
+	if (proton_ctxt->handlers) {
+		vmslh_run(proton_ctxt->handlers->before_connect, proton_ctxt, NULL);
+	}
+
 	logger(DEBUG, "Initializing the proton messenger");
 	int err = pn_messenger_start(proton_ctxt->messenger);
 	if (err) {
@@ -121,6 +125,10 @@ vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 	url = gru_uri_simple_format(&ctxt->msg_opts.uri, status);
 	if (gru_status_error(status)) {
 		return VMSL_ERROR;
+	}
+
+	if (proton_ctxt->handlers) {
+		vmslh_run(proton_ctxt->handlers->after_connect, proton_ctxt, NULL);
 	}
 
 	return VMSL_SUCCESS;
@@ -293,6 +301,9 @@ vmsl_stat_t
 
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
+	if (proton_ctxt->handlers) {
+		vmslh_run(proton_ctxt->handlers->before_send, proton_ctxt, message);
+	}
 
 	ret = proton_do_send(proton_ctxt->messenger, message, status);
 	if (vmsl_stat_error(ret)) {
@@ -302,6 +313,11 @@ vmsl_stat_t
 	if (unlikely(ctxt->msg_opts.qos != MSG_QOS_AT_MOST_ONCE)) {
 		proton_commit(proton_ctxt->messenger, status);
 	}
+
+	if (proton_ctxt->handlers) {
+		vmslh_run(proton_ctxt->handlers->after_send, proton_ctxt, message);
+	}
+
 
 	pn_message_free(message);
 	return VMSL_SUCCESS;
@@ -436,6 +452,10 @@ vmsl_stat_t
 
 	pn_message_t *message = pn_message();
 
+	if (proton_ctxt->handlers) {
+		vmslh_run(proton_ctxt->handlers->before_receive, proton_ctxt, message);
+	}
+
 	int ret = proton_do_receive(proton_ctxt->messenger, message, content);
 
 	if (ret == 0 && (ctxt->msg_opts.statistics & MSG_STAT_LATENCY)) {
@@ -458,6 +478,11 @@ vmsl_stat_t
 		goto err_exit;
 	}
 	cur++;
+
+	if (proton_ctxt->handlers) {
+		vmslh_run(proton_ctxt->handlers->after_receive, proton_ctxt, message);
+	}
+
 
 	// Settles the messages after every 'window' count
 	if ((last_ack + window) == cur) {
