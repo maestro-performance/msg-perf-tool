@@ -83,7 +83,7 @@ void options_destroy(options_t **obj) {
 	gru_dealloc_string(&opt->logdir);
 	gru_dealloc_string(&opt->name);
 
-	gru_dealloc((void **) opt);
+	gru_dealloc((void **) obj);
 }
 
 void set_options_object(options_t *obj) {
