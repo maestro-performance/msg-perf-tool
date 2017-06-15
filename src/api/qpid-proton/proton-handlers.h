@@ -39,6 +39,6 @@ void proton_set_properties(void *ctxt, void *msg, void *payload);
 void proton_log_body_type(void *ctxt, void *msg, void *payload);
 void proton_set_content_type(void *ctxt, void *msg, void *payload);
 void proton_set_default_message_properties(void *ctxt, void *msg, void *payload);
-
+void proton_set_ttl(void *ctxt, void *msg, void *payload);
 
 #endif //MPT_PROTON_HANDLERS_H

@@ -56,10 +56,18 @@ static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair
 		gru_split_clean(tmp);
 		gru_list_destroy(&tmp);
 	}
+
+	if (gru_keypair_key_equals(kp, "ttl")) {
+		vmslh_add(handlers->before_send, proton_set_ttl, kp->pair, status);
+	}
 }
 
 void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
 	gru_uri_t uri = opt.uri;
+
+	if (!uri.query) {
+		return;
+	}
 
 	gru_node_t *node = uri.query->root;
 
@@ -167,6 +175,16 @@ void proton_set_content_type(void *ctxt, void *msg, void *payload) {
 	pn_message_t *message = (pn_message_t *) msg;
 
 	pn_message_set_content_type(message, (char *) payload);
+}
+
+void proton_set_ttl(void *ctxt, void *msg, void *payload) {
+	pn_message_t *message = (pn_message_t *) msg;
+	gru_variant_t *variant = (gru_variant_t *) payload;
+
+	logger_t logger = gru_logger_get();
+	logger(INFO, "Setting the TTL to %d", variant->variant.inumber);
+
+	pn_message_set_ttl(message, variant->variant.inumber);
 }
 
 void proton_set_default_message_properties(void *ctxt, void *msg, void *payload) {
