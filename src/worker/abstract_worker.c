@@ -42,7 +42,9 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 	msg_opt_t opt = {0};
 	abstract_worker_msg_opt(&opt, MSG_DIRECTION_RECEIVER, worker->options);
 
-	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, NULL, status);
+	vmslh_handlers_t handlers = vmslh_new(status);
+
+	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, &handlers, status);
 	if (!msg_ctxt) {
 		goto err_exit;
 	}
@@ -151,6 +153,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 
 	msg_content_data_release(&content_storage);
 	abstract_worker_msg_opt_cleanup(&opt);
+	vmslh_cleanup(&handlers);
 	return WORKER_SUCCESS;
 
 err_exit:
@@ -164,6 +167,7 @@ err_exit:
 	abstract_worker_msg_opt_cleanup(&opt);
 
 	gru_status_reset(status);
+	vmslh_cleanup(&handlers);
 	return WORKER_FAILURE;
 }
 
@@ -177,7 +181,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 
 	msg_opt_t opt = {0};
 	abstract_worker_msg_opt(&opt, MSG_DIRECTION_SENDER, worker->options);
-	vmslh_handlers_t handlers = {0};
+	vmslh_handlers_t handlers = vmslh_new(status);
 
 	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, &handlers, status);
 	if (!msg_ctxt) {
@@ -271,6 +275,8 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 
 	worker->pl_strategy.cleanup(&content_storage);
 	abstract_worker_msg_opt_cleanup(&opt);
+	vmslh_cleanup(&handlers);
+
 	return WORKER_SUCCESS;
 
 err_exit:
@@ -283,6 +289,7 @@ err_exit:
 	shr_buff_detroy(&shr);
 
 	abstract_worker_msg_opt_cleanup(&opt);
+	vmslh_cleanup(&handlers);
 
 	gru_status_reset(status);
 	return WORKER_FAILURE;

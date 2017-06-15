@@ -30,11 +30,15 @@
 #include "msgctxt.h"
 #include "vmslh.h"
 
-void proton_set_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status);
+void proton_param_cleanup();
+
+void proton_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status);
+void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status);
 
 void proton_set_properties(void *ctxt, void *msg, void *payload);
 void proton_log_body_type(void *ctxt, void *msg, void *payload);
 void proton_set_content_type(void *ctxt, void *msg, void *payload);
+void proton_set_default_message_properties(void *ctxt, void *msg, void *payload);
 
 
 #endif //MPT_PROTON_HANDLERS_H

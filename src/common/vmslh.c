@@ -47,3 +47,41 @@ void vmslh_run(gru_list_t *list, void *ctxt, void *msg) {
 		node = node->next;
 	}
 }
+
+static void vmslh_callback_cleanup(void **ptr) {
+	vmslh_callback_t *cb = *ptr;
+
+	if (!cb) {
+		return;
+	}
+
+	gru_dealloc((void **) &cb);
+}
+
+vmslh_handlers_t vmslh_new(gru_status_t *status) {
+	vmslh_handlers_t handlers = {0};
+
+	handlers.before_send = gru_list_new(status);
+	return handlers;
+}
+
+void vmslh_cleanup(vmslh_handlers_t *handlers) {
+	if (!handlers) {
+		return;
+	}
+
+	gru_list_clean(handlers->before_connect, vmslh_callback_cleanup);
+	gru_list_clean(handlers->after_connect, vmslh_callback_cleanup);
+	gru_list_clean(handlers->before_send, vmslh_callback_cleanup);
+	gru_list_clean(handlers->after_send, vmslh_callback_cleanup);
+	gru_list_clean(handlers->before_receive, vmslh_callback_cleanup);
+	gru_list_clean(handlers->after_receive, vmslh_callback_cleanup);
+
+	gru_list_destroy(&handlers->before_connect);
+	gru_list_destroy(&handlers->after_connect);
+	gru_list_destroy(&handlers->before_send);
+	gru_list_destroy(&handlers->after_send);
+	gru_list_destroy(&handlers->before_receive);
+	gru_list_destroy(&handlers->after_receive);
+
+}

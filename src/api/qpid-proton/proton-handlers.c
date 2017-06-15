@@ -19,6 +19,15 @@
 
 gru_list_t *properties = NULL;
 
+void proton_param_cleanup() {
+	if (!properties) {
+		return;
+	}
+
+	gru_list_clean(properties, gru_keypair_destroy_list_item);
+	gru_list_destroy(&properties);
+}
+
 static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair_t *kp, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
@@ -34,7 +43,6 @@ static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair
 		gru_list_t *tmp = gru_split(kp->pair->variant.string, ',', status);
 
 		gru_node_t *node = tmp->root;
-
 		while (node) {
 			gru_keypair_t *property = gru_keypair_parse((const char *) node->data, status);
 
@@ -50,12 +58,8 @@ static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair
 	}
 }
 
-void proton_set_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
+void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
 	gru_uri_t uri = opt.uri;
-
-	if (!handlers->before_send) {
-		handlers->before_send = gru_list_new(status);
-	}
 
 	gru_node_t *node = uri.query->root;
 
@@ -67,6 +71,10 @@ void proton_set_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status
 	}
 }
 
+
+void proton_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
+	vmslh_add(handlers->before_send, proton_set_default_message_properties, NULL, status);
+}
 
 void proton_set_properties(void *ctxt, void *msg, void *payload) {
 	gru_list_t *properties = (gru_list_t *) payload;
@@ -88,7 +96,6 @@ void proton_set_properties(void *ctxt, void *msg, void *payload) {
 
 		node = node->next;
 	}
-
 
 	pn_data_exit(msg_properties);
 }
@@ -157,7 +164,16 @@ void proton_log_body_type(void *ctxt, void *msg, void *payload) {
 }
 
 void proton_set_content_type(void *ctxt, void *msg, void *payload) {
-	pn_message_t *message = (pn_message_t*) msg;
+	pn_message_t *message = (pn_message_t *) msg;
 
 	pn_message_set_content_type(message, (char *) payload);
+}
+
+void proton_set_default_message_properties(void *ctxt, void *msg, void *payload) {
+	pn_message_t *message = (pn_message_t *) msg;
+
+	pn_message_set_durable(message, false);
+	pn_message_set_ttl(message, 50000);
+
+	pn_message_set_content_type(message, "text/plain");
 }

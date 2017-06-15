@@ -89,7 +89,8 @@ msg_ctxt_t *proton_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t 
 		goto err_exit;
 	}
 
-	proton_set_parameters(handlers, opt, status);
+	proton_set_default_parameters(handlers, opt, status);
+	proton_set_user_parameters(handlers, opt, status);
 
 	proton_ctxt->messenger = pn_messenger(NULL);
 	msg_ctxt->api_context = proton_ctxt;
@@ -170,6 +171,8 @@ void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	}
 
 	msg_ctxt_destroy(&ctxt);
+
+	proton_param_cleanup();
 }
 
 gru_attr_unused static void proton_check_status(pn_messenger_t *messenger,
@@ -246,23 +249,6 @@ static pn_timestamp_t proton_now(gru_status_t *status) {
 	return ((pn_timestamp_t) now.tv_sec) * 1000 + (now.tv_usec / 1000);
 }
 
-static void proton_set_message_properties(msg_ctxt_t *ctxt,
-	pn_message_t *message,
-	gru_status_t *status) {
-
-	mpt_trace("Setting message address to %s", url);
-	pn_message_set_address(message, url);
-
-	// OPT_TODO: must be a configuration
-	pn_message_set_durable(message, false);
-	pn_message_set_ttl(message, 50000);
-
-	pn_message_set_creation_time(message, proton_now(status));
-
-
-	// pn_message_set_content_type(message, "text/plain");
-}
-
 static vmsl_stat_t proton_do_send(pn_messenger_t *messenger,
 	pn_message_t *message,
 	gru_status_t *status) {
@@ -296,7 +282,9 @@ vmsl_stat_t
 	mpt_trace("Creating message object");
 	pn_message_t *message = pn_message();
 
-	proton_set_message_properties(ctxt, message, status);
+	// proton_set_message_properties(ctxt, message, status);
+	mpt_trace("Setting message address to %s", url);
+	pn_message_set_address(message, url);
 
 	pn_data_t *body = pn_message_body(message);
 	pn_data_put_string(body, pn_bytes(data->size, data->data));
@@ -307,6 +295,7 @@ vmsl_stat_t
 		vmslh_run(proton_ctxt->handlers->before_send, proton_ctxt, message);
 	}
 
+	pn_message_set_creation_time(message, proton_now(status));
 	ret = proton_do_send(proton_ctxt->messenger, message, status);
 	if (vmsl_stat_error(ret)) {
 		return ret;

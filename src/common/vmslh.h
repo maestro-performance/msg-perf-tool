@@ -41,5 +41,8 @@ typedef struct vmslh_handlers_t_ {
 bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_status_t *status);
 void vmslh_run(gru_list_t *list, void *ctxt, void *msg);
 
+vmslh_handlers_t vmslh_new(gru_status_t *status);
+void vmslh_cleanup(vmslh_handlers_t *handlers);
+
 
 #endif //MPT_VMSLH_H
