@@ -29,6 +29,7 @@
 
 #include "msgctxt.h"
 #include "vmslh.h"
+#include "mpt-debug.h"
 
 void proton_param_cleanup();
 
@@ -40,5 +41,6 @@ void proton_log_body_type(void *ctxt, void *msg, void *payload);
 void proton_set_content_type(void *ctxt, void *msg, void *payload);
 void proton_set_default_message_properties(void *ctxt, void *msg, void *payload);
 void proton_set_ttl(void *ctxt, void *msg, void *payload);
+void proton_set_durable(void *ctxt, void *msg, void *payload);
 
 #endif //MPT_PROTON_HANDLERS_H

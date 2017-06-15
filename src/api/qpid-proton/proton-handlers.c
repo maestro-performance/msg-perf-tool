@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 #include <common/gru_variant.h>
 #include "proton-handlers.h"
 
@@ -59,6 +58,10 @@ static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair
 
 	if (gru_keypair_key_equals(kp, "ttl")) {
 		vmslh_add(handlers->before_send, proton_set_ttl, kp->pair, status);
+	}
+
+	if (gru_keypair_key_equals(kp, "durable")) {
+		vmslh_add(handlers->before_send, proton_set_durable, kp->pair, status);
 	}
 }
 
@@ -181,10 +184,21 @@ void proton_set_ttl(void *ctxt, void *msg, void *payload) {
 	pn_message_t *message = (pn_message_t *) msg;
 	gru_variant_t *variant = (gru_variant_t *) payload;
 
-	logger_t logger = gru_logger_get();
-	logger(INFO, "Setting the TTL to %d", variant->variant.inumber);
+	mpt_trace("Setting the TTL to %d", variant->variant.inumber);
 
 	pn_message_set_ttl(message, variant->variant.inumber);
+}
+
+void proton_set_durable(void *ctxt, void *msg, void *payload) {
+	pn_message_t *message = (pn_message_t *) msg;
+	gru_variant_t *variant = (gru_variant_t *) payload;
+
+//	mpt_trace("Setting the durable to %s",  (variant->variant.flag ? "true" : "false"));
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Setting the durable to %s",  (variant->variant.flag ? "true" : "false"));
+
+	pn_message_set_durable(message, variant->variant.flag);
 }
 
 void proton_set_default_message_properties(void *ctxt, void *msg, void *payload) {
