@@ -89,6 +89,8 @@ msg_ctxt_t *proton_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t 
 		goto err_exit;
 	}
 
+	proton_set_parameters(handlers, opt, status);
+
 	proton_ctxt->messenger = pn_messenger(NULL);
 	msg_ctxt->api_context = proton_ctxt;
 	msg_ctxt->msg_opts = opt;
@@ -258,7 +260,7 @@ static void proton_set_message_properties(msg_ctxt_t *ctxt,
 	pn_message_set_creation_time(message, proton_now(status));
 
 
-	pn_message_set_content_type(message, "text/plain");
+	// pn_message_set_content_type(message, "text/plain");
 }
 
 static vmsl_stat_t proton_do_send(pn_messenger_t *messenger,

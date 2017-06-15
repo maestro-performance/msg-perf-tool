@@ -177,8 +177,9 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 
 	msg_opt_t opt = {0};
 	abstract_worker_msg_opt(&opt, MSG_DIRECTION_SENDER, worker->options);
+	vmslh_handlers_t handlers = {0};
 
-	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, NULL, status);
+	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, &handlers, status);
 	if (!msg_ctxt) {
 		goto err_exit;
 	}

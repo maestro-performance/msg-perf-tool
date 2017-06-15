@@ -20,11 +20,21 @@
 #include <proton/codec.h>
 #include <proton/message.h>
 
+#include <common/gru_keypair.h>
+#include <common/gru_variant.h>
 #include <log/gru_logger.h>
+#include <collection/gru_list.h>
+#include <string/gru_util.h>
 
-void proton_set_properties(void *ctxt, void *payload);
-void proton_log_body_type(void *ctxt, void *payload);
-void proton_set_content_type(void *ctxt, void *payload);
+
+#include "msgctxt.h"
+#include "vmslh.h"
+
+void proton_set_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status);
+
+void proton_set_properties(void *ctxt, void *msg, void *payload);
+void proton_log_body_type(void *ctxt, void *msg, void *payload);
+void proton_set_content_type(void *ctxt, void *msg, void *payload);
 
 
 #endif //MPT_PROTON_HANDLERS_H
