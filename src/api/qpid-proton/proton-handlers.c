@@ -206,9 +206,19 @@ void proton_set_priority(void *ctxt, void *msg, void *payload) {
 	pn_message_t *message = (pn_message_t *) msg;
 	gru_variant_t *variant = (gru_variant_t *) payload;
 
-	mpt_trace("Setting the priority to %d", variant->variant.inumber);
+	if (variant->type == GRU_INTEGER) {
+		mpt_trace("Setting the priority to %d", variant->variant.inumber);
 
-	pn_message_set_priority(message, (uint8_t) variant->variant.inumber);
+		pn_message_set_priority(message, (uint8_t) variant->variant.inumber);
+	} else {
+		uint8_t priority = rand() % 9;
+
+		logger_t logger = gru_logger_get();
+
+		logger(INFO, "Setting the priority to %d", priority);
+		pn_message_set_priority(message, priority);
+	}
+
 }
 
 void proton_set_default_message_properties(void *ctxt, void *msg, void *payload) {
