@@ -92,7 +92,7 @@ void proton_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gr
 }
 
 void proton_set_properties(void *ctxt, void *msg, void *payload) {
-	gru_list_t *properties = (gru_list_t *) payload;
+	gru_list_t *pl_properties = (gru_list_t *) payload;
 	pn_message_t *message = (pn_message_t*) msg;
 
 	pn_data_t *msg_properties = pn_message_properties(message);
@@ -100,7 +100,7 @@ void proton_set_properties(void *ctxt, void *msg, void *payload) {
 	pn_data_put_map(msg_properties);
 	pn_data_enter(msg_properties);
 
-	gru_node_t *node = properties->root;
+	gru_node_t *node = pl_properties->root;
 
 	while (node) {
 		gru_keypair_t *property = (gru_keypair_t *) node->data;
