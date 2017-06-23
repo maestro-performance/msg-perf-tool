@@ -32,20 +32,6 @@ static bool maestro_deserialize_note_assign(const msgpack_object obj,
 			(*(uint64_t *) out) = obj.via.u64;
 			break;
 		}
-#if defined(MSGPACK_LEGACY_SUPPORT)
-		case MSGPACK_OBJECT_DOUBLE: {
-			(*(double *) out) = obj.via.dec;
-			break;
-		}
-
-		case MSGPACK_OBJECT_RAW: {
-			snprintf((char *) out,
-				obj.via.raw.size + 1,
-				"%.*s",
-				obj.via.raw.size,
-				obj.via.raw.ptr);
-			break;
-#else
 		case MSGPACK_OBJECT_FLOAT: {
 			(*(double *) out) = obj.via.f64;
 			break;
@@ -57,7 +43,6 @@ static bool maestro_deserialize_note_assign(const msgpack_object obj,
 				obj.via.str.size,
 				obj.via.str.ptr);
 			break;
-#endif
 		}
 		default: {
 			gru_status_set(status, GRU_FAILURE, "Unsupported type: %d", obj.type);
@@ -68,11 +53,6 @@ static bool maestro_deserialize_note_assign(const msgpack_object obj,
 	return true;
 }
 
-#if defined(MSGPACK_LEGACY_SUPPORT)
-#define size_memb data.via.raw.size
-#else
-#define size_memb data.via.str.size
-#endif
 
 static bool maestro_deserialize_note_set_request(const msg_content_data_t *in,
 	maestro_note_t *note,
@@ -108,7 +88,7 @@ static bool maestro_deserialize_note_set_request(const msg_content_data_t *in,
 		return false;
 	}
 
-	note->payload->request.set.value = gru_alloc(msg->size_memb + 1, status);
+	note->payload->request.set.value = gru_alloc(msg->data.via.str.size + 1, status);
 
 	gru_alloc_check(note->payload->request.set.value, false);
 
@@ -139,7 +119,7 @@ static bool maestro_deserialize_note_ping_request(const msg_content_data_t *in,
 		return false;
 	}
 
-  	note->payload->request.ping.ts = gru_alloc(msg->size_memb + 1, status);
+  	note->payload->request.ping.ts = gru_alloc(msg->data.via.str.size + 1, status);
   	gru_alloc_check(note->payload->request.ping.ts, false);
 
 	if (!maestro_deserialize_note_assign(
@@ -169,7 +149,7 @@ static bool maestro_deserialize_note_ping_response(const msg_content_data_t *in,
 	return false;
   }
 
-  note->payload->response.ping.id = gru_alloc(msg->size_memb + 1, status);
+  note->payload->response.ping.id = gru_alloc(msg->data.via.str.size + 1, status);
   gru_alloc_check(note->payload->response.ping.id, false);
 
   if (!maestro_deserialize_note_assign(
@@ -187,7 +167,7 @@ static bool maestro_deserialize_note_ping_response(const msg_content_data_t *in,
 	return false;
   }
 
-  note->payload->response.ping.name = gru_alloc(msg->size_memb + 1, status);
+  note->payload->response.ping.name = gru_alloc(msg->data.via.str.size + 1, status);
   gru_alloc_check(note->payload->response.ping.name, false);
 
   if (!maestro_deserialize_note_assign(
@@ -232,7 +212,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	note->payload->response.stats.id = gru_alloc(msg->size_memb + 1, status);
+	note->payload->response.stats.id = gru_alloc(msg->data.via.str.size + 1, status);
 	gru_alloc_check(note->payload->response.stats.id, false);
 
 	if (!maestro_deserialize_note_assign(
@@ -250,7 +230,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	note->payload->response.stats.name = gru_alloc(msg->size_memb + 1, status);
+	note->payload->response.stats.name = gru_alloc(msg->data.via.str.size + 1, status);
 	gru_alloc_check(note->payload->response.stats.name, false);
 
 	if (!maestro_deserialize_note_assign(
@@ -283,7 +263,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	note->payload->response.stats.role = gru_alloc(msg->size_memb + 1, status);
+	note->payload->response.stats.role = gru_alloc(msg->data.via.str.size + 1, status);
 	gru_alloc_check(note->payload->response.stats.role, false);
 
 	if (!maestro_deserialize_note_assign(msg->data, note->payload->response.stats.role, status)) {
@@ -300,7 +280,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	note->payload->response.stats.roleinfo = gru_alloc(msg->size_memb + 1, status);
+	note->payload->response.stats.roleinfo = gru_alloc(msg->data.via.str.size + 1, status);
 	gru_alloc_check(note->payload->response.stats.roleinfo, false);
 
 	if (!maestro_deserialize_note_assign(
@@ -334,7 +314,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 	}
 
 
-	note->payload->response.stats.stats.perf.timestamp = gru_alloc(msg->size_memb + 1, status);
+	note->payload->response.stats.stats.perf.timestamp = gru_alloc(msg->data.via.str.size + 1, status);
 	gru_alloc_check(note->payload->response.stats.stats.perf.timestamp, false);
 
 	if (!maestro_deserialize_note_assign(
