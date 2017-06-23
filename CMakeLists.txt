@@ -32,9 +32,9 @@ set(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
 set(MQTT_SUPPORT ON CACHE BOOL "Enable MQTT 3.x support")
 set(MSGPACK_LEGACY_SUPPORT OFF CACHE BOOL "Enable support for older versions of msgpack")
 
-if ({MSGPACK_LEGACY_SUPPORT})
+if (${MSGPACK_LEGACY_SUPPORT})
     add_definitions(-DMSGPACK_LEGACY_SUPPORT)
-endif ({MSGPACK_LEGACY_SUPPORT})
+endif (${MSGPACK_LEGACY_SUPPORT})
 
 include_directories(${GRU_INCLUDE_DIR}
     ${JSON_INCLUDE_DIR}
