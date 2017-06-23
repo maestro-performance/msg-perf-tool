@@ -190,7 +190,7 @@ void proton_set_ttl(void *ctxt, void *msg, void *payload) {
 
 	mpt_trace("Setting the TTL to %d", variant->variant.inumber);
 
-	pn_message_set_ttl(message, variant->variant.inumber);
+	pn_message_set_ttl(message, (pn_millis_t) variant->variant.inumber);
 }
 
 void proton_set_durable(void *ctxt, void *msg, void *payload) {
@@ -211,7 +211,7 @@ void proton_set_priority(void *ctxt, void *msg, void *payload) {
 
 		pn_message_set_priority(message, (uint8_t) variant->variant.inumber);
 	} else {
-		uint8_t priority = rand() % 9;
+		uint8_t priority = (uint8_t ) (rand() % 9);
 
 		logger_t logger = gru_logger_get();
 
