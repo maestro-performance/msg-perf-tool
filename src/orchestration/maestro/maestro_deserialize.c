@@ -32,7 +32,7 @@ static bool maestro_deserialize_note_assign(const msgpack_object obj,
 			(*(uint64_t *) out) = obj.via.u64;
 			break;
 		}
-#if defined(MSGPACK_LEGACY)
+#if defined(MSGPACK_LEGACY_SUPPORT)
 		case MSGPACK_OBJECT_DOUBLE: {
 			(*(double *) out) = obj.via.dec;
 			break;
@@ -68,7 +68,7 @@ static bool maestro_deserialize_note_assign(const msgpack_object obj,
 	return true;
 }
 
-#if defined(MSGPACK_LEGACY)
+#if defined(MSGPACK_LEGACY_SUPPORT)
 #define size_memb data.via.raw.size
 #else
 #define size_memb data.via.str.size
