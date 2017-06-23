@@ -27,9 +27,14 @@ else (UNIX)
 	endif (WIN32)
 endif(UNIX)
 
-SET(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
-SET(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
-SET(MQTT_SUPPORT ON CACHE BOOL "Enable MQTT 3.x support")
+set(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
+set(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
+set(MQTT_SUPPORT ON CACHE BOOL "Enable MQTT 3.x support")
+set(MSGPACK_LEGACY_SUPPORT OFF CACHE BOOL "Enable support for older versions of msgpack")
+
+if ({MSGPACK_LEGACY_SUPPORT})
+    add_definitions(-DMSGPACK_LEGACY_SUPPORT)
+endif ({MSGPACK_LEGACY_SUPPORT})
 
 include_directories(${GRU_INCLUDE_DIR}
     ${JSON_INCLUDE_DIR}
