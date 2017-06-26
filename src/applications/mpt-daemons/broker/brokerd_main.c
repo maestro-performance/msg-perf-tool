@@ -119,7 +119,8 @@ int main(int argc, char **argv) {
 	int cret = init_controller(options->logdir, "mpt-broker-inspector");
 	if (cret == 0) {
 		if (brokerd_worker_start(options) != 0) {
-			printf("Unable to start the sender worker\n");
+			logger_t logger = gru_logger_get();
+			logger(ERROR, "Unable to start the inspector daemon");
 
 			goto err_exit;
 		}

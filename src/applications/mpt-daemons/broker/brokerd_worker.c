@@ -259,7 +259,7 @@ int brokerd_worker_start(const options_t *options) {
 	maestro_sheet_t *sheet = new_receiver_sheet(&status);
 
 	if (!maestro_player_start(options, sheet, &status)) {
-		logger(FATAL, "Unable to connect to maestro broker: %s\n", status.message);
+		logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
 
 		maestro_player_stop(sheet, &status);
 		maestro_sheet_destroy(&sheet);
