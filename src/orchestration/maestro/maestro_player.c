@@ -180,9 +180,12 @@ err_exit:
 
 
 bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status) {
+	if (!splayer) {
+		return true;
+	}
 	void *res;
-	splayer->cancel = true;
 
+	splayer->cancel = true;
 	pthread_join(splayer->thread, &res);
 
 	maestro_player_destroy(&splayer, status);
