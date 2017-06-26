@@ -46,7 +46,7 @@ addons:
       - libjson0-dev
       - libcurl4-openssl-dev
       - libmsgpack-dev
-      - libuuid-dev
+      - uuid-dev
       - doxygen
   coverity_scan:
     project:
