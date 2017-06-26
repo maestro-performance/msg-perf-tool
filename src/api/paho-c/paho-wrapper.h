@@ -21,6 +21,8 @@
 
 #include <network/gru_uri.h>
 
+#include <MQTTClient.h>
+
 #include "mpt-debug.h"
 #include "msgctxt.h"
 #include "paho-context.h"

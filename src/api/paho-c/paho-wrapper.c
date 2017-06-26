@@ -14,8 +14,6 @@
  limitations under the License.
  */
 #include "paho-wrapper.h"
-#include "paho-context.h"
-#include "vmsl.h"
 
 const static int TS_SIZE = 18;
 
