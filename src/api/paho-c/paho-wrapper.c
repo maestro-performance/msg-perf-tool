@@ -60,7 +60,7 @@ vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-	const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_NONE, status);
+	const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_PORT, status);
 
 	logger(DEBUG, "Creating a client to %s with path %s ", connect_url,
 		   paho_ctxt->uri.path);
