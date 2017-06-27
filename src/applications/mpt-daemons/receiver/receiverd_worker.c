@@ -240,16 +240,20 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 int receiverd_worker_start(const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
-	maestro_sheet_t *sheet = new_receiver_sheet(&status);
+
 	bool parent = true;
 
-	if (!maestro_player_start(options, sheet, &status)) {
-		logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
+	maestro_sheet_t *sheet = NULL;
+	if (options->maestro_uri.host) {
+		sheet = new_receiver_sheet(&status);
+		if (!maestro_player_start(options, sheet, &status)) {
+			logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
 
-		maestro_player_stop(sheet, &status);
-		maestro_sheet_destroy(&sheet);
-		fflush(NULL);
-		return 1;
+			maestro_player_stop(sheet, &status);
+			maestro_sheet_destroy(&sheet);
+			fflush(NULL);
+			return 1;
+		}
 	}
 
 	while (!halt) {
