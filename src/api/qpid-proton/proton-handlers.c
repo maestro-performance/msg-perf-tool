@@ -28,8 +28,6 @@ void proton_param_cleanup() {
 }
 
 static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair_t *kp, gru_status_t *status) {
-	logger_t logger = gru_logger_get();
-
 	if (gru_keypair_key_equals(kp, "content-type")) {
 		vmslh_add(handlers->before_send, proton_set_content_type, kp->pair->variant.string, status);
 	}
