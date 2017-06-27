@@ -91,27 +91,15 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
-	// maestro_sheet_t *sheet = new_receiver_sheet(&status);
+	maestro_sheet_t *sheet = new_receiver_sheet(&status);
+	if (!maestro_player_start(options, sheet, &status)) {
+		logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
 
-	// if (!maestro_player_start(options, sheet, &status)) {
-	// 	fprintf(stderr, "Unable to connect to maestro broker: %s\n",
-	// 		status.message);
-
-	// 	return;
-	// }
-
-	// while (!can_start) {
-	// 	logger(INFO, "Waiting for the start signal");
-	// 	sleep(1);
-	// }
-	/*
-	typedef struct worker_t_ {
-	const vmsl_t *vmsl;
-	const worker_options_t *options;
-	const stats_writer_t *writer;
-	worker_iteration_check can_continue;
-} worker_t;
-*/
+		maestro_player_stop(sheet, &status);
+		maestro_sheet_destroy(&sheet);
+		fflush(NULL);
+		return 1;
+	}
 
 	worker_t worker = {0};
 

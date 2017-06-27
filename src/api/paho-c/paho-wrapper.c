@@ -192,8 +192,6 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 	} else {
 		logger_t logger = gru_logger_get();
 
-		logger(DEBUG, "Sending message '%s' to %s", data->data, ctxt->msg_opts.uri.path);
-
 		pubmsg.payload = data->data;
 
 		if (unlikely(data->size > INT_MAX)) {
