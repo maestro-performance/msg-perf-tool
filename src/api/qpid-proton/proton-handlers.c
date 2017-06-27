@@ -45,7 +45,7 @@ static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair
 		while (node) {
 			gru_keypair_t *property = gru_keypair_parse((const char *) node->data, status);
 
-			logger(INFO, "Parsed property: %s -> %s", property->key, property->pair->variant.string);
+			mpt_trace("Parsed property: %s -> %s", property->key, property->pair->variant.string);
 			gru_list_append(properties, property);
 			node = node->next;
 		}
