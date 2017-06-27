@@ -15,9 +15,29 @@
 */
 #include "vmslh.h"
 
+static vmslh_callback_t * vmslh_by_addr(gru_list_t *list, vmslh_callback_fn callback) {
+	gru_node_t *node = list->root;
+
+	while (node) {
+		vmslh_callback_t *vmslh_callback = (vmslh_callback_t *) node->data;
+		if (vmslh_callback && vmslh_callback->call == callback) {
+			return vmslh_callback;
+		}
+
+		node = node->next;
+	}
+
+	return NULL;
+}
+
 bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_status_t *status) {
-	vmslh_callback_t *wrapper = gru_alloc(sizeof(vmslh_callback_t), status);
-	gru_alloc_check(wrapper, false);
+	vmslh_callback_t *wrapper = NULL;
+
+	wrapper = vmslh_by_addr(list, callback);
+	if (!wrapper) {
+		gru_alloc(sizeof(vmslh_callback_t), status);
+		gru_alloc_check(wrapper, false);
+	}
 
 	wrapper->call = callback;
 	wrapper->payload = payload;
