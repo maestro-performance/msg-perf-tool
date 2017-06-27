@@ -285,11 +285,13 @@ int receiverd_worker_start(const options_t *options) {
 		fflush(NULL);
 	}
 
-	if (parent) {
-		maestro_player_stop(sheet, &status);
-	}
+	if (sheet) {
+		if (parent) {
+			maestro_player_stop(sheet, &status);
+		}
 
-	maestro_sheet_destroy(&sheet);
+		maestro_sheet_destroy(&sheet);
+	}
 
 	return 0;
 }
