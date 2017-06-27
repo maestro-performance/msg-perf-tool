@@ -34,43 +34,6 @@ static inline proton_ctxt_t *proton_ctxt_cast(msg_ctxt_t *ctxt) {
 	return (proton_ctxt_t *) ctxt->api_context;
 }
 
-static void proton_set_send_options(pn_messenger_t *messenger, msg_opt_t opt) {
-	if (opt.qos == MSG_QOS_AT_MOST_ONCE) {
-		/**
-		 * From the documentation:
-		 *
-		 * Sender presettles (aka at-most-once): "... in this configuration the sender
-		 * settles (i.e. forgets about) the delivery before it even reaches the
-		 * receiver,
-		 * and if anything should happen to the delivery in-flight, there is no way to
-		 * recover, hence the "at most once" semantics ..."
-		 */
-		mpt_trace("Using At most once");
-		pn_messenger_set_snd_settle_mode(messenger, PN_SND_SETTLED);
-	} else {
-		logger_t logger = gru_logger_get();
-
-		logger(WARNING, "Using an unsupported QOS mode");
-
-		pn_messenger_set_outgoing_window(messenger, 1);
-		pn_messenger_set_snd_settle_mode(messenger, PN_SND_UNSETTLED);
-	}
-}
-
-static void proton_set_recv_options(pn_messenger_t *messenger, msg_opt_t opt) {
-	logger_t logger = gru_logger_get();
-
-	if (opt.qos == MSG_QOS_AT_LEAST_ONCE) {
-		logger(INFO, "Setting QOS to At least once");
-		pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_FIRST);
-	} else {
-		if (opt.qos == MSG_QOS_EXACTLY_ONCE) {
-			logger(INFO, "Setting QOS to exactly once");
-			pn_messenger_set_rcv_settle_mode(messenger, PN_RCV_SECOND);
-		}
-	}
-}
-
 msg_ctxt_t *proton_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
@@ -117,12 +80,6 @@ vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 		gru_status_set(status, GRU_FAILURE, "Unable to start the proton messenger");
 
 		return VMSL_ERROR;
-	}
-
-	if (ctxt->msg_opts.direction == MSG_DIRECTION_SENDER) {
-		proton_set_send_options(proton_ctxt->messenger, ctxt->msg_opts);
-	} else {
-		proton_set_recv_options(proton_ctxt->messenger, ctxt->msg_opts);
 	}
 
 	url = gru_uri_simple_format(&ctxt->msg_opts.uri, status);

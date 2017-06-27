@@ -19,6 +19,7 @@
 
 #include <proton/codec.h>
 #include <proton/message.h>
+#include <proton/messenger.h>
 
 #include <common/gru_keypair.h>
 #include <common/gru_variant.h>
@@ -31,6 +32,8 @@
 #include "vmslh.h"
 #include "mpt-debug.h"
 
+#include "proton-context.h"
+
 void proton_param_cleanup();
 
 void proton_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status);
@@ -42,5 +45,7 @@ void proton_set_content_type(void *ctxt, void *msg, void *payload);
 void proton_set_ttl(void *ctxt, void *msg, void *payload);
 void proton_set_durable(void *ctxt, void *msg, void *payload);
 void proton_set_priority(void *ctxt, void *msg, void *payload);
+void proton_set_qos_mode_send(void *ctxt, void *msg, void *payload);
+void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload);
 
 #endif //MPT_PROTON_HANDLERS_H

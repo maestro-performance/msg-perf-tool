@@ -27,7 +27,7 @@ void proton_param_cleanup() {
 	gru_list_destroy(&properties);
 }
 
-static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair_t *kp, gru_status_t *status) {
+static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair_t *kp, msg_opt_t opt, gru_status_t *status) {
 	if (gru_keypair_key_equals(kp, "content-type")) {
 		vmslh_add(handlers->before_send, proton_set_content_type, kp->pair->variant.string, status);
 	}
@@ -65,6 +65,14 @@ static void proton_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair
 	if (gru_keypair_key_equals(kp, "priority")) {
 		vmslh_add(handlers->before_send, proton_set_priority, kp->pair, status);
 	}
+
+	if (gru_keypair_key_equals(kp, "qos-mode")) {
+		if (opt.direction == MSG_DIRECTION_SENDER) {
+			vmslh_add(handlers->before_connect, proton_set_qos_mode_send, kp->pair, status);
+		} else {
+			vmslh_add(handlers->before_connect, proton_set_qos_mode_recv, kp->pair, status);
+		}
+	}
 }
 
 void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
@@ -78,7 +86,7 @@ void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_s
 
 	while (node) {
 		gru_keypair_t *kp = (gru_keypair_t *) node->data;
-		proton_set_parameter_by_name(handlers, kp, status);
+		proton_set_parameter_by_name(handlers, kp, opt, status);
 
 		node = node->next;
 	}
@@ -86,6 +94,13 @@ void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_s
 
 
 void proton_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
+	if (opt.direction == MSG_DIRECTION_SENDER) {
+		vmslh_add(handlers->before_connect, proton_set_qos_mode_send, NULL, status);
+	}
+	else {
+		vmslh_add(handlers->before_connect, proton_set_qos_mode_recv, NULL, status);
+	}
+
 	vmslh_add(handlers->before_send, proton_set_ttl, NULL, status);
 	vmslh_add(handlers->before_send, proton_set_durable, NULL, status);
 	vmslh_add(handlers->before_send, proton_set_content_type, NULL, status);
@@ -231,6 +246,69 @@ void proton_set_priority(void *ctxt, void *msg, void *payload) {
 
 		logger(INFO, "Setting the priority to %d", priority);
 		pn_message_set_priority(message, priority);
+	}
+}
+
+void proton_set_qos_mode_send(void *ctxt, void *msg, void *payload) {
+	gru_variant_t *variant = (gru_variant_t *) payload;
+	proton_ctxt_t *proton_ctxt = (proton_ctxt_t *) ctxt;
+
+	if (payload == NULL || gru_variant_equals_str(variant, "at-most-once")) {
+		/**
+		 * From the documentation:
+		 *
+		 * Sender presettles (aka at-most-once): "... in this configuration the sender
+		 * settles (i.e. forgets about) the delivery before it even reaches the
+		 * receiver,
+		 * and if anything should happen to the delivery in-flight, there is no way to
+		 * recover, hence the "at most once" semantics ..."
+		 */
+		mpt_trace("Using At most once");
+		pn_messenger_set_snd_settle_mode(proton_ctxt->messenger, PN_SND_SETTLED);
+
+		return;
+	} else {
+		logger_t logger = gru_logger_get();
+
+		logger(WARNING, "Using an unsupported QOS mode");
+
+		pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
+		pn_messenger_set_snd_settle_mode(proton_ctxt->messenger, PN_SND_UNSETTLED);
+	}
+}
+
+
+void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload) {
+	gru_variant_t *variant = (gru_variant_t *) payload;
+	proton_ctxt_t *proton_ctxt = (proton_ctxt_t *) ctxt;
+
+	logger_t logger = gru_logger_get();
+
+	if (gru_variant_equals_str(variant, "at-least-once")) {
+		/**
+		 * From the documentation: "... In this configuration the receiver settles the
+		 * delivery first, and the sender settles once it sees the receiver has settled.
+		 * Should anything happen to the delivery in-flight, the sender can resend,
+		 * however the receiver may have already forgotten the delivery and so it could
+		 * interpret the resend as a new delivery, hence the "at least once" semantics ..."
+		 */
+		logger(INFO, "Setting QOS to At least once");
+		pn_messenger_set_rcv_settle_mode(proton_ctxt->messenger, PN_RCV_FIRST);
+
+		return;
+	}
+
+	if (gru_variant_equals_str(variant, "exactly-once")) {
+		/**
+		 * From the documentation: "... In this configuration the receiver settles only
+		 * once it has seen that the sender has settled. This provides the sender the
+		 * option to retransmit, and the receiver has the option to recognize (and
+		 * discard) duplicates, allowing for exactly once semantics ..."
+		 */
+		logger(INFO, "Setting QOS to exactly once");
+		pn_messenger_set_rcv_settle_mode(proton_ctxt->messenger, PN_RCV_SECOND);
+
+		return;
 	}
 
 }
