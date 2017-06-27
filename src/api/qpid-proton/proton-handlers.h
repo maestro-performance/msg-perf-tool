@@ -39,7 +39,6 @@ void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_s
 void proton_set_properties(void *ctxt, void *msg, void *payload);
 void proton_log_body_type(void *ctxt, void *msg, void *payload);
 void proton_set_content_type(void *ctxt, void *msg, void *payload);
-void proton_set_default_message_properties(void *ctxt, void *msg, void *payload);
 void proton_set_ttl(void *ctxt, void *msg, void *payload);
 void proton_set_durable(void *ctxt, void *msg, void *payload);
 void proton_set_priority(void *ctxt, void *msg, void *payload);

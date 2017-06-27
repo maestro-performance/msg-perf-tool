@@ -86,7 +86,9 @@ void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_s
 
 
 void proton_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
-	vmslh_add(handlers->before_send, proton_set_default_message_properties, NULL, status);
+	vmslh_add(handlers->before_send, proton_set_ttl, NULL, status);
+	vmslh_add(handlers->before_send, proton_set_durable, NULL, status);
+	vmslh_add(handlers->before_send, proton_set_content_type, NULL, status);
 }
 
 void proton_set_properties(void *ctxt, void *msg, void *payload) {
@@ -179,25 +181,39 @@ void proton_log_body_type(void *ctxt, void *msg, void *payload) {
 void proton_set_content_type(void *ctxt, void *msg, void *payload) {
 	pn_message_t *message = (pn_message_t *) msg;
 
-	pn_message_set_content_type(message, (char *) payload);
+	if (!payload) {
+		pn_message_set_content_type(message, "text/plain");
+	} else {
+		pn_message_set_content_type(message, (char *) payload);
+	}
 }
 
 void proton_set_ttl(void *ctxt, void *msg, void *payload) {
 	pn_message_t *message = (pn_message_t *) msg;
 	gru_variant_t *variant = (gru_variant_t *) payload;
 
-	mpt_trace("Setting the TTL to %d", variant->variant.inumber);
+	if (payload == NULL) {
+		pn_message_set_ttl(message, (pn_millis_t) 5000);
+	}
+	else {
+		mpt_trace("Setting the TTL to %d", variant->variant.inumber);
 
-	pn_message_set_ttl(message, (pn_millis_t) variant->variant.inumber);
+		pn_message_set_ttl(message, (pn_millis_t) variant->variant.inumber);
+	}
 }
 
 void proton_set_durable(void *ctxt, void *msg, void *payload) {
 	pn_message_t *message = (pn_message_t *) msg;
-	gru_variant_t *variant = (gru_variant_t *) payload;
 
-	mpt_trace("Setting the durable to %s",  (variant->variant.flag ? "true" : "false"));
+	if (!payload) {
+		pn_message_set_durable(message, false);
+	} else {
+		gru_variant_t *variant = (gru_variant_t *) payload;
 
-	pn_message_set_durable(message, variant->variant.flag);
+		mpt_trace("Setting the durable to %s", (variant->variant.flag ? "true" : "false"));
+
+		pn_message_set_durable(message, variant->variant.flag);
+	}
 }
 
 void proton_set_priority(void *ctxt, void *msg, void *payload) {
@@ -217,13 +233,4 @@ void proton_set_priority(void *ctxt, void *msg, void *payload) {
 		pn_message_set_priority(message, priority);
 	}
 
-}
-
-void proton_set_default_message_properties(void *ctxt, void *msg, void *payload) {
-//	pn_message_t *message = (pn_message_t *) msg;
-//
-//	pn_message_set_durable(message, false);
-//	pn_message_set_ttl(message, 50000);
-//
-//	pn_message_set_content_type(message, "text/plain");
 }
