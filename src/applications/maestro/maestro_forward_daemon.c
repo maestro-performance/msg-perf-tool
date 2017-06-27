@@ -89,9 +89,18 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 		return;
 	}
 
+	logger(DEBUG, "Starting forward loop connection ");
+	vmsl_stat_t rstat = cmd_ctxt->vmsl.start(cmd_ctxt->msg_ctxt, status);
+	if (vmsl_stat_error(rstat)) {
+		gru_status_set(status, GRU_FAILURE, "Unable to start forward loop connection to the broker");
+
+		maestro_cmd_ctxt_destroy(&cmd_ctxt);
+		return;
+	}
+
 	logger(DEBUG, "Subscribing to the Maestro topic");
-	vmsl_stat_t rstat = cmd_ctxt->vmsl.subscribe(cmd_ctxt->msg_ctxt, NULL, status);
-	if (rstat != VMSL_SUCCESS) {
+	rstat = cmd_ctxt->vmsl.subscribe(cmd_ctxt->msg_ctxt, NULL, status);
+	if (vmsl_stat_error(rstat)) {
 		gru_status_set(status, GRU_FAILURE, "Unable to subscribe to maestro broker");
 
 		maestro_cmd_ctxt_destroy(&cmd_ctxt);
