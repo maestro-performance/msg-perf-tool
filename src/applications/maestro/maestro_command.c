@@ -74,6 +74,8 @@ static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt,
 	maestro_easy_request(&req, cmd);
 
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
+	msg_content_data_release(&req);
+
 	if (rstat != VMSL_SUCCESS) {
 		fprintf(stderr, "Failed to send command: %s\n", status->message);
 
@@ -191,6 +193,7 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 			}
 
 			maestro_note_payload_cleanup(&note);
+			msg_content_data_release(&msg);
 		}
 	}
 
@@ -300,6 +303,8 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt,
 	}
 
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
+	msg_content_data_release(&req);
+
 	if (rstat != VMSL_SUCCESS) {
 		fprintf(stderr, "Failed to send command");
 		maestro_cmd_disconnect(cmd_ctxt, status);
@@ -352,6 +357,8 @@ int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	}
 
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
+	msg_content_data_release(&req);
+
 	if (rstat != VMSL_SUCCESS) {
 		fprintf(stderr, "Failed to send command");
 		return 1;
