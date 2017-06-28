@@ -70,9 +70,7 @@ vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 	logger_t logger = gru_logger_get();
 
-	if (proton_ctxt->handlers) {
-		vmslh_run(proton_ctxt->handlers->before_connect, proton_ctxt, NULL);
-	}
+	vmslh_run(proton_ctxt->handlers->before_connect, proton_ctxt, NULL);
 
 	logger(DEBUG, "Initializing the proton messenger");
 	int err = pn_messenger_start(proton_ctxt->messenger);
@@ -87,9 +85,7 @@ vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 		return VMSL_ERROR;
 	}
 
-	if (proton_ctxt->handlers) {
-		vmslh_run(proton_ctxt->handlers->after_connect, proton_ctxt, NULL);
-	}
+	vmslh_run(proton_ctxt->handlers->after_connect, proton_ctxt, NULL);
 
 	return VMSL_SUCCESS;
 }
@@ -130,68 +126,6 @@ void proton_destroy(msg_ctxt_t *ctxt, gru_status_t *status) {
 	msg_ctxt_destroy(&ctxt);
 
 	proton_param_cleanup();
-}
-
-gru_attr_unused static void proton_check_status(pn_messenger_t *messenger,
-	pn_tracker_t tracker) {
-	logger_t logger = gru_logger_get();
-
-	pn_status_t status = pn_messenger_status(messenger, tracker);
-
-	logger(TRACE, "Checking message status");
-	switch (status) {
-		case PN_STATUS_UNKNOWN: {
-			logger(TRACE, "Message status unknown");
-			break;
-		}
-		case PN_STATUS_PENDING: {
-			logger(TRACE, "Message status pending");
-			break;
-		}
-		case PN_STATUS_ACCEPTED: {
-			logger(TRACE, "Message status accepted");
-			break;
-		}
-		case PN_STATUS_REJECTED: {
-			logger(TRACE, "Message status rejected");
-			break;
-		}
-		case PN_STATUS_RELEASED: {
-			logger(TRACE, "Message status released");
-			break;
-		}
-		case PN_STATUS_MODIFIED: {
-			logger(TRACE, "Message status modified");
-			break;
-		}
-		case PN_STATUS_ABORTED: {
-			logger(TRACE, "Message status aborted");
-			break;
-		}
-		case PN_STATUS_SETTLED: {
-			logger(TRACE, "Message status settled");
-			break;
-		}
-		default: {
-			logger(TRACE, "Message status invalid");
-			break;
-		}
-	}
-}
-
-static void proton_commit(pn_messenger_t *messenger, gru_status_t *status) {
-	pn_tracker_t tracker = pn_messenger_outgoing_tracker(messenger);
-
-	mpt_trace("Committing the message delivery");
-
-#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
-	proton_check_status(messenger, tracker);
-#endif
-	pn_messenger_settle(messenger, tracker, 0);
-
-#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
-	proton_check_status(messenger, tracker);
-#endif
 }
 
 static pn_timestamp_t proton_now(gru_status_t *status) {
@@ -248,48 +182,19 @@ vmsl_stat_t
 
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-	if (proton_ctxt->handlers) {
-		vmslh_run(proton_ctxt->handlers->before_send, proton_ctxt, message);
-	}
+	vmslh_run(proton_ctxt->handlers->before_send, proton_ctxt, message);
 
 	pn_message_set_creation_time(message, proton_now(status));
 	ret = proton_do_send(proton_ctxt->messenger, message, status);
 	if (vmsl_stat_error(ret)) {
+		pn_message_free(message);
 		return ret;
 	}
 
-	if (unlikely(ctxt->msg_opts.qos != MSG_QOS_AT_MOST_ONCE)) {
-		proton_commit(proton_ctxt->messenger, status);
-	}
-
-	if (proton_ctxt->handlers) {
-		vmslh_run(proton_ctxt->handlers->after_send, proton_ctxt, message);
-	}
-
+	vmslh_run(proton_ctxt->handlers->after_send, proton_ctxt, message);
 
 	pn_message_free(message);
 	return VMSL_SUCCESS;
-}
-
-static void proton_accept(pn_messenger_t *messenger) {
-	pn_tracker_t tracker = pn_messenger_incoming_tracker(messenger);
-
-	mpt_trace("Accepting the message delivery");
-
-#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
-	proton_check_status(messenger, tracker);
-#endif
-	pn_messenger_accept(messenger, tracker, PN_CUMULATIVE);
-	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
-
-#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
-	proton_check_status(messenger, tracker);
-#endif
-}
-
-static void proton_set_incoming_messenger_properties(pn_messenger_t *messenger) {
-	pn_messenger_set_incoming_window(messenger, window);
-	pn_messenger_set_blocking(messenger, false);
 }
 
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
@@ -307,7 +212,8 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status)
 		return VMSL_ERROR;
 	}
 
-	proton_set_incoming_messenger_properties(proton_ctxt->messenger);
+	pn_messenger_set_incoming_window(proton_ctxt->messenger, window);
+	pn_messenger_set_blocking(proton_ctxt->messenger, false);
 	return VMSL_SUCCESS;
 }
 
@@ -400,9 +306,7 @@ vmsl_stat_t
 
 	pn_message_t *message = pn_message();
 
-	if (proton_ctxt->handlers) {
-		vmslh_run(proton_ctxt->handlers->before_receive, proton_ctxt, message);
-	}
+	vmslh_run(proton_ctxt->handlers->before_receive, proton_ctxt, message);
 
 	int ret = proton_do_receive(proton_ctxt->messenger, message, content);
 
@@ -427,10 +331,7 @@ vmsl_stat_t
 	}
 	cur++;
 
-	if (proton_ctxt->handlers) {
-		vmslh_run(proton_ctxt->handlers->after_receive, proton_ctxt, message);
-	}
-
+	vmslh_run(proton_ctxt->handlers->after_receive, proton_ctxt, message);
 
 	// Settles the messages after every 'window' count
 	if ((last_ack + window) == cur) {
@@ -438,7 +339,10 @@ vmsl_stat_t
 			cur,
 			nmsgs,
 			last_ack);
-		proton_accept(proton_ctxt->messenger);
+
+
+		vmslh_run(proton_ctxt->handlers->finalize_receive, proton_ctxt, NULL);
+
 		cur = 0;
 		last_ack = 0;
 	} else {
@@ -449,7 +353,8 @@ vmsl_stat_t
 				cur,
 				nmsgs,
 				last_ack);
-			proton_accept(proton_ctxt->messenger);
+
+			vmslh_run(proton_ctxt->handlers->finalize_receive, proton_ctxt, NULL);
 
 			cur = 0;
 			last_ack = 0;

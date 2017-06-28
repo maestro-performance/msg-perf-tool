@@ -252,6 +252,7 @@ void proton_set_priority(void *ctxt, void *msg, void *payload) {
 void proton_set_qos_mode_send(void *ctxt, void *msg, void *payload) {
 	gru_variant_t *variant = (gru_variant_t *) payload;
 	proton_ctxt_t *proton_ctxt = (proton_ctxt_t *) ctxt;
+	logger_t logger = gru_logger_get();
 
 	if (payload == NULL || gru_variant_equals_str(variant, "at-most-once")) {
 		/**
@@ -268,12 +269,21 @@ void proton_set_qos_mode_send(void *ctxt, void *msg, void *payload) {
 
 		return;
 	} else {
-		logger_t logger = gru_logger_get();
-
 		logger(WARNING, "Using an unsupported QOS mode");
 
 		pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
 		pn_messenger_set_snd_settle_mode(proton_ctxt->messenger, PN_SND_UNSETTLED);
+
+		/**
+		 * If we have something else, then we need to ensure we settle the delivery
+		 * after it has been sent. Because this is done, here, before the connection
+		 * occurs, there should be no noticeable impact on the delivery performance
+		 */
+		gru_status_t status = gru_status_new();
+		vmslh_add(proton_ctxt->handlers->after_send, proton_commit, NULL, &status);
+		if (gru_status_error(&status)) {
+			logger(ERROR, "Unable to add the commit handler for the given QOS mode");
+		}
 	}
 }
 
@@ -311,4 +321,103 @@ void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload) {
 		return;
 	}
 
+	if (payload == NULL || gru_variant_equals_str(variant, "at-most-once")) {
+		gru_status_t status = gru_status_new();
+		vmslh_add(proton_ctxt->handlers->finalize_receive, proton_accept, NULL, &status);
+		if (gru_status_error(&status)) {
+			logger(ERROR, "Unable to add the commit handler for the given QOS mode");
+		}
+	}
+}
+
+gru_attr_unused static void proton_check_status(pn_messenger_t *messenger,
+												pn_tracker_t tracker) {
+	logger_t logger = gru_logger_get();
+
+	pn_status_t status = pn_messenger_status(messenger, tracker);
+
+	logger(TRACE, "Checking message status");
+	switch (status) {
+	case PN_STATUS_UNKNOWN: {
+		logger(TRACE, "Message status unknown");
+		break;
+	}
+	case PN_STATUS_PENDING: {
+		logger(TRACE, "Message status pending");
+		break;
+	}
+	case PN_STATUS_ACCEPTED: {
+		logger(TRACE, "Message status accepted");
+		break;
+	}
+	case PN_STATUS_REJECTED: {
+		logger(TRACE, "Message status rejected");
+		break;
+	}
+	case PN_STATUS_RELEASED: {
+		logger(TRACE, "Message status released");
+		break;
+	}
+	case PN_STATUS_MODIFIED: {
+		logger(TRACE, "Message status modified");
+		break;
+	}
+	case PN_STATUS_ABORTED: {
+		logger(TRACE, "Message status aborted");
+		break;
+	}
+	case PN_STATUS_SETTLED: {
+		logger(TRACE, "Message status settled");
+		break;
+	}
+	default: {
+		logger(TRACE, "Message status invalid");
+		break;
+	}
+	}
+}
+
+
+static void proton_do_commit(pn_messenger_t *messenger) {
+	pn_tracker_t tracker = pn_messenger_outgoing_tracker(messenger);
+
+	mpt_trace("Committing the message delivery");
+
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
+	// proton_check_status(messenger, tracker);
+#endif
+	pn_messenger_settle(messenger, tracker, 0);
+
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
+	// proton_check_status(messenger, tracker);
+#endif
+}
+
+void proton_commit(void *ctxt, void *msg, void *payload) {
+	proton_ctxt_t *proton_ctxt = (proton_ctxt_t *) ctxt;
+
+	proton_do_commit(proton_ctxt->messenger);
+}
+
+
+static void proton_do_accept(pn_messenger_t *messenger) {
+	pn_tracker_t tracker = pn_messenger_incoming_tracker(messenger);
+
+	mpt_trace("Accepting the message delivery");
+
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
+	proton_check_status(messenger, tracker);
+#endif
+	pn_messenger_accept(messenger, tracker, PN_CUMULATIVE);
+	pn_messenger_settle(messenger, tracker, PN_CUMULATIVE);
+
+#if defined(MPT_DEBUG) && MPT_DEBUG >= 1
+	proton_check_status(messenger, tracker);
+#endif
+}
+
+void proton_accept(void *ctxt, void *msg, void *payload) {
+	proton_ctxt_t *proton_ctxt = (proton_ctxt_t *) ctxt;
+
+	proton_do_accept(proton_ctxt->messenger);
 }

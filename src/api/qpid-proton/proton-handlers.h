@@ -48,4 +48,7 @@ void proton_set_priority(void *ctxt, void *msg, void *payload);
 void proton_set_qos_mode_send(void *ctxt, void *msg, void *payload);
 void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload);
 
+void proton_accept(void *ctxt, void *msg, void *payload);
+void proton_commit(void *ctxt, void *msg, void *payload);
+
 #endif //MPT_PROTON_HANDLERS_H
