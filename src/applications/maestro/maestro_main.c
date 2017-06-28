@@ -19,10 +19,10 @@ static void show_help(char **argv) {
 	gru_cli_program_usage("mpt-maestro", argv[0]);
 
 	gru_cli_option_help("help", "h", "show this help");
+	gru_cli_option_help("file", "f", "maestro script file to execute");
 	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
-	gru_cli_option_help("log-level",
-		"l",
-		"runs in the given verbose (info, debug, trace, etc) level mode");
+	gru_cli_option_help("log-level", "l",
+						"runs in the given verbose (info, debug, trace, etc) level mode");
 }
 
 int main(int argc, char **argv) {
@@ -46,17 +46,26 @@ int main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {{"maestro-url", required_argument, 0, 'm'},
+		static struct option long_options[] = {
+			{"file", required_argument, 0, 'f'},
+			{"maestro-url", required_argument, 0, 'm'},
 			{"log-level", required_argument, 0, 'l'},
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		int c = getopt_long(argc, argv, "m:l:h", long_options, &option_index);
+		int c = getopt_long(argc, argv, "f:m:l:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
 
 		switch (c) {
+			case 'f':
+				if (!options_set_file(options, optarg)) {
+					fprintf(stderr, "Unable to allocate memory for setting the script file name\n");
+
+					goto err_exit;
+				}
+				break;
 			case 'm':
 				if (!options_set_maestro_uri(options, optarg, &status)) {
 					fprintf(stderr, "%s\n", status.message);
@@ -90,6 +99,7 @@ int main(int argc, char **argv) {
 		if (child > 0) {
 			fprintf(stdout, "Forward daemon started\n");
 			if (maestro_loop(&status) != 0) {
+				fprintf(stderr, "%s\n", status.message);
 				goto err_exit;
 			}
 

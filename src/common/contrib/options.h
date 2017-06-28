@@ -52,6 +52,7 @@ typedef struct options_t_ {
 	gru_list_t *probes;
 	char *iface;
 	char *name;
+  	char *file;
 } options_t;
 
 options_t *options_new(gru_status_t *status);
@@ -66,6 +67,7 @@ bool options_set_name(options_t *obj, const char *name);
 bool options_set_logdir(options_t *obj, const char *logdir);
 bool options_set_iface(options_t *obj, const char *iface);
 bool options_set_probes(options_t *obj, const char *probes, gru_status_t *status);
+bool options_set_file(options_t *obj, const char *file);
 
 #ifdef __cplusplus
 }

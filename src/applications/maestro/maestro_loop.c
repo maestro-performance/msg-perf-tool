@@ -81,21 +81,11 @@ static int maestro_loop_cmd(maestro_cmd_ctxt_t *cmd_ctxt, const char *cmd, gru_l
 	return -1;
 }
 
-int maestro_loop(gru_status_t *status) {
-
-	const options_t *options = get_options_object();
-
-	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_ctxt_init(&options->maestro_uri, status);
-	if (!cmd_ctxt) {
-		fprintf(stderr, "Unable to initialize command processor: %s\n", status->message);
-
-		return 1;
-	}
-
+static int maestro_loop_cli(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+	int ret = -1;
 	gru_list_t *strings = NULL;
 	do {
 		char *raw_line = NULL;
-		int ret = -1;
 
 		raw_line = readline(RED "maestro" LIGHT_WHITE "> " RESET);
 		if (raw_line == NULL) {
@@ -129,7 +119,7 @@ int maestro_loop(gru_status_t *status) {
 		} else if (ret == -1) {
 			fprintf(stderr, "Unknown command: %s\n", command);
 		} else if (ret == -2) {
-			break;
+			ret = 0;
 		} else {
 			fprintf(stderr, "%s\n", status->message);
 		}
@@ -140,7 +130,88 @@ int maestro_loop(gru_status_t *status) {
 		gru_list_destroy(&strings);
 	}
 
+	return ret;
+}
+
+static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_status_t *status) {
+	int ret = 0;
+	gru_list_t *strings = NULL;
+	do {
+		char raw_line[1024] = {0};
+
+
+		fgets(raw_line, sizeof(raw_line), script);
+		if (raw_line == NULL) {
+			break;
+		}
+
+		if (strlen(raw_line) == 0 || raw_line[0] == '#') {
+			continue;
+		}
+
+		char *line = gru_trim(raw_line, strlen(raw_line));
+		add_history(line);
+
+		gru_split_clean(strings);
+		gru_list_destroy(&strings);
+
+		strings = gru_split(line, ' ', status);
+		if (!strings) {
+			fprintf(stderr, "Unable to split command: %s\n", status->message);
+			return 1;
+		}
+
+		const gru_node_t *node = gru_list_get(strings, 0);
+		char *command = gru_node_get_data_ptr(char, node);
+
+		ret = maestro_loop_cmd(cmd_ctxt, command, strings, status);
+
+		if (ret == 0) {
+			continue;
+		} else if (ret == -1) {
+			fprintf(stderr, "Unknown command: %s\n", command);
+			break;
+		} else if (ret == -2) {
+			break;
+		} else {
+			fprintf(stderr, "%s\n", status->message);
+		}
+	} while (!feof(script));
+
+	if (strings) {
+		gru_split_clean(strings);
+		gru_list_destroy(&strings);
+	}
+
+	return ret;
+}
+
+
+int maestro_loop(gru_status_t *status) {
+	const options_t *options = get_options_object();
+
+	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_ctxt_init(&options->maestro_uri, status);
+	if (!cmd_ctxt) {
+		fprintf(stderr, "Unable to initialize command processor: %s\n", status->message);
+
+		return 1;
+	}
+
+	int ret = -1;
+	if (options->file) {
+		FILE *file = fopen(options->file, "r");
+		if (!file) {
+			gru_status_strerror(status, GRU_FAILURE, errno);
+		} else {
+			ret = maestro_loop_file(cmd_ctxt, file, status);
+			fclose(file);
+		}
+	}
+	else {
+		ret = maestro_loop_cli(cmd_ctxt, status);
+	}
+
 	maestro_cmd_ctxt_destroy(&cmd_ctxt);
 
-	return 0;
+	return ret;
 }

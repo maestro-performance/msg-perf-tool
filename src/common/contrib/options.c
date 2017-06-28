@@ -41,6 +41,7 @@ static bool options_set_defaults(options_t *ret, gru_status_t *status) {
 	ret->throttle = 0;
 	ret->iface = strdup("eth0");
 	ret->probes = gru_split("net,bmic", ',', status);
+	ret->file = NULL;
 
 	char hostname[256] = {0};
 	if (gethostname(hostname, sizeof(hostname)) == 0) {
@@ -82,6 +83,7 @@ void options_destroy(options_t **obj) {
 	gru_dealloc_string(&opt->iface);
 	gru_dealloc_string(&opt->logdir);
 	gru_dealloc_string(&opt->name);
+	gru_dealloc_string(&opt->file);
 
 	gru_dealloc((void **) obj);
 }
@@ -156,6 +158,16 @@ bool options_set_probes(options_t *obj, const char *probes, gru_status_t *status
 
 	obj->probes = gru_split(optarg, ',', status);
 	if (!obj->probes) {
+		return false;
+	}
+
+	return true;
+}
+
+bool options_set_file(options_t *obj, const char *file) {
+	gru_dealloc_string(&obj->file);
+	obj->file = strdup(file);
+	if (!obj->file) {
 		return false;
 	}
 
