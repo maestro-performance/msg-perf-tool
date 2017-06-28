@@ -190,8 +190,6 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
 		paho_serialize_clean(&pl);
 	} else {
-		logger_t logger = gru_logger_get();
-
 		pubmsg.payload = data->data;
 
 		if (unlikely(data->size > INT_MAX)) {
