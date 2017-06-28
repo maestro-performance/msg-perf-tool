@@ -35,6 +35,7 @@ typedef struct vmslh_handlers_t_ {
   gru_list_t *after_send;
   gru_list_t *before_receive;
   gru_list_t *after_receive;
+  gru_list_t *finalize_receive;
 } vmslh_handlers_t;
 
 

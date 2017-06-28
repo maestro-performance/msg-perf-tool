@@ -81,7 +81,14 @@ static void vmslh_callback_cleanup(void **ptr) {
 vmslh_handlers_t vmslh_new(gru_status_t *status) {
 	vmslh_handlers_t handlers = {0};
 
+	handlers.before_connect = gru_list_new(status);
+	handlers.after_connect = gru_list_new(status);
 	handlers.before_send = gru_list_new(status);
+	handlers.after_send = gru_list_new(status);
+	handlers.before_receive = gru_list_new(status);
+	handlers.after_receive = gru_list_new(status);
+	handlers.finalize_receive = gru_list_new(status);
+
 	return handlers;
 }
 
@@ -96,6 +103,7 @@ void vmslh_cleanup(vmslh_handlers_t *handlers) {
 	gru_list_clean(handlers->after_send, vmslh_callback_cleanup);
 	gru_list_clean(handlers->before_receive, vmslh_callback_cleanup);
 	gru_list_clean(handlers->after_receive, vmslh_callback_cleanup);
+	gru_list_clean(handlers->finalize_receive, vmslh_callback_cleanup);
 
 	gru_list_destroy(&handlers->before_connect);
 	gru_list_destroy(&handlers->after_connect);
@@ -103,5 +111,5 @@ void vmslh_cleanup(vmslh_handlers_t *handlers) {
 	gru_list_destroy(&handlers->after_send);
 	gru_list_destroy(&handlers->before_receive);
 	gru_list_destroy(&handlers->after_receive);
-
+	gru_list_destroy(&handlers->finalize_receive);
 }
