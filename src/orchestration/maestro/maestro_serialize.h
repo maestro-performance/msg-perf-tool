@@ -27,8 +27,6 @@ extern "C" {
 
 bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out);
 
-bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd);
-
 bool maestro_note_ok_response(msg_content_data_t *cont);
 
 #ifdef __cplusplus
