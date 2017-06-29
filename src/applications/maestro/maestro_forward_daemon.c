@@ -73,7 +73,7 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 	opt.uri = uri;
 
 	logger(DEBUG, "Initializing command context for: %s", uri.host);
-	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_ctxt_init(&uri, status);
+	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_ctxt_new(&uri, status);
 	if (!cmd_ctxt) {
 		gru_status_set(status, GRU_FAILURE, "Unable to initialize command context");
 

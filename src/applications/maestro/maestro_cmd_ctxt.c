@@ -15,7 +15,7 @@
  */
 #include "maestro_cmd_ctxt.h"
 
-maestro_cmd_ctxt_t *maestro_cmd_ctxt_init(const gru_uri_t *uri, gru_status_t *status) {
+maestro_cmd_ctxt_t *maestro_cmd_ctxt_new(const gru_uri_t *uri, gru_status_t *status) {
 	maestro_cmd_ctxt_t *ret = gru_alloc(sizeof(maestro_cmd_ctxt_t), status);
 	gru_alloc_check(ret, NULL);
 
@@ -38,6 +38,7 @@ maestro_cmd_ctxt_t *maestro_cmd_ctxt_init(const gru_uri_t *uri, gru_status_t *st
 
 	return ret;
 }
+
 
 void maestro_cmd_ctxt_destroy(maestro_cmd_ctxt_t **ptr) {
 	maestro_cmd_ctxt_t *ctxt = *ptr;

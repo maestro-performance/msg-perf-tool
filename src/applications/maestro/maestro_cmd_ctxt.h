@@ -32,7 +32,7 @@ typedef struct maestro_cmd_ctxt_t_ {
 	int queue;
 } maestro_cmd_ctxt_t;
 
-maestro_cmd_ctxt_t *maestro_cmd_ctxt_init(const gru_uri_t *uri, gru_status_t *status);
+maestro_cmd_ctxt_t *maestro_cmd_ctxt_new(const gru_uri_t *uri, gru_status_t *status);
 void maestro_cmd_ctxt_destroy(maestro_cmd_ctxt_t **ptr);
 
 #endif /* MAESTRO_CMD_CTXT_H */
