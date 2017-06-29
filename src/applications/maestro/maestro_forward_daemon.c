@@ -88,18 +88,8 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 		return;
 	}
 
-	logger(DEBUG, "Creating local forward queue");
-	int pqueue = create_foward_queue(status);
-	if (pqueue == -1) {
-		gru_status_set(status, GRU_FAILURE, "Unable to create local forward queue");
-
-		maestro_cmd_ctxt_destroy(&cmd_ctxt);
-
-		return;
-	}
-
 	logger(DEBUG, "Starting main forward loop");
-	maestro_loop_reply_run(cmd_ctxt, pqueue, status);
+	maestro_loop_reply_run(cmd_ctxt, cmd_ctxt->queue, status);
 	if (!gru_status_success(status)) {
 		logger(ERROR, "Error while running the forward loop: %s", status->message);
 	}
