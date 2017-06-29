@@ -40,7 +40,20 @@ extern "C" {
 
 void proton_param_cleanup();
 
+/**
+ * Set default handlers for the protocol
+ * @param handlers
+ * @param opt
+ * @param status
+ */
 void proton_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status);
+
+/**
+ * Set the user-defined handlers for the protocol
+ * @param handlers
+ * @param opt
+ * @param status
+ */
 void proton_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status);
 
 void proton_set_properties(void *ctxt, void *msg, void *payload);
