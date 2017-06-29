@@ -109,7 +109,7 @@ int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 }
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
-	printf("Name: %12s\tID: %40s ", note->payload->response.name, note->payload->response.id);
+	printf("Name: %-45s\tID: %-40s ", note->payload->response.name, note->payload->response.id);
 
 	if (note->command == MAESTRO_NOTE_PING) {
 		printf("Time: %"PRIu64" ms\n",
