@@ -120,6 +120,7 @@ static int maestro_loop_cli(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) 
 			fprintf(stderr, "Unknown command: %s\n", command);
 		} else if (ret == -2) {
 			ret = 0;
+			break;
 		} else {
 			fprintf(stderr, "%s\n", status->message);
 		}
