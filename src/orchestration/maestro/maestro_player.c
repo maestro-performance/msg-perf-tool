@@ -13,6 +13,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <common/gru_variant.h>
+#include <MQTTClient.h>
 #include "maestro_player.h"
 
 static maestro_player_t *splayer;
@@ -38,6 +40,34 @@ static void maestro_player_destroy(maestro_player_t **ptr, gru_status_t *status)
 	gru_dealloc((void **) ptr);
 }
 
+static msg_content_data_t *wdata;
+static char *wtopic = "/mpt/maestro";
+
+void paho_set_clean_session(void *ctxt, void *conn_opts, void *payload) {
+	MQTTClient_connectOptions *opts = (MQTTClient_connectOptions *) conn_opts;
+
+	maestro_note_t note = {0};
+
+	maestro_note_payload_prepare(&note, NULL);
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_RESPONSE);
+
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_OK);
+	maestro_note_response_set_id(&note, splayer->player_info.id);
+	maestro_note_response_set_name(&note, splayer->player_info.name);
+
+	wdata = msg_content_data_new(MAESTRO_NOTE_SIZE, NULL);
+	maestro_serialize_note(&note, wdata);
+
+	MQTTClient_willOptions wopts =  MQTTClient_willOptions_initializer;
+	opts->will = &wopts;
+	opts->will->message = wdata->data;
+	opts->will->topicName = wtopic;
+	opts->will->qos = 1;
+	opts->will->retained = 0;
+}
+
+
 static bool maestro_player_connect(maestro_player_t *player, gru_status_t *status) {
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_SENDER,
@@ -49,6 +79,7 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 	opt.uri = player->uri;
 
 	player->handlers = vmslh_new(status);
+	vmslh_add(player->handlers.before_connect, paho_set_clean_session, NULL, status);
 
 	player->ctxt = player->mmsl.init(opt, &player->handlers, status);
 

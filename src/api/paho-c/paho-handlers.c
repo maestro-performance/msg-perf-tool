@@ -35,49 +35,6 @@ static void paho_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair_t
 	if (gru_keypair_key_equals(kp, "retained")) {
 		vmslh_add(handlers->before_send, paho_set_retained, kp->pair, status);
 	}
-
-//
-//	if (gru_keypair_key_equals(kp, "application-properties")) {
-//		if (!properties) {
-//			properties = gru_list_new(status);
-//		}
-//
-//		gru_list_t *tmp = gru_split(kp->pair->variant.string, ',', status);
-//
-//		gru_node_t *node = tmp->root;
-//		while (node) {
-//			gru_keypair_t *property = gru_keypair_parse((const char *) node->data, status);
-//
-//			mpt_trace("Parsed property: %s -> %s", property->key, property->pair->variant.string);
-//			gru_list_append(properties, property);
-//			node = node->next;
-//		}
-//
-//		vmslh_add(handlers->before_send, proton_set_properties, properties, status);
-//
-//		gru_split_clean(tmp);
-//		gru_list_destroy(&tmp);
-//	}
-//
-//	if (gru_keypair_key_equals(kp, "ttl")) {
-//		vmslh_add(handlers->before_send, proton_set_ttl, kp->pair, status);
-//	}
-//
-//	if (gru_keypair_key_equals(kp, "durable")) {
-//		vmslh_add(handlers->before_send, proton_set_durable, kp->pair, status);
-//	}
-//
-//	if (gru_keypair_key_equals(kp, "priority")) {
-//		vmslh_add(handlers->before_send, proton_set_priority, kp->pair, status);
-//	}
-//
-//	if (gru_keypair_key_equals(kp, "qos-mode")) {
-//		if (opt.direction == MSG_DIRECTION_SENDER) {
-//			vmslh_add(handlers->before_connect, proton_set_qos_mode_send, kp->pair, status);
-//		} else {
-//			vmslh_add(handlers->before_connect, proton_set_qos_mode_recv, kp->pair, status);
-//		}
-//	}
 }
 
 void paho_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
