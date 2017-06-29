@@ -90,8 +90,8 @@ static bool maestro_serialize_cmd_ping_response_test() {
 	msg_content_data_t content = {0};
 	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
 
-	maestro_note_ping_set_id(&note, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
-  	maestro_note_ping_set_name(&note, "test@localhost.localdomain");
+	maestro_note_response_set_id(&note, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+	maestro_note_response_set_name(&note, "test@localhost.localdomain");
   	maestro_note_ping_set_elapsed(&note, 30);
 
 	maestro_serialize_note(&note, &content);
@@ -114,26 +114,26 @@ static bool maestro_serialize_cmd_ping_response_test() {
 		goto err_exit;
 	}
 
-	if (strcmp(deserialized.payload->response.ping.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3") != 0) {
+	if (strcmp(deserialized.payload->response.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3") != 0) {
 		fprintf(stderr, "Unexpected ping id: %s != %s\n",
-				deserialized.payload->response.ping.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+				deserialized.payload->response.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
 		goto err_exit;
 	}
 
-	if (strcmp(deserialized.payload->response.ping.name, "test@localhost.localdomain") != 0) {
+	if (strcmp(deserialized.payload->response.name, "test@localhost.localdomain") != 0) {
 	  	fprintf(stderr, "Unexpected ping name: %s != %s\n",
-			  deserialized.payload->response.ping.name, "test@localhost.localdomain");
+			  deserialized.payload->response.name, "test@localhost.localdomain");
 	  	goto err_exit;
 	}
 
-  	if (deserialized.payload->response.ping.elapsed != 30) {
+  	if (deserialized.payload->response.body.ping.elapsed != 30) {
 		fprintf(stderr, "Unexpected ping elapsed time: %"PRId64" != %"PRId32"\n",
-				deserialized.payload->response.ping.elapsed, 30);
+				deserialized.payload->response.body.ping.elapsed, 30);
 		goto err_exit;
 	}
 
 
-  msg_content_data_release(&content);
+  	msg_content_data_release(&content);
 	maestro_note_payload_cleanup(&note);
 	return true;
 
@@ -152,10 +152,17 @@ static bool maestro_serialize_cmd_ok_test() {
 	maestro_note_set_type(&note, MAESTRO_TYPE_RESPONSE);
 	maestro_note_set_cmd(&note, MAESTRO_NOTE_OK);
 
+	if (!maestro_note_payload_prepare(&note, &status)) {
+		return false;
+	}
+	maestro_note_response_set_id(&note, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+	maestro_note_response_set_name(&note, "test@localhost.localdomain");
+
 	msg_content_data_t content = {0};
 	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
 
 	maestro_serialize_note(&note, &content);
+	maestro_note_payload_cleanup(&note);
 
 	maestro_note_t ok = {0};
 	if (!maestro_deserialize_note(&content, &ok, &status)) {
@@ -174,10 +181,12 @@ static bool maestro_serialize_cmd_ok_test() {
 	}
 
 	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&ok);
 	return true;
 
 	err_exit:
 	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&ok);
 	return false;
 }
 
@@ -247,8 +256,8 @@ static bool maestro_serialize_cmd_stats_response_test() {
 	msg_content_data_t content = {0};
 	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
 
-	maestro_note_stats_set_id(&note, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
-	maestro_note_stats_set_name(&note, "test@localhost.localdomain");
+	maestro_note_response_set_id(&note, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+	maestro_note_response_set_name(&note, "test@localhost.localdomain");
 	maestro_note_stats_set_child_count(&note, 6);
 
 	maestro_note_stats_set_role(&note, "receiver");
@@ -285,60 +294,61 @@ static bool maestro_serialize_cmd_stats_response_test() {
 		goto err_exit;
 	}
 
-	if (strcmp(deserialized.payload->response.stats.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3") != 0) {
+	if (strcmp(deserialized.payload->response.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3") != 0) {
 		fprintf(stderr, "Unexpected stat id: %s != %s\n",
-				deserialized.payload->response.stats.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+				deserialized.payload->response.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
 		goto err_exit;
 	}
 
-	if (strcmp(deserialized.payload->response.stats.name, "test@localhost.localdomain") != 0) {
+	if (strcmp(deserialized.payload->response.name, "test@localhost.localdomain") != 0) {
 		fprintf(stderr, "Unexpected stat name: %s != %s\n",
-				deserialized.payload->response.stats.name, "test@localhost.localdomain");
+				deserialized.payload->response.name, "test@localhost.localdomain");
 		goto err_exit;
 	}
 
-	if (deserialized.payload->response.stats.child_count != 6) {
+	if (deserialized.payload->response.body.stats.child_count != 6) {
 		fprintf(stderr, "Unexpected stat child count: %"PRIu32" != %"PRIu32"\n",
-				deserialized.payload->response.stats.child_count, 6);
+				deserialized.payload->response.body.stats.child_count, 6);
 		goto err_exit;
 	}
 
-	if (strcmp(deserialized.payload->response.stats.role, "receiver") != 0) {
+	if (strcmp(deserialized.payload->response.body.stats.role, "receiver") != 0) {
 		fprintf(stderr, "Unexpected stat role: %s != %s\n",
-				deserialized.payload->response.stats.role, "receiver");
+				deserialized.payload->response.body.stats.role, "receiver");
 		goto err_exit;
 	}
 
-	if (strcmp(deserialized.payload->response.stats.roleinfo, "perf") != 0) {
+	if (strcmp(deserialized.payload->response.body.stats.roleinfo, "perf") != 0) {
 		fprintf(stderr, "Unexpected stat role info: %s != %s\n",
-				deserialized.payload->response.stats.roleinfo, "perf");
+				deserialized.payload->response.body.stats.roleinfo, "perf");
 		goto err_exit;
 	}
 
-	if (deserialized.payload->response.stats.stats.perf.count != 10000) {
+	if (deserialized.payload->response.body.stats.stats.perf.count != 10000) {
 		fprintf(stderr, "Unexpected stat message count: %"PRIu64" != %"PRIu32"\n",
-				deserialized.payload->response.stats.stats.perf.count, 10000);
+				deserialized.payload->response.body.stats.stats.perf.count, 10000);
 		goto err_exit;
 	}
 
-
-	if (deserialized.payload->response.stats.stats.perf.rate != (535 / 6)) {
+	if (deserialized.payload->response.body.stats.stats.perf.rate != (535 / 6)) {
 		fprintf(stderr, "Unexpected stat child cound: %f != %f\n",
-				deserialized.payload->response.stats.stats.perf.rate, (double) (535 / 6));
+				deserialized.payload->response.body.stats.stats.perf.rate, (double) (535 / 6));
 		goto err_exit;
 	}
 
-	if (deserialized.payload->response.stats.stats.perf.latency != 45.6) {
+	if (deserialized.payload->response.body.stats.stats.perf.latency != 45.6) {
 		fprintf(stderr, "Unexpected stat child cound: %f != %f\n",
-				deserialized.payload->response.stats.stats.perf.latency, 45.6);
+				deserialized.payload->response.body.stats.stats.perf.latency, 45.6);
 		goto err_exit;
 	}
 
 	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&deserialized);
 	return true;
 
 	err_exit:
 	msg_content_data_release(&content);
+	maestro_note_payload_cleanup(&deserialized);
 	return false;
 }
 

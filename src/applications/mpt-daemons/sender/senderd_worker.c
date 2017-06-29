@@ -24,7 +24,11 @@ static void *senderd_handle_set(const maestro_note_t *request,
 	maestro_note_t *response,
 	const maestro_player_info_t *pinfo)
 {
-	return commond_handle_set(request, response, &worker_options);
+	void *ret = commond_handle_set(request, response, &worker_options);
+	maestro_note_response_set_id(response, pinfo->id);
+	maestro_note_response_set_name(response, pinfo->name);
+
+	return ret;
 }
 
 static void *senderd_handle_start(const maestro_note_t *request,
@@ -39,6 +43,8 @@ static void *senderd_handle_start(const maestro_note_t *request,
 		started = true;
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+		maestro_note_response_set_id(response, pinfo->id);
+		maestro_note_response_set_name(response, pinfo->name);
 	}
 	return NULL;
 }
@@ -54,6 +60,8 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 	if (children) {
 		if (!abstract_worker_stop(children)) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
+			maestro_note_response_set_id(response, pinfo->id);
+			maestro_note_response_set_name(response, pinfo->name);
 
 			gru_list_clean(children, worker_info_destroy_wrapper);
 			gru_list_destroy(&children);
@@ -63,6 +71,8 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 	}
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+	maestro_note_response_set_id(response, pinfo->id);
+	maestro_note_response_set_name(response, pinfo->name);
 	return NULL;
 }
 
@@ -88,6 +98,8 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 
 	if (children == NULL) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
+		maestro_note_response_set_id(response, pinfo->id);
+		maestro_note_response_set_name(response, pinfo->name);
 		return NULL;
 	}
 
@@ -106,8 +118,8 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 	}
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_STATS);
-	maestro_note_stats_set_id(response, pinfo->id);
-	maestro_note_stats_set_name(response, pinfo->name);
+	maestro_note_response_set_id(response, pinfo->id);
+	maestro_note_response_set_name(response, pinfo->name);
 
 	uint32_t childs = gru_list_count(children);
 	maestro_note_stats_set_child_count(response, childs);

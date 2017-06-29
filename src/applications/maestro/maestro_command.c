@@ -109,23 +109,21 @@ int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 }
 
 static void maestro_cmd_print_data(maestro_note_t *note) {
+	printf("Name: %12s\tID: %40s ", note->payload->response.name, note->payload->response.id);
+
 	if (note->command == MAESTRO_NOTE_PING) {
-		printf("Name: %10s ID: %40s Time: %"PRIu64" ms\n",
-			note->payload->response.ping.name,
-			note->payload->response.ping.id,
-			note->payload->response.ping.elapsed);
+		printf("Time: %"PRIu64" ms\n",
+			note->payload->response.body.ping.elapsed);
 	} else if (note->command == MAESTRO_NOTE_PROTOCOL_ERROR) {
-		printf("One of more of the commands did not complete successfully\n");
+		printf("Error: One of more of the commands did not complete successfully\n");
 	} else if (note->command == MAESTRO_NOTE_STATS) {
-		printf("Name: %10s ID: %40s Children: %"PRIu32" Count: %"PRIu64" Rate: %.2f Latency: %.2f\n",
-			note->payload->response.stats.name,
-			note->payload->response.stats.id,
-			note->payload->response.stats.child_count,
-			note->payload->response.stats.stats.perf.count,
-			note->payload->response.stats.stats.perf.rate,
-			note->payload->response.stats.stats.perf.latency);
+		printf("Children: %"PRIu32" Count: %"PRIu64" Rate: %.2f Latency: %.2f\n",
+			note->payload->response.body.stats.child_count,
+			note->payload->response.body.stats.stats.perf.count,
+			note->payload->response.body.stats.stats.perf.rate,
+			note->payload->response.body.stats.stats.perf.latency);
 	} else if (note->command == MAESTRO_NOTE_OK) {
-		printf("Peer reply OK\n");
+		printf("Response: OK\n");
 	}
 }
 

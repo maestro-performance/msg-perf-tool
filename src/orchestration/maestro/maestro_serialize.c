@@ -16,6 +16,19 @@
 #include "maestro_serialize.h"
 #include "maestro_note.h"
 
+static void maestro_serialize_response_header(const maestro_note_t *note, msgpack_packer *pk) {
+	msgpack_pack_char(pk, note->type);
+	msgpack_pack_int64(pk, note->command);
+
+	msgpack_pack_str(pk, strlen(note->payload->response.id));
+	msgpack_pack_str_body(
+		pk, note->payload->response.id, strlen(note->payload->response.id));
+
+	msgpack_pack_str(pk, strlen(note->payload->response.name));
+	msgpack_pack_str_body(
+		pk, note->payload->response.name, strlen(note->payload->response.name));
+}
+
 static bool maestro_serialize_header_only(const maestro_note_t *note,
 	msg_content_data_t *out) {
 
@@ -27,6 +40,11 @@ static bool maestro_serialize_header_only(const maestro_note_t *note,
 
 	msgpack_pack_char(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
+
+
+	if (note->type == MAESTRO_TYPE_RESPONSE) {
+		maestro_serialize_response_header(note, &pk);
+	}
 
 	msg_content_data_copy(out, sbuf.data, sbuf.size);
 
@@ -79,6 +97,8 @@ static bool maestro_serialize_ping_request(const maestro_note_t *note, msg_conte
 	return true;
 }
 
+
+
 static bool maestro_serialize_ping_response(const maestro_note_t *note,
 	msg_content_data_t *out) {
 	msgpack_sbuffer sbuf;
@@ -87,18 +107,9 @@ static bool maestro_serialize_ping_response(const maestro_note_t *note,
 	msgpack_sbuffer_init(&sbuf);
 	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-	msgpack_pack_char(&pk, note->type);
-	msgpack_pack_int64(&pk, note->command);
+	maestro_serialize_response_header(note, &pk);
 
-	msgpack_pack_str(&pk, strlen(note->payload->response.ping.id));
-	msgpack_pack_str_body(
-		&pk, note->payload->response.ping.id, strlen(note->payload->response.ping.id));
-
-  	msgpack_pack_str(&pk, strlen(note->payload->response.ping.name));
-  	msgpack_pack_str_body(
-	  &pk, note->payload->response.ping.name, strlen(note->payload->response.ping.name));
-
-  	msgpack_pack_uint64(&pk, note->payload->response.ping.elapsed);
+  	msgpack_pack_uint64(&pk, note->payload->response.body.ping.elapsed);
 	msg_content_data_copy(out, sbuf.data, sbuf.size);
 
 	msgpack_sbuffer_destroy(&sbuf);
@@ -114,36 +125,28 @@ static bool maestro_serialize_stats_response(const maestro_note_t *note,
 	msgpack_sbuffer_init(&sbuf);
 	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-	msgpack_pack_char(&pk, note->type);
-	msgpack_pack_int64(&pk, note->command);
+	maestro_serialize_response_header(note, &pk);
 
-	msgpack_pack_str(&pk, strlen(note->payload->response.stats.id));
+	msgpack_pack_uint32(&pk, note->payload->response.body.stats.child_count);
+
+	msgpack_pack_str(&pk, strlen(note->payload->response.body.stats.role));
 	msgpack_pack_str_body(
-		&pk, note->payload->response.stats.id, strlen(note->payload->response.stats.id));
+		&pk, note->payload->response.body.stats.role, strlen(note->payload->response.body.stats.role));
 
-	msgpack_pack_str(&pk, strlen(note->payload->response.stats.name));
+	msgpack_pack_str(&pk, strlen(note->payload->response.body.stats.roleinfo));
 	msgpack_pack_str_body(
-		&pk, note->payload->response.stats.name, strlen(note->payload->response.stats.name));
+		&pk, note->payload->response.body.stats.roleinfo, strlen(note->payload->response.body.stats.roleinfo));
 
-	msgpack_pack_uint32(&pk, note->payload->response.stats.child_count);
+	msgpack_pack_uint8(&pk, note->payload->response.body.stats.stat_type);
 
-	msgpack_pack_str(&pk, strlen(note->payload->response.stats.role));
+	msgpack_pack_str(&pk, strlen(note->payload->response.body.stats.stats.perf.timestamp));
 	msgpack_pack_str_body(
-		&pk, note->payload->response.stats.role, strlen(note->payload->response.stats.role));
+		&pk, note->payload->response.body.stats.stats.perf.timestamp,
+		strlen(note->payload->response.body.stats.stats.perf.timestamp));
 
-	msgpack_pack_str(&pk, strlen(note->payload->response.stats.roleinfo));
-	msgpack_pack_str_body(
-		&pk, note->payload->response.stats.roleinfo, strlen(note->payload->response.stats.roleinfo));
-
-	msgpack_pack_uint8(&pk, note->payload->response.stats.stat_type);
-
-	msgpack_pack_str(&pk, strlen(note->payload->response.stats.stats.perf.timestamp));
-	msgpack_pack_str_body(
-		&pk, note->payload->response.stats.stats.perf.timestamp, strlen(note->payload->response.stats.stats.perf.timestamp));
-
-	msgpack_pack_uint64(&pk, note->payload->response.stats.stats.perf.count);
-	msgpack_pack_double(&pk, note->payload->response.stats.stats.perf.rate);
-	msgpack_pack_double(&pk, note->payload->response.stats.stats.perf.latency);
+	msgpack_pack_uint64(&pk, note->payload->response.body.stats.stats.perf.count);
+	msgpack_pack_double(&pk, note->payload->response.body.stats.stats.perf.rate);
+	msgpack_pack_double(&pk, note->payload->response.body.stats.stats.perf.latency);
 
 	msg_content_data_copy(out, sbuf.data, sbuf.size);
 
@@ -194,49 +197,7 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 
 		  	break;
 		}
-
 	}
-
-
-
-	// 	note->type == MAESTRO_TYPE_RESPONSE) {
-	// 	// '10527ef92d6-96ad-4ff6-ab3a-d547395f2c0b3receiverperfR1493977868.543546971993841.20165.00'
-	// 	ret = msg_content_data_serialize(out,
-	// 		"%c%-*s%-*s%-*s%-*s%-*s%-*s%c%-*s%-*s%-*s%-*s",
-	// 		note->type,
-	// 		(int) sizeof(note->command),
-	// 		note->command,
-	// 		(int) sizeof(note->payload->response.stats.id),
-	// 		note->payload->response.stats.id,
-	// 		(int) sizeof(note->payload->response.stats.name),
-	// 		note->payload->response.stats.name,
-	// 		(int) sizeof(note->payload->response.stats.child_count),
-	// 		note->payload->response.stats.child_count,
-	// 		(int) sizeof(note->payload->response.stats.role),
-	// 		note->payload->response.stats.role,
-	// 		(int) sizeof(note->payload->response.stats.roleinfo),
-	// 		note->payload->response.stats.roleinfo,
-	// 		note->payload->response.stats.stat_type,
-	// 		(int) sizeof(note->payload->response.stats.stats.perf.timestamp),
-	// 		note->payload->response.stats.stats.perf.timestamp,
-	// 		(int) sizeof(note->payload->response.stats.stats.perf.count),
-	// 		note->payload->response.stats.stats.perf.count,
-	// 		(int) sizeof(note->payload->response.stats.stats.perf.rate),
-	// 		note->payload->response.stats.stats.perf.rate,
-	// 		(int) sizeof(note->payload->response.stats.stats.perf.latency),
-	// 		note->payload->response.stats.stats.perf.latency);
-	// 	// I am doing something wrong, because vasprintf keeps writing more data than
-	// 	// requeste in the format string. Therefore, force the out content to only have
-	// 	// the adequate size
-	// 	out->size =
-	// 		1 + (int) sizeof(note->command) + sizeof(maestro_payload_stats_reply_t);
-	// } else {
-	// 	ret = msg_content_data_serialize(out,
-	// 		"%c%.*s",
-	// 		note->type,
-	// 		sizeof(note->command),
-	// 		MAESTRO_NOTE_PROTOCOL_ERROR);
-	// }
 
 	return ret;
 }

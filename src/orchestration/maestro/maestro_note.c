@@ -27,32 +27,30 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 		return;
 	}
 
+	if (note->type == MAESTRO_TYPE_RESPONSE) {
+		gru_dealloc_string(&note->payload->response.id);
+		gru_dealloc_string(&note->payload->response.name);
+	}
+
 	if (note->type == MAESTRO_TYPE_REQUEST && note->command == MAESTRO_NOTE_SET) {
 		gru_dealloc_string(&note->payload->request.set.value);
 	}
 
-	if (note->type == MAESTRO_TYPE_RESPONSE && note->command == MAESTRO_NOTE_PING) {
-		gru_dealloc_string(&note->payload->response.ping.id);
-		gru_dealloc_string(&note->payload->response.ping.name);
-	}
-
 	if (note->type == MAESTRO_TYPE_RESPONSE && note->command == MAESTRO_NOTE_STATS) {
-		gru_dealloc_string(&note->payload->response.stats.name);
-		gru_dealloc_string(&note->payload->response.stats.id);
-		gru_dealloc_string(&note->payload->response.stats.role);
-		gru_dealloc_string(&note->payload->response.stats.roleinfo);
-		gru_dealloc_string(&note->payload->response.stats.stats.perf.timestamp);
+		gru_dealloc_string(&note->payload->response.body.stats.role);
+		gru_dealloc_string(&note->payload->response.body.stats.roleinfo);
+		gru_dealloc_string(&note->payload->response.body.stats.stats.perf.timestamp);
 	}
 
 	gru_dealloc((void **) &note->payload);
 }
 
-void maestro_note_ping_set_id(maestro_note_t *note, const char *id) {
-	note->payload->response.ping.id = strdup(id);
+void maestro_note_response_set_id(maestro_note_t *note, const char *id) {
+	note->payload->response.id = strdup(id);
 }
 
-void maestro_note_ping_set_name(maestro_note_t *note, const char *name) {
-	note->payload->response.ping.name = strdup(name);
+void maestro_note_response_set_name(maestro_note_t *note, const char *name) {
+	note->payload->response.name = strdup(name);
 }
 
 void maestro_note_ping_set_ts(maestro_note_t *note, gru_timestamp_t ts) {
@@ -61,7 +59,7 @@ void maestro_note_ping_set_ts(maestro_note_t *note, gru_timestamp_t ts) {
 }
 
 void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t elapsed) {
-	note->payload->response.ping.elapsed = elapsed;
+	note->payload->response.body.ping.elapsed = elapsed;
 }
 
 void maestro_note_set_type(maestro_note_t *note, const char type) {
@@ -79,42 +77,34 @@ void maestro_note_set_opt(maestro_note_t *note, int64_t opt, const char *value) 
 	note->payload->request.set.value = strdup(value);
 }
 
-void maestro_note_stats_set_id(maestro_note_t *note, const char *id) {
-	note->payload->response.stats.id = strdup(id);
-}
-
-void maestro_note_stats_set_name(maestro_note_t *note, const char *name) {
-	note->payload->response.stats.name = strdup(name);
-}
-
 void maestro_note_stats_set_child_count(maestro_note_t *note, uint32_t count) {
-	note->payload->response.stats.child_count = count;
+	note->payload->response.body.stats.child_count = count;
 }
 
 void maestro_note_stats_set_role(maestro_note_t *note, const char *role) {
-	note->payload->response.stats.role = strdup(role);
+	note->payload->response.body.stats.role = strdup(role);
 }
 
 void maestro_note_stats_set_roleinfo(maestro_note_t *note, const char *roleinfo) {
-	note->payload->response.stats.roleinfo = strdup(roleinfo);
+	note->payload->response.body.stats.roleinfo = strdup(roleinfo);
 }
 
 void maestro_note_stats_set_stat_type(maestro_note_t *note, maestro_payload_stat_type_t stat_type) {
-	note->payload->response.stats.stat_type = stat_type;
+	note->payload->response.body.stats.stat_type = stat_type;
 }
 
 void maestro_note_stats_set_perf_ts(maestro_note_t *note, const char *ts) {
-	note->payload->response.stats.stats.perf.timestamp = strdup(ts);
+	note->payload->response.body.stats.stats.perf.timestamp = strdup(ts);
 }
 
 void maestro_note_stats_set_perf_count(maestro_note_t *note, uint64_t count) {
-	note->payload->response.stats.stats.perf.count = count;
+	note->payload->response.body.stats.stats.perf.count = count;
 }
 
 void maestro_note_stats_set_perf_rate(maestro_note_t *note, double rate) {
-	note->payload->response.stats.stats.perf.rate = rate;
+	note->payload->response.body.stats.stats.perf.rate = rate;
 }
 
 void maestro_note_stats_set_perf_latency(maestro_note_t *note, double latency) {
-	note->payload->response.stats.stats.perf.latency = latency;
+	note->payload->response.body.stats.stats.perf.latency = latency;
 }

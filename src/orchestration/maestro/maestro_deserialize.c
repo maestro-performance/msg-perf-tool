@@ -141,67 +141,73 @@ static bool maestro_deserialize_note_ping_request(const msg_content_data_t *in,
 	return true;
 }
 
+static bool maestro_deserialize_response_header(const msg_content_data_t *in,
+												maestro_note_t *note,
+												msgpack_unpacked *msg,
+												size_t *offset,
+												gru_status_t *status) {
+	// Client ID
+	msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack ping response: invalid and/or missing ID");
+
+		return false;
+	}
+
+	note->payload->response.id = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.id, false);
+
+	if (!maestro_deserialize_note_assign(
+		msg->data, note->payload->response.id, status)) {
+		return false;
+	}
+
+	// Ping - client name
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack ping response: invalid and/or missing name");
+
+		return false;
+	}
+
+	note->payload->response.name = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.name, false);
+
+	if (!maestro_deserialize_note_assign(
+		msg->data, note->payload->response.name, status)) {
+		return false;
+	}
+
+	return true;
+
+}
+
 static bool maestro_deserialize_note_ping_response(const msg_content_data_t *in,
 												  maestro_note_t *note,
 												  msgpack_unpacked *msg,
 												  size_t *offset,
 												  gru_status_t *status) {
-  if (!maestro_note_payload_prepare(note, status)) {
-	return false;
-  }
-
-  // Ping - client ID
-  msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
-  if (ret != MSGPACK_UNPACK_SUCCESS) {
-	gru_status_set(status,
-				   GRU_FAILURE,
-				   "Unable to unpack ping response: invalid and/or missing ID");
-
-	return false;
-  }
-
-  note->payload->response.ping.id = gru_alloc(msg->data.via.str.size + 1, status);
-  gru_alloc_check(note->payload->response.ping.id, false);
-
-  if (!maestro_deserialize_note_assign(
-	  msg->data, note->payload->response.ping.id, status)) {
-	return false;
-  }
-
-  // Ping - client name
-  ret = msgpack_unpack_next(msg, in->data, in->size, offset);
-  if (ret != MSGPACK_UNPACK_SUCCESS) {
-	gru_status_set(status,
-				   GRU_FAILURE,
-				   "Unable to unpack ping response: invalid and/or missing name");
-
-	return false;
-  }
-
-  note->payload->response.ping.name = gru_alloc(msg->data.via.str.size + 1, status);
-  gru_alloc_check(note->payload->response.ping.name, false);
-
-  if (!maestro_deserialize_note_assign(
-	  msg->data, note->payload->response.ping.name, status)) {
-	return false;
-  }
-
-  // Ping - elapsed
-  ret = msgpack_unpack_next(msg, in->data, in->size, offset);
-  if (ret != MSGPACK_UNPACK_SUCCESS) {
-	gru_status_set(status,
+	// Ping - elapsed
+	msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+  	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
 				   GRU_FAILURE,
 				   "Unable to unpack ping response: invalid and/or missing elapsed time");
 
-	return false;
-  }
+		return false;
+  	}
 
-  if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.ping.elapsed, status)) {
-	return false;
-  }
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.body.ping.elapsed, status)) {
+		return false;
+	}
 
-  return true;
+	return true;
 }
+
 
 
 static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in,
@@ -209,48 +215,8 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 												   msgpack_unpacked *msg,
 												   size_t *offset,
 												   gru_status_t *status) {
-	if (!maestro_note_payload_prepare(note, status)) {
-		return false;
-	}
-
-	// Stats - client ID
-	msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
-	if (ret != MSGPACK_UNPACK_SUCCESS) {
-		gru_status_set(status,
-					   GRU_FAILURE,
-					   "Unable to unpack stats response: invalid and/or missing ID");
-
-		return false;
-	}
-
-	note->payload->response.stats.id = gru_alloc(msg->data.via.str.size + 1, status);
-	gru_alloc_check(note->payload->response.stats.id, false);
-
-	if (!maestro_deserialize_note_assign(
-		msg->data, note->payload->response.stats.id, status)) {
-		return false;
-	}
-
-	// Stats - client name
-	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
-	if (ret != MSGPACK_UNPACK_SUCCESS) {
-		gru_status_set(status,
-					   GRU_FAILURE,
-					   "Unable to unpack stats response: invalid and/or missing name");
-
-		return false;
-	}
-
-	note->payload->response.stats.name = gru_alloc(msg->data.via.str.size + 1, status);
-	gru_alloc_check(note->payload->response.stats.name, false);
-
-	if (!maestro_deserialize_note_assign(
-		msg->data, note->payload->response.stats.name, status)) {
-		return false;
-	}
-
 	// Stats - child count
-	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
 	if (ret != MSGPACK_UNPACK_SUCCESS) {
 		gru_status_set(status,
 					   GRU_FAILURE,
@@ -260,7 +226,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 	}
 
 
-	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.child_count, status)) {
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.body.stats.child_count, status)) {
 		return false;
 	}
 
@@ -274,10 +240,10 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	note->payload->response.stats.role = gru_alloc(msg->data.via.str.size + 1, status);
-	gru_alloc_check(note->payload->response.stats.role, false);
+	note->payload->response.body.stats.role = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.body.stats.role, false);
 
-	if (!maestro_deserialize_note_assign(msg->data, note->payload->response.stats.role, status)) {
+	if (!maestro_deserialize_note_assign(msg->data, note->payload->response.body.stats.role, status)) {
 		return false;
 	}
 
@@ -291,11 +257,11 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	note->payload->response.stats.roleinfo = gru_alloc(msg->data.via.str.size + 1, status);
-	gru_alloc_check(note->payload->response.stats.roleinfo, false);
+	note->payload->response.body.stats.roleinfo = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.body.stats.roleinfo, false);
 
 	if (!maestro_deserialize_note_assign(
-		msg->data, note->payload->response.stats.roleinfo, status)) {
+		msg->data, note->payload->response.body.stats.roleinfo, status)) {
 		return false;
 	}
 
@@ -310,7 +276,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.stat_type, status)) {
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.body.stats.stat_type, status)) {
 		return false;
 	}
 
@@ -325,11 +291,11 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 	}
 
 
-	note->payload->response.stats.stats.perf.timestamp = gru_alloc(msg->data.via.str.size + 1, status);
-	gru_alloc_check(note->payload->response.stats.stats.perf.timestamp, false);
+	note->payload->response.body.stats.stats.perf.timestamp = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->response.body.stats.stats.perf.timestamp, false);
 
 	if (!maestro_deserialize_note_assign(
-		msg->data, note->payload->response.stats.stats.perf.timestamp, status)) {
+		msg->data, note->payload->response.body.stats.stats.perf.timestamp, status)) {
 		return false;
 	}
 
@@ -343,7 +309,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.stats.perf.count, status)) {
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.body.stats.stats.perf.count, status)) {
 		return false;
 	}
 
@@ -357,7 +323,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.stats.perf.rate, status)) {
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.body.stats.stats.perf.rate, status)) {
 		return false;
 	}
 
@@ -371,7 +337,7 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 		return false;
 	}
 
-	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.stats.stats.perf.latency, status)) {
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->response.body.stats.stats.perf.latency, status)) {
 		return false;
 	}
 
@@ -422,6 +388,14 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 	}
 
 	bool pl_ret = true;
+
+	if (note->type == MAESTRO_TYPE_RESPONSE) {
+		if (!maestro_note_payload_prepare(note, status)) {
+			goto err_exit;
+		}
+
+		pl_ret = maestro_deserialize_response_header(in, note, &msg, &offset, status);
+	}
 
 	switch (note->command) {
 		case MAESTRO_NOTE_SET: {

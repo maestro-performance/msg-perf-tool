@@ -56,7 +56,8 @@ typedef enum maestro_command_t_ {
 	MAESTRO_NOTE_PING,
 	MAESTRO_NOTE_OK,
 	MAESTRO_NOTE_PROTOCOL_ERROR,
-	MAESTRO_NOTE_INTERNAL_ERROR
+	MAESTRO_NOTE_INTERNAL_ERROR,
+  	MAESTRO_NOTE_ABNORMAL_DISCONNECT,
 } maestro_command_t;
 
 
@@ -77,15 +78,14 @@ typedef enum set_opts_t_ {
 	MAESTRO_NOTE_OPT_SET_THROTTLE
 } set_opts_t;
 
+
 typedef struct maestro_payload_ping_request_t_ {
 	uint64_t sec;
   	uint64_t usec;
 } maestro_payload_ping_request_t;
 
 typedef struct maestro_payload_ping_reply_t_ {
-	char *id;
-	char *name;
-  	uint64_t elapsed;
+	uint64_t elapsed;
 } maestro_payload_ping_reply_t;
 
 typedef struct maestro_payload_stats_perf_t_ {
@@ -100,9 +100,7 @@ typedef enum maestro_payload_stat_type_t_ {
 } maestro_payload_stat_type_t;
 
 typedef struct maestro_payload_stats_reply_t_ {
-  	char *id;
-  	char *name;
-	uint32_t child_count;
+  	uint32_t child_count;
 	char *role; // sender / receiver / jmonitor / nmonitor /
 	char *roleinfo; // ie: node number on the cluster, etc
   	maestro_payload_stat_type_t stat_type;
@@ -117,11 +115,16 @@ typedef struct maestro_payload_set_t_ {
 } maestro_payload_set_t;
 
 typedef union maestro_payload_t_ {
-	union {
+	struct response_t {
+	  char *id;
+	  char *name;
+	  union {
 		maestro_payload_ping_reply_t ping;
 		maestro_payload_stats_reply_t stats;
+	  } body;
 	} response;
-	union {
+
+  	union {
 		maestro_payload_set_t set;
 		maestro_payload_ping_request_t ping;
 	} request;
@@ -147,12 +150,12 @@ void maestro_note_payload_cleanup(maestro_note_t *note);
 /**
  * Sets the client ID in the ping response
  */
-void maestro_note_ping_set_id(maestro_note_t *note, const char *id);
+void maestro_note_response_set_id(maestro_note_t *note, const char *id);
 
 /**
  * Sets the client name in the ping response
  */
-void maestro_note_ping_set_name(maestro_note_t *note, const char *name);
+void maestro_note_response_set_name(maestro_note_t *note, const char *name);
 
 /**
  * Sets the timestamp in the ping request
@@ -169,15 +172,6 @@ void maestro_note_set_cmd(maestro_note_t *note, maestro_command_t cmd);
 
 void maestro_note_set_opt(maestro_note_t *note, int64_t opt, const char *value);
 
-/**
- * Sets the ID in the stats response
- */
-void maestro_note_stats_set_id(maestro_note_t *note, const char *id);
-
-/**
- * Sets the name in the stats response
- */
-void maestro_note_stats_set_name(maestro_note_t *note, const char *name);
 
 /**
  * Sets the child count in the stats response
