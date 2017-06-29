@@ -43,7 +43,7 @@ void maestro_cmd_ctxt_destroy(maestro_cmd_ctxt_t **ptr) {
 	maestro_cmd_ctxt_t *ctxt = *ptr;
 
 
-	logger(INFO, "Destroying context");
+	logger(DEBUG, "Destroying context");
 	if (!ctxt) {
 		return;
 	}
@@ -82,7 +82,7 @@ bool maestro_cmd_ctxt_start(maestro_cmd_ctxt_t *cmd_ctxt, msg_opt_t opt, gru_sta
 void maestro_cmd_ctxt_stop(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	logger_t  logger = gru_logger_get();
 
-	logger(INFO, "Stopping context");
+	logger(DEBUG, "Stopping context");
 	cmd_ctxt->vmsl.stop(cmd_ctxt->msg_ctxt, status);
 
 	gru_uri_cleanup(&cmd_ctxt->msg_ctxt->msg_opts.uri);

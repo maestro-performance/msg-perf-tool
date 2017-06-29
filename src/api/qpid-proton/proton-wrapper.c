@@ -372,7 +372,7 @@ err_exit:
 bool proton_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Initializing AMQP protocol");
+	logger(DEBUG, "Initializing AMQP protocol");
 
 	vmsl->init = proton_init;
 	vmsl->start = proton_start;

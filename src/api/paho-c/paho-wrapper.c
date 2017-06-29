@@ -332,7 +332,7 @@ vmsl_stat_t
 bool paho_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Initializing MQTT protocol");
+	logger(DEBUG, "Initializing MQTT protocol");
 
 	vmsl->init = paho_init;
 	vmsl->start = paho_start;

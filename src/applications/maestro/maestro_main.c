@@ -97,7 +97,8 @@ int main(int argc, char **argv) {
 		maestro_forward_daemon_run(options);
 	} else {
 		if (child > 0) {
-			fprintf(stdout, "Forward daemon started\n");
+			logger_t logger = gru_logger_get();
+			logger(DEBUG, "Forward daemon started");
 			if (maestro_loop(&status) != 0) {
 				fprintf(stderr, "%s\n", status.message);
 				goto err_exit;
@@ -107,7 +108,7 @@ int main(int argc, char **argv) {
 			int rc = 0;
 			waitpid(child, &rc, 0);
 		} else {
-			fprintf(stderr, "Unable to launch child process");
+			fprintf(stderr, "Unable to launch child process\n");
 			goto err_exit;
 		}
 	}

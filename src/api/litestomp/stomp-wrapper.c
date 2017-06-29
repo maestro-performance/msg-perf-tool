@@ -259,7 +259,7 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 bool litestomp_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Initializing STOMP protocol");
+	logger(DEBUG, "Initializing STOMP protocol");
 
 	vmsl->init = litestomp_init;
 	vmsl->start = litestomp_start;
