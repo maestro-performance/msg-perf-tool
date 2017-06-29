@@ -16,10 +16,6 @@
 #ifndef RECEIVER_WORKER_H
 #define RECEIVER_WORKER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
 #include <signal.h>
 #include <stdio.h>
@@ -50,6 +46,10 @@ extern "C" {
 #include "worker_utils.h"
 #include "worker_wait.h"
 #include "worker_info.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int receiver_start(const vmsl_t *vmsl, const options_t *options);
 

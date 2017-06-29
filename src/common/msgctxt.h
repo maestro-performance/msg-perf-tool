@@ -16,10 +16,6 @@
 #ifndef MSGCTX_H
 #define MSGCTX_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -30,6 +26,10 @@ extern "C" {
 #include "msg_conn_info.h"
 #include "msg_content_data.h"
 #include "msg_direction.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef void (*msg_content_loader)(msg_content_data_t *content_data);
 

@@ -16,15 +16,15 @@
 #ifndef STOMP_CONTEXT_H
 #define STOMP_CONTEXT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <litestomp-0/stomp_messenger.h>
 
 #include <log/gru_logger.h>
 
 #include "vmslh.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct stomp_ctxt_t_ {
   	stomp_messenger_t *messenger;

@@ -26,6 +26,10 @@
 
 #include "maestro_forward_queue.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct maestro_cmd_ctxt_t_ {
 	vmsl_t vmsl;
 	msg_ctxt_t *msg_ctxt;
@@ -83,5 +87,9 @@ bool maestro_cmd_ctxt_forwarder(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *stat
  * @return
  */
 bool maestro_cmd_ctxt_send(maestro_cmd_ctxt_t *cmd_ctxt, msg_content_data_t *cmd, gru_status_t *status);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_CMD_CTXT_H */

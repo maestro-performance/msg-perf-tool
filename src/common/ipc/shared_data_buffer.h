@@ -16,10 +16,6 @@
 #ifndef SHARED_DATA_BUFFER_H
 #define SHARED_DATA_BUFFER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <errno.h>
 #include <fcntl.h>
 #include <semaphore.h>
@@ -35,6 +31,10 @@ extern "C" {
 #include <common/gru_alloc.h>
 #include <common/gru_status.h>
 #include <log/gru_logger.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum shr_buff_perm_t_ {
 	BUFF_READ,

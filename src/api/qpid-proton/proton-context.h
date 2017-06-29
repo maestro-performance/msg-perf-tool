@@ -16,15 +16,15 @@
 #ifndef PROTON_CONTEXT_H
 #define PROTON_CONTEXT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <log/gru_logger.h>
 
 #include <proton/messenger.h>
 #include <collection/gru_list.h>
 #include <vmslh.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct proton_ctxt_t_ {
 	pn_messenger_t *messenger;

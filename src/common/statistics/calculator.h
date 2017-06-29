@@ -20,6 +20,10 @@
 
 #include <time/gru_time_utils.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * A basic latency calculator
  * @param out output latency data
@@ -40,5 +44,9 @@ void calc_throughput(stat_throughput_t *out,
 	gru_timestamp_t start,
 	gru_timestamp_t end,
 	uint64_t count);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CALCULATOR_H_ */

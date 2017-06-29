@@ -16,10 +16,6 @@
 #ifndef SENDERD_MAIN_H
 #define SENDERD_MAIN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <getopt.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -36,9 +32,5 @@ extern "C" {
 #include "senderd_worker.h"
 
 #include "process_utils.h"
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* SENDERD_MAIN_H */

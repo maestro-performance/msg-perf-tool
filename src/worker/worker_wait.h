@@ -16,10 +16,6 @@
 #ifndef WORKER_WAIT_H
 #define WORKER_WAIT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <signal.h>
 #include <sys/wait.h>
 
@@ -27,6 +23,10 @@ extern "C" {
 
 #include "worker_options.h"
 #include "worker_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Setups the worker wait

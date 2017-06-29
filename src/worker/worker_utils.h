@@ -16,10 +16,6 @@
 #ifndef WORKER_UTILS_H
 #define WORKER_UTILS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <common/gru_status.h>
 #include <common/gru_alloc.h>
 
@@ -28,6 +24,10 @@ extern "C" {
 
 #include "worker_options.h"
 #include "worker_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Checks whether to continue processing or not

@@ -29,6 +29,10 @@
 #include "maestro_serialize.h"
 #include "maestro_deserialize.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct maestro_sheet_t_ {
 	char *location; /** Sheet location (ie.: /mpt/sender/<ppid>) **/
 	gru_list_t *instruments; /** A list of instruments */
@@ -45,5 +49,9 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 	const msg_content_data_t *cont,
 	msg_content_data_t *resp,
 	gru_status_t *status);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_SHEET_H */

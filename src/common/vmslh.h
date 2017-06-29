@@ -21,6 +21,10 @@
 #include <common/gru_alloc.h>
 #include <collection/gru_list.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void (*vmslh_callback_fn)(void *ctxt, void *msg, void *payload);
 
 typedef struct vmslh_callback_t_ {
@@ -45,5 +49,8 @@ void vmslh_run(gru_list_t *list, void *ctxt, void *msg);
 vmslh_handlers_t vmslh_new(gru_status_t *status);
 void vmslh_cleanup(vmslh_handlers_t *handlers);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //MPT_VMSLH_H

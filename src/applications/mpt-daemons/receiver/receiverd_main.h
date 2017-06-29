@@ -16,10 +16,6 @@
 #ifndef RECEIVERD_MAIN_H
 #define RECEIVERD_MAIN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <getopt.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -37,8 +33,5 @@ extern "C" {
 
 #include "process_utils.h"
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* RECEIVERD_MAIN_H */

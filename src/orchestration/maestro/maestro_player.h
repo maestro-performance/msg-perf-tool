@@ -31,6 +31,10 @@
 #include "msg_conn_info.h"
 #include "vmsl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl);
 
 typedef struct maestro_player_t_ {
@@ -48,5 +52,9 @@ bool maestro_player_start(const options_t *options,
 	maestro_sheet_t *sheet,
 	gru_status_t *status);
 bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_PLAYER_H */

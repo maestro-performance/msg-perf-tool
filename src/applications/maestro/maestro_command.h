@@ -33,6 +33,10 @@
 #include "maestro/maestro_serialize.h"
 #include "maestro/maestro_deserialize.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int maestro_cmd_start_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 int maestro_cmd_stop_receiver(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 int maestro_cmd_start_sender(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
@@ -54,5 +58,9 @@ int maestro_cmd_stats(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
 	gru_status_t *status);
 int maestro_cmd_halt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
 	gru_status_t *status);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_COMMAND_H */

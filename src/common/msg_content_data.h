@@ -24,6 +24,10 @@
 #include <log/gru_logger.h>
 #include <time/gru_time_utils.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef struct msg_content_data_t_ {
 	void *data;
@@ -45,5 +49,9 @@ bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_l
 bool msg_content_data_copy(msg_content_data_t *cont, const void *data, size_t size);
 
 bool msg_content_data_serialize(msg_content_data_t *cont, const char *fmt, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MSG_CONTENT_DATA_H */

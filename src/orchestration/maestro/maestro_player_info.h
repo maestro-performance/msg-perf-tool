@@ -16,9 +16,17 @@
 #ifndef MAESTRO_PLAYER_INFO_H
 #define MAESTRO_PLAYER_INFO_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct maestro_player_info_t_ {
 	char *id;
 	char *name;
 } maestro_player_info_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_PLAYER_INFO_H */

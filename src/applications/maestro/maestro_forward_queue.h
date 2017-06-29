@@ -23,6 +23,15 @@
 
 #include "process_utils.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int create_forward_queue(gru_status_t *status);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* MAESTRO_FORWARD_QUEUE_H */

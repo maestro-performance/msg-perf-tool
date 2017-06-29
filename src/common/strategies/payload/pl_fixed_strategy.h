@@ -16,14 +16,14 @@
 #ifndef PL_FIXED_STRATEGY_H
 #define PL_FIXED_STRATEGY_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <common/gru_status.h>
 
 #include "msg_content_data.h"
 #include "strategies/payload/pl_strategy.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * This "strategy" is used for fixed-size payloads

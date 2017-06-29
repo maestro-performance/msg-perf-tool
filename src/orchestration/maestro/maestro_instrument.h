@@ -23,6 +23,11 @@
 #include "maestro_note.h"
 #include "maestro_player_info.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 typedef void *(*maestro_play_t)(const maestro_note_t *request,
 	maestro_note_t *response,
 	const maestro_player_info_t *pinfo);
@@ -41,5 +46,9 @@ bool maestro_instrument_can_play(const maestro_instrument_t *instrument,
 static inline void maestro_instrument_destroy_wrapper(void **ptr) {
 	maestro_instrument_destroy((maestro_instrument_t **) ptr);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_INSTRUMENT_H */

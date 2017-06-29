@@ -34,6 +34,10 @@
 
 #include "proton-context.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void proton_param_cleanup();
 
 void proton_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status);
@@ -50,5 +54,9 @@ void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload);
 
 void proton_accept(void *ctxt, void *msg, void *payload);
 void proton_commit(void *ctxt, void *msg, void *payload);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //MPT_PROTON_HANDLERS_H

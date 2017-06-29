@@ -16,16 +16,16 @@
 #ifndef PAHO_CONTEXT_H
 #define PAHO_CONTEXT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <log/gru_logger.h>
 #include <network/gru_uri.h>
 
 #include <MQTTClient.h>
 
 #include "vmslh.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct paho_ctxt_t_ {
 	MQTTClient client;

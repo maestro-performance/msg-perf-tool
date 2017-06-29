@@ -17,10 +17,18 @@
 #ifndef MSG_DIRECTION_H
 #define MSG_DIRECTION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum msg_direction_t_ {
 	MSG_DIRECTION_SENDER,
 	MSG_DIRECTION_RECEIVER,
 	MSG_DIRECTION_BOTH,
 } msg_direction_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MSG_DIRECTION_H */

@@ -16,10 +16,6 @@
 #ifndef WORKER_INFO_H
 #define WORKER_INFO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <signal.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -32,6 +28,10 @@ extern "C" {
 #include "worker_utils.h"
 #include "worker_options.h"
 #include "worker_wait.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Creates a new worker information structure

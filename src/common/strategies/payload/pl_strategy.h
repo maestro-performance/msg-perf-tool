@@ -16,13 +16,13 @@
 #ifndef PL_STRATEGY_H
 #define PL_STRATEGY_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <common/gru_status.h>
 
 #include "msg_content_data.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Payload initialization

@@ -16,10 +16,6 @@
 #ifndef MAESTRO_MAIN_H
 #define MAESTRO_MAIN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <getopt.h>
 #include <signal.h>
 #include <stdint.h>
@@ -35,9 +31,5 @@ extern "C" {
 
 #include "maestro_forward_daemon.h"
 #include "maestro_loop.h"
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MAESTRO_MAIN_H */

@@ -17,10 +17,6 @@
 #ifndef WORKER_TYPES_H
 #define WORKER_TYPES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <time/gru_duration.h>
 
@@ -33,6 +29,10 @@ extern "C" {
 #include "ipc/shared_data_buffer.h"
 
 #include "worker_options.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Common return type for the worker

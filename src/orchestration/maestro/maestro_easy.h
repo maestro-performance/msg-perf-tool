@@ -20,7 +20,15 @@
 #include "maestro_serialize.h"
 #include "msg_content_data.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void maestro_easy_request(msg_content_data_t *out, maestro_command_t cmd);
 void maestro_easy_response(msg_content_data_t *out,maestro_command_t cmd);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_EASY_H */

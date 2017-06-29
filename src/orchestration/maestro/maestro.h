@@ -24,6 +24,14 @@
 #include <common/gru_status.h>
 #include <log/gru_logger.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void maestro_init();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_H */

@@ -35,6 +35,10 @@
 #define MAESTRO_TYPE_REQUEST '0'
 #define MAESTRO_TYPE_RESPONSE '1'
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum maestro_command_t_ {
 	/** Receiver execution **/
 	MAESTRO_NOTE_START_RECEIVER,
@@ -222,5 +226,9 @@ void maestro_note_stats_set_perf_rate(maestro_note_t *note, double rate);
  * Sets the average latency for the performance statistics
  */
 void maestro_note_stats_set_perf_latency(maestro_note_t *note, double latency);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_NOTE_H */

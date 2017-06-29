@@ -27,7 +27,16 @@
 #include "maestro_cmd_ctxt.h"
 #include "maestro_command.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int maestro_loop(gru_status_t *status);
 void maestro_loop_reply(const options_t *options, gru_status_t *status);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* MAESTRO_LOOP_H */

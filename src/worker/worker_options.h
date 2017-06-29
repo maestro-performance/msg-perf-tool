@@ -17,16 +17,16 @@
 #ifndef WORKER_OPTIONS_H
 #define WORKER_OPTIONS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 
 #include <log/gru_logger.h>
 #include <network/gru_uri.h>
 #include <time/gru_duration.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum test_duration_type_t_ {
 	MESSAGE_COUNT,

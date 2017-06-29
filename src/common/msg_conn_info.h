@@ -26,6 +26,10 @@
 
 #include "msg_direction.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Default, non-unique sender id
  */
@@ -41,5 +45,9 @@ typedef struct msg_conn_info_t_ { char *id; } msg_conn_info_t;
 void msg_conn_info_gen_id(msg_conn_info_t *conn_info);
 void msg_conn_info_gen_id_char(char **out);
 void msg_conn_info_cleanup(msg_conn_info_t *conn_info);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MSG_CONN_INFO_H */

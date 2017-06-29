@@ -25,6 +25,10 @@
 #include "stats_types.h"
 #include "stats_writer.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Initialize the latency writer
  * @param io_info optional input/output information
@@ -94,5 +98,9 @@ void out_writer_latency_assign(latency_writer_t *writer);
  * Throghput writer I/O assignment
  */
 void out_writer_throughput_assign(throughput_writer_t *writer);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OUT_WRITER_H */

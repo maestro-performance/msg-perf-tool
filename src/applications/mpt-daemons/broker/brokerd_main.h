@@ -16,10 +16,6 @@
 #ifndef BROKERD_MAIN_H
 #define BROKERD_MAIN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <getopt.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -36,6 +32,10 @@ extern "C" {
 #include "brokerd_worker.h"
 
 #include "process_utils.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef __cplusplus
 }

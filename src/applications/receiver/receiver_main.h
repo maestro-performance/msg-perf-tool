@@ -16,10 +16,6 @@
 #ifndef RECEIVER_MAIN_H
 #define RECEIVER_MAIN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <getopt.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -38,9 +34,5 @@ extern "C" {
 #include "receiver_worker.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* RECEIVER_MAIN_H */

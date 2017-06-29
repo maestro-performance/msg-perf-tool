@@ -32,6 +32,14 @@
 #include "maestro_forward_queue.h"
 #include "mpt-debug.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int maestro_forward_daemon_run(const options_t *options);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_FORWARDD_H_DAEMON*/

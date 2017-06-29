@@ -24,12 +24,4 @@
 #include "perf/perf_main.h"
 #include "tune/tune_main.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif /* SENDER_MAIN_H */

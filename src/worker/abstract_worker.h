@@ -16,10 +16,6 @@
 #ifndef ABSTRACT_WORKER_H
 #define ABSTRACT_WORKER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
 #include <signal.h>
 #include <stdio.h>
@@ -47,6 +43,10 @@ extern "C" {
 #include "worker_types.h"
 #include "worker_utils.h"
 #include "worker_info.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef worker_ret_t (*abstract_worker_start)(const worker_t *worker,
 	worker_snapshot_t *snapshot,

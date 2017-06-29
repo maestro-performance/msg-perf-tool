@@ -18,6 +18,10 @@
 
 #include "stats_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Stats source information
  */
@@ -124,5 +128,9 @@ typedef struct stats_writer_t_ {
 	latency_writer_t latency;
 	throughput_writer_t throughput;
 } stats_writer_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* STATS_WRITER_H */

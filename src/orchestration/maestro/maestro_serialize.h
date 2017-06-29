@@ -22,13 +22,18 @@
 #include "msg_content_data.h"
 #include "maestro_msgpack_util.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out);
 
 bool maestro_note_serialize(msg_content_data_t *cont, const char *cmd);
 
-
-
-
 bool maestro_note_ok_response(msg_content_data_t *cont);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAESTRO_SERIALIZER_H*/
