@@ -25,7 +25,7 @@ maestro_cmd_ctxt_t *maestro_cmd_ctxt_new(const gru_uri_t *uri, gru_status_t *sta
 		return NULL;
 	}
 
-	ret->queue = create_foward_queue(status);
+	ret->queue = create_forward_queue(status);
 	if (ret->queue < 0) {
 		gru_status_set(status, GRU_FAILURE, "Unable to initialize forward queue: %s\n",
 			status->message);

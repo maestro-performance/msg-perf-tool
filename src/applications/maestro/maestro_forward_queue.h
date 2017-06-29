@@ -23,6 +23,6 @@
 
 #include "process_utils.h"
 
-int create_foward_queue(gru_status_t *status);
+int create_forward_queue(gru_status_t *status);
 
 #endif /* MAESTRO_FORWARD_QUEUE_H */

@@ -15,7 +15,7 @@
  */
 #include "maestro_forward_queue.h"
 
-int create_foward_queue(gru_status_t *status) {
+int create_forward_queue(gru_status_t *status) {
 	key_t key = ftok("/tmp", 0x31);
 	return create_queue(key, status);
 }
