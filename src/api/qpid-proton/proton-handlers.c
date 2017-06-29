@@ -294,6 +294,15 @@ void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload) {
 
 	logger_t logger = gru_logger_get();
 
+	if (payload == NULL || gru_variant_equals_str(variant, "at-most-once")) {
+		gru_status_t status = gru_status_new();
+
+		vmslh_add(proton_ctxt->handlers->finalize_receive, proton_accept, NULL, &status);
+		if (gru_status_error(&status)) {
+			logger(ERROR, "Unable to add the commit handler for the given QOS mode");
+		}
+	}
+
 	if (gru_variant_equals_str(variant, "at-least-once")) {
 		/**
 		 * From the documentation: "... In this configuration the receiver settles the
@@ -319,14 +328,6 @@ void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload) {
 		pn_messenger_set_rcv_settle_mode(proton_ctxt->messenger, PN_RCV_SECOND);
 
 		return;
-	}
-
-	if (payload == NULL || gru_variant_equals_str(variant, "at-most-once")) {
-		gru_status_t status = gru_status_new();
-		vmslh_add(proton_ctxt->handlers->finalize_receive, proton_accept, NULL, &status);
-		if (gru_status_error(&status)) {
-			logger(ERROR, "Unable to add the commit handler for the given QOS mode");
-		}
 	}
 }
 
