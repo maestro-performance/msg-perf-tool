@@ -15,7 +15,7 @@
 */
 #include "vmslh.h"
 
-static vmslh_callback_t * vmslh_by_addr(gru_list_t *list, vmslh_callback_fn callback) {
+static vmslh_callback_t * vmslh_by_addr(gru_list_t *list, vmslh_callback_fn callback, gru_status_t *status) {
 	gru_node_t *node = list->root;
 
 	while (node) {
@@ -27,27 +27,27 @@ static vmslh_callback_t * vmslh_by_addr(gru_list_t *list, vmslh_callback_fn call
 		node = node->next;
 	}
 
-	return NULL;
+	vmslh_callback_t *ret = gru_alloc(sizeof(vmslh_callback_t), status);
+	if (!gru_list_append(list, ret)) {
+		gru_dealloc((void **)&ret);
+		gru_status_set(status, GRU_FAILURE, "Unable to append VMSL handler wrapper");
+
+		return NULL;
+	}
+
+	return ret;
 }
 
 bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_status_t *status) {
 	vmslh_callback_t *wrapper = NULL;
 
-	wrapper = vmslh_by_addr(list, callback);
+	wrapper = vmslh_by_addr(list, callback, status);
 	if (!wrapper) {
-		gru_alloc(sizeof(vmslh_callback_t), status);
-		gru_alloc_check(wrapper, false);
+		return false;
 	}
 
 	wrapper->call = callback;
 	wrapper->payload = payload;
-
-	if (!gru_list_append(list, wrapper)) {
-		gru_dealloc((void **)&wrapper);
-		gru_status_set(status, GRU_FAILURE, "Unable to append VMSL handler wrapper");
-
-		return false;
-	}
 
 	return true;
 }
@@ -88,7 +88,6 @@ vmslh_handlers_t vmslh_new(gru_status_t *status) {
 	handlers.before_receive = gru_list_new(status);
 	handlers.after_receive = gru_list_new(status);
 	handlers.finalize_receive = gru_list_new(status);
-
 	return handlers;
 }
 
