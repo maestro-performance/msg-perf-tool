@@ -60,14 +60,6 @@ typedef enum maestro_command_t_ {
 } maestro_command_t;
 
 
-/** Lengh of the opt field in a set note */
-#define MAESTRO_NOTE_OPT_LEN 2
-
-#define MAESTRO_NOTE_OPT_VALUE_LEN                                                       \
-       (MAESTRO_NOTE_PAYLOAD_MAX_LENGTH - MAESTRO_NOTE_OPT_LEN)
-
-
-
 typedef enum set_opts_t_ {
 	/** Broker address */
 	MAESTRO_NOTE_OPT_SET_BROKER = 0,
