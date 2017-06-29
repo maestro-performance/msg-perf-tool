@@ -80,30 +80,11 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 		return;
 	}
 
-	logger(DEBUG, "Initializing VMSL");
-	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(opt, NULL, status);
-	if (!cmd_ctxt->msg_ctxt) {
-		gru_status_set(status, GRU_FAILURE, "Unable to initialize command context");
-
-		maestro_cmd_ctxt_destroy(&cmd_ctxt);
+	if (!maestro_cmd_ctxt_start(cmd_ctxt, opt, status)) {
 		return;
 	}
 
-	logger(DEBUG, "Starting forward loop connection ");
-	vmsl_stat_t rstat = cmd_ctxt->vmsl.start(cmd_ctxt->msg_ctxt, status);
-	if (vmsl_stat_error(rstat)) {
-		gru_status_set(status, GRU_FAILURE, "Unable to start forward loop connection to the broker");
-
-		maestro_cmd_ctxt_destroy(&cmd_ctxt);
-		return;
-	}
-
-	logger(DEBUG, "Subscribing to the Maestro topic");
-	rstat = cmd_ctxt->vmsl.subscribe(cmd_ctxt->msg_ctxt, NULL, status);
-	if (vmsl_stat_error(rstat)) {
-		gru_status_set(status, GRU_FAILURE, "Unable to subscribe to maestro broker");
-
-		maestro_cmd_ctxt_destroy(&cmd_ctxt);
+	if (!maestro_cmd_ctxt_forwarder(cmd_ctxt, status)) {
 		return;
 	}
 
@@ -113,8 +94,6 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 		gru_status_set(status, GRU_FAILURE, "Unable to create local forward queue");
 
 		maestro_cmd_ctxt_destroy(&cmd_ctxt);
-
-		cmd_ctxt->vmsl.stop(cmd_ctxt->msg_ctxt, status);
 
 		return;
 	}
@@ -127,7 +106,6 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 
 	logger(DEBUG, "Finalizing forward daemon");
 	maestro_cmd_ctxt_destroy(&cmd_ctxt);
-	cmd_ctxt->vmsl.stop(cmd_ctxt->msg_ctxt, status);
 }
 
 int maestro_forward_daemon_run(const options_t *options) {

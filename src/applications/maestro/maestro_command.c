@@ -36,26 +36,9 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt,
 		return -1;
 	}
 
-	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(opt, NULL, status);
-
-	if (!cmd_ctxt->msg_ctxt) {
-		logger(ERROR, "Failed to initialize maestro connection: %s", status->message);
+	if (!maestro_cmd_ctxt_start(cmd_ctxt, opt, status)) {
 		return 1;
 	}
-
-	vmsl_stat_t sstat = cmd_ctxt->vmsl.start(cmd_ctxt->msg_ctxt, status);
-	if (vmsl_stat_error(sstat)) {
-		return 1;
-	}
-
-	return 0;
-}
-
-static int maestro_cmd_disconnect(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
-	cmd_ctxt->vmsl.stop(cmd_ctxt->msg_ctxt, status);
-
-	gru_uri_cleanup(&cmd_ctxt->msg_ctxt->msg_opts.uri);
-	msg_conn_info_cleanup(&cmd_ctxt->msg_ctxt->msg_opts.conn_info);
 
 	return 0;
 }
@@ -75,21 +58,16 @@ static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt,
 	msg_content_data_t req = {0};
 	maestro_easy_request(&req, cmd);
 
-	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
-	msg_content_data_release(&req);
-
-	if (rstat != VMSL_SUCCESS) {
+	if (!maestro_cmd_ctxt_send(cmd_ctxt, &req, status)) {
 		fprintf(stderr, "Failed to send command: %s\n", status->message);
+		msg_content_data_release(&req);
+		maestro_cmd_ctxt_stop(cmd_ctxt, status);
 
 		return 1;
 	}
 
-	ret = maestro_cmd_disconnect(cmd_ctxt, status);
-	if (ret != 0) {
-		fprintf(stderr, "Warning error during disconnect");
-
-		return 1;
-	}
+	msg_content_data_release(&req);
+	maestro_cmd_ctxt_stop(cmd_ctxt, status);
 
 	return 0;
 }
@@ -299,25 +277,21 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt,
 	msg_content_data_t req = {0};
 	if (maestro_cmd_set_opt_by_name(&req, opt, val, status) == -1) {
 		gru_status_set(status, GRU_FAILURE, "Invalid option: %s", opt);
-		maestro_cmd_disconnect(cmd_ctxt, status);
+		maestro_cmd_ctxt_stop(cmd_ctxt, status);
 
 		return 1;
 	}
 
-	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
+	if (!maestro_cmd_ctxt_send(cmd_ctxt, &req, status)) {
+		fprintf(stderr, "Failed to send command: %s\n", status->message);
+		msg_content_data_release(&req);
+		maestro_cmd_ctxt_stop(cmd_ctxt, status);
+
+		return 1;
+	}
+
 	msg_content_data_release(&req);
-
-	if (rstat != VMSL_SUCCESS) {
-		fprintf(stderr, "Failed to send command");
-		maestro_cmd_disconnect(cmd_ctxt, status);
-
-		return 1;
-	}
-
-	ret = maestro_cmd_disconnect(cmd_ctxt, status);
-	if (ret != 0) {
-		fprintf(stderr, "Warning error during disconnect");
-	}
+	maestro_cmd_ctxt_stop(cmd_ctxt, status);
 
 	return 0;
 }
@@ -358,20 +332,16 @@ int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 		return 1;
 	}
 
-	vmsl_stat_t rstat = cmd_ctxt->vmsl.send(cmd_ctxt->msg_ctxt, &req, status);
+	if (!maestro_cmd_ctxt_send(cmd_ctxt, &req, status)) {
+		fprintf(stderr, "Failed to send command: %s\n", status->message);
+		msg_content_data_release(&req);
+		maestro_cmd_ctxt_stop(cmd_ctxt, status);
+
+		return 1;
+	}
+
 	msg_content_data_release(&req);
-
-	if (rstat != VMSL_SUCCESS) {
-		fprintf(stderr, "Failed to send command");
-		return 1;
-	}
-
-	ret = maestro_cmd_disconnect(cmd_ctxt, status);
-	if (ret != 0) {
-		fprintf(stderr, "Warning error during disconnect");
-
-		return 1;
-	}
+	maestro_cmd_ctxt_stop(cmd_ctxt, status);
 
 	return 0;
 }
