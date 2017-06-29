@@ -82,7 +82,8 @@ typedef enum set_opts_t_ {
 } set_opts_t;
 
 typedef struct maestro_payload_ping_request_t_ {
-	char *ts;
+	uint64_t sec;
+  	uint64_t usec;
 } maestro_payload_ping_request_t;
 
 typedef struct maestro_payload_ping_reply_t_ {
@@ -160,7 +161,7 @@ void maestro_note_ping_set_name(maestro_note_t *note, const char *name);
 /**
  * Sets the timestamp in the ping request
  */
-void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts);
+void maestro_note_ping_set_ts(maestro_note_t *note, gru_timestamp_t ts);
 
 /**
  * Sets the elapsed time in the ping response

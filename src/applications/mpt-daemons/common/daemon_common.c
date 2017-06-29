@@ -121,7 +121,10 @@ void *commond_handle_ping(const maestro_note_t *request, maestro_note_t *respons
 
 	gru_timestamp_t now = gru_time_now();
 
-	gru_timestamp_t created = gru_time_read_str(request->payload->request.ping.ts);
+	gru_timestamp_t created = {0};
+	created.tv_sec = request->payload->request.ping.sec;
+	created.tv_usec = request->payload->request.ping.usec;
+
 	uint64_t diff = gru_time_elapsed_milli(created, now);
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PING);

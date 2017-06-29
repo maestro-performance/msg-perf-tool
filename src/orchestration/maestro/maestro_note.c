@@ -31,10 +31,6 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 		gru_dealloc_string(&note->payload->request.set.value);
 	}
 
-	if (note->type == MAESTRO_TYPE_REQUEST && note->command == MAESTRO_NOTE_PING) {
-		gru_dealloc_string(&note->payload->request.ping.ts);
-	}
-
 	if (note->type == MAESTRO_TYPE_RESPONSE && note->command == MAESTRO_NOTE_PING) {
 		gru_dealloc_string(&note->payload->response.ping.id);
 		gru_dealloc_string(&note->payload->response.ping.name);
@@ -59,8 +55,9 @@ void maestro_note_ping_set_name(maestro_note_t *note, const char *name) {
 	note->payload->response.ping.name = strdup(name);
 }
 
-void maestro_note_ping_set_ts(maestro_note_t *note, const char *ts) {
-	note->payload->request.ping.ts = strdup(ts);
+void maestro_note_ping_set_ts(maestro_note_t *note, gru_timestamp_t ts) {
+	note->payload->request.ping.sec = ts.tv_sec;
+	note->payload->request.ping.usec = ts.tv_usec;
 }
 
 void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t elapsed) {

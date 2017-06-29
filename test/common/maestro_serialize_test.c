@@ -33,8 +33,7 @@ static bool maestro_serialize_cmd_ping_request_test() {
 	msg_content_data_init(&content, sizeof(maestro_note_t), &status);
 
 	gru_timestamp_t ts = gru_time_now();
-	char *formatted_ts = gru_time_write_str(&ts);
-	maestro_note_ping_set_ts(&note, formatted_ts);
+	maestro_note_ping_set_ts(&note, ts);
 
 	maestro_serialize_note(&note, &content);
 	maestro_note_payload_cleanup(&note);
@@ -55,19 +54,23 @@ static bool maestro_serialize_cmd_ping_request_test() {
 		goto err_exit;
 	}
 
-	if (strcmp(deserialized.payload->request.ping.ts, formatted_ts) != 0) {
-		fprintf(stderr, "Unexpected ping timestamp: %s != %s\n",
-			deserialized.payload->request.ping.ts, formatted_ts);
+	if (deserialized.payload->request.ping.sec != ts.tv_sec) {
+		fprintf(stderr, "Unexpected ping timestamp sec: %"PRIu64" != %"PRIu64"\n",
+			deserialized.payload->request.ping.sec, ts.tv_sec);
 		goto err_exit;
 	}
 
-	gru_dealloc_string(&formatted_ts);
+	if (deserialized.payload->request.ping.usec != ts.tv_usec) {
+		fprintf(stderr, "Unexpected ping timestamp usec: %"PRIu64" != %"PRIu64"\n",
+				deserialized.payload->request.ping.usec, ts.tv_usec);
+		goto err_exit;
+	}
+
 	msg_content_data_release(&content);
   	maestro_note_payload_cleanup(&deserialized);
 	return true;
 
 	err_exit:
-	gru_dealloc_string(&formatted_ts);
 	msg_content_data_release(&content);
   	maestro_note_payload_cleanup(&deserialized);
 	return false;

@@ -307,12 +307,8 @@ static void maestro_cmd_request_ping(msg_content_data_t *out, gru_status_t *stat
 	maestro_note_set_cmd(&note, MAESTRO_NOTE_PING);
 
 	gru_timestamp_t ts = gru_time_now();
-	char *formatted_ts = gru_time_write_str(&ts);
-	maestro_note_ping_set_ts(&note, formatted_ts);
-
+	maestro_note_ping_set_ts(&note, ts);
 	maestro_serialize_note(&note, out);
-
-	gru_dealloc_string(&formatted_ts);
 	maestro_note_payload_cleanup(&note);
 }
 

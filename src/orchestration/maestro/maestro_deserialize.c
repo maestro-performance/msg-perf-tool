@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <msgpack/object.h>
 #include "maestro_deserialize.h"
 #include "maestro_note.h"
 
@@ -119,13 +120,23 @@ static bool maestro_deserialize_note_ping_request(const msg_content_data_t *in,
 		return false;
 	}
 
-  	note->payload->request.ping.ts = gru_alloc(msg->data.via.str.size + 1, status);
-  	gru_alloc_check(note->payload->request.ping.ts, false);
-
-	if (!maestro_deserialize_note_assign(
-			msg->data, note->payload->request.ping.ts, status)) {
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->request.ping.sec, status)) {
 		return false;
 	}
+
+	msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack set command: invalid and/or missing command");
+
+		return false;
+	}
+
+	if (!maestro_deserialize_note_assign(msg->data, &note->payload->request.ping.usec, status)) {
+		return false;
+	}
+
 
 	return true;
 }

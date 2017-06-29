@@ -69,9 +69,8 @@ static bool maestro_serialize_ping_request(const maestro_note_t *note, msg_conte
 	msgpack_pack_char(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
 
-	msgpack_pack_str(&pk, strlen(note->payload->request.ping.ts));
-	msgpack_pack_str_body(&pk, note->payload->request.ping.ts,
-		strlen(note->payload->request.ping.ts));
+	msgpack_pack_uint64(&pk, note->payload->request.ping.sec);
+	msgpack_pack_uint64(&pk, note->payload->request.ping.usec);
 
 	msg_content_data_copy(out, sbuf.data, sbuf.size);
 
