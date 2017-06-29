@@ -21,8 +21,6 @@
 #include "maestro_note.h"
 #include "msg_content_data.h"
 
-#include "maestro_msgpack_util.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
