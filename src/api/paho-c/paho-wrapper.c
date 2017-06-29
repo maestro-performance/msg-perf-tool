@@ -102,17 +102,22 @@ vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 }
 
 void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
-
+	logger_t logger = gru_logger_get();
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
 	int rc = MQTTClient_disconnect(paho_ctxt->client, 10000);
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS:
 			break;
+		case MQTTCLIENT_FAILURE:
+			logger(WARNING, "Unhandled failure while disconnecting from the server");
+			break;
+		case MQTTCLIENT_DISCONNECTED:
+			logger(WARNING, "Already disconnected from the server");
+			break;
 		default: {
-			logger_t logger = gru_logger_get();
-
-			logger(WARNING, "Unable to disconnect from the server: %d", rc);
+			logger(WARNING, "Error disconnecting from the server: %d", rc);
+			break;
 		}
 	}
 }
