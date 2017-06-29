@@ -110,7 +110,7 @@ static void *maestro_player_run(void *player) {
 			}
 		}
 
-		sleep(1);
+		usleep(10000);
 	}
 
 	logger(INFO, "Maestro player is terminating");

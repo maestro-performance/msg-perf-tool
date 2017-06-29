@@ -33,7 +33,7 @@ static void maestro_loop_reply_run(maestro_cmd_ctxt_t *cmd_ctxt,
 		}
 
 		if (rstat & VMSL_NO_DATA) {
-			sleep(1);
+			usleep(500000);
 			continue;
 		}
 
