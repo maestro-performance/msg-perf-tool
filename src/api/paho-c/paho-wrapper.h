@@ -28,6 +28,7 @@
 #include "paho-context.h"
 #include "vmsl.h"
 #include "vmslh.h"
+#include "paho-handlers.h"
 
 #define QOS_AT_MOST_ONCE 1
 #define TIMEOUT 10000L

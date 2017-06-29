@@ -49,6 +49,9 @@ msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *s
 		exit(1);
 	}
 
+	paho_set_default_parameters(handlers, opt, status);
+	paho_set_user_parameters(handlers, opt, status);
+
 
 	msg_ctxt->api_context = paho_ctxt;
 	msg_ctxt->msg_opts = opt;
@@ -80,12 +83,7 @@ vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 	logger(DEBUG, "Setting connection options");
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 
-	conn_opts.keepAliveInterval = 20;
-	conn_opts.cleansession = 1;
-
-	if (paho_ctxt->handlers) {
-		vmslh_run(paho_ctxt->handlers->before_connect, paho_ctxt, NULL);
-	}
+	vmslh_run(paho_ctxt->handlers->before_connect, paho_ctxt, &conn_opts);
 
 	rc = MQTTClient_connect(paho_ctxt->client, &conn_opts);
 	if (rc != MQTTCLIENT_SUCCESS) {
@@ -94,9 +92,8 @@ vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 		return VMSL_ERROR;
 	}
 
-	if (paho_ctxt->handlers) {
-		vmslh_run(paho_ctxt->handlers->after_connect, paho_ctxt, NULL);
-	}
+	vmslh_run(paho_ctxt->handlers->after_connect, paho_ctxt, NULL);
+
 
 	return VMSL_SUCCESS;
 }
@@ -160,9 +157,6 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 
 	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
 
-	// QoS0, At most once:
-	pubmsg.qos = 0;
-	pubmsg.retained = false;
 	int rc = 0;
 
 	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) {
@@ -187,9 +181,7 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 			data->data,
 			ctxt->msg_opts.uri.path);
 
-		if (paho_ctxt->handlers) {
-			vmslh_run(paho_ctxt->handlers->before_send, paho_ctxt, &pubmsg);
-		}
+		vmslh_run(paho_ctxt->handlers->before_send, paho_ctxt, &pubmsg);
 
 		rc = MQTTClient_publishMessage(
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
@@ -209,17 +201,13 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 
 		pubmsg.payloadlen = (int) data->size;
 
-		if (paho_ctxt->handlers) {
-			vmslh_run(paho_ctxt->handlers->before_send, paho_ctxt, &pubmsg);
-		}
+		vmslh_run(paho_ctxt->handlers->before_send, paho_ctxt, &pubmsg);
 
 		rc = MQTTClient_publishMessage(
 			paho_ctxt->client, ctxt->msg_opts.uri.path, &pubmsg, &token);
 	}
 
-	if (paho_ctxt->handlers) {
-		vmslh_run(paho_ctxt->handlers->after_send, paho_ctxt, &pubmsg);
-	}
+	vmslh_run(paho_ctxt->handlers->after_send, paho_ctxt, &pubmsg);
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS:
@@ -280,9 +268,7 @@ vmsl_stat_t
 	int tlen = 0;
 	char *topic_name;
 
-	if (paho_ctxt->handlers) {
-		vmslh_run(paho_ctxt->handlers->before_receive, paho_ctxt, NULL);
-	}
+	vmslh_run(paho_ctxt->handlers->before_receive, paho_ctxt, NULL);
 
 	int rc = MQTTClient_receive(paho_ctxt->client, &topic_name, &tlen, &msg, timeout);
 
@@ -308,9 +294,7 @@ vmsl_stat_t
 		}
 	}
 
-	if (paho_ctxt->handlers) {
-		vmslh_run(paho_ctxt->handlers->after_receive, paho_ctxt, msg);
-	}
+	vmslh_run(paho_ctxt->handlers->after_receive, paho_ctxt, msg);
 
 	if (ctxt->msg_opts.statistics & MSG_STAT_LATENCY) {
 		char header[18] = {0};

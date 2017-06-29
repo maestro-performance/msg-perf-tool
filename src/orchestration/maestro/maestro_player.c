@@ -33,6 +33,8 @@ static void maestro_player_destroy(maestro_player_t **ptr, gru_status_t *status)
 
 	gru_uri_cleanup(&pl->uri);
 
+	vmslh_cleanup(&pl->handlers);
+
 	gru_dealloc((void **) ptr);
 }
 
@@ -46,7 +48,9 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 	opt.conn_info.id = player->player_info.id;
 	opt.uri = player->uri;
 
-	player->ctxt = player->mmsl.init(opt, NULL, status);
+	player->handlers = vmslh_new(status);
+
+	player->ctxt = player->mmsl.init(opt, &player->handlers, status);
 
 	if (!player->ctxt) {
 		logger_t logger = gru_logger_get();

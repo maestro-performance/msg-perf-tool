@@ -17,6 +17,7 @@ add_library(
     mpt-paho SHARED
     paho-context.c
     paho-wrapper.c
+	paho-handlers.c
 )
 
 target_link_libraries(

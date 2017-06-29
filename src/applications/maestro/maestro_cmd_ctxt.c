@@ -25,6 +25,8 @@ maestro_cmd_ctxt_t *maestro_cmd_ctxt_new(const gru_uri_t *uri, gru_status_t *sta
 		return NULL;
 	}
 
+	ret->handlers = vmslh_new(status);
+
 	ret->queue = create_forward_queue(status);
 	if (ret->queue < 0) {
 		gru_status_set(status, GRU_FAILURE, "Unable to initialize forward queue: %s\n",
@@ -57,13 +59,15 @@ void maestro_cmd_ctxt_destroy(maestro_cmd_ctxt_t **ptr) {
 		ctxt->vmsl.destroy(ctxt->msg_ctxt, &tmp);
 	}
 
+	vmslh_cleanup(&ctxt->handlers);
+
 	gru_dealloc((void **) ptr);
 }
 
 bool maestro_cmd_ctxt_start(maestro_cmd_ctxt_t *cmd_ctxt, msg_opt_t opt, gru_status_t *status) {
 	logger_t  logger = gru_logger_get();
 
-	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(opt, NULL, status);
+	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(opt, &cmd_ctxt->handlers, status);
 
 	if (!cmd_ctxt->msg_ctxt) {
 		logger(ERROR, "Failed to initialize maestro connection: %s", status->message);

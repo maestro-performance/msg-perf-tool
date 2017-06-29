@@ -32,6 +32,7 @@ extern "C" {
 
 typedef struct maestro_cmd_ctxt_t_ {
 	vmsl_t vmsl;
+  	vmslh_handlers_t handlers;
 	msg_ctxt_t *msg_ctxt;
 	int queue;
 } maestro_cmd_ctxt_t;

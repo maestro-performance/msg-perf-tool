@@ -41,6 +41,8 @@ typedef struct maestro_player_t_ {
 	pthread_t thread;
 	gru_uri_t uri;
 	vmsl_t mmsl; // maestro messaging system layer
+  	vmslh_handlers_t handlers;
+
 	msg_ctxt_t *ctxt; // maestro messaging context
 	maestro_sheet_t *sheet;
 	maestro_player_info_t player_info;
