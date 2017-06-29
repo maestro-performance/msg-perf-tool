@@ -28,6 +28,8 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt,
 	};
 
 	msg_conn_info_gen_id(&opt.conn_info);
+
+	gru_status_reset(status);
 	opt.uri = gru_uri_clone(uri, status);
 	if (gru_status_error(status)) {
 		logger(ERROR, "Failed to set connection URL: %s", status->message);
