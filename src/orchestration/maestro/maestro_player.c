@@ -42,6 +42,7 @@ static void maestro_player_destroy(maestro_player_t **ptr, gru_status_t *status)
 
 static msg_content_data_t *wdata;
 static char *wtopic = "/mpt/maestro";
+static MQTTClient_willOptions wopts = MQTTClient_willOptions_initializer;
 
 void maestro_abormal_disconnect_notice(void *ctxt, void *conn_opts, void *payload) {
 	MQTTClient_connectOptions *opts = (MQTTClient_connectOptions *) conn_opts;
@@ -59,8 +60,7 @@ void maestro_abormal_disconnect_notice(void *ctxt, void *conn_opts, void *payloa
 	wdata = msg_content_data_new(MAESTRO_NOTE_SIZE, NULL);
 	maestro_serialize_note(&note, wdata);
 
-	MQTTClient_willOptions wopts = MQTTClient_willOptions_initializer;
-	*opts->will = wopts;
+	opts->will = &wopts;
 	opts->will->payload.data = wdata->data;
 	opts->will->payload.len = wdata->size;
 	opts->will->topicName = wtopic;
