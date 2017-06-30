@@ -111,19 +111,36 @@ int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 static void maestro_cmd_print_data(maestro_note_t *note) {
 	printf("Name: %-45s\tID: %-40s ", note->payload->response.name, note->payload->response.id);
 
-	if (note->command == MAESTRO_NOTE_PING) {
-		printf("Time: %"PRIu64" ms\n",
-			note->payload->response.body.ping.elapsed);
-	} else if (note->command == MAESTRO_NOTE_PROTOCOL_ERROR) {
-		printf("Error: One of more of the commands did not complete successfully\n");
-	} else if (note->command == MAESTRO_NOTE_STATS) {
+	switch (note->command) {
+	case MAESTRO_NOTE_PING: {
+		printf("Time: %"PRIu64" ms\n",  note->payload->response.body.ping.elapsed);
+
+		break;
+	}
+	case MAESTRO_NOTE_PROTOCOL_ERROR: {
+		printf("Error: one of more of the commands did not complete successfully\n");
+		break;
+	}
+	case MAESTRO_NOTE_STATS: {
 		printf("Children: %"PRIu32" Count: %"PRIu64" Rate: %.2f Latency: %.2f\n",
-			note->payload->response.body.stats.child_count,
-			note->payload->response.body.stats.stats.perf.count,
-			note->payload->response.body.stats.stats.perf.rate,
-			note->payload->response.body.stats.stats.perf.latency);
-	} else if (note->command == MAESTRO_NOTE_OK) {
+			   note->payload->response.body.stats.child_count,
+			   note->payload->response.body.stats.stats.perf.count,
+			   note->payload->response.body.stats.stats.perf.rate,
+			   note->payload->response.body.stats.stats.perf.latency);
+		break;
+	}
+	case MAESTRO_NOTE_ABNORMAL_DISCONNECT: {
+		printf("Response: remote peer disconnected abnormaly\n");
+		break;
+	}
+	case MAESTRO_NOTE_OK: {
 		printf("Response: OK\n");
+		break;
+	}
+	default: {
+		printf("Error: unhandled response\n");
+		break;
+	}
 	}
 }
 
