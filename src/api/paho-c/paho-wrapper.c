@@ -13,6 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+#include <MQTTClient.h>
 #include "paho-wrapper.h"
 
 const static int TS_SIZE = 18;
@@ -82,6 +83,7 @@ vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 
 	logger(DEBUG, "Setting connection options");
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+	conn_opts.MQTTVersion = MQTTVERSION_3_1_1;
 
 	vmslh_run(paho_ctxt->handlers->before_connect, paho_ctxt, &conn_opts);
 
