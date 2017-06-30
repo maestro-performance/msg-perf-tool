@@ -159,36 +159,43 @@ bool maestro_player_start(const options_t *options,
 	maestro_sheet_t *sheet,
 	gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	maestro_player_t *maestro_player = maestro_player_new();
-	maestro_player->sheet = sheet;
+
+	if (splayer) {
+		gru_status_set(status, GRU_FAILURE, "Maestro player is already initialized");
+
+		return false;
+	}
+
+	splayer = maestro_player_new();
+	splayer->sheet = sheet;
 
 	logger(INFO, "Connecting to maestro host %s", options->maestro_uri.host);
-	maestro_player->uri = gru_uri_clone(options->maestro_uri, status);
+	splayer->uri = gru_uri_clone(options->maestro_uri, status);
 	if (!gru_status_success(status)) {
 		return false;
 	}
 
-	gru_uri_set_path(&maestro_player->uri, sheet->location);
+	gru_uri_set_path(&splayer->uri, sheet->location);
 
-	if (!vmsl_assign_by_url(&maestro_player->uri, &maestro_player->mmsl)) {
+	if (!vmsl_assign_by_url(&splayer->uri, &splayer->mmsl)) {
 		gru_status_set(
 			status, GRU_FAILURE, "Unable to assign a VMSL for the maestro player");
 
 		return false;
 	}
 
-	maestro_player->player_info.name = options->name;
-	msg_conn_info_gen_id_char(&maestro_player->player_info.id);
-	if (!maestro_player->player_info.id) {
+	splayer->player_info.name = options->name;
+	msg_conn_info_gen_id_char(&splayer->player_info.id);
+	if (!splayer->player_info.id) {
 		logger(ERROR, "Unable to generate a player ID");
 
 		goto err_exit;
 	}
 
-	if (!maestro_player_connect(maestro_player, status)) {
+	if (!maestro_player_connect(splayer, status)) {
 		logger(ERROR,
 			"Unable to connect to maestro broker at %s: %s",
-			maestro_player->uri.host,
+			   splayer->uri.host,
 			status->message);
 
 		goto err_exit;
@@ -196,19 +203,18 @@ bool maestro_player_start(const options_t *options,
 
 	logger(DEBUG, "Creating maestro player thread");
 	int ret =
-		pthread_create(&maestro_player->thread, NULL, maestro_player_run, maestro_player);
+		pthread_create(&splayer->thread, NULL, maestro_player_run, splayer);
 	if (ret != 0) {
 		logger(ERROR, "Unable to create maestro player thread");
 
 		goto err_exit;
 	}
 
-	splayer = maestro_player;
 	return true;
 
 err_exit:
 
-	gru_uri_cleanup(&maestro_player->uri);
+	gru_uri_cleanup(&splayer->uri);
 	return false;
 }
 
