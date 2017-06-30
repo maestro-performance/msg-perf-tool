@@ -61,7 +61,8 @@ void maestro_abormal_disconnect_notice(void *ctxt, void *conn_opts, void *payloa
 
 	MQTTClient_willOptions wopts =  MQTTClient_willOptions_initializer;
 	opts->will = &wopts;
-	opts->will->message = wdata->data;
+	opts->will->payload.data = wdata->data;
+	opts->will->payload.len = wdata->size;
 	opts->will->topicName = wtopic;
 	opts->will->qos = 1;
 	opts->will->retained = 0;
