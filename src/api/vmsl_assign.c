@@ -43,6 +43,12 @@ extern bool litestomp_vmsl_assign(vmsl_t *vmsl);
 bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
+	if (!uri->scheme) {
+		logger(ERROR, "A protocol scheme must be defined");
+
+		return false;
+	}
+
 	if (strncmp(uri->scheme, "amqp", 4) == 0) {
 		return proton_vmsl_assign(vmsl);
 	} else {
