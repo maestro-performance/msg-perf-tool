@@ -53,7 +53,7 @@ void maestro_abormal_disconnect_notice(void *ctxt, void *conn_opts, void *payloa
 
 	maestro_note_set_type(&note, MAESTRO_TYPE_RESPONSE);
 
-	maestro_note_set_cmd(&note, MAESTRO_NOTE_OK);
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_ABNORMAL_DISCONNECT);
 	maestro_note_response_set_id(&note, splayer->player_info.id);
 	maestro_note_response_set_name(&note, splayer->player_info.name);
 
