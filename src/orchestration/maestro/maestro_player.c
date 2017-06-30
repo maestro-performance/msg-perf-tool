@@ -228,7 +228,15 @@ bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status) {
 	void *res;
 
 	splayer->cancel = true;
-	pthread_join(splayer->thread, &res);
+
+	if (splayer->thread != 0) {
+		pthread_join(splayer->thread, &res);
+	}
+	else {
+		logger_t logger = gru_logger_get();
+
+		logger(WARNING, "Invalid maestro player thread PID");
+	}
 
 	maestro_player_destroy(&splayer, status);
 	splayer = NULL;
