@@ -31,7 +31,7 @@ msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *s
 	if (!msg_ctxt) {
 		logger(FATAL, "Unable to initialize the messaging context");
 
-		exit(1);
+		return NULL;
 	}
 
 	paho_ctxt_t *paho_ctxt = paho_context_init(handlers);
@@ -39,7 +39,7 @@ msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *s
 	if (!paho_ctxt) {
 		logger(FATAL, "Unable to initialize the paho context");
 
-		exit(1);
+		goto err_exit;
 	}
 
 	paho_ctxt->uri = gru_uri_clone(opt.uri, status);
@@ -47,7 +47,7 @@ msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *s
 	if (!gru_uri_set_scheme(&paho_ctxt->uri, "tcp")) {
 		logger(FATAL, "Unable to adjust the connection URI");
 
-		exit(1);
+		goto err_exit;
 	}
 
 	paho_set_default_parameters(handlers, opt, status);
@@ -58,6 +58,10 @@ msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *s
 	msg_ctxt->msg_opts = opt;
 
 	return msg_ctxt;
+
+	err_exit:
+	msg_ctxt_destroy(&msg_ctxt);
+	return NULL;
 }
 
 vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
