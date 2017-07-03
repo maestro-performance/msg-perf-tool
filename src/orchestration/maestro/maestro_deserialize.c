@@ -368,6 +368,8 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 	if (msg.data.type != MSGPACK_OBJECT_POSITIVE_INTEGER) {
 		gru_status_set(
 			status, GRU_FAILURE, "Unable to unpack protocol data: invalid note type");
+
+		goto err_exit;
 	} else {
 		if (!maestro_deserialize_note_assign(msg.data, &note->type, status)) {
 			goto err_exit;
@@ -380,7 +382,7 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 			GRU_FAILURE,
 			"Unable to unpack protocol data: invalid and/or missing command");
 
-		return false;
+		goto err_exit;
 	} else {
 		if (!maestro_deserialize_note_assign(msg.data, &note->command, status)) {
 			goto err_exit;
