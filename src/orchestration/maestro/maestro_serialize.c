@@ -17,9 +17,6 @@
 #include "maestro_note.h"
 
 static void maestro_serialize_response_header(const maestro_note_t *note, msgpack_packer *pk) {
-	msgpack_pack_char(pk, note->type);
-	msgpack_pack_int64(pk, note->command);
-
 	msgpack_pack_str(pk, strlen(note->payload->response.id));
 	msgpack_pack_str_body(
 		pk, note->payload->response.id, strlen(note->payload->response.id));
@@ -29,8 +26,8 @@ static void maestro_serialize_response_header(const maestro_note_t *note, msgpac
 		pk, note->payload->response.name, strlen(note->payload->response.name));
 }
 
-static bool maestro_serialize_header_only(const maestro_note_t *note,
-	msg_content_data_t *out) {
+static bool maestro_serialize_empty_exchange(const maestro_note_t *note,
+											 msg_content_data_t *out) {
 
 	msgpack_sbuffer sbuf;
 	msgpack_packer pk;
@@ -175,7 +172,7 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 		}
 		case MAESTRO_NOTE_STATS: {
 			if (note->type == MAESTRO_TYPE_REQUEST) {
-			  ret = maestro_serialize_header_only(note, out);
+			  ret = maestro_serialize_empty_exchange(note, out);
 		  	}
 		  	else {
 				ret = maestro_serialize_stats_response(note, out);
@@ -184,7 +181,7 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 		  	break;
 		}
 		default: {
-			ret = maestro_serialize_header_only(note, out);
+			ret = maestro_serialize_empty_exchange(note, out);
 			break;
 		}
 	}
