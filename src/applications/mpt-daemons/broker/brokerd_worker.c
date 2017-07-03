@@ -24,10 +24,7 @@ static void *brokerd_handle_set(const maestro_note_t *request,
 	maestro_note_t *response,
 	const maestro_player_info_t *pinfo)
 {
-	void *ret = commond_handle_set(request, response, &worker_options);
-	maestro_note_response_set_id(response, pinfo->id);
-	maestro_note_response_set_name(response, pinfo->name);
-	return ret;
+	return commond_handle_set(request, response, &worker_options);
 }
 
 static void *brokerd_handle_flush(const maestro_note_t *request,
@@ -41,16 +38,13 @@ static void *brokerd_handle_flush(const maestro_note_t *request,
 		if (!bmic_writer_flush(&status)) {
 			logger(ERROR, "Unable to flush bmic data to disk");
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
-			maestro_note_response_set_id(response, pinfo->id);
-			maestro_note_response_set_name(response, pinfo->name);
 
 			return NULL;
 		}
 	}
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
-	maestro_note_response_set_id(response, pinfo->id);
-	maestro_note_response_set_name(response, pinfo->name);
+
 	return NULL;
 }
 
@@ -69,8 +63,6 @@ static void *brokerd_handle_start(const maestro_note_t *request,
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 	}
 
-	maestro_note_response_set_id(response, pinfo->id);
-	maestro_note_response_set_name(response, pinfo->name);
 	return NULL;
 }
 
@@ -83,8 +75,7 @@ static void *brokerd_handle_stop(const maestro_note_t *request,
 	started = false;
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
-	maestro_note_response_set_id(response, pinfo->id);
-	maestro_note_response_set_name(response, pinfo->name);
+
 	return NULL;
 }
 
@@ -97,8 +88,6 @@ static void *brokerd_handle_halt(const maestro_note_t *request,
 	brokerd_handle_stop(request, response, pinfo);
 	halt = true;
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
-	maestro_note_response_set_id(response, pinfo->id);
-	maestro_note_response_set_name(response, pinfo->name);
 
 	return NULL;
 }
@@ -107,8 +96,6 @@ static void *brokerd_handle_stats(const maestro_note_t *request,
 	maestro_note_t *response,
 	const maestro_player_info_t *pinfo) {
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
-	maestro_note_response_set_id(response, pinfo->id);
-	maestro_note_response_set_name(response, pinfo->name);
 	return NULL;
 }
 

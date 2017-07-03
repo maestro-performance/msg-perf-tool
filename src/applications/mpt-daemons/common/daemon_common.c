@@ -128,8 +128,6 @@ void *commond_handle_ping(const maestro_note_t *request, maestro_note_t *respons
 	uint64_t diff = gru_time_elapsed_milli(created, now);
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PING);
-	maestro_note_response_set_id(response, pinfo->id);
-	maestro_note_response_set_name(response, pinfo->name);
 	maestro_note_ping_set_elapsed(response, diff);
 
 	return NULL;
