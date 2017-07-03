@@ -16,7 +16,7 @@
 #include "maestro_note.h"
 
 bool maestro_note_payload_prepare(maestro_note_t *note, gru_status_t *status) {
-	note->payload = gru_alloc(MAESTRO_NOTE_PAYLOAD_MAX_LENGTH, status);
+	note->payload = gru_alloc(sizeof(maestro_payload_t), status);
 	gru_alloc_check(note->payload, false);
 
 	return true;
