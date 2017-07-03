@@ -180,6 +180,18 @@ static bool maestro_serialize_cmd_ok_test() {
 		goto err_exit;
 	}
 
+	if (strcmp(ok.payload->response.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3") != 0) {
+		fprintf(stderr, "Unexpected stat id: %s != %s\n",
+				ok.payload->response.id, "71a1b3d2-45e2-11e7-9de0-68f72834b1b3");
+		goto err_exit;
+	}
+
+	if (strcmp(ok.payload->response.name, "test@localhost.localdomain") != 0) {
+		fprintf(stderr, "Unexpected stat name: %s != %s\n",
+				ok.payload->response.name, "test@localhost.localdomain");
+		goto err_exit;
+	}
+
 	msg_content_data_release(&content);
 	maestro_note_payload_cleanup(&ok);
 	return true;
