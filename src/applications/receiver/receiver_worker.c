@@ -17,6 +17,7 @@
 #include "vmsl.h"
 
 bool can_start = false;
+static char *locations[] = MAESTRO_RECEIVER_DAEMON_SHEETS;
 
 static void *receiver_handle_start(const maestro_note_t *request,
 	maestro_note_t *response,
@@ -28,12 +29,14 @@ static void *receiver_handle_start(const maestro_note_t *request,
 	return NULL;
 }
 
-static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
-	maestro_sheet_t *ret = maestro_sheet_new("/mpt/receiver", status);
+static maestro_sheet_t *receiver_new_sheet(gru_status_t *status) {
+	maestro_sheet_t *ret = maestro_sheet_new(status);
 
 	if (!ret) {
 		return NULL;
 	}
+
+	maestro_sheet_set_location(ret, MAESTRO_DAEMON_SHEETS_COUNT, locations, MAESTRO_DEFAULT_QOS);
 
 	maestro_instrument_t *instrument =
 		maestro_instrument_new(MAESTRO_NOTE_START_RECEIVER, receiver_handle_start, status);
@@ -91,7 +94,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
-	maestro_sheet_t *sheet = new_receiver_sheet(&status);
+	maestro_sheet_t *sheet = receiver_new_sheet(&status);
 	if (!maestro_player_start(options, sheet, &status)) {
 		logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
 

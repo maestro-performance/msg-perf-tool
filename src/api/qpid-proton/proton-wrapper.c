@@ -197,7 +197,7 @@ vmsl_stat_t
 	return VMSL_SUCCESS;
 }
 
-vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
+vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 

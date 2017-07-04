@@ -15,7 +15,7 @@
  */
 #include "maestro_sheet.h"
 
-maestro_sheet_t *maestro_sheet_new(const char *location, gru_status_t *status) {
+maestro_sheet_t *maestro_sheet_new(gru_status_t *status) {
 	maestro_sheet_t *ret = gru_alloc(sizeof(maestro_sheet_t), status);
 	if (!ret) {
 		return NULL;
@@ -28,17 +28,8 @@ maestro_sheet_t *maestro_sheet_new(const char *location, gru_status_t *status) {
 		return NULL;
 	}
 
-	ret->location = strdup(location);
-	if (!ret->location) {
-		gru_list_destroy(&ret->instruments);
-		gru_dealloc((void **) &ret);
-
-		return NULL;
-	}
-
 	return ret;
 }
-
 
 
 void maestro_sheet_destroy(maestro_sheet_t **ptr) {
@@ -49,6 +40,12 @@ void maestro_sheet_destroy(maestro_sheet_t **ptr) {
 	}
 
 	gru_list_clean(sheet->instruments, maestro_instrument_destroy_wrapper);
+}
+
+void maestro_sheet_set_location(maestro_sheet_t *sheet, int count, char **topics, int qos) {
+	sheet->location.count = count;
+	sheet->location.topics = topics;
+	sheet->location.qos = qos;
 }
 
 void maestro_sheet_add_instrument(maestro_sheet_t *sheet,

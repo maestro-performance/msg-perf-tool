@@ -33,6 +33,7 @@
 
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
+#include "maestro/maestro_topics.h"
 #include "statistics/calculator.h"
 #include "statistics/csv_writer.h"
 #include "statistics/nop_writer.h"

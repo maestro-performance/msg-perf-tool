@@ -20,6 +20,7 @@ bool halt = false;
 
 worker_options_t worker_options = {0};
 static gru_list_t *children = NULL;
+static char *locations[] = MAESTRO_RECEIVER_DAEMON_SHEETS;
 
 static void *receiverd_handle_set(const maestro_note_t *request,
 	maestro_note_t *response,
@@ -135,12 +136,14 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 	return NULL;
 }
 
-static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
-	maestro_sheet_t *ret = maestro_sheet_new("/mpt/receiver", status);
+static maestro_sheet_t *receiverd_new_sheet(gru_status_t *status) {
+	maestro_sheet_t *ret = maestro_sheet_new(status);
 
 	if (!ret) {
 		return NULL;
 	}
+
+	maestro_sheet_set_location(ret, MAESTRO_DAEMON_SHEETS_COUNT, locations, MAESTRO_DEFAULT_QOS);
 
 	maestro_instrument_t *start_instrument =
 		maestro_instrument_new(MAESTRO_NOTE_START_RECEIVER, receiverd_handle_start, status);
@@ -244,7 +247,7 @@ int receiverd_worker_start(const options_t *options) {
 
 	maestro_sheet_t *sheet = NULL;
 	if (options->maestro_uri.host) {
-		sheet = new_receiver_sheet(&status);
+		sheet = receiverd_new_sheet(&status);
 		if (!maestro_player_start(options, sheet, &status)) {
 			logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
 

@@ -27,7 +27,7 @@
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_player.h"
 #include "maestro/maestro_sheet.h"
-#include "maestro/maestro_sheet.h"
+#include "maestro/maestro_topics.h"
 #include "msg_content_data.h"
 #include "msgctxt.h"
 #include "process_utils.h"

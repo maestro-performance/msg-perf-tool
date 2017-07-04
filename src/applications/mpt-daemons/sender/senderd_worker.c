@@ -19,6 +19,7 @@ bool started = false;
 bool halt = false;
 worker_options_t worker_options = {0};
 static gru_list_t *children = NULL;
+static char *locations[] = MAESTRO_SENDER_DAEMON_SHEETS;
 
 static void *senderd_handle_set(const maestro_note_t *request,
 	maestro_note_t *response,
@@ -128,12 +129,14 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 	return NULL;
 }
 
-static maestro_sheet_t *new_receiver_sheet(gru_status_t *status) {
-	maestro_sheet_t *ret = maestro_sheet_new("/mpt/receiver", status);
+static maestro_sheet_t *senderd_new_sheet(gru_status_t *status) {
+	maestro_sheet_t *ret = maestro_sheet_new(status);
 
 	if (!ret) {
 		return NULL;
 	}
+
+	maestro_sheet_set_location(ret, MAESTRO_DAEMON_SHEETS_COUNT, locations, MAESTRO_DEFAULT_QOS);
 
 	maestro_instrument_t *start_instrument =
 		maestro_instrument_new(MAESTRO_NOTE_START_SENDER, senderd_handle_start, status);
@@ -234,7 +237,7 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 
 int senderd_worker_start(const options_t *options) {
 	gru_status_t status = gru_status_new();
-	maestro_sheet_t *sheet = new_receiver_sheet(&status);
+	maestro_sheet_t *sheet = senderd_new_sheet(&status);
 	logger_t logger = gru_logger_get();
 	bool parent = true;
 

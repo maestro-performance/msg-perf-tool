@@ -181,7 +181,7 @@ vmsl_stat_t
 	return VMSL_SUCCESS;
 }
 
-vmsl_stat_t litestomp_subscribe(msg_ctxt_t *ctxt, void *data, gru_status_t *status) {
+vmsl_stat_t litestomp_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_status_t *status) {
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 	/*
 	 * Subscribes to the endpoint. Uses a fake ID and receipt just for the sake

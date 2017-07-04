@@ -32,6 +32,7 @@
 #include "maestro/maestro_note.h"
 #include "maestro/maestro_serialize.h"
 #include "maestro/maestro_deserialize.h"
+#include "maestro/maestro_topics.h"
 
 #ifdef __cplusplus
 extern "C" {

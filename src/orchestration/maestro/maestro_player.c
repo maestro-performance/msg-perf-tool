@@ -96,7 +96,7 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 		return false;
 	}
 
-	player->mmsl.subscribe(player->ctxt, NULL, status);
+	player->mmsl.subscribe(player->ctxt, &player->sheet->location, status);
 
 	return true;
 }
@@ -175,8 +175,6 @@ bool maestro_player_start(const options_t *options,
 	if (!gru_status_success(status)) {
 		return false;
 	}
-
-	gru_uri_set_path(&splayer->uri, sheet->location);
 
 	if (!vmsl_assign_by_url(&splayer->uri, &splayer->mmsl)) {
 		gru_status_set(

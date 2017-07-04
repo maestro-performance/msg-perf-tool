@@ -20,6 +20,7 @@
 #include <collection/gru_list.h>
 #include <common/gru_status.h>
 #include <log/gru_logger.h>
+#include <vmsl.h>
 
 #include "mpt-debug.h"
 #include "msg_content_data.h"
@@ -34,12 +35,14 @@ extern "C" {
 #endif
 
 typedef struct maestro_sheet_t_ {
-	char *location; /** Sheet location (ie.: /mpt/sender/<ppid>) **/
+  	vmsl_mtopic_spec_t location;
 	gru_list_t *instruments; /** A list of instruments */
 } maestro_sheet_t;
 
-maestro_sheet_t *maestro_sheet_new(const char *location, gru_status_t *status);
+maestro_sheet_t *maestro_sheet_new(gru_status_t *status);
 void maestro_sheet_destroy(maestro_sheet_t **ptr);
+
+void maestro_sheet_set_location(maestro_sheet_t *sheet, int count, char **topics, int qos);
 
 void maestro_sheet_add_instrument(maestro_sheet_t *sheet,
 	maestro_instrument_t *instrument);
