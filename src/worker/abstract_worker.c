@@ -15,21 +15,6 @@
  */
 #include "abstract_worker.h"
 
-static void abstract_worker_msg_opt(msg_opt_t *opt,
-	msg_direction_t direction,
-	const worker_options_t *options) {
-	opt->direction = direction;
-	opt->statistics = MSG_STAT_DEFAULT;
-
-	msg_conn_info_gen_id(&opt->conn_info);
-	opt->uri = options->uri;
-}
-
-static void abstract_worker_msg_opt_cleanup(msg_opt_t *opt) {
-	msg_conn_info_cleanup(&opt->conn_info);
-}
-
-
 worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 	worker_snapshot_t *snapshot,
 	gru_status_t *status) {
@@ -39,7 +24,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 	msg_content_data_t content_storage = {0};
 
 	msg_opt_t opt = {0};
-	abstract_worker_msg_opt(&opt, MSG_DIRECTION_RECEIVER, worker->options);
+	worker_msg_opt_setup(&opt, MSG_DIRECTION_RECEIVER, worker->options);
 
 	vmslh_handlers_t handlers = vmslh_new(status);
 
@@ -151,7 +136,7 @@ worker_ret_t abstract_receiver_worker_start(const worker_t *worker,
 	shr_buff_detroy(&shr);
 
 	msg_content_data_release(&content_storage);
-	abstract_worker_msg_opt_cleanup(&opt);
+	worker_msg_opt_cleanup(&opt);
 	vmslh_cleanup(&handlers);
 	return WORKER_SUCCESS;
 
@@ -163,7 +148,7 @@ err_exit:
 	if (msg_ctxt) {
 		worker->vmsl->destroy(msg_ctxt, status);
 	}
-	abstract_worker_msg_opt_cleanup(&opt);
+	worker_msg_opt_cleanup(&opt);
 
 	gru_status_reset(status);
 	vmslh_cleanup(&handlers);
@@ -179,7 +164,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 	msg_content_data_t content_storage = {0};
 
 	msg_opt_t opt = {0};
-	abstract_worker_msg_opt(&opt, MSG_DIRECTION_SENDER, worker->options);
+	worker_msg_opt_setup(&opt, MSG_DIRECTION_SENDER, worker->options);
 	vmslh_handlers_t handlers = vmslh_new(status);
 
 	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, &handlers, status);
@@ -273,7 +258,7 @@ worker_ret_t abstract_sender_worker_start(const worker_t *worker,
 	shr_buff_detroy(&shr);
 
 	worker->pl_strategy.cleanup(&content_storage);
-	abstract_worker_msg_opt_cleanup(&opt);
+	worker_msg_opt_cleanup(&opt);
 	vmslh_cleanup(&handlers);
 
 	return WORKER_SUCCESS;
@@ -287,7 +272,7 @@ err_exit:
 
 	shr_buff_detroy(&shr);
 
-	abstract_worker_msg_opt_cleanup(&opt);
+	worker_msg_opt_cleanup(&opt);
 	vmslh_cleanup(&handlers);
 
 	gru_status_reset(status);

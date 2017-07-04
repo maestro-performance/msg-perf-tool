@@ -15,6 +15,19 @@
  */
 #include "worker_utils.h"
 
+void worker_msg_opt_setup(msg_opt_t *opt, msg_direction_t direction, const worker_options_t *options) {
+	opt->direction = direction;
+	opt->statistics = MSG_STAT_DEFAULT;
+
+	msg_conn_info_gen_id(&opt->conn_info);
+	opt->uri = options->uri;
+}
+
+void worker_msg_opt_cleanup(msg_opt_t *opt) {
+	msg_conn_info_cleanup(&opt->conn_info);
+}
+
+
 bool worker_check(const worker_options_t *options, const worker_snapshot_t *snapshot) {
 	if (is_interrupted()) {
 		return false;

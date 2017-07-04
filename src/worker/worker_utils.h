@@ -30,6 +30,20 @@ extern "C" {
 #endif
 
 /**
+ * Sets up the messaging options structure (ie.: generates the connection ID and so on)
+ * @param opt
+ * @param direction
+ * @param options
+ */
+void worker_msg_opt_setup(msg_opt_t *opt, msg_direction_t direction, const worker_options_t *options);
+
+/**
+ * Cleans up the messaging options structure
+ * @param opt messaging options structure
+ */
+void worker_msg_opt_cleanup(msg_opt_t *opt);
+
+/**
  * Checks whether to continue processing or not
  */
 bool worker_check(const worker_options_t *options, const worker_snapshot_t *snapshot);
