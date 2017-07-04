@@ -77,6 +77,46 @@ bool out_tp_writer_finalize(gru_status_t *status) {
 	return true;
 }
 
+
+bool out_tpr_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
+	return true;
+}
+
+bool out_tpr_writer_write(const stat_throughput_t *tp, gru_timestamp_t *eta, gru_status_t *status) {
+	char *eta_str =
+		gru_time_write_format(eta, "%Y-%m-%d %H:%M:%S", status);
+
+	if (unlikely(!eta_str)) {
+		return false;
+	}
+
+	char *ata_str =
+		gru_time_write_format(&tp->duration.end, "%Y-%m-%d %H:%M:%S", status);
+
+	if (unlikely(!ata_str)) {
+		return false;
+	}
+
+	printf("%s\rEstimated time of action: %s.%" PRIu64" Actual time of action: %s.%" PRIu64"\r",
+		   CLEAR_LINE, eta_str, eta->tv_usec, ata_str,tp->duration.end.tv_usec);
+
+
+	gru_dealloc_string(&eta_str);
+	gru_dealloc_string(&ata_str);
+	return true;
+}
+
+bool out_tpr_writer_flush(gru_status_t *status) {
+	fflush(stdout);
+	return true;
+}
+
+bool out_tpr_writer_finalize(gru_status_t *status) {
+	printf("\n");
+	return true;
+}
+
+
 /**
  * Latency writer I/O assignment
  */
@@ -88,11 +128,21 @@ void out_writer_latency_assign(latency_writer_t *writer) {
 }
 
 /**
- * Throghput writer I/O assignment
+ * Throughput writer I/O assignment
  */
 void out_writer_throughput_assign(throughput_writer_t *writer) {
 	writer->initialize = out_tp_writer_initialize;
 	writer->write = out_tp_writer_write;
 	writer->flush = out_tp_writer_flush;
 	writer->finalize = out_tp_writer_finalize;
+}
+
+/**
+ * Throughput writer I/O assignment
+ */
+void out_writer_tpr_assign(tpr_writer_t *writer) {
+	writer->initialize = out_tpr_writer_initialize;
+	writer->write = out_tpr_writer_write;
+	writer->flush = out_tpr_writer_flush;
+	writer->finalize = out_tpr_writer_finalize;
 }

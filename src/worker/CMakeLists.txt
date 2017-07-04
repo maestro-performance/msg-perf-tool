@@ -6,6 +6,8 @@ add_library(
 		worker_manager.c
 		naive_receiver.c
 		naive_sender.c
+		rate_receiver.c
+		rate_sender.c
 )
 
 target_link_libraries(

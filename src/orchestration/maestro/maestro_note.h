@@ -75,7 +75,9 @@ typedef enum set_opts_t_ {
 	/** Set message size */
 	MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE,
 	/** Set throtle */
-	MAESTRO_NOTE_OPT_SET_THROTTLE
+	MAESTRO_NOTE_OPT_SET_THROTTLE,
+  	/** Set rate */
+	MAESTRO_NOTE_OPT_SET_RATE
 } set_opts_t;
 
 

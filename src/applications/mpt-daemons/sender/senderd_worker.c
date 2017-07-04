@@ -206,11 +206,19 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 	worker.can_continue = worker_check;
 
 	worker.report_format = FORMAT_CSV;
-	worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
+
 
 	pl_strategy_assign(&worker.pl_strategy, worker.options->variable_size);
 
-	children = worker_manager_clone(&worker, naive_sender_start, &status);
+	if (worker.options->rate > 0) {
+		worker.naming_options = NM_RATE;
+		children = worker_manager_clone(&worker, rate_sender_start, &status);
+	}
+	else {
+		worker.naming_options = NM_THROUGHPUT;
+		children = worker_manager_clone(&worker, naive_sender_start, &status);
+	}
+
 
 	if (!children && !gru_status_success(&status)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);

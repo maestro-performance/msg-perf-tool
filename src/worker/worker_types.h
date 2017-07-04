@@ -60,6 +60,7 @@ typedef struct worker_snapshot_t_ {
 	uint64_t count;
 	gru_timestamp_t start;
 	gru_timestamp_t now;
+  	gru_timestamp_t eta;
 	stat_latency_t latency;
 	stat_throughput_t throughput;
 } worker_snapshot_t;

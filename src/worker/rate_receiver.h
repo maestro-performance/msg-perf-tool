@@ -13,49 +13,58 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef RECEIVERD_WORKER_H
-#define RECEIVERD_WORKER_H
+#ifndef MPT_RATE_RECEIVER_H
+#define MPT_RATE_RECEIVER_H
 
 #include <inttypes.h>
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
 
+#include <signal.h>
+#include <sys/wait.h>
+
 #include <common/gru_status.h>
 
 #include "contrib/options.h"
-#include "maestro/maestro_player.h"
-#include "maestro/maestro_player.h"
-#include "maestro/maestro_sheet.h"
-#include "maestro/maestro_topics.h"
 #include "msg_content_data.h"
 #include "msgctxt.h"
 #include "process_utils.h"
+#include "vmsl.h"
+
+#include "maestro/maestro_player.h"
+#include "maestro/maestro_sheet.h"
 #include "statistics/calculator.h"
-#include "statistics/csv_writer.h"
+#include "statistics/naming_utils.h"
 #include "statistics/stats_types.h"
 #include "statistics/stats_writer.h"
-#include "vmsl.h"
 
 #include "worker_options.h"
 #include "worker_types.h"
 #include "worker_utils.h"
 #include "worker_info.h"
-#include "worker_manager.h"
-
-#include "naive_receiver.h"
-#include "rate_receiver.h"
-
-#include "daemon_common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int receiverd_worker_start(const options_t *options);
+/**
+ * Execute a rate-based receiver worker
+ * @param worker The worker to execute
+ * @param snapshot The last measured snapshot for the worker. Callers of this function can
+ * use
+ * the address of this variable to check the current status of the test execution
+ * @param status Status container in case of error
+ * @param WORKER_SUCCESS if successful or a composed value (including WORKER_FAILURE) in
+ * case of errors
+ */
+worker_ret_t rate_receiver_start(const worker_t *worker,
+								  worker_snapshot_t *snapshot,
+								  gru_status_t *status);
+
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* RECEIVERD_WORKER_H */
+#endif //MPT_RATE_RECEIVER_H

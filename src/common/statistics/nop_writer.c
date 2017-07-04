@@ -47,6 +47,23 @@ bool nop_tp_writer_finalize(gru_status_t *status) {
 	return true;
 }
 
+
+bool nop_tpr_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
+	return true;
+}
+
+bool nop_tpr_writer_write(const stat_throughput_t *tp, gru_timestamp_t *eta, gru_status_t *status) {
+	return true;
+}
+
+bool nop_tpr_writer_flush(gru_status_t *status) {
+	return true;
+}
+
+bool nop_tpr_writer_finalize(gru_status_t *status) {
+	return true;
+}
+
 /**
  * Latency writer I/O assignment
  */
@@ -65,4 +82,14 @@ void nop_writer_throughput_assign(throughput_writer_t *writer) {
 	writer->write = nop_tp_writer_write;
 	writer->flush = nop_tp_writer_flush;
 	writer->finalize = nop_tp_writer_finalize;
+}
+
+/**
+ * Throghput rate writer I/O assignment
+ */
+void nop_writer_tpr_assign(tpr_writer_t *writer) {
+	writer->initialize = nop_tpr_writer_initialize;
+	writer->write = nop_tpr_writer_write;
+	writer->flush = nop_tpr_writer_flush;
+	writer->finalize = nop_tpr_writer_finalize;
 }

@@ -42,6 +42,7 @@ typedef enum naming_opt_t_ {
 	NM_NONE = 0,
 	NM_LATENCY = 1,
 	NM_THROUGHPUT = 2,
+  	NM_RATE = 4,
 } naming_opt_t;
 
 typedef struct naming_info_t_ {

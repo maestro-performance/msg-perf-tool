@@ -83,11 +83,42 @@ bool nop_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status);
 bool nop_tp_writer_flush(gru_status_t *status);
 
 /**
- * Finalizes writing latency data
+ * Finalizes writing throughput data
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
  */
 bool nop_tp_writer_finalize(gru_status_t *status);
+
+/**
+ * Initialize the througput rate writer
+ * @param io_info optional input/output information
+ * @param status status response in case of error
+ * @return true if success or false otherwise (in this case, check status for details)
+ */
+bool nop_tpr_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status);
+
+/**
+ * Write throughput rate data
+ * @param tp throughput data to write
+ * @param eta estimated time of action
+ * @param status status response in case of error
+ * @return true if success or false otherwise (in this case, check status for details)
+ */
+bool nop_tpr_writer_write(const stat_throughput_t *tp, gru_timestamp_t *eta, gru_status_t *status);
+
+/**
+ * Flushes throughput data
+ * @param status status response in case of error
+ * @return true if success or false otherwise (in this case, check status for details)
+ */
+bool nop_tpr_writer_flush(gru_status_t *status);
+
+/**
+ * Finalizes writing throughput rate data
+ * @param status status response in case of error
+ * @return true if success or false otherwise (in this case, check status for details)
+ */
+bool nop_tpr_writer_finalize(gru_status_t *status);
 
 /**
  * Latency writer I/O assignment
@@ -98,6 +129,11 @@ void nop_writer_latency_assign(latency_writer_t *writer);
  * Throghput writer I/O assignment
  */
 void nop_writer_throughput_assign(throughput_writer_t *writer);
+
+/**
+ * Throughput rate writer I/O assignment
+ */
+void nop_writer_tpr_assign(tpr_writer_t *writer);
 
 #ifdef __cplusplus
 }

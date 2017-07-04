@@ -96,6 +96,15 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		return NULL;
 	}
 
+	if (body.opt == MAESTRO_NOTE_OPT_SET_RATE) {
+		logger(INFO, "Setting throttle option");
+
+		worker_options->rate = atoi(body.value);
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+
+		return NULL;
+	}
+
 	logger(ERROR, "Invalid option to set: %d", body.opt);
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PROTOCOL_ERROR);
 	return NULL;

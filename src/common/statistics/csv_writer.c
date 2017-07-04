@@ -17,6 +17,7 @@
 
 static gzFile lat_file = NULL;
 static gzFile tp_file = NULL;
+static gzFile tpr_file = NULL;
 
 gzFile csv_write_open_file(const char *dir, const char *name, gru_status_t *status) {
 
@@ -187,12 +188,81 @@ bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
 	return false;
 }
 
+
 bool csv_tp_writer_flush(gru_status_t *status) {
 	return csv_writer_flush(tp_file, status);
 }
 
 bool csv_tp_writer_finalize(gru_status_t *status) {
 	return csv_writer_finalize(tp_file, status);
+}
+
+static inline void csv_tpr_writer_initialize_v1() {
+	gzprintf(tpr_file, "eta;ata;rate\n");
+}
+
+bool csv_tpr_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
+	if (!io_info) {
+		gru_status_set(
+			status, GRU_FAILURE, "The I/O information is required for the CSV writer");
+
+		return false;
+	}
+
+	tpr_file = csv_write_initialize(io_info->dest.location, io_info->dest.name, status);
+
+	if (!tpr_file) {
+		return false;
+	}
+
+	switch (io_info->version) {
+	case MPT_STATS_V1: {
+		csv_tpr_writer_initialize_v1();
+		break;
+	}
+	}
+	return csv_tpr_writer_flush(status);
+}
+
+bool csv_tpr_writer_write_v1(const stat_throughput_t *tp, gru_timestamp_t *eta, gru_status_t *status) {
+	char *eta_str =
+		gru_time_write_format(eta, "%Y-%m-%d %H:%M:%S", status);
+
+	if (unlikely(!eta_str)) {
+		return false;
+	}
+
+	char *ata_str =
+		gru_time_write_format(&tp->duration.end, "%Y-%m-%d %H:%M:%S", status);
+
+	if (unlikely(!ata_str)) {
+		return false;
+	}
+
+	gzprintf(tpr_file, "%s.%" PRId32 ";%s.%" PRIu32 "\n", eta_str, eta->tv_usec, ata_str, tp->duration.end.tv_usec);
+
+	gru_dealloc_string(&eta_str);
+	gru_dealloc_string(&ata_str);
+
+	return true;
+}
+
+bool csv_tpr_writer_write(const stat_throughput_t *tp, gru_timestamp_t *eta, gru_status_t *status) {
+	switch (tp->version) {
+	case MPT_STATS_V1: {
+		return csv_tpr_writer_write_v1(tp, eta, status);
+	}
+	}
+
+	return false;
+}
+
+bool csv_tpr_writer_flush(gru_status_t *status) {
+	return csv_writer_flush(tpr_file, status);
+}
+
+bool csv_tpr_writer_finalize(gru_status_t *status) {
+	return csv_writer_finalize(tpr_file, status);
 }
 
 void csv_writer_latency_assign(latency_writer_t *writer) {
@@ -207,4 +277,11 @@ void csv_writer_throughput_assign(throughput_writer_t *writer) {
 	writer->write = csv_tp_writer_write;
 	writer->flush = csv_tp_writer_flush;
 	writer->finalize = csv_tp_writer_finalize;
+}
+
+void csv_writer_tpr_assign(tpr_writer_t *writer) {
+	writer->initialize = csv_tpr_writer_initialize;
+	writer->write = csv_tpr_writer_write;
+	writer->flush = csv_tpr_writer_flush;
+	writer->finalize = csv_tpr_writer_finalize;
 }
