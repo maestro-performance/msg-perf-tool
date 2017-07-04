@@ -100,7 +100,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		worker_snapshot_t snapshot = {0};
 
 		worker_wait_setup();
-		ret = abstract_sender_worker_start(&worker, &snapshot, &status);
+		ret = naive_sender_start(&worker, &snapshot, &status);
 		if (ret != WORKER_SUCCESS) {
 			logger(ERROR, "Unable to execute worker: %s\n", status.message);
 
@@ -118,7 +118,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	} else {
 		worker.worker_flags = WRK_SENDER | WRK_FORKED;
 		gru_list_t *children =
-			abstract_worker_clone(&worker, abstract_sender_worker_start, &status);
+			worker_manager_clone(&worker, naive_sender_start, &status);
 
 		if (!children && !gru_status_success(&status)) {
 			logger(ERROR, "Unable to initialize children: %s", status.message);
@@ -132,7 +132,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 
 		while (gru_list_count(children) > 0) {
 			mpt_trace("There are still %d children running", gru_list_count(children));
-			abstract_worker_watchdog(children, perf_print_partial);
+			worker_manager_watchdog(children, perf_print_partial);
 
 			sleep(1);
 		}

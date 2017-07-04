@@ -135,7 +135,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		worker_ret_t ret = {0};
 		worker_snapshot_t snapshot = {0};
 
-		ret = abstract_receiver_worker_start(&worker, &snapshot, &status);
+		ret = naive_receiver_start(&worker, &snapshot, &status);
 		if (ret != WORKER_SUCCESS) {
 			fprintf(stderr, "Unable to execute worker: %s\n", status.message);
 
@@ -156,7 +156,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 
 		gru_list_t *children =
-			abstract_worker_clone(&worker, abstract_receiver_worker_start, &status);
+			worker_manager_clone(&worker, naive_receiver_start, &status);
 
 		if (!children && !gru_status_success(&status)) {
 			logger(ERROR, "Unable to initialize children: %s", status.message);
@@ -170,7 +170,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 		while (gru_list_count(children) > 0) {
 			mpt_trace("There are still %d children running", gru_list_count(children));
-			abstract_worker_watchdog(children, receiver_print_partial);
+			worker_manager_watchdog(children, receiver_print_partial);
 
 			sleep(1);
 		}

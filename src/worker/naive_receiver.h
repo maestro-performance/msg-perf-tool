@@ -13,11 +13,23 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#ifndef ABSTRACT_WORKER_H
-#define ABSTRACT_WORKER_H
+#ifndef MPT_NAIVER_RECEIVER_H
+#define MPT_NAIVER_RECEIVER_H
+
+#include <inttypes.h>
+#include <signal.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include <signal.h>
+#include <sys/wait.h>
 
 #include <common/gru_status.h>
 
+#include "contrib/options.h"
+#include "msg_content_data.h"
+#include "msgctxt.h"
+#include "process_utils.h"
 #include "vmsl.h"
 
 #include "maestro/maestro_player.h"
@@ -36,17 +48,23 @@
 extern "C" {
 #endif
 
-typedef worker_ret_t (*abstract_worker_start)(const worker_t *worker,
-	worker_snapshot_t *snapshot,
-	gru_status_t *status);
-
-typedef bool(abstract_worker_watchdog_handler)(worker_info_t *worker_info);
-
-
+/**
+ * Execute a simple receiver worker
+ * @param worker The worker to execute
+ * @param snapshot The last measured snapshot for the worker. Callers of this function can
+ * use
+ * the address of this variable to check the current status of the test execution
+ * @param status Status container in case of error
+ * @param WORKER_SUCCESS if successful or a composed value (including WORKER_FAILURE) in
+ * case of errors
+ */
+worker_ret_t naive_receiver_start(const worker_t *worker,
+								  worker_snapshot_t *snapshot,
+								  gru_status_t *status);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ABSTRACT_WORKER_H */
+#endif //MPT_NAIVER_RECEIVER_H

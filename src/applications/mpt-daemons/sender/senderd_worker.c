@@ -53,7 +53,7 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 	started = false;
 
 	if (children) {
-		if (!abstract_worker_stop(children)) {
+		if (!worker_manager_stop(children)) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
 			gru_list_clean(children, worker_info_destroy_wrapper);
@@ -210,7 +210,7 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 
 	pl_strategy_assign(&worker.pl_strategy, worker.options->variable_size);
 
-	children = abstract_worker_clone(&worker, abstract_sender_worker_start, &status);
+	children = worker_manager_clone(&worker, naive_sender_start, &status);
 
 	if (!children && !gru_status_success(&status)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);
@@ -224,7 +224,7 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 
 	while (gru_list_count(children) > 0) {
 		mpt_trace("There are still %d children running", gru_list_count(children));
-		abstract_worker_watchdog(children, senderd_copy_partial);
+		worker_manager_watchdog(children, senderd_copy_partial);
 
 		sleep(1);
 	}

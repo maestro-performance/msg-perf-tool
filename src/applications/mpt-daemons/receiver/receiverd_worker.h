@@ -42,6 +42,8 @@
 #include "worker_types.h"
 #include "worker_utils.h"
 #include "worker_info.h"
+#include "worker_manager.h"
+#include "naive_receiver.h"
 
 #include "daemon_common.h"
 

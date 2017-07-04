@@ -47,6 +47,8 @@
 #include "worker_utils.h"
 #include "worker_wait.h"
 #include "worker_info.h"
+#include "worker_manager.h"
+#include "naive_receiver.h"
 
 #ifdef __cplusplus
 extern "C" {

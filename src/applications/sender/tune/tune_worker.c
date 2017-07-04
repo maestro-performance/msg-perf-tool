@@ -74,7 +74,7 @@ static bool tune_exec_step(const options_t *options,
 
 	worker_ret_t ret = {0};
 
-	ret = abstract_sender_worker_start(&worker, snapshot, &status);
+	ret = naive_sender_start(&worker, snapshot, &status);
 	if (ret != WORKER_SUCCESS) {
 		fprintf(stderr, "Unable to execute worker: %s\n", status.message);
 
