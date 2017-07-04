@@ -36,12 +36,6 @@
 extern "C" {
 #endif
 
-typedef worker_ret_t (*abstract_worker_start)(const worker_t *worker,
-	worker_snapshot_t *snapshot,
-	gru_status_t *status);
-
-typedef bool(abstract_worker_watchdog_handler)(worker_info_t *worker_info);
-
 
 
 

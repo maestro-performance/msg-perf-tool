@@ -49,6 +49,12 @@
 extern "C" {
 #endif
 
+typedef bool(worker_watchdog_handler)(worker_info_t *worker_info);
+
+typedef worker_ret_t (*worker_start_fn)(const worker_t *worker,
+											  worker_snapshot_t *snapshot,
+											  gru_status_t *status);
+
 /**
  * Clone a worker
  * @param worker The worker to clone
@@ -58,7 +64,7 @@ extern "C" {
  * @return a list of child/clones
  */
 gru_list_t *worker_manager_clone(worker_t *worker,
-								 abstract_worker_start worker_start,
+								 worker_start_fn worker_start,
 								 gru_status_t *status);
 
 /**
@@ -68,7 +74,7 @@ gru_list_t *worker_manager_clone(worker_t *worker,
  * otherwise it causes the watchdog to stop running.
  * @return Returns true unless a handler returns false
  */
-bool worker_manager_watchdog(gru_list_t *list, abstract_worker_watchdog_handler handler);
+bool worker_manager_watchdog(gru_list_t *list, worker_watchdog_handler handler);
 
 /**
  * Stops all workers in the workers list

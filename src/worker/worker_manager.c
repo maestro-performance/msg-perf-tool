@@ -16,7 +16,7 @@
 #include "worker_manager.h"
 
 gru_list_t *worker_manager_clone(worker_t *worker,
-								 abstract_worker_start worker_start,
+								 worker_start_fn worker_start,
 								 gru_status_t *status) {
 	gru_list_t *ret = gru_list_new(status);
 	if (!ret) {
@@ -89,7 +89,7 @@ gru_list_t *worker_manager_clone(worker_t *worker,
 }
 
 bool worker_manager_watchdog(gru_list_t *list,
-							 abstract_worker_watchdog_handler handler) {
+							 worker_watchdog_handler handler) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
