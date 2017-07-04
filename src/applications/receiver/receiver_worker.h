@@ -41,7 +41,6 @@
 #include "statistics/stats_types.h"
 #include "statistics/stats_writer.h"
 
-#include "abstract_worker.h"
 #include "worker_options.h"
 #include "worker_types.h"
 #include "worker_utils.h"

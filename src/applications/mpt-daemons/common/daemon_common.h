@@ -29,7 +29,6 @@
 #include "maestro/maestro_sheet.h"
 #include "maestro/maestro_sheet.h"
 
-#include "abstract_worker.h"
 #include "worker_options.h"
 #include "worker_types.h"
 #include "worker_utils.h"

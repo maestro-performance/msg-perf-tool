@@ -36,7 +36,6 @@
 #include "msgctxt.h"
 #include "vmsl.h"
 
-#include "abstract_worker.h"
 #include "worker_options.h"
 #include "worker_types.h"
 #include "worker_utils.h"

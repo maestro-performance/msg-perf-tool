@@ -1,7 +1,6 @@
 add_library(
 	mpt-worker SHARED
-        abstract_worker.c
-        worker_utils.c
+		worker_utils.c
         worker_wait.c
         worker_info.c
 		worker_manager.c

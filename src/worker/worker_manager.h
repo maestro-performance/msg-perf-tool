@@ -43,7 +43,6 @@
 #include "worker_types.h"
 #include "worker_utils.h"
 #include "worker_info.h"
-#include "abstract_worker.h"
 
 #ifdef __cplusplus
 extern "C" {
