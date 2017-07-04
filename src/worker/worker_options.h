@@ -47,6 +47,7 @@ typedef struct worker_options_t_ {
 	size_t message_size;
 	bool variable_size;
 	uint32_t throttle;
+  	uint32_t rate;
 } worker_options_t;
 
 #ifdef __cplusplus

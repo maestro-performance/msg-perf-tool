@@ -21,11 +21,19 @@
 #include <time/gru_duration.h>
 
 /**
+ * Stats structure and data version
+ */
+typedef enum stats_version_t_ {
+  MPT_STATS_V1
+} stats_version_t;
+
+/**
  * A place holder for the latency information
  */
 typedef struct stat_latency_t_ {
-	gru_duration_t duration;
+  	gru_duration_t duration;
 	gru_timestamp_t elapsed;
+  	stats_version_t version;
 } stat_latency_t;
 
 /**
@@ -35,6 +43,7 @@ typedef struct stat_throughput_t_ {
 	gru_duration_t duration;
 	uint64_t count;
 	double rate;
+  	stats_version_t version;
 } stat_throughput_t;
 
 #endif /* STATS_TYPES_H */

@@ -75,6 +75,10 @@ static bool csv_writer_flush(gzFile file, gru_status_t *status) {
 	return true;
 }
 
+static inline void csv_lat_writer_initialize_v1() {
+	gzprintf(lat_file, "creation;latency\n");
+}
+
 bool csv_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
 	if (!io_info) {
 		gru_status_set(
@@ -89,11 +93,17 @@ bool csv_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *stat
 		return false;
 	}
 
-	gzprintf(lat_file, "creation;latency\n");
+	switch (io_info->version) {
+		case MPT_STATS_V1: {
+			csv_lat_writer_initialize_v1();
+			break;
+		}
+	}
+
 	return csv_lat_writer_flush(status);
 }
 
-bool csv_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
+static bool csv_lat_writer_write_v1(const stat_latency_t *latency, gru_status_t *status) {
 	char *str =
 		gru_time_write_format(&latency->duration.start, "%Y-%m-%d %H:%M:%S", status);
 
@@ -110,12 +120,26 @@ bool csv_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
 	return true;
 }
 
+bool csv_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
+	switch (latency->version) {
+		case MPT_STATS_V1: {
+			return csv_lat_writer_write_v1(latency, status);
+		}
+	}
+
+	return false;
+}
+
 bool csv_lat_writer_flush(gru_status_t *status) {
 	return csv_writer_flush(lat_file, status);
 }
 
 bool csv_lat_writer_finalize(gru_status_t *status) {
 	return csv_writer_finalize(lat_file, status);
+}
+
+static inline void csv_tp_writer_initialize_v1() {
+	gzprintf(tp_file, "timestamp;count;rate\n");
 }
 
 bool csv_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
@@ -132,11 +156,16 @@ bool csv_tp_writer_initialize(const stat_io_info_t *io_info, gru_status_t *statu
 		return false;
 	}
 
-	gzprintf(tp_file, "timestamp;count;rate\n");
+	switch (io_info->version) {
+		case MPT_STATS_V1: {
+			csv_tp_writer_initialize_v1();
+			break;
+		}
+	}
 	return csv_tp_writer_flush(status);
 }
 
-bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
+bool csv_tp_writer_write_v1(const stat_throughput_t *tp, gru_status_t *status) {
 	char *str = gru_time_write_format(&tp->duration.end, "%Y-%m-%d %H:%M:%S", status);
 
 	if (unlikely(!str)) {
@@ -146,6 +175,16 @@ bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
 	gzprintf(tp_file, "%s;%" PRIu64 ";%.2f\n", str, tp->count, tp->rate);
 	gru_dealloc_string(&str);
 	return true;
+}
+
+bool csv_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
+	switch (tp->version) {
+		case MPT_STATS_V1: {
+			return csv_tp_writer_write_v1(tp, status);
+		}
+	}
+
+	return false;
 }
 
 bool csv_tp_writer_flush(gru_status_t *status) {

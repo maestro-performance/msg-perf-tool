@@ -41,6 +41,7 @@ typedef struct stat_dest_info_t_ {
 typedef struct stat_io_info_t_ {
 	stat_source_info_t source;
 	stat_dest_info_t dest;
+  	stats_version_t version;
 } stat_io_info_t;
 
 /**
