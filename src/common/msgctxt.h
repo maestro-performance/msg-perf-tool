@@ -33,12 +33,6 @@ extern "C" {
 
 typedef void (*msg_content_loader)(msg_content_data_t *content_data);
 
-typedef enum msg_qos_t_ {
-	MSG_QOS_AT_MOST_ONCE,
-	MSG_QOS_AT_LEAST_ONCE, /** Not fully supported and reserved for future use **/
-	MSG_QOS_EXACTLY_ONCE, /** Not fully supported and reserved for future use **/
-} msg_qos_t;
-
 typedef enum msg_stat_opt_t_ {
 	MSG_STAT_NONE = 0, /** Disable statistics **/
 	MSG_STAT_LATENCY = 1, /** Enable latency statistics **/
@@ -51,7 +45,6 @@ typedef enum msg_stat_opt_t_ {
  */
 typedef struct msg_opt_t_ {
 	msg_direction_t direction;
-	msg_qos_t qos;
 	msg_stat_opt_t statistics;
 	msg_conn_info_t conn_info;
 	gru_uri_t uri;

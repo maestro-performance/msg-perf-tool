@@ -19,7 +19,6 @@ static void abstract_worker_msg_opt(msg_opt_t *opt,
 	msg_direction_t direction,
 	const worker_options_t *options) {
 	opt->direction = direction;
-	opt->qos = MSG_QOS_AT_MOST_ONCE;
 	opt->statistics = MSG_STAT_DEFAULT;
 
 	msg_conn_info_gen_id(&opt->conn_info);

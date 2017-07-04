@@ -19,7 +19,6 @@ msg_ctxt_t *msg_ctxt_init(gru_status_t *status) {
 	msg_ctxt_t *ret = gru_alloc(sizeof(msg_ctxt_t), status);
 	gru_alloc_check(ret, NULL);
 
-	ret->msg_opts.qos = MSG_QOS_AT_MOST_ONCE;
 	ret->msg_opts.statistics = MSG_STAT_DEFAULT;
 
 	return ret;

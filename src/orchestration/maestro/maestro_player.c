@@ -72,7 +72,6 @@ void maestro_abormal_disconnect_notice(void *ctxt, void *conn_opts, void *payloa
 static bool maestro_player_connect(maestro_player_t *player, gru_status_t *status) {
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_SENDER,
-		.qos = MSG_QOS_AT_MOST_ONCE,
 		.statistics = MSG_STAT_NONE,
 	};
 

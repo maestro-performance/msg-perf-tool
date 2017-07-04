@@ -62,7 +62,6 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_RECEIVER,
-		.qos = MSG_QOS_AT_MOST_ONCE,
 		.statistics = MSG_STAT_NONE,
 	};
 

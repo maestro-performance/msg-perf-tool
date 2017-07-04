@@ -23,7 +23,6 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt,
 
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_SENDER,
-		.qos = MSG_QOS_AT_MOST_ONCE,
 		.statistics = MSG_STAT_NONE,
 	};
 
