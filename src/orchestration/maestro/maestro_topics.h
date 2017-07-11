@@ -24,7 +24,7 @@
 
 #define MAESTRO_SENDER_DAEMON_SHEETS { "/mpt/daemon", "/mpt/daemon/sender" }
 #define MAESTRO_RECEIVER_DAEMON_SHEETS { "/mpt/daemon", "/mpt/daemon/receiver" }
-#define MAESTRO_BROKERI_DAEMON_SHEETS { "/mpt/daemon", "/mpt/daemon/brokeri" }
+#define MAESTRO_BROKERI_DAEMON_SHEETS { "/mpt/daemon", "/mpt/daemon/brokerd" }
 
 
 #define MAESTRO_ALL_DAEMONS "/mpt/daemon"
