@@ -78,6 +78,14 @@ gru_list_t *worker_manager_clone(worker_t *worker,
 bool worker_manager_watchdog(gru_list_t *list, worker_watchdog_handler handler);
 
 /**
+ * Runs the watchdog loop
+ * @param children list of workers (as returned by abstract_worker_clone)
+ * @param handler A watchdog handler function. A handler function must always return true,
+ * otherwise it causes the watchdog to stop running.
+ */
+void worker_manager_watchdog_loop(gru_list_t *children, worker_watchdog_handler handler);
+
+/**
  * Stops all workers in the workers list
  * @param list A list of workers to stop
  * @return true unless the list of workers is NULL
