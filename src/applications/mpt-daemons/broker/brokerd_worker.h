@@ -47,6 +47,8 @@
 
 #include "daemon_common.h"
 
+#define MPT_BROKERD_COLLECT_WAIT_TIME 10
+
 #ifdef __cplusplus
 extern "C" {
 #endif

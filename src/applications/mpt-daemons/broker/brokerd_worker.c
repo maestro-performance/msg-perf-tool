@@ -238,7 +238,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		}
 
 		bmic_writer_flush(status);
-		sleep(10);
+		sleep(MPT_BROKERD_COLLECT_WAIT_TIME);
 	}
 
 	if (!gru_status_success(status)) {
