@@ -31,6 +31,8 @@
 #include "msg_conn_info.h"
 #include "vmsl.h"
 
+#define MPT_MAESTRO_IDLE_TIME 10000
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -258,7 +258,7 @@ int senderd_worker_start(const options_t *options) {
 	}
 
 	while (!halt) {
-		sleep(1);
+		usleep(MPT_WORKER_IDLE_TIME);
 
 		if (started) {
 			vmsl_t vmsl = vmsl_init();

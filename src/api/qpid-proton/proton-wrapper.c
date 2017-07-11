@@ -93,13 +93,15 @@ vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
+
 	int ret = pn_messenger_stop(proton_ctxt->messenger);
 	if (ret == PN_INPROGRESS) {
 		bool stopped = false;
+		const int wait_time = 100000;
 
 		for (int i = 0; i < 10; i++) {
 			if (!pn_messenger_stopped(proton_ctxt->messenger)) {
-				usleep(100000);
+				usleep(wait_time);
 			} else {
 				stopped = true;
 			}

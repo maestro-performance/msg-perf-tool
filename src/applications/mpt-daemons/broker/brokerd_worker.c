@@ -271,7 +271,7 @@ int brokerd_worker_start(const options_t *options) {
 	}
 
 	while (!halt) {
-		sleep(1);
+		usleep(MPT_WORKER_IDLE_TIME);
 
 		if (started) {
 			if (!brokerd_collect(&status)) {

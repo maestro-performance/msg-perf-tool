@@ -25,6 +25,14 @@
 #include "worker_options.h"
 #include "worker_types.h"
 
+
+/**
+ * Amount of time to idle when no data is available. After some measurements, it
+ * turns out that 25ms seem to provide the right balance between responsiveness
+ * and throughput.
+ */
+#define WORKER_NO_DATA_WAIT 25000
+
 #ifdef __cplusplus
 extern "C" {
 #endif

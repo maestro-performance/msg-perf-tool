@@ -201,7 +201,7 @@ bool worker_manager_stop(gru_list_t *list) {
 
 					break;
 				} else {
-					usleep(10000);
+					usleep(MPT_MANAGER_SHUTDOWN_WAIT);
 					retry--;
 
 					if (retry == 0) {

@@ -37,6 +37,8 @@
 extern "C" {
 #endif
 
+#define MPT_WORKER_IDLE_TIME 500000
+
 void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response,
 	worker_options_t *worker_options);
 void *commond_handle_flush(const maestro_note_t *request,

@@ -145,7 +145,7 @@ static void *maestro_player_run(void *player) {
 			}
 		}
 
-		usleep(10000);
+		usleep(MPT_MAESTRO_IDLE_TIME);
 	}
 
 	logger(INFO, "Maestro player is terminating");

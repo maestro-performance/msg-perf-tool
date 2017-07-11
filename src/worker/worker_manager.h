@@ -48,6 +48,8 @@
 extern "C" {
 #endif
 
+#define MPT_MANAGER_SHUTDOWN_WAIT 10000
+
 typedef bool(worker_watchdog_handler)(worker_info_t *worker_info);
 
 typedef worker_ret_t (*worker_start_fn)(const worker_t *worker,

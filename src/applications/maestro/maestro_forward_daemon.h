@@ -32,6 +32,12 @@
 #include "maestro_forward_queue.h"
 #include "mpt-debug.h"
 
+/**
+ * Amount of time to wait if no data is available. It does the same as WORKER_NO_DATA_WAIT
+ * but uses a longer wait because throughput is not important for the forward daemon
+ */
+#define MAESTRO_FWD_DATA_WAIT 500000
+
 #ifdef __cplusplus
 extern "C" {
 #endif

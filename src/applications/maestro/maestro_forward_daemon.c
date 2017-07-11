@@ -33,7 +33,7 @@ static void maestro_loop_reply_run(maestro_cmd_ctxt_t *cmd_ctxt,
 		}
 
 		if (rstat & VMSL_NO_DATA) {
-			usleep(500000);
+			usleep(MAESTRO_FWD_DATA_WAIT);
 			continue;
 		}
 
