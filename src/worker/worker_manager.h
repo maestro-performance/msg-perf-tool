@@ -50,7 +50,7 @@ extern "C" {
 
 #define MPT_MANAGER_SHUTDOWN_WAIT 10000
 
-typedef bool(worker_watchdog_handler)(worker_info_t *worker_info);
+typedef bool(worker_snapshot_updater)(worker_info_t *worker_info);
 
 typedef worker_ret_t (*worker_start_fn)(const worker_t *worker,
 											  worker_snapshot_t *snapshot,
@@ -75,7 +75,7 @@ gru_list_t *worker_manager_clone(worker_t *worker,
  * @param handler A watchdog handler function. A handler function must always return true,
  * otherwise it causes the watchdog to stop running.
  */
-void worker_manager_watchdog_loop(gru_list_t *children, worker_watchdog_handler handler);
+void worker_manager_watchdog_loop(gru_list_t *children, worker_snapshot_updater handler);
 
 /**
  * Stops all workers in the workers list

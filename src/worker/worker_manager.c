@@ -106,7 +106,7 @@ bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 }
 
 
-static bool worker_manager_watchdog(gru_list_t *list, worker_watchdog_handler handler) {
+static bool worker_manager_watchdog(gru_list_t *list, worker_snapshot_updater handler) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
@@ -160,7 +160,7 @@ static bool worker_manager_watchdog(gru_list_t *list, worker_watchdog_handler ha
 	return true;
 }
 
-void worker_manager_watchdog_loop(gru_list_t *children, worker_watchdog_handler handler) {
+void worker_manager_watchdog_loop(gru_list_t *children, worker_snapshot_updater handler) {
 	const int wait_time = 1;
 
 	while (children && gru_list_count(children) > 0) {
