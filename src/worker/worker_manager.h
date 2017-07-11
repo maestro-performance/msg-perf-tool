@@ -68,14 +68,6 @@ gru_list_t *worker_manager_clone(worker_t *worker,
 								 worker_start_fn worker_start,
 								 gru_status_t *status);
 
-/**
- * Watchdog function that iterates over a list of workers in order to check their status
- * @param list list of workers (as returned by abstract_worker_clone)
- * @param handler A watchdog handler function. A handler function must always return true,
- * otherwise it causes the watchdog to stop running.
- * @return Returns true unless a handler returns false
- */
-bool worker_manager_watchdog(gru_list_t *list, worker_watchdog_handler handler);
 
 /**
  * Runs the watchdog loop
@@ -91,6 +83,14 @@ void worker_manager_watchdog_loop(gru_list_t *children, worker_watchdog_handler 
  * @return true unless the list of workers is NULL
  */
 bool worker_manager_stop(gru_list_t *list);
+
+
+/**
+ * A simple handler that copies the data from the shared buffer into
+ * @param worker_info
+ * @return true if successfully update the snapshot or false otherwise
+ */
+bool worker_manager_update_snapshot(worker_info_t *worker_info);
 
 #ifdef __cplusplus
 }

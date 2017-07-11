@@ -88,7 +88,25 @@ gru_list_t *worker_manager_clone(worker_t *worker,
 	return ret;
 }
 
-bool worker_manager_watchdog(gru_list_t *list, worker_watchdog_handler handler) {
+bool worker_manager_update_snapshot(worker_info_t *worker_info) {
+	bool ret;
+
+	ret = shr_buff_read(worker_info->shr, &worker_info->snapshot,
+						sizeof(worker_snapshot_t));
+
+	if (!ret) {
+		logger_t logger = gru_logger_get();
+
+		logger(WARNING,
+			   "Unable to obtain performance snapshot from worker %d",
+			   worker_info->child);
+	}
+
+	return ret;
+}
+
+
+static bool worker_manager_watchdog(gru_list_t *list, worker_watchdog_handler handler) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
@@ -147,9 +165,12 @@ void worker_manager_watchdog_loop(gru_list_t *children, worker_watchdog_handler 
 
 	while (children && gru_list_count(children) > 0) {
 		mpt_trace("There are still %d children running", gru_list_count(children));
-		worker_manager_watchdog(children, handler);
-
-		sleep(wait_time);
+		if (worker_manager_watchdog(children, handler)) {
+			sleep(wait_time);
+		}
+		else {
+			break;
+		}
 	}
 }
 

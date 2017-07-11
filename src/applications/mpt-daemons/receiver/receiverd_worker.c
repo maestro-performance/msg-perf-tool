@@ -183,19 +183,6 @@ static maestro_sheet_t *receiverd_new_sheet(gru_status_t *status) {
 	return ret;
 }
 
-static bool receiverd_copy(worker_info_t *worker_info) {
-	if (!shr_buff_read(
-			worker_info->shr, &worker_info->snapshot, sizeof(worker_snapshot_t))) {
-		logger_t logger = gru_logger_get();
-
-		logger(WARNING,
-			"Unable to obtain performance snapshot from receiver child %d",
-			worker_info->child);
-	}
-
-	return true;
-}
-
 static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
@@ -236,7 +223,7 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 		}
 	}
 
-	worker_manager_watchdog_loop(children, receiverd_copy);
+	worker_manager_watchdog_loop(children, worker_manager_update_snapshot);
 
 	gru_list_clean(children, worker_info_destroy_wrapper);
 	gru_list_destroy(&children);

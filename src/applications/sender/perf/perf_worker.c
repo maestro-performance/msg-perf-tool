@@ -130,12 +130,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 			}
 		}
 
-		while (gru_list_count(children) > 0) {
-			mpt_trace("There are still %d children running", gru_list_count(children));
-			worker_manager_watchdog(children, perf_print_partial);
-
-			sleep(1);
-		}
+		worker_manager_watchdog_loop(children, perf_print_partial);
 
 		gru_list_clean(children, worker_info_destroy_wrapper);
 		gru_list_destroy(&children);
