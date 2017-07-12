@@ -15,14 +15,16 @@
  */
 #include "maestro_debug.h"
 
+#if MPT_DEBUG >= 2
 void maestro_trace_proto(char const *buf, ssize_t len) {
 	size_t i = 0;
 
 	fprintf(stderr, "[TRACE]");
-	for(; i < len ; ++i) {
-fprintf(stderr,
-"%02x ", 0xff & buf[i]);
 
+	for(; i < len ; ++i) {
+		fprintf(stderr, "%02x ", 0xff & buf[i]);
+	}
+
+	fprintf(stderr, "\n");
 }
-	printf("\n");
-}
+#endif // MPT_DEBUG >= 2
