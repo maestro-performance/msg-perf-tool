@@ -157,6 +157,20 @@ static const char *maestro_cmd_get_string(const gru_list_t *strings, uint32_t po
 	return gru_node_get_data_ptr(char, node);
 }
 
+#if MPT_DEBUG >= 2
+void maestro_trace_proto(char const* buf, unsigned int len)
+{
+	size_t i = 0;
+
+	fprintf(stderr, "[TRACE]");
+	for(; i < len ; ++i)
+		fprintf(stderr, "%02x ", 0xff & buf[i]);
+	printf("\n");
+}
+#else
+#define maestro_trace_proto(buf, len)
+#endif // MPT_DEBUG >= 2
+
 static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
 	gru_status_t *status)
 {
@@ -180,6 +194,8 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 			msg_content_data_t msg = {0};
 
 			msg_content_data_copy(&msg, &buf, ret);
+
+			maestro_trace_proto(buf, ret);
 
 			if (!maestro_deserialize_note(&msg, &note, status)) {
 				fprintf(stderr, "Unknown protocol data\n");
