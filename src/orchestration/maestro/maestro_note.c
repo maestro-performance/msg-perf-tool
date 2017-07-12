@@ -62,7 +62,7 @@ void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t elapsed) {
 	note->payload->response.body.ping.elapsed = elapsed;
 }
 
-void maestro_note_set_type(maestro_note_t *note, const char type) {
+void maestro_note_set_type(maestro_note_t *note, maestro_request_type type) {
 	note->type = type;
 }
 

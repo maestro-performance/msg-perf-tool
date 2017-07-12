@@ -35,7 +35,7 @@ static bool maestro_serialize_empty_exchange(const maestro_note_t *note,
 	msgpack_sbuffer_init(&sbuf);
 	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-	msgpack_pack_char(&pk, note->type);
+	msgpack_pack_int8(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
 
 
@@ -59,7 +59,7 @@ static bool maestro_note_set_request(const maestro_note_t *note,
 	msgpack_sbuffer_init(&sbuf);
 	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-	msgpack_pack_char(&pk, note->type);
+	msgpack_pack_int8(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
 
 	msgpack_pack_int64(&pk, note->payload->request.set.opt);
@@ -82,7 +82,7 @@ static bool maestro_serialize_ping_request(const maestro_note_t *note, msg_conte
 	msgpack_sbuffer_init(&sbuf);
 	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-	msgpack_pack_char(&pk, note->type);
+	msgpack_pack_int8(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
 
 	msgpack_pack_uint64(&pk, note->payload->request.ping.sec);
@@ -105,7 +105,7 @@ static bool maestro_serialize_ping_response(const maestro_note_t *note,
 	msgpack_sbuffer_init(&sbuf);
 	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-	msgpack_pack_char(&pk, note->type);
+	msgpack_pack_int8(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
 
 	maestro_serialize_response_header(note, &pk);
@@ -126,7 +126,7 @@ static bool maestro_serialize_stats_response(const maestro_note_t *note,
 	msgpack_sbuffer_init(&sbuf);
 	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
 
-	msgpack_pack_char(&pk, note->type);
+	msgpack_pack_int8(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
 
 	maestro_serialize_response_header(note, &pk);

@@ -32,12 +32,16 @@
 #define MAESTRO_HEADER_SIZE (MAESTRO_NOTE_TYPE_LENGTH + MAESTRO_NOTE_CMD_LENGTH)
 #define MAESTRO_NOTE_SIZE (MAESTRO_HEADER_SIZE + MAESTRO_NOTE_PAYLOAD_MAX_LENGTH)
 
-#define MAESTRO_TYPE_REQUEST '0'
-#define MAESTRO_TYPE_RESPONSE '1'
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef enum maestro_request_type_ {
+  MAESTRO_TYPE_REQUEST,
+  MAESTRO_TYPE_RESPONSE
+} maestro_request_type;
 
 typedef enum maestro_command_t_ {
 	/** Receiver execution **/
@@ -133,7 +137,7 @@ typedef union maestro_payload_t_ {
 } maestro_payload_t;
 
 typedef struct maestro_note_t_ {
-	char type;
+	maestro_request_type type;
 	int64_t command;
 	maestro_payload_t *payload;
 } maestro_note_t;
@@ -169,7 +173,14 @@ void maestro_note_ping_set_ts(maestro_note_t *note, gru_timestamp_t ts);
  */
 void maestro_note_ping_set_elapsed(maestro_note_t *note, uint64_t ts);
 
-void maestro_note_set_type(maestro_note_t *note, const char type);
+/**
+ * Sets the note type
+ */
+void maestro_note_set_type(maestro_note_t *note, maestro_request_type type);
+
+/**
+ * Sets the note command
+ */
 void maestro_note_set_cmd(maestro_note_t *note, maestro_command_t cmd);
 
 void maestro_note_set_opt(maestro_note_t *note, int64_t opt, const char *value);
