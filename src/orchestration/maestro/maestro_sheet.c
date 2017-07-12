@@ -97,6 +97,15 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 
 	maestro_note_set_type(&response, MAESTRO_TYPE_RESPONSE);
 
+	if (!maestro_note_payload_prepare(&response, status)) {
+		logger(WARNING, "Unable to prepare the response payload");
+		maestro_note_set_cmd(&response, MAESTRO_NOTE_INTERNAL_ERROR);
+
+		goto cleanup;
+	}
+
+	maestro_note_response_set_id(&response, pinfo->id);
+	maestro_note_response_set_name(&response, pinfo->name);
 
 	if (!maestro_deserialize_note(req, &request, status)) {
 		logger(
@@ -106,16 +115,6 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 		goto cleanup;
 
 	} else {
-		if (!maestro_note_payload_prepare(&response, status)) {
-			logger(WARNING, "Unable to prepare the response payload");
-			maestro_note_set_cmd(&response, MAESTRO_NOTE_INTERNAL_ERROR);
-
-			goto cleanup;
-		}
-
-		maestro_note_response_set_id(&response, pinfo->id);
-		maestro_note_response_set_name(&response, pinfo->name);
-
 		if (!maestro_sheet_do_play(sheet->instruments, pinfo, &request, &response)) {
 			maestro_note_set_cmd(&response, MAESTRO_NOTE_INTERNAL_ERROR);
 
