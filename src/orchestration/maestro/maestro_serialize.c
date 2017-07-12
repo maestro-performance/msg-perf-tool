@@ -14,7 +14,6 @@
  *   limitations under the License.
  */
 #include "maestro_serialize.h"
-#include "maestro_note.h"
 
 static void maestro_serialize_response_header(const maestro_note_t *note, msgpack_packer *pk) {
 	msgpack_pack_str(pk, strlen(note->payload->response.id));

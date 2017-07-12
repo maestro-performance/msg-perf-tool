@@ -1,9 +1,11 @@
 if (UNIX)
         set(MAESTRO_FILES
                 maestro/maestro_note.c
+				maestro/maestro_debug.c
                 maestro/maestro_instrument.c
                 maestro/maestro_sheet.c
                 maestro/maestro_player.c
+				maestro/maestro_notify.c
                 maestro/maestro_serialize.c
                 maestro/maestro_easy.c
 				maestro/maestro_deserialize.c)

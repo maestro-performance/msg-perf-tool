@@ -366,6 +366,9 @@ static bool maestro_deserialize_response(const msg_content_data_t *in,
 		case MAESTRO_NOTE_STATS: {
 			ret = maestro_deserialize_note_stats_response(in, note, msg, offset, status);
 		}
+		default: {
+			break;
+		}
 	}
 
 	return ret;
@@ -377,7 +380,7 @@ static bool maestro_deserialize_request(const msg_content_data_t *in,
 										 size_t *offset,
 										 gru_status_t *status)
 {
-	bool ret;
+	bool ret = true;
 
 	switch (note->command) {
 		case MAESTRO_NOTE_SET: {
@@ -388,6 +391,9 @@ static bool maestro_deserialize_request(const msg_content_data_t *in,
 		case MAESTRO_NOTE_PING: {
 			ret = maestro_deserialize_note_ping_request(in, note, msg, offset, status);
 
+			break;
+		}
+		default: {
 			break;
 		}
 
@@ -462,7 +468,7 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 	}
 
 	msgpack_unpacked_destroy(&msg);
-	return pl_ret;
+	return true;
 
 err_exit:
 	msgpack_unpacked_destroy(&msg);

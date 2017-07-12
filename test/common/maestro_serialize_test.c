@@ -50,7 +50,7 @@ static bool maestro_serialize_cmd_ping_request_test() {
 	}
 
 	if (deserialized.command != MAESTRO_NOTE_PING) {
-		fprintf(stderr, "Unexpected maestro command: %"PRIi64"\n", deserialized.command);
+		fprintf(stderr, "Unexpected maestro command: %"PRIu32"\n", deserialized.command);
 		goto err_exit;
 	}
 
@@ -110,7 +110,7 @@ static bool maestro_serialize_cmd_ping_response_test() {
 
 	if (deserialized.command != MAESTRO_NOTE_PING) {
 		fprintf(
-			stderr, "Unexpected maestro command: %" PRIi64 "\n", deserialized.command);
+			stderr, "Unexpected maestro command: %" PRIu32 "\n", deserialized.command);
 		goto err_exit;
 	}
 
@@ -176,7 +176,7 @@ static bool maestro_serialize_cmd_ok_test() {
 	}
 
 	if (ok.command != MAESTRO_NOTE_OK) {
-		fprintf(stderr, "Unexpected maestro command: %li\n", ok.command);
+		fprintf(stderr, "Unexpected maestro command: %"PRIu32"\n", ok.command);
 		goto err_exit;
 	}
 
@@ -228,7 +228,7 @@ static bool maestro_serialize_cmd_set_opt_test() {
 	}
 
 	if (deserialized.command != MAESTRO_NOTE_SET) {
-		fprintf(stderr, "Unexpected maestro command: %li\n", deserialized.command);
+		fprintf(stderr, "Unexpected maestro command: %"PRIu32"\n", deserialized.command);
 		goto err_exit;
 	}
 
@@ -302,7 +302,7 @@ static bool maestro_serialize_cmd_stats_response_test() {
 
 	if (deserialized.command != MAESTRO_NOTE_STATS) {
 		fprintf(
-			stderr, "Unexpected maestro command: %" PRIi64 "\n", deserialized.command);
+			stderr, "Unexpected maestro command: %" PRIu32 "\n", deserialized.command);
 		goto err_exit;
 	}
 

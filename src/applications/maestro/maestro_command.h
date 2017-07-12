@@ -28,11 +28,13 @@
 
 #include "maestro_cmd_ctxt.h"
 
+#include "maestro/maestro_debug.h"
 #include "maestro/maestro_easy.h"
 #include "maestro/maestro_note.h"
 #include "maestro/maestro_serialize.h"
 #include "maestro/maestro_deserialize.h"
 #include "maestro/maestro_topics.h"
+
 
 #ifdef __cplusplus
 extern "C" {

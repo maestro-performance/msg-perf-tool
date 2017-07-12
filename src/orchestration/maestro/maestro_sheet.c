@@ -90,7 +90,8 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 	gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Received maestro data: %s", (char *) req->data);
+	//logger(DEBUG, "Received maestro data: %s", (char *) req->data);
+	maestro_trace_proto(req->data, req->size);
 
 	maestro_note_t request = {0};
 	maestro_note_t response = {0};
@@ -109,7 +110,7 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 
 	if (!maestro_deserialize_note(req, &request, status)) {
 		logger(
-			ERROR, "Unable to parse request %s: %s", (char *) req->data, status->message);
+			ERROR, "Unable to parse request: %s", status->message);
 
 		maestro_note_set_cmd(&response, MAESTRO_NOTE_PROTOCOL_ERROR);
 		goto cleanup;

@@ -240,3 +240,7 @@ bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status) {
 
 	return true;
 }
+
+const maestro_player_t *maestro_player() {
+	return splayer;
+}

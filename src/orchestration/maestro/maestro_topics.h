@@ -20,17 +20,22 @@
 
 
 #define MAESTRO_DEFAULT_QOS 1
-#define MAESTRO_DAEMON_SHEETS_COUNT 2
-
-#define MAESTRO_SENDER_DAEMON_SHEETS { "/mpt/daemon", "/mpt/daemon/sender" }
-#define MAESTRO_RECEIVER_DAEMON_SHEETS { "/mpt/daemon", "/mpt/daemon/receiver" }
-#define MAESTRO_BROKERI_DAEMON_SHEETS { "/mpt/daemon", "/mpt/daemon/brokerd" }
-
+#define MAESTRO_DAEMON_SHEETS_COUNT 3
 
 #define MAESTRO_ALL_DAEMONS "/mpt/daemon"
+#define MAESTRO_NOTIFICATIONS "/mpt/notifications"
+
+#define MAESTRO_SENDER_DAEMON_SHEETS { MAESTRO_ALL_DAEMONS, MAESTRO_NOTIFICATIONS, "/mpt/daemon/sender" }
+#define MAESTRO_RECEIVER_DAEMON_SHEETS { MAESTRO_ALL_DAEMONS, MAESTRO_NOTIFICATIONS, "/mpt/daemon/receiver" }
+#define MAESTRO_BROKERI_DAEMON_SHEETS { MAESTRO_ALL_DAEMONS, MAESTRO_NOTIFICATIONS, "/mpt/daemon/brokerd" }
+
+
+
 #define MAESTRO_SENDER_DAEMONS "/mpt/daemon/sender"
 #define MAESTRO_RECEIVER_DAEMONS "/mpt/daemon/receiver"
 #define MAESTRO_BROKER_INSPECTOR_DAEMONS "/mpt/daemon/brokerd"
+
+
 
 
 #endif //MPT_MAESTRO_TOPICS_H

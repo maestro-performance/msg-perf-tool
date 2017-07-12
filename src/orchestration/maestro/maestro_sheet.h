@@ -25,6 +25,7 @@
 #include "mpt-debug.h"
 #include "msg_content_data.h"
 
+#include "maestro_debug.h"
 #include "maestro_instrument.h"
 #include "maestro_note.h"
 #include "maestro_serialize.h"

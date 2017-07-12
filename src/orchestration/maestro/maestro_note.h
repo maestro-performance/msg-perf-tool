@@ -38,7 +38,8 @@ extern "C" {
 
 typedef enum maestro_request_type_ {
   MAESTRO_TYPE_REQUEST,
-  MAESTRO_TYPE_RESPONSE
+  MAESTRO_TYPE_RESPONSE,
+  MAESTRO_TYPE_NOTIFICATION,
 } maestro_request_type;
 
 typedef enum maestro_command_t_ {
@@ -60,6 +61,9 @@ typedef enum maestro_command_t_ {
 	MAESTRO_NOTE_PROTOCOL_ERROR,
 	MAESTRO_NOTE_INTERNAL_ERROR,
   	MAESTRO_NOTE_ABNORMAL_DISCONNECT,
+
+  	/** Notifications */
+  	MAESTRO_NOTE_NOTIFY_FAIL,
 } maestro_command_t;
 
 
@@ -132,11 +136,15 @@ typedef union maestro_payload_t_ {
 		maestro_payload_set_t set;
 		maestro_payload_ping_request_t ping;
 	} request;
+
+  	union {
+	  	char *str;
+	} notification;
 } maestro_payload_t;
 
 typedef struct maestro_note_t_ {
 	maestro_request_type type;
-	int64_t command;
+  	maestro_command_t command;
 	maestro_payload_t *payload;
 } maestro_note_t;
 
