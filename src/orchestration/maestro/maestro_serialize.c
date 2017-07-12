@@ -159,7 +159,7 @@ static bool maestro_serialize_stats_response(const maestro_note_t *note,
 	return true;
 }
 
-bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out) {
+static bool maestro_serialize_request(const maestro_note_t *note, msg_content_data_t *out) {
 	bool ret = false;
 
 	switch (note->command) {
@@ -168,27 +168,61 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 			break;
 		}
 		case MAESTRO_NOTE_PING: {
-			if (note->type == MAESTRO_TYPE_REQUEST) {
-				ret = maestro_serialize_ping_request(note, out);
-			}
-		  	else {
-				ret = maestro_serialize_ping_response(note, out);
-			}
+			ret = maestro_serialize_ping_request(note, out);
 
 			break;
 		}
 		case MAESTRO_NOTE_STATS: {
-			if (note->type == MAESTRO_TYPE_REQUEST) {
-			  ret = maestro_serialize_empty_exchange(note, out);
-		  	}
-		  	else {
-				ret = maestro_serialize_stats_response(note, out);
-		  	}
+			ret = maestro_serialize_empty_exchange(note, out);
 
-		  	break;
+			break;
 		}
 		default: {
 			ret = maestro_serialize_empty_exchange(note, out);
+
+			break;
+		}
+	}
+
+	return ret;
+}
+
+static bool maestro_serialize_response(const maestro_note_t *note, msg_content_data_t *out) {
+	bool ret = false;
+
+	switch (note->command) {
+		case MAESTRO_NOTE_PING: {
+			ret = maestro_serialize_ping_response(note, out);
+
+			break;
+		}
+		case MAESTRO_NOTE_STATS: {
+			ret = maestro_serialize_stats_response(note, out);
+
+			break;
+		}
+		default: {
+			ret = maestro_serialize_empty_exchange(note, out);
+			break;
+		}
+	}
+
+	return ret;
+}
+
+
+bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out) {
+	bool ret = false;
+
+	switch (note->type) {
+		case MAESTRO_TYPE_REQUEST: {
+			ret = maestro_serialize_request(note, out);
+
+			break;
+		}
+		case MAESTRO_TYPE_RESPONSE: {
+			ret = maestro_serialize_response(note, out);
+
 			break;
 		}
 	}

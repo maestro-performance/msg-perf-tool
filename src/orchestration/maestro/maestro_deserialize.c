@@ -344,6 +344,59 @@ static bool maestro_deserialize_note_stats_response(const msg_content_data_t *in
 	return true;
 }
 
+static bool maestro_deserialize_response(const msg_content_data_t *in,
+										 maestro_note_t *note,
+										 msgpack_unpacked *msg,
+										 size_t *offset,
+										 gru_status_t *status)
+{
+	if (!maestro_note_payload_prepare(note, status)) {
+		return false;
+	}
+
+	bool ret = maestro_deserialize_response_header(in, note, msg, offset, status);
+
+	switch (note->command) {
+
+		case MAESTRO_NOTE_PING: {
+			ret = maestro_deserialize_note_ping_response(in, note, msg, offset, status);
+
+			break;
+		}
+		case MAESTRO_NOTE_STATS: {
+			ret = maestro_deserialize_note_stats_response(in, note, msg, offset, status);
+		}
+	}
+
+	return ret;
+}
+
+static bool maestro_deserialize_request(const msg_content_data_t *in,
+										 maestro_note_t *note,
+										 msgpack_unpacked *msg,
+										 size_t *offset,
+										 gru_status_t *status)
+{
+	bool ret;
+
+	switch (note->command) {
+		case MAESTRO_NOTE_SET: {
+			ret = maestro_deserialize_note_set_request(in, note, msg, offset, status);
+
+			break;
+		}
+		case MAESTRO_NOTE_PING: {
+			ret = maestro_deserialize_note_ping_request(in, note, msg, offset, status);
+
+			break;
+		}
+
+	}
+
+	return ret;
+}
+
+
 
 bool maestro_deserialize_note(const msg_content_data_t *in,
 	maestro_note_t *note,
@@ -391,37 +444,16 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 
 	bool pl_ret = true;
 
-	if (note->type == MAESTRO_TYPE_RESPONSE) {
-		if (!maestro_note_payload_prepare(note, status)) {
-			goto err_exit;
-		}
-
-		pl_ret = maestro_deserialize_response_header(in, note, &msg, &offset, status);
-	}
-
-	switch (note->command) {
-		case MAESTRO_NOTE_SET: {
-			if (note->type == MAESTRO_TYPE_REQUEST) {
-				pl_ret =
-					maestro_deserialize_note_set_request(in, note, &msg, &offset, status);
-			}
+	switch (note->type) {
+		case MAESTRO_TYPE_RESPONSE: {
+			pl_ret = maestro_deserialize_response(in, note, &msg, &offset, status);
 
 			break;
 		}
-		case MAESTRO_NOTE_PING: {
-			if (note->type == MAESTRO_TYPE_REQUEST) {
-				pl_ret = maestro_deserialize_note_ping_request(in, note, &msg, &offset, status);
-			}
-			else {
-			  pl_ret = maestro_deserialize_note_ping_response(in, note, &msg, &offset, status);
-			}
+		case MAESTRO_TYPE_REQUEST: {
+			pl_ret = maestro_deserialize_request(in, note, &msg, &offset, status);
 
 			break;
-		}
-		case MAESTRO_NOTE_STATS: {
-			if (note->type == MAESTRO_TYPE_RESPONSE) {
-				pl_ret = maestro_deserialize_note_stats_response(in, note, &msg, &offset, status);
-			}
 		}
 	}
 
@@ -430,7 +462,7 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 	}
 
 	msgpack_unpacked_destroy(&msg);
-	return true;
+	return pl_ret;
 
 err_exit:
 	msgpack_unpacked_destroy(&msg);
