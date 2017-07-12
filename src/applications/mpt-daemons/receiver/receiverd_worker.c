@@ -196,6 +196,9 @@ static bool receiverd_worker_eval_latency(worker_info_t *worker_info, gru_status
 	int64_t latency = gru_time_to_milli(&worker_info->snapshot.latency.elapsed);
 
 	if (latency > worker_options.condition.latency) {
+		logger_t logger = gru_logger_get();
+
+		logger(ERROR, "Current latency %"PRIi64" exceeded the maximum value %" PRIi64"");
 		return false;
 	}
 
@@ -223,6 +226,7 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	worker_handler_t worker_handler = {0};
 
 	if (worker.options->rate > 0) {
+		logger(INFO, "Launching rate-based workers for the test");
 		worker.naming_options = NM_RATE | NM_LATENCY;
 		children = worker_manager_clone(&worker, rate_receiver_start, &status);
 
@@ -230,6 +234,7 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 		worker_handler.eval = receiverd_worker_eval_latency;
 	}
 	else {
+		logger(INFO, "Launching naive workers for the test");
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 		children = worker_manager_clone(&worker, naive_receiver_start, &status);
 	}

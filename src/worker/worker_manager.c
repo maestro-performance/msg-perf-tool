@@ -132,6 +132,7 @@ static bool worker_manager_watchdog(gru_list_t *list, worker_handler_t *handler,
 
 			if (handler->flags & WRK_HANDLE_EVAL) {
 				if (!handler->eval(worker_info, status)) {
+					logger(DEBUG, "Worker handler eval failed: %s", status->message);
 					return false;
 				}
 			}
