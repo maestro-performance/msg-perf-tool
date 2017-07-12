@@ -168,7 +168,11 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			}
 		}
 
-		worker_manager_watchdog_loop(children, receiver_print_partial);
+		worker_handler_t worker_handler = {0};
+		worker_handler.flags = WRK_HANDLE_PRINT;
+		worker_handler.print = receiver_print_partial;
+
+		worker_manager_watchdog_loop(children, &worker_handler, &status);
 
 		gru_list_clean(children, worker_info_destroy_wrapper);
 		gru_list_destroy(&children);

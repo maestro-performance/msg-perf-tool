@@ -43,6 +43,7 @@
 #include "worker_types.h"
 #include "worker_utils.h"
 #include "worker_info.h"
+#include "worker_handler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,7 +51,6 @@ extern "C" {
 
 #define MPT_MANAGER_SHUTDOWN_WAIT 10000
 
-typedef bool(worker_snapshot_updater)(worker_info_t *worker_info);
 
 typedef worker_ret_t (*worker_start_fn)(const worker_t *worker,
 											  worker_snapshot_t *snapshot,
@@ -75,7 +75,7 @@ gru_list_t *worker_manager_clone(worker_t *worker,
  * @param handler A watchdog handler function. A handler function must always return true,
  * otherwise it causes the watchdog to stop running.
  */
-void worker_manager_watchdog_loop(gru_list_t *children, worker_snapshot_updater handler);
+void worker_manager_watchdog_loop(gru_list_t *children, worker_handler_t *handler, gru_status_t *status);
 
 /**
  * Stops all workers in the workers list
@@ -84,13 +84,6 @@ void worker_manager_watchdog_loop(gru_list_t *children, worker_snapshot_updater 
  */
 bool worker_manager_stop(gru_list_t *list);
 
-
-/**
- * A simple handler that copies the data from the shared buffer into
- * @param worker_info
- * @return true if successfully update the snapshot or false otherwise
- */
-bool worker_manager_update_snapshot(worker_info_t *worker_info);
 
 #ifdef __cplusplus
 }

@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <worker_options.h>
 #include "receiverd_worker.h"
 
 bool started = false;
@@ -183,6 +184,24 @@ static maestro_sheet_t *receiverd_new_sheet(gru_status_t *status) {
 	return ret;
 }
 
+static bool receiverd_worker_eval_rate(worker_info_t *worker_info, gru_status_t *status) {
+	if (worker_info->snapshot.throughput.rate < worker_options.condition.rate) {
+		return false;
+	}
+
+	return true;
+}
+
+static bool receiverd_worker_eval_latency(worker_info_t *worker_info, gru_status_t *status) {
+	int64_t latency = gru_time_to_milli(&worker_info->snapshot.latency.elapsed);
+
+	if (latency > worker_options.condition.latency) {
+		return false;
+	}
+
+	return true;
+}
+
 static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
@@ -201,16 +220,19 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	worker.report_format = FORMAT_CSV;
 
 
+	worker_handler_t worker_handler = {0};
+
 	if (worker.options->rate > 0) {
 		worker.naming_options = NM_RATE | NM_LATENCY;
 		children = worker_manager_clone(&worker, rate_receiver_start, &status);
+
+		worker_handler.flags = WRK_HANDLE_EVAL;
+		worker_handler.eval = receiverd_worker_eval_latency;
 	}
 	else {
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 		children = worker_manager_clone(&worker, naive_receiver_start, &status);
 	}
-
-
 
 	if (!children && !gru_status_success(&status)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);
@@ -223,7 +245,11 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 		}
 	}
 
-	worker_manager_watchdog_loop(children, worker_manager_update_snapshot);
+	worker_manager_watchdog_loop(children, &worker_handler, &status);
+	if (!gru_status_success(&status)) {
+		logger(ERROR, "Test failed: %s", status.message);
+	}
+
 
 	gru_list_clean(children, worker_info_destroy_wrapper);
 	gru_list_destroy(&children);

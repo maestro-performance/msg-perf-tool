@@ -33,6 +33,12 @@ typedef enum test_duration_type_t_ {
 	TEST_TIME,
 } test_duration_type_t;
 
+typedef enum test_condition_type_t_ {
+  MPT_COND_NONE = 0,
+  MPT_COND_RATE = 1,
+  MPT_COND_LATENCY = 2,
+} test_condition_type_t;
+
 typedef struct worker_options_t_ {
 	gru_uri_t uri;
 
@@ -41,6 +47,13 @@ typedef struct worker_options_t_ {
 		uint64_t count;
 		gru_duration_t time;
 	} duration;
+
+  	test_condition_type_t condition_type;
+
+  	union {
+	  double rate;
+	  int64_t latency;
+	} condition;
 
 	log_level_t log_level;
 	uint16_t parallel_count;

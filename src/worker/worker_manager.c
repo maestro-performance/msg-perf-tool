@@ -88,7 +88,7 @@ gru_list_t *worker_manager_clone(worker_t *worker,
 	return ret;
 }
 
-bool worker_manager_update_snapshot(worker_info_t *worker_info) {
+static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 	bool ret;
 
 	ret = shr_buff_read(worker_info->shr, &worker_info->snapshot,
@@ -106,7 +106,7 @@ bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 }
 
 
-static bool worker_manager_watchdog(gru_list_t *list, worker_snapshot_updater handler) {
+static bool worker_manager_watchdog(gru_list_t *list, worker_handler_t *handler, gru_status_t *status) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
@@ -124,11 +124,18 @@ static bool worker_manager_watchdog(gru_list_t *list, worker_snapshot_updater ha
 
 		// waitpid returns 0 if WNOHANG and there's no change of state for the process
 		if (pid == 0) {
-			if (handler(worker_info)) {
-				node = node->next;
-			} else {
-				return false;
+			worker_manager_update_snapshot(worker_info);
+
+			if (handler->flags & WRK_HANDLE_PRINT) {
+				handler->print(worker_info);
 			}
+
+			if (handler->flags & WRK_HANDLE_EVAL) {
+				if (!handler->eval(worker_info, status)) {
+					return false;
+				}
+			}
+
 		} else {
 			if (WIFEXITED(wstatus)) {
 				logger(INFO,
@@ -160,12 +167,12 @@ static bool worker_manager_watchdog(gru_list_t *list, worker_snapshot_updater ha
 	return true;
 }
 
-void worker_manager_watchdog_loop(gru_list_t *children, worker_snapshot_updater handler) {
+void worker_manager_watchdog_loop(gru_list_t *children, worker_handler_t *handler, gru_status_t *status) {
 	const int wait_time = 1;
 
 	while (children && gru_list_count(children) > 0) {
 		mpt_trace("There are still %d children running", gru_list_count(children));
-		if (worker_manager_watchdog(children, handler)) {
+		if (worker_manager_watchdog(children, handler, status)) {
 			sleep(wait_time);
 		}
 		else {

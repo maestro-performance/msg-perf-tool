@@ -217,7 +217,9 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 		}
 	}
 
-	worker_manager_watchdog_loop(children, worker_manager_update_snapshot);
+	worker_handler_t worker_handler = {0};
+
+	worker_manager_watchdog_loop(children, &worker_handler, &status);
 
 	gru_list_clean(children, worker_info_destroy_wrapper);
 	gru_list_destroy(&children);
