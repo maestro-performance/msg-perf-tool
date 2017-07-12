@@ -253,6 +253,8 @@ static int maestro_cmd_set_opt_by_name(msg_content_data_t *data,
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_THROTTLE, val);
 	} else if (strcmp(opt, "rate") == 0) {
 		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_SET_RATE, val);
+	} else if (strcmp(opt, "fcl") == 0) {
+		maestro_note_set_opt(&note, MAESTRO_NOTE_OPT_FCL, val);
 	} else {
 		return -1;
 	}

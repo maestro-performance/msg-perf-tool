@@ -83,7 +83,9 @@ typedef enum set_opts_t_ {
 	/** Set throtle */
 	MAESTRO_NOTE_OPT_SET_THROTTLE,
   	/** Set rate */
-	MAESTRO_NOTE_OPT_SET_RATE
+	MAESTRO_NOTE_OPT_SET_RATE,
+	/** Set fail condition  */
+	MAESTRO_NOTE_OPT_FCL
 } set_opts_t;
 
 

@@ -13,7 +13,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
- #include "daemon_common.h"
+#include <worker_options.h>
+#include "daemon_common.h"
 
 void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response,
 	worker_options_t *worker_options)
@@ -100,6 +101,15 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 		logger(INFO, "Setting throttle option");
 
 		worker_options->rate = atoi(body.value);
+		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+
+		return NULL;
+	}
+
+	if (body.opt == MAESTRO_NOTE_OPT_FCL) {
+		logger(INFO, "Setting fail-condition-latency option");
+
+		worker_options->condition.latency = atoi(body.value);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 
 		return NULL;
