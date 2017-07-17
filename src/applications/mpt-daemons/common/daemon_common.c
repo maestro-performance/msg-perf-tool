@@ -107,7 +107,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_FCL) {
-		logger(INFO, "Setting fail-condition-latency option");
+		logger(INFO, "Setting fcl (fail condition latency) option");
 
 		worker_options->condition.latency = atoi(body.value);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);

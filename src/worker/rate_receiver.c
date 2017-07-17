@@ -117,9 +117,6 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 		}
 
 		gru_time_add_microseconds(&snapshot->eta, interval);
-
-		// if lat > threshold
-		// fail
 	}
 	logger(DEBUG, "Finalizing sender loop");
 
