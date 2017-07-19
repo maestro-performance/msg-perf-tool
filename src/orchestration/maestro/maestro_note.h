@@ -139,8 +139,12 @@ typedef union maestro_payload_t_ {
 		maestro_payload_ping_request_t ping;
 	} request;
 
-  	union {
-	  	char *str;
+  	struct notification_t {
+	  	char *id;
+	  	char *name;
+	  	union {
+		  char *message;
+		} body;
 	} notification;
 } maestro_payload_t;
 
@@ -162,14 +166,19 @@ bool maestro_note_payload_prepare(maestro_note_t *note, gru_status_t *status);
 void maestro_note_payload_cleanup(maestro_note_t *note);
 
 /**
- * Sets the client ID in the ping response
+ * Sets the client ID in the exchange
  */
 void maestro_note_response_set_id(maestro_note_t *note, const char *id);
 
 /**
- * Sets the client name in the ping response
+ * Sets the client name in the exchange
  */
 void maestro_note_response_set_name(maestro_note_t *note, const char *name);
+
+/**
+ * Sets the string for a notification message
+ */
+void maestro_note_notification_set_message(maestro_note_t *note, const char *message);
 
 /**
  * Sets the timestamp in the ping request

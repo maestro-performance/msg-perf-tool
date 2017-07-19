@@ -14,15 +14,24 @@
  *   limitations under the License.
  */
 #include "maestro_serialize.h"
+#include "maestro_note.h"
+
+static inline void maestro_serialize_str_field(msgpack_packer *pk, const char *str) {
+	size_t size = strlen(str);
+
+	msgpack_pack_str(pk, size);
+	msgpack_pack_str_body(pk, str, size);
+}
+
 
 static void maestro_serialize_response_header(const maestro_note_t *note, msgpack_packer *pk) {
-	msgpack_pack_str(pk, strlen(note->payload->response.id));
-	msgpack_pack_str_body(
-		pk, note->payload->response.id, strlen(note->payload->response.id));
+	maestro_serialize_str_field(pk, note->payload->response.id);
+	maestro_serialize_str_field(pk, note->payload->response.name);
+}
 
-	msgpack_pack_str(pk, strlen(note->payload->response.name));
-	msgpack_pack_str_body(
-		pk, note->payload->response.name, strlen(note->payload->response.name));
+static void maestro_serialize_notification_header(const maestro_note_t *note, msgpack_packer *pk) {
+	maestro_serialize_str_field(pk, note->payload->response.id);
+	maestro_serialize_str_field(pk, note->payload->notification.name);
 }
 
 static bool maestro_serialize_empty_exchange(const maestro_note_t *note,
@@ -49,6 +58,7 @@ static bool maestro_serialize_empty_exchange(const maestro_note_t *note,
 	return true;
 }
 
+
 static bool maestro_note_set_request(const maestro_note_t *note,
 	msg_content_data_t *out) {
 
@@ -63,9 +73,7 @@ static bool maestro_note_set_request(const maestro_note_t *note,
 
 	msgpack_pack_int64(&pk, note->payload->request.set.opt);
 
-	msgpack_pack_str(&pk, strlen(note->payload->request.set.value));
-	msgpack_pack_str_body(&pk, note->payload->request.set.value,
-		strlen(note->payload->request.set.value));
+	maestro_serialize_str_field(&pk, note->payload->request.set.value);
 
 	msg_content_data_copy(out, sbuf.data, sbuf.size);
 
@@ -132,24 +140,40 @@ static bool maestro_serialize_stats_response(const maestro_note_t *note,
 
 	msgpack_pack_uint32(&pk, note->payload->response.body.stats.child_count);
 
-	msgpack_pack_str(&pk, strlen(note->payload->response.body.stats.role));
-	msgpack_pack_str_body(
-		&pk, note->payload->response.body.stats.role, strlen(note->payload->response.body.stats.role));
-
-	msgpack_pack_str(&pk, strlen(note->payload->response.body.stats.roleinfo));
-	msgpack_pack_str_body(
-		&pk, note->payload->response.body.stats.roleinfo, strlen(note->payload->response.body.stats.roleinfo));
+	maestro_serialize_str_field(&pk, note->payload->response.body.stats.role);
+	maestro_serialize_str_field(&pk, note->payload->response.body.stats.roleinfo);
 
 	msgpack_pack_uint8(&pk, note->payload->response.body.stats.stat_type);
 
-	msgpack_pack_str(&pk, strlen(note->payload->response.body.stats.stats.perf.timestamp));
-	msgpack_pack_str_body(
-		&pk, note->payload->response.body.stats.stats.perf.timestamp,
-		strlen(note->payload->response.body.stats.stats.perf.timestamp));
+	maestro_serialize_str_field(&pk,
+								note->payload->response.body.stats.stats.perf.timestamp);
 
 	msgpack_pack_uint64(&pk, note->payload->response.body.stats.stats.perf.count);
 	msgpack_pack_double(&pk, note->payload->response.body.stats.stats.perf.rate);
 	msgpack_pack_double(&pk, note->payload->response.body.stats.stats.perf.latency);
+
+	msg_content_data_copy(out, sbuf.data, sbuf.size);
+
+	msgpack_sbuffer_destroy(&sbuf);
+
+	return true;
+}
+
+static bool maestro_serialize_notification_exchange(const maestro_note_t *note,
+											 msg_content_data_t *out) {
+
+	msgpack_sbuffer sbuf;
+	msgpack_packer pk;
+
+	msgpack_sbuffer_init(&sbuf);
+	msgpack_packer_init(&pk, &sbuf, msgpack_sbuffer_write);
+
+	msgpack_pack_int8(&pk, note->type);
+	msgpack_pack_int64(&pk, note->command);
+
+	maestro_serialize_notification_header(note, &pk);
+
+	maestro_serialize_str_field(&pk, note->payload->notification.body.message);
 
 	msg_content_data_copy(out, sbuf.data, sbuf.size);
 
@@ -209,6 +233,9 @@ static bool maestro_serialize_response(const maestro_note_t *note, msg_content_d
 	return ret;
 }
 
+static bool maestro_serialize_notification(const maestro_note_t *note, msg_content_data_t *out) {
+	return maestro_serialize_notification_exchange(note, out);
+}
 
 bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out) {
 	bool ret = false;
@@ -221,6 +248,11 @@ bool maestro_serialize_note(const maestro_note_t *note, msg_content_data_t *out)
 		}
 		case MAESTRO_TYPE_RESPONSE: {
 			ret = maestro_serialize_response(note, out);
+
+			break;
+		}
+		case MAESTRO_TYPE_NOTIFICATION: {
+			ret = maestro_serialize_notification(note, out);
 
 			break;
 		}

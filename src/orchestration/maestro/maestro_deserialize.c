@@ -151,7 +151,7 @@ static bool maestro_deserialize_response_header(const msg_content_data_t *in,
 	if (ret != MSGPACK_UNPACK_SUCCESS) {
 		gru_status_set(status,
 					   GRU_FAILURE,
-					   "Unable to unpack ping response: invalid and/or missing ID");
+					   "Unable to unpack response: invalid and/or missing ID");
 
 		return false;
 	}
@@ -164,12 +164,12 @@ static bool maestro_deserialize_response_header(const msg_content_data_t *in,
 		return false;
 	}
 
-	// Ping - client name
+	// Client name
 	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
 	if (ret != MSGPACK_UNPACK_SUCCESS) {
 		gru_status_set(status,
 					   GRU_FAILURE,
-					   "Unable to unpack ping response: invalid and/or missing name");
+					   "Unable to unpack response: invalid and/or missing name");
 
 		return false;
 	}
@@ -183,7 +183,50 @@ static bool maestro_deserialize_response_header(const msg_content_data_t *in,
 	}
 
 	return true;
+}
 
+static bool maestro_deserialize_notification_header(const msg_content_data_t *in,
+												maestro_note_t *note,
+												msgpack_unpacked *msg,
+												size_t *offset,
+												gru_status_t *status) {
+	// Client ID
+	msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack notification: invalid and/or missing ID");
+
+		return false;
+	}
+
+	note->payload->notification.id = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->notification.id, false);
+
+	if (!maestro_deserialize_note_assign(
+		msg->data, note->payload->notification.id, status)) {
+		return false;
+	}
+
+	// Client name
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack notification: invalid and/or missing name");
+
+		return false;
+	}
+
+	note->payload->notification.name = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->notification.name, false);
+
+	if (!maestro_deserialize_note_assign(
+		msg->data, note->payload->notification.name, status)) {
+		return false;
+	}
+
+	return true;
 }
 
 static bool maestro_deserialize_note_ping_response(const msg_content_data_t *in,
@@ -403,6 +446,45 @@ static bool maestro_deserialize_request(const msg_content_data_t *in,
 }
 
 
+static bool maestro_deserialize_notification(const msg_content_data_t *in,
+										 maestro_note_t *note,
+										 msgpack_unpacked *msg,
+										 size_t *offset,
+										 gru_status_t *status)
+{
+
+	if (!maestro_note_payload_prepare(note, status)) {
+		return false;
+	}
+
+	if (!maestro_deserialize_notification_header(in, note, msg, offset, status)) {
+		return false;
+	}
+
+
+
+	// message
+	msgpack_unpack_return ret = msgpack_unpack_next(msg, in->data, in->size, offset);
+
+	if (ret != MSGPACK_UNPACK_SUCCESS) {
+		gru_status_set(status,
+					   GRU_FAILURE,
+					   "Unable to unpack notification message: invalid and/or missing message");
+
+		return false;
+	}
+
+	note->payload->notification.body.message = gru_alloc(msg->data.via.str.size + 1, status);
+	gru_alloc_check(note->payload->notification.body.message, false);
+
+	if (!maestro_deserialize_note_assign(msg->data, note->payload->notification.body.message, status)) {
+		return false;
+	}
+
+	return true;
+}
+
+
 
 bool maestro_deserialize_note(const msg_content_data_t *in,
 	maestro_note_t *note,
@@ -458,6 +540,11 @@ bool maestro_deserialize_note(const msg_content_data_t *in,
 		}
 		case MAESTRO_TYPE_REQUEST: {
 			pl_ret = maestro_deserialize_request(in, note, &msg, &offset, status);
+
+			break;
+		}
+		case MAESTRO_TYPE_NOTIFICATION: {
+			pl_ret = maestro_deserialize_notification(in, note, &msg, &offset, status);
 
 			break;
 		}

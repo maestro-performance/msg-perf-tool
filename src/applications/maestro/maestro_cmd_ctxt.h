@@ -74,11 +74,13 @@ void maestro_cmd_ctxt_stop(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
 
 /**
  * Subscribe to a maestro topic for command forwarding
- * @param cmd_ctxt
- * @param status
+ * @param cmd_ctxt command context
+ * @param mtopic multiple topic specification
+ * @param status status
  * @return
  */
-bool maestro_cmd_ctxt_forwarder(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status);
+bool maestro_cmd_ctxt_forwarder(maestro_cmd_ctxt_t *cmd_ctxt, vmsl_mtopic_spec_t *mtopic,
+								gru_status_t *status);
 
 /**
  * Send a maestro command via VMSL

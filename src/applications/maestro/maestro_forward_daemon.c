@@ -15,6 +15,8 @@
  */
 #include "maestro_forward_daemon.h"
 
+static char *locations[] = MAESTRO_CLI_TOPICS;
+
 static void maestro_loop_reply_run(maestro_cmd_ctxt_t *cmd_ctxt,
 	int queue,
 	gru_status_t *status) {
@@ -68,7 +70,7 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 	logger(DEBUG, "Generating unique ID");
 	msg_conn_info_gen_id(&opt.conn_info);
 
-	gru_uri_set_path(&uri, "/mpt/maestro");
+	gru_uri_set_path(&uri, MAESTRO_TOPIC);
 	opt.uri = uri;
 
 	logger(DEBUG, "Initializing command context for: %s", uri.host);
@@ -83,7 +85,13 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 		return;
 	}
 
-	if (!maestro_cmd_ctxt_forwarder(cmd_ctxt, status)) {
+	vmsl_mtopic_spec_t location = {0};
+
+	location.count = MAESTRO_CLI_COUNT;
+	location.topics = locations;
+	location.qos = MAESTRO_DEFAULT_QOS;
+
+	if (!maestro_cmd_ctxt_forwarder(cmd_ctxt, &location, status)) {
 		return;
 	}
 

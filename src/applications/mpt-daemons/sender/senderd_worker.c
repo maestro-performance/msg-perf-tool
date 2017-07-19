@@ -173,6 +173,11 @@ static maestro_sheet_t *senderd_new_sheet(gru_status_t *status) {
 
 	maestro_sheet_add_instrument(ret, halt_instrument);
 
+	maestro_instrument_t *notify_instrument =
+		maestro_instrument_new(MAESTRO_NOTE_NOTIFY_FAIL, senderd_handle_stop, status);
+
+	maestro_sheet_add_instrument(ret, notify_instrument);
+
 	return ret;
 }
 

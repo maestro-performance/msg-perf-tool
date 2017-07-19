@@ -169,13 +169,13 @@ static bool worker_manager_watchdog(gru_list_t *list, worker_handler_t *handler,
 }
 
 void worker_manager_watchdog_loop(gru_list_t *children, worker_handler_t *handler, gru_status_t *status) {
-	const int wait_time = 1;
+	const int wait_time = 250000;
 
 	uint32_t count = gru_list_count(children);
 	while (children && count > 0) {
 		mpt_trace("There are still %d children running", count);
 		if (worker_manager_watchdog(children, handler, status)) {
-			sleep(wait_time);
+			usleep(wait_time);
 			count = gru_list_count(children);
 		}
 		else {

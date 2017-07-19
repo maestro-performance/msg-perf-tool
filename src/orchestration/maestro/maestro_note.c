@@ -46,11 +46,27 @@ void maestro_note_payload_cleanup(maestro_note_t *note) {
 }
 
 void maestro_note_response_set_id(maestro_note_t *note, const char *id) {
-	note->payload->response.id = strdup(id);
+	if (note->type == MAESTRO_TYPE_RESPONSE) {
+		note->payload->response.id = strdup(id);
+	}
+
+	if (note->type == MAESTRO_TYPE_NOTIFICATION) {
+		note->payload->notification.id = strdup(id);
+	}
+
 }
 
 void maestro_note_response_set_name(maestro_note_t *note, const char *name) {
-	note->payload->response.name = strdup(name);
+	if (note->type == MAESTRO_TYPE_RESPONSE) {
+		note->payload->response.name = strdup(name);
+	}
+	if (note->type == MAESTRO_TYPE_NOTIFICATION) {
+		note->payload->notification.name = strdup(name);
+	}
+}
+
+void maestro_note_notification_set_message(maestro_note_t *note, const char *message) {
+	note->payload->notification.body.message = strdup(message);
 }
 
 void maestro_note_ping_set_ts(maestro_note_t *note, gru_timestamp_t ts) {

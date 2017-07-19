@@ -97,11 +97,12 @@ void maestro_cmd_ctxt_stop(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 }
 
 
-bool maestro_cmd_ctxt_forwarder(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
+bool maestro_cmd_ctxt_forwarder(maestro_cmd_ctxt_t *cmd_ctxt, vmsl_mtopic_spec_t *mtopic,
+								gru_status_t *status) {
 	logger_t  logger = gru_logger_get();
 
 	logger(DEBUG, "Subscribing to the Maestro topic for command forwarding");
-	vmsl_stat_t rstat = cmd_ctxt->vmsl.subscribe(cmd_ctxt->msg_ctxt, NULL, status);
+	vmsl_stat_t rstat = cmd_ctxt->vmsl.subscribe(cmd_ctxt->msg_ctxt, mtopic, status);
 	if (vmsl_stat_error(rstat)) {
 		gru_status_set(status, GRU_FAILURE, "Unable to subscribe to maestro broker");
 

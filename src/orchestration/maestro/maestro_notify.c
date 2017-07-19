@@ -17,17 +17,21 @@
 
 void maestro_notify_test_failed(gru_status_t *status) {
 	logger_t logger = gru_logger_get();
+	logger(INFO, "Sending a test failure notification");
 
 	maestro_note_t note = {0};
 
 	maestro_note_set_type(&note, MAESTRO_TYPE_NOTIFICATION);
 	maestro_note_set_cmd(&note, MAESTRO_NOTE_NOTIFY_FAIL);
 
+	gru_status_t self_status = gru_status_new();
+	maestro_note_payload_prepare(&note, &self_status);
+
 	const maestro_player_t *player = maestro_player();
 
 	maestro_note_response_set_id(&note, player->player_info.id);
 	maestro_note_response_set_name(&note, player->player_info.name);
-	maestro_note_payload_prepare(&note, status);
+	maestro_note_notification_set_message(&note, status->message);
 
 	gru_uri_set_path(&player->ctxt->msg_opts.uri, MAESTRO_NOTIFICATIONS);
 
@@ -44,4 +48,5 @@ void maestro_notify_test_failed(gru_status_t *status) {
 
 	msg_content_data_release(&data);
 	maestro_note_payload_cleanup(&note);
+	logger(INFO, "Sent a test failure notification");
 }

@@ -14,6 +14,7 @@
  *    limitations under the License.
  */
 
+#include <maestro/maestro_note.h>
 #include "maestro_command.h"
 
 static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt,
@@ -108,7 +109,7 @@ int maestro_cmd_stop_all(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	return maestro_cmd_stop_inspector(cmd_ctxt, status);
 }
 
-static void maestro_cmd_print_data(maestro_note_t *note) {
+static void maestro_cmd_print_responses(maestro_note_t *note) {
 	printf("Name: %-45s\tID: %-40s ", note->payload->response.name, note->payload->response.id);
 
 	switch (note->command) {
@@ -139,6 +140,20 @@ static void maestro_cmd_print_data(maestro_note_t *note) {
 	}
 	default: {
 		printf("Error: unhandled response\n");
+		break;
+	}
+	}
+}
+
+static void maestro_cmd_print_notifications(maestro_note_t *note) {
+	printf("Notification from: %-45s\tID: %-40s Message: ", note->payload->response.name, note->payload->response.id);
+
+	switch (note->command) {
+	case MAESTRO_NOTE_NOTIFY_FAIL: {
+		printf("%s\n", note->payload->notification.body.message);
+	}
+	default: {
+		printf("Error: unhandled notification\n");
 		break;
 	}
 	}
@@ -186,7 +201,12 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 			if (!maestro_deserialize_note(&msg, &note, status)) {
 				fprintf(stderr, "Unknown protocol data\n");
 			} else {
-				maestro_cmd_print_data(&note);
+				if (note.type == MAESTRO_TYPE_RESPONSE) {
+					maestro_cmd_print_responses(&note);
+				}
+				else {
+					maestro_cmd_print_notifications(&note);
+				}
 			}
 
 			maestro_note_payload_cleanup(&note);
