@@ -24,9 +24,6 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 
 	maestro_payload_set_t body = request->payload->request.set;
 
-	logger(DEBUG, "Handling a set option request");
-
-
 	if (body.opt == MAESTRO_NOTE_OPT_SET_BROKER) {
 		worker_options->uri = gru_uri_parse(body.value, &status);
 		if (gru_status_error(&status)) {
@@ -39,15 +36,18 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_DURATION_TYPE) {
-		logger(INFO, "Setting duration option");
-
 		gru_duration_t duration = gru_duration_new();
 		if (!gru_duration_parse(&duration, body.value)) {
 			worker_options->duration_type = MESSAGE_COUNT;
 			worker_options->duration.count = atol(body.value);
+
+			logger(INFO, "Set duration count to %"PRIu64"",
+				   worker_options->duration.count);
 		} else {
 			worker_options->duration_type = TEST_TIME;
 			worker_options->duration.time = duration;
+
+			logger(INFO, "Set duration time to %s", body.value);
 		}
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -56,32 +56,34 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_LOG_LEVEL) {
-		logger(INFO, "Setting log-level option");
-
 		worker_options->log_level = gru_logger_get_level(body.value);
 		gru_logger_set_mininum(worker_options->log_level);
+		logger(INFO, "Set log-level to %s", body.value);
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT) {
-		logger(INFO, "Setting parallel count option");
-
 		worker_options->parallel_count = (uint16_t) atoi(body.value);
+
+		logger(INFO, "Set parallel count to %"PRIu16"", worker_options->parallel_count);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 		return NULL;
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE) {
-		logger(INFO, "Setting message size option");
-
 		if (body.value[0] == '~') {
 			worker_options->message_size = atoi(body.value + 1);
 			worker_options->variable_size = true;
+
+			logger(INFO, "Set variable message size to %s", body.value);
 		}
 		else {
 			worker_options->message_size = atoi(body.value);
+
+			logger(INFO, "Set fixed message size to %"PRId64"",
+				   worker_options->message_size);
 		}
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -89,27 +91,28 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_THROTTLE) {
-		logger(INFO, "Setting throttle option");
-
 		worker_options->throttle = atoi(body.value);
+
+		logger(INFO, "Set throttle to %"PRIu32"", worker_options->throttle);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 
 		return NULL;
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_RATE) {
-		logger(INFO, "Setting throttle option");
-
 		worker_options->rate = atoi(body.value);
+
+		logger(INFO, "Set rate to %"PRIu32"", worker_options->rate);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 
 		return NULL;
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_FCL) {
-		logger(INFO, "Setting fcl (fail condition latency) option");
-
 		worker_options->condition.latency = atoi(body.value);
+
+		logger(INFO, "Set fcl (fail-condition-latency) to %"PRId64"",
+			   worker_options->condition.latency);
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 
 		return NULL;
