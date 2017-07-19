@@ -247,41 +247,70 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 	struct timespec ts;
 
 	if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-		sem_trywait(src->sem_read);
+		if (sem_trywait(src->sem_read) != 0) {
+			if (errno == EAGAIN) {
+				return false;
+			}
 
-		if (errno == EAGAIN) {
+			logger_t logger = gru_logger_get();
+
+			logger(WARNING, "Failed to lock the semaphore: %s", strerror(errno));
+
 			return false;
 		}
 	} else {
 		ts.tv_sec = ts.tv_sec + 2;
-		sem_timedwait(src->sem_read, &ts);
+		if (sem_timedwait(src->sem_read, &ts) != 0) {
+			if (errno == ETIMEDOUT || errno == EAGAIN) {
+				return false;
+			}
 
-		if (errno == ETIMEDOUT || errno == EAGAIN) {
+			logger_t logger = gru_logger_get();
+
+			logger(WARNING, "Failed to lock the semaphore: %s", strerror(errno));
+
 			return false;
 		}
 	}
 #else
-	sem_trywait(src->sem_read);
+	if (sem_trywait(src->sem_read) != 0) {
+		if (errno == EAGAIN) {
+			return false;
+		}
 
-	if (errno == EAGAIN) {
+		logger_t logger = gru_logger_get();
+
+		logger(WARNING, "Failed to lock the semaphore: %s", strerror(errno));
+
 		return false;
 	}
 
 #endif // __linux__
 
 	memcpy(dest, src->ptr, len);
-	sem_post(src->sem_read);
+	if (sem_post(src->sem_read) != 0) {
+		logger_t logger = gru_logger_get();
+
+		logger(WARNING, "Failed to unlock the semaphore: %s", strerror(errno));
+
+		return false;
+	}
 	return true;
 }
 
 bool shr_buff_write(volatile shr_data_buff_t *dest, void *src, size_t len) {
-	sem_trywait(dest->sem_read);
-	if (errno == EAGAIN) {
-		return false;
+	if (sem_trywait(dest->sem_read) != 0) {
+		if (errno == EAGAIN) {
+			return false;
+		}
 	}
 
 	memcpy(dest->ptr, src, len);
-	sem_post(dest->sem_read);
+	if (sem_post(dest->sem_read) != 0) {
+		logger_t logger = gru_logger_get();
+
+		logger(WARNING, "Failed to unlock the semaphore: %s", strerror(errno));
+	}
 
 	return true;
 }
