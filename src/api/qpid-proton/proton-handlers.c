@@ -242,9 +242,7 @@ void proton_set_priority(void *ctxt, void *msg, void *payload) {
 	} else {
 		uint8_t priority = (uint8_t ) (rand() % 9);
 
-		logger_t logger = gru_logger_get();
-
-		logger(INFO, "Setting the priority to %d", priority);
+		mpt_trace("Setting the priority to %d", priority);
 		pn_message_set_priority(message, priority);
 	}
 }
