@@ -176,6 +176,7 @@ void worker_manager_watchdog_loop(gru_list_t *children, worker_handler_t *handle
 		mpt_trace("There are still %d children running", count);
 		if (worker_manager_watchdog(children, handler, status)) {
 			sleep(wait_time);
+			count = gru_list_count(children);
 		}
 		else {
 			break;
