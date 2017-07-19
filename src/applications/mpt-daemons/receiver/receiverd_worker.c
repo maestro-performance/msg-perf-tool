@@ -196,9 +196,10 @@ static bool receiverd_worker_eval_latency(worker_info_t *worker_info, gru_status
 	int64_t latency = gru_time_to_milli(&worker_info->snapshot.latency.elapsed);
 
 	if (latency > worker_options.condition.latency) {
-		logger_t logger = gru_logger_get();
+		gru_status_set(status, GRU_FAILURE,
+					   "Current latency %"PRIi64" exceeds the maximum value %" PRIi64"",
+					   latency, worker_options.condition.latency);
 
-		logger(ERROR, "Current latency %"PRIi64" exceeds the maximum value %" PRIi64"");
 		return false;
 	}
 
