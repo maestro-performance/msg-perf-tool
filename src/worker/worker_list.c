@@ -19,7 +19,24 @@ struct worker_list_t {
   gru_list_t *list;
 };
 
-worker_list_t *worker_list_new(gru_status_t *status) {
+static worker_list_t *gwlist;
+
+static void worker_list_destroy(worker_list_t **ptr) {
+	worker_list_t *tmp_list = *ptr;
+
+	if (!tmp_list) {
+		return;
+	}
+
+	if (tmp_list->list) {
+		gru_list_clean(tmp_list->list, worker_info_destroy_wrapper);
+		gru_list_destroy(&tmp_list->list);
+	}
+
+	gru_dealloc((void **) ptr);
+}
+
+static worker_list_t *worker_list_new(gru_status_t *status) {
 	worker_list_t *ret = gru_alloc(sizeof(worker_list_t), status);
 	gru_alloc_check(ret, NULL);
 
@@ -27,29 +44,26 @@ worker_list_t *worker_list_new(gru_status_t *status) {
 	if (!ret->list) {
 		worker_list_destroy(&ret);
 
+
 		return NULL;
 	}
+
 
 	return ret;
 }
 
-void worker_list_destroy(worker_list_t **ptr) {
-	worker_list_t *wlist = *ptr;
+bool worker_list_start(gru_status_t *status) {
+	gwlist = worker_list_new(status);
 
-	if (!wlist) {
-		return;
-	}
-
-	if (wlist->list) {
-		gru_list_clean(wlist->list, worker_info_destroy_wrapper);
-		gru_list_destroy(&wlist->list);
-	}
-
-	gru_dealloc((void **) ptr);
+	return gwlist ? true : false;
 }
 
-bool worker_list_append(worker_list_t *wlist, worker_info_t *winfo, gru_status_t *status) {
-	if (!gru_list_append(wlist->list, winfo)) {
+void worker_list_stop() {
+	worker_list_destroy(&gwlist);
+}
+
+bool worker_list_append(worker_info_t *winfo, gru_status_t *status) {
+	if (!gru_list_append(gwlist->list, winfo)) {
 		gru_status_set(status, GRU_FAILURE, "Unable register new worker: %s",
 					   status->message);
 
@@ -59,20 +73,21 @@ bool worker_list_append(worker_list_t *wlist, worker_info_t *winfo, gru_status_t
 	return true;
 }
 
-gru_node_t *worker_list_root(worker_list_t *wlist) {
-	if (wlist) {
-		if (wlist->list) {
-			return wlist->list->root;
+gru_node_t *worker_list_root() {
+	if (gwlist) {
+		if (gwlist->list) {
+			return gwlist->list->root;
 		}
 	}
 
 	return NULL;
 }
 
-gru_node_t *worker_list_remove(worker_list_t *wlist, gru_node_t *node) {
+
+gru_node_t *worker_list_remove(gru_node_t *node) {
 	gru_node_t *ret = node->next;
 
-	if (!gru_list_remove_node(wlist->list, node)) {
+	if (!gru_list_remove_node(gwlist->list, node)) {
 		logger_t logger = gru_logger_get();
 
 		logger(ERROR, "Unable to remove an orphaned child");
@@ -83,10 +98,10 @@ gru_node_t *worker_list_remove(worker_list_t *wlist, gru_node_t *node) {
 	return ret;
 }
 
-uint32_t worker_list_count(const worker_list_t *wlist) {
-	return gru_list_count(wlist->list);
+uint32_t worker_list_count() {
+	return gru_list_count(gwlist->list);
 }
 
-bool worker_list_active(const worker_list_t *wlist) {
-	return wlist && wlist->list ? true : false;
+bool worker_list_is_running() {
+	return gwlist && gwlist->list ? true : false;
 }

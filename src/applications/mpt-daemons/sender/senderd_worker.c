@@ -18,7 +18,6 @@
 bool started = false;
 bool halt = false;
 worker_options_t worker_options = {0};
-static worker_list_t *children = NULL;
 static char *locations[] = MAESTRO_SENDER_DAEMON_SHEETS;
 
 static void *senderd_handle_set(const maestro_note_t *request,
@@ -34,7 +33,7 @@ static void *senderd_handle_start(const maestro_note_t *request,
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
-	if (started == true || children != NULL) {
+	if (started == true || !worker_list_is_running()) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 	} else {
 		started = true;
@@ -52,11 +51,11 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 	logger(INFO, "Just received a stop request");
 	started = false;
 
-	if (worker_list_active(children)) {
-		if (!worker_manager_stop(children)) {
+	if (worker_list_is_running()) {
+		if (!worker_manager_stop()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
-			worker_list_destroy(&children);
+			worker_list_stop();
 
 			return NULL;
 		}
@@ -75,11 +74,11 @@ static void *senderd_handle_test_failed(const maestro_note_t *request,
 	logger(INFO, "Stopping test execution because a peer reported a test failure");
 	started = false;
 
-	if (worker_list_active(children)) {
-		if (!worker_manager_stop(children)) {
+	if (worker_list_is_running()) {
+		if (!worker_manager_stop()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
-			worker_list_destroy(&children);
+			worker_list_stop();
 
 			return NULL;
 		}
@@ -109,12 +108,12 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 
 	logger(INFO, "Just received a stats request: %s", pinfo->id);
 
-	if (children == NULL) {
+	if (!worker_list_is_running()) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 		return NULL;
 	}
 
-	gru_node_t *node = worker_list_root(children);
+	gru_node_t *node = worker_list_root();
 
 	uint64_t total_msg = 0;
 	double total_rate = 0.0;
@@ -130,7 +129,7 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_STATS);
 
-	uint32_t count_children = worker_list_count(children);
+	uint32_t count_children = worker_list_count();
 	maestro_note_stats_set_child_count(response, count_children);
 	logger(INFO, "Number of children evaluated: %d", count_children);
 
@@ -224,31 +223,33 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 
 	pl_strategy_assign(&worker.pl_strategy, worker.options->variable_size);
 
+	bool cloned;
+
 	if (worker.options->rate > 0) {
 		worker.naming_options = NM_RATE;
-		children = worker_manager_clone(&worker, rate_sender_start, &status);
+		cloned = worker_manager_clone(&worker, rate_sender_start, &status);
 	}
 	else {
 		worker.naming_options = NM_THROUGHPUT;
-		children = worker_manager_clone(&worker, naive_sender_start, &status);
+		cloned = worker_manager_clone(&worker, naive_sender_start, &status);
 	}
 
 
-	if (!children && !gru_status_success(&status)) {
+	if (!cloned && !gru_status_success(&status)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);
 
 		return true;
 	} else {
-		if (!children) {
+		if (!cloned) {
 			return false;
 		}
 	}
 
 	worker_handler_t worker_handler = {0};
 
-	worker_manager_watchdog_loop(children, &worker_handler, &status);
+	worker_manager_watchdog_loop(&worker_handler, &status);
 
-	worker_list_destroy(&children);
+	worker_list_stop();
 
 	return true;
 }

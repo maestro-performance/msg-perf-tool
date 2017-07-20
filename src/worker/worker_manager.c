@@ -15,11 +15,12 @@
  */
 #include "worker_manager.h"
 
-worker_list_t *worker_manager_clone(worker_t *worker,
+bool worker_manager_clone(worker_t *worker,
 								 worker_start_fn worker_start,
 								 gru_status_t *status) {
-	worker_list_t *wlist = worker_list_new(status);
-	gru_alloc_check(wlist, NULL);
+	if (!worker_list_start(status)) {
+		return false;
+	}
 
 	logger_t logger = gru_logger_get();
 
@@ -49,7 +50,7 @@ worker_list_t *worker_manager_clone(worker_t *worker,
 			if (!nmret) {
 				logger(ERROR, "Error initializing performance report writer: %s",
 					   status->message);
-				return NULL;
+				return false;
 			}
 
 			install_interrupt_handler();
@@ -59,7 +60,7 @@ worker_list_t *worker_manager_clone(worker_t *worker,
 			}
 
 			logger(INFO, "Test execution terminated");
-			return NULL;
+			return false;
 		} else {
 			worker_wait_setup();
 
@@ -69,7 +70,7 @@ worker_list_t *worker_manager_clone(worker_t *worker,
 				break;
 			}
 
-			if (!worker_list_append(wlist, worker_info, status)) {
+			if (!worker_list_append(worker_info, status)) {
 				kill(worker_info->child, SIGKILL);
 				worker_info_destroy(&worker_info);
 
@@ -78,7 +79,7 @@ worker_list_t *worker_manager_clone(worker_t *worker,
 		}
 	}
 
-	return wlist;
+	return true;
 }
 
 static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
@@ -98,15 +99,11 @@ static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 	return ret;
 }
 
-static bool worker_manager_watchdog(worker_list_t *list, worker_handler_t *handler, gru_status_t *status) {
+static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *status) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
-	if (list == NULL) {
-		return true;
-	}
-
-	node = worker_list_root(list);
+	node = worker_list_root();
 
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
@@ -146,7 +143,7 @@ static bool worker_manager_watchdog(worker_list_t *list, worker_handler_t *handl
 			}
 
 
-			node = worker_list_remove(list, node);
+			node = worker_list_remove(node);
 
 			gru_dealloc((void **) &worker_info);
 		}
@@ -155,30 +152,26 @@ static bool worker_manager_watchdog(worker_list_t *list, worker_handler_t *handl
 	return true;
 }
 
-void worker_manager_watchdog_loop(worker_list_t *children, worker_handler_t *handler, gru_status_t *status) {
+void worker_manager_watchdog_loop(worker_handler_t *handler, gru_status_t *status) {
 	const int wait_time = 250000;
 
-	uint32_t count = worker_list_count(children);
-	while (worker_list_active(children) && count > 0) {
+	uint32_t count = worker_list_count();
+	while (worker_list_is_running() && count > 0) {
 		mpt_trace("There are still %d children running", count);
-		if (worker_manager_watchdog(children, handler, status)) {
+		if (worker_manager_watchdog(handler, status)) {
 			usleep(wait_time);
-			count = worker_list_count(children);
+			count = worker_list_count();
 		} else {
 			break;
 		}
 	}
 }
 
-bool worker_manager_stop(worker_list_t *list) {
+bool worker_manager_stop() {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
-	if (list == NULL) {
-		return false;
-	}
-
-	node = worker_list_root(list);
+	node = worker_list_root();
 
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);

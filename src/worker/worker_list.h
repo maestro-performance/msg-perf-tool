@@ -33,55 +33,49 @@ extern "C" {
 typedef struct worker_list_t worker_list_t;
 
 /**
- * Creates a new worker_list_t
+ * Starts a new worker_list_t
  * @param status status object
  * @return a new worker list or NULL if unable to create one
  */
-worker_list_t *worker_list_new(gru_status_t *status);
+bool worker_list_start(gru_status_t *status);
 
 /**
- * Destroys a worker list
- * @param ptr
+ * Stops the worker list
  */
-void worker_list_destroy(worker_list_t **ptr);
+void worker_list_stop();
 
 /**
  * Adds a worker to the end of the list
- * @param wlist the list to add the worker to
  * @param winfo the worker information structure
  * @param status status object
  * @return true if successful or false otherwise (in this case, check the status object)
  */
-bool worker_list_append(worker_list_t *wlist, worker_info_t *winfo, gru_status_t *status);
+bool worker_list_append(worker_info_t *winfo, gru_status_t *status);
 
 /**
  * Gets the root object for the worker list
- * @param wlist the list to get the root object
  * @return
  */
-gru_node_t *worker_list_root(worker_list_t *wlist);
+gru_node_t *worker_list_root();
 
 /**
  * Remove a worker from the list (stopping its work is the caller responsibility)
- * @param wlist the list to remove from
  * @param node the node containing the worker to remove
  * @return a pointer to the next worker
  */
-gru_node_t *worker_list_remove(worker_list_t *wlist, gru_node_t *node);
+gru_node_t *worker_list_remove(gru_node_t *node);
 
 /**
  * Gets the number of current workers
- * @param wlist the list of workers
  * @return
  */
-uint32_t worker_list_count(const worker_list_t *wlist);
+uint32_t worker_list_count();
 
 /**
- * Returns whether the current worker list is valid/active or not
- * @param wlist
+ * Returns whether the current worker list is running or not
  * @return
  */
-bool worker_list_active(const worker_list_t *wlist);
+bool worker_list_is_running();
 
 #ifdef __cplusplus
 }

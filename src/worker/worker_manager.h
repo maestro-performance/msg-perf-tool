@@ -58,32 +58,30 @@ typedef worker_ret_t (*worker_start_fn)(const worker_t *worker,
 											  gru_status_t *status);
 
 /**
- * Clone a worker
+ * Clone worker up to the count in the worker options structure
  * @param worker The worker to clone
  * @param worker_start the abstract worker start function (ie:
  * abstract_sender_worker_start)
  * @param status Status container in case of error
- * @return a list of child/clones
+ * @return true if successfully cloned the workers or false otherwise
  */
-worker_list_t *worker_manager_clone(worker_t *worker,
+bool worker_manager_clone(worker_t *worker,
 								 worker_start_fn worker_start,
 								 gru_status_t *status);
 
 
 /**
  * Runs the watchdog loop
- * @param children list of workers (as returned by abstract_worker_clone)
  * @param handler A watchdog handler function. A handler function must always return true,
  * otherwise it causes the watchdog to stop running.
  */
-void worker_manager_watchdog_loop(worker_list_t *children, worker_handler_t *handler, gru_status_t *status);
+void worker_manager_watchdog_loop(worker_handler_t *handler, gru_status_t *status);
 
 /**
  * Stops all workers in the workers list
- * @param list A list of workers to stop
  * @return true unless the list of workers is NULL
  */
-bool worker_manager_stop(worker_list_t *list);
+bool worker_manager_stop();
 
 
 #ifdef __cplusplus

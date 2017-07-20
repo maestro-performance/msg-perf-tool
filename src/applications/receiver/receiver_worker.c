@@ -155,15 +155,14 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		worker.report_format = FORMAT_CSV;
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 
-		worker_list_t *children =
-			worker_manager_clone(&worker, naive_receiver_start, &status);
+		bool cloned = worker_manager_clone(&worker, naive_receiver_start, &status);
 
-		if (!children && !gru_status_success(&status)) {
+		if (!cloned && !gru_status_success(&status)) {
 			logger(ERROR, "Unable to initialize children: %s", status.message);
 
 			return 1;
 		} else {
-			if (!children) {
+			if (!cloned) {
 				return 0;
 			}
 		}
@@ -172,9 +171,9 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		worker_handler.flags = WRK_HANDLE_PRINT;
 		worker_handler.print = receiver_print_partial;
 
-		worker_manager_watchdog_loop(children, &worker_handler, &status);
+		worker_manager_watchdog_loop(&worker_handler, &status);
 
-		worker_list_destroy(&children);
+		worker_list_stop();
 	}
 
 	return 0;
