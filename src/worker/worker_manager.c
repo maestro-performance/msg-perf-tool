@@ -18,7 +18,7 @@
 bool worker_manager_clone(worker_t *worker,
 								 worker_start_fn worker_start,
 								 gru_status_t *status) {
-	if (!worker_list_start(status)) {
+	if (!worker_list_init(status)) {
 		return false;
 	}
 
@@ -144,8 +144,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 
 
 			node = worker_list_remove(node);
-
-			gru_dealloc((void **) &worker_info);
+			worker_info_destroy(&worker_info);
 		}
 	}
 
@@ -237,5 +236,6 @@ bool worker_manager_stop() {
 		node = node->next;
 	}
 
+	worker_list_clean();
 	return true;
 }

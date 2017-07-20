@@ -55,8 +55,6 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 		if (!worker_manager_stop()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
-			worker_list_stop();
-
 			return NULL;
 		}
 	}
@@ -77,8 +75,6 @@ static void *senderd_handle_test_failed(const maestro_note_t *request,
 	if (worker_list_is_running()) {
 		if (!worker_manager_stop()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
-
-			worker_list_stop();
 
 			return NULL;
 		}
@@ -248,8 +244,7 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 	worker_handler_t worker_handler = {0};
 
 	worker_manager_watchdog_loop(&worker_handler, &status);
-
-	worker_list_stop();
+	worker_manager_stop();
 
 	return true;
 }

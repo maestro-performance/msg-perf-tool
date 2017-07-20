@@ -17,6 +17,7 @@
 #define MPT_WORKER_LIST_H
 
 #include <stdlib.h>
+#include <pthread.h>
 
 #include <common/gru_alloc.h>
 #include <common/gru_status.h>
@@ -33,16 +34,16 @@ extern "C" {
 typedef struct worker_list_t worker_list_t;
 
 /**
- * Starts a new worker_list_t
+ * Initializes the workers list
  * @param status status object
  * @return a new worker list or NULL if unable to create one
  */
-bool worker_list_start(gru_status_t *status);
+bool worker_list_init(gru_status_t *status);
 
 /**
- * Stops the worker list
+ * Cleans the worker list
  */
-void worker_list_stop();
+void worker_list_clean();
 
 /**
  * Adds a worker to the end of the list

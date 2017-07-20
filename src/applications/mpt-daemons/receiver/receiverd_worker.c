@@ -59,8 +59,6 @@ static void *receiverd_handle_stop(const maestro_note_t *request,
 		if (!worker_manager_stop()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
-			worker_list_stop();
-
 			return NULL;
 		}
 	}
@@ -81,8 +79,6 @@ static void *receiverd_handle_test_failed(const maestro_note_t *request,
 	if (worker_list_is_running()) {
 		if (!worker_manager_stop()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
-
-			worker_list_stop();
 
 			return NULL;
 		}
@@ -284,7 +280,7 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 		maestro_notify_test_failed(&status);
 	}
 
-	worker_list_stop();
+	worker_manager_stop();
 	return true;
 }
 
@@ -321,6 +317,8 @@ int receiverd_worker_start(const options_t *options) {
 				} else {
 					logger(ERROR, "Unable to assign a VMSL for the URI: %s", uri);
 					gru_dealloc_string(&uri);
+
+					break;
 				}
 			} else {
 				parent = receiverd_worker_execute(&vmsl);

@@ -20,6 +20,7 @@ struct worker_list_t {
 };
 
 static worker_list_t *gwlist;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void worker_list_destroy(worker_list_t **ptr) {
 	worker_list_t *tmp_list = *ptr;
@@ -52,24 +53,36 @@ static worker_list_t *worker_list_new(gru_status_t *status) {
 	return ret;
 }
 
-bool worker_list_start(gru_status_t *status) {
-	gwlist = worker_list_new(status);
+// Not thread safe
+bool worker_list_init(gru_status_t *status) {
+	if (gwlist) {
+		return false;
+	}
 
+	gwlist = worker_list_new(status);
 	return gwlist ? true : false;
 }
 
-void worker_list_stop() {
+void worker_list_clean() {
+	pthread_mutex_lock(&mutex);
+
 	worker_list_destroy(&gwlist);
+
+	pthread_mutex_unlock(&mutex);
 }
 
 bool worker_list_append(worker_info_t *winfo, gru_status_t *status) {
+	pthread_mutex_lock(&mutex);
+
 	if (!gru_list_append(gwlist->list, winfo)) {
 		gru_status_set(status, GRU_FAILURE, "Unable register new worker: %s",
 					   status->message);
 
+		pthread_mutex_unlock(&mutex);
 		return false;
 	}
 
+	pthread_mutex_unlock(&mutex);
 	return true;
 }
 
@@ -85,6 +98,8 @@ gru_node_t *worker_list_root() {
 
 
 gru_node_t *worker_list_remove(gru_node_t *node) {
+	pthread_mutex_lock(&mutex);
+
 	gru_node_t *ret = node->next;
 
 	if (!gru_list_remove_node(gwlist->list, node)) {
@@ -95,11 +110,18 @@ gru_node_t *worker_list_remove(gru_node_t *node) {
 
 	gru_node_destroy(&node);
 
+	pthread_mutex_unlock(&mutex);
 	return ret;
 }
 
 uint32_t worker_list_count() {
-	return gru_list_count(gwlist->list);
+	pthread_mutex_lock(&mutex);
+
+	uint32_t ret = gru_list_count(gwlist->list);
+
+	pthread_mutex_unlock(&mutex);
+
+	return ret;
 }
 
 bool worker_list_is_running() {

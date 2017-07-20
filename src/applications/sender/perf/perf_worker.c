@@ -135,8 +135,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 
 
 		worker_manager_watchdog_loop(&worker_handler, &status);
-
-		worker_list_stop();
+		worker_manager_stop();
 	}
 
 	return 0;
