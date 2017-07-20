@@ -18,7 +18,7 @@
 bool started = false;
 bool halt = false;
 worker_options_t worker_options = {0};
-static gru_list_t *children = NULL;
+static worker_list_t *children = NULL;
 static char *locations[] = MAESTRO_SENDER_DAEMON_SHEETS;
 
 static void *senderd_handle_set(const maestro_note_t *request,
@@ -52,12 +52,11 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 	logger(INFO, "Just received a stop request");
 	started = false;
 
-	if (children) {
+	if (worker_list_active(children)) {
 		if (!worker_manager_stop(children)) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
-			gru_list_clean(children, worker_info_destroy_wrapper);
-			gru_list_destroy(&children);
+			worker_list_destroy(&children);
 
 			return NULL;
 		}
@@ -76,12 +75,11 @@ static void *senderd_handle_test_failed(const maestro_note_t *request,
 	logger(INFO, "Stopping test execution because a peer reported a test failure");
 	started = false;
 
-	if (children) {
+	if (worker_list_active(children)) {
 		if (!worker_manager_stop(children)) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
-			gru_list_clean(children, worker_info_destroy_wrapper);
-			gru_list_destroy(&children);
+			worker_list_destroy(&children);
 
 			return NULL;
 		}
@@ -116,7 +114,7 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 		return NULL;
 	}
 
-	gru_node_t *node = children->root;
+	gru_node_t *node = worker_list_root(children);
 
 	uint64_t total_msg = 0;
 	double total_rate = 0.0;
@@ -132,9 +130,9 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_STATS);
 
-	uint32_t childs = gru_list_count(children);
-	maestro_note_stats_set_child_count(response, childs);
-	logger(INFO, "Number of children evaluated: %d", childs);
+	uint32_t count_children = worker_list_count(children);
+	maestro_note_stats_set_child_count(response, count_children);
+	logger(INFO, "Number of children evaluated: %d", count_children);
 
 	maestro_note_stats_set_role(response, "sender");
 	maestro_note_stats_set_roleinfo(response, "perf");
@@ -147,7 +145,7 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 	gru_dealloc_string(&formatted_ts);
 
 	maestro_note_stats_set_perf_count(response, total_msg);
-	maestro_note_stats_set_perf_rate(response, (total_rate / childs));
+	maestro_note_stats_set_perf_rate(response, (total_rate / count_children));
 	maestro_note_stats_set_perf_latency(response, 0);
 
 	return NULL;
@@ -250,8 +248,7 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 
 	worker_manager_watchdog_loop(children, &worker_handler, &status);
 
-	gru_list_clean(children, worker_info_destroy_wrapper);
-	gru_list_destroy(&children);
+	worker_list_destroy(&children);
 
 	return true;
 }

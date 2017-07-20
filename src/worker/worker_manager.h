@@ -43,6 +43,7 @@
 #include "worker_types.h"
 #include "worker_utils.h"
 #include "worker_info.h"
+#include "worker_list.h"
 #include "worker_handler.h"
 
 #ifdef __cplusplus
@@ -64,7 +65,7 @@ typedef worker_ret_t (*worker_start_fn)(const worker_t *worker,
  * @param status Status container in case of error
  * @return a list of child/clones
  */
-gru_list_t *worker_manager_clone(worker_t *worker,
+worker_list_t *worker_manager_clone(worker_t *worker,
 								 worker_start_fn worker_start,
 								 gru_status_t *status);
 
@@ -75,14 +76,14 @@ gru_list_t *worker_manager_clone(worker_t *worker,
  * @param handler A watchdog handler function. A handler function must always return true,
  * otherwise it causes the watchdog to stop running.
  */
-void worker_manager_watchdog_loop(gru_list_t *children, worker_handler_t *handler, gru_status_t *status);
+void worker_manager_watchdog_loop(worker_list_t *children, worker_handler_t *handler, gru_status_t *status);
 
 /**
  * Stops all workers in the workers list
  * @param list A list of workers to stop
  * @return true unless the list of workers is NULL
  */
-bool worker_manager_stop(gru_list_t *list);
+bool worker_manager_stop(worker_list_t *list);
 
 
 #ifdef __cplusplus

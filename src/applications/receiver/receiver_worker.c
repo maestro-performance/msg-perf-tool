@@ -155,7 +155,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		worker.report_format = FORMAT_CSV;
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 
-		gru_list_t *children =
+		worker_list_t *children =
 			worker_manager_clone(&worker, naive_receiver_start, &status);
 
 		if (!children && !gru_status_success(&status)) {
@@ -174,8 +174,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 		worker_manager_watchdog_loop(children, &worker_handler, &status);
 
-		gru_list_clean(children, worker_info_destroy_wrapper);
-		gru_list_destroy(&children);
+		worker_list_destroy(&children);
 	}
 
 	return 0;

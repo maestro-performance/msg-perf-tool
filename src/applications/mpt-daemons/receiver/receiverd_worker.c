@@ -20,7 +20,7 @@ bool started = false;
 bool halt = false;
 
 worker_options_t worker_options = {0};
-static gru_list_t *children = NULL;
+static worker_list_t *children = NULL;
 static char *locations[] = MAESTRO_RECEIVER_DAEMON_SHEETS;
 
 static void *receiverd_handle_set(const maestro_note_t *request,
@@ -60,8 +60,7 @@ static void *receiverd_handle_stop(const maestro_note_t *request,
 		if (!worker_manager_stop(children)) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
-			gru_list_clean(children, worker_info_destroy_wrapper);
-			gru_list_destroy(&children);
+			worker_list_destroy(&children);
 
 			return NULL;
 		}
@@ -84,8 +83,7 @@ static void *receiverd_handle_test_failed(const maestro_note_t *request,
 		if (!worker_manager_stop(children)) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
-			gru_list_clean(children, worker_info_destroy_wrapper);
-			gru_list_destroy(&children);
+			worker_list_destroy(&children);
 
 			return NULL;
 		}
@@ -116,13 +114,13 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 
 	logger(INFO, "Just received a stats request: %s", pinfo->id);
 
-	if (children == NULL) {
+	if (!worker_list_active(children)) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
 		return NULL;
 	}
 
-	gru_node_t *node = children->root;
+	gru_node_t *node = worker_list_root(children);
 
 	uint64_t total_msg = 0;
 	uint64_t total_lat = 0;
@@ -140,9 +138,9 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_STATS);
 
-	uint32_t childs = gru_list_count(children);
-	maestro_note_stats_set_child_count(response, childs);
-	logger(INFO, "Number of childs evaluated: %d", childs);
+	uint32_t count_children = worker_list_count(children);
+	maestro_note_stats_set_child_count(response, count_children);
+	logger(INFO, "Number of childs evaluated: %d", count_children);
 
 	maestro_note_stats_set_role(response, "receiver");
 	maestro_note_stats_set_roleinfo(response, "perf");
@@ -155,8 +153,8 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 	gru_dealloc_string(&formatted_ts);
 
 	maestro_note_stats_set_perf_count(response, total_msg);
-	maestro_note_stats_set_perf_rate(response, (total_rate / childs));
-	maestro_note_stats_set_perf_latency(response, (total_lat / childs));
+	maestro_note_stats_set_perf_rate(response, (total_rate / count_children));
+	maestro_note_stats_set_perf_latency(response, (total_lat / count_children));
 
 	return NULL;
 }
@@ -287,9 +285,7 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 		maestro_notify_test_failed(&status);
 	}
 
-
-	gru_list_clean(children, worker_info_destroy_wrapper);
-	gru_list_destroy(&children);
+	worker_list_destroy(&children);
 	return true;
 }
 

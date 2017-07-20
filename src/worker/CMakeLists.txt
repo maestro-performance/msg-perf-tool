@@ -3,6 +3,7 @@ add_library(
 		worker_utils.c
         worker_wait.c
         worker_info.c
+		worker_list.c
 		worker_manager.c
 		naive_receiver.c
 		naive_sender.c
