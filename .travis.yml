@@ -12,7 +12,7 @@ sudo: true
 language:
   - c
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; brew install uriparser json-c ossp-uuid msgpack uuid; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; brew install uriparser json-c ossp-uuid msgpack; fi
 
 before_script:
   - echo "Installing gru"
