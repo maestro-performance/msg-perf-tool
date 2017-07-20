@@ -72,6 +72,30 @@ static void *receiverd_handle_stop(const maestro_note_t *request,
 	return NULL;
 }
 
+static void *receiverd_handle_test_failed(const maestro_note_t *request,
+								   maestro_note_t *response,
+								   const maestro_player_info_t *pinfo) {
+	logger_t logger = gru_logger_get();
+
+	logger(INFO, "Stopping test execution because a peer reported a test failure");
+	started = false;
+
+	if (children) {
+		if (!worker_manager_stop(children)) {
+			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
+
+			gru_list_clean(children, worker_info_destroy_wrapper);
+			gru_list_destroy(&children);
+
+			return NULL;
+		}
+	}
+
+	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
+
+	return NULL;
+}
+
 static void *receiverd_handle_halt(const maestro_note_t *request,
 	maestro_note_t *response,
 	const maestro_player_info_t *pinfo) {
@@ -180,6 +204,11 @@ static maestro_sheet_t *receiverd_new_sheet(gru_status_t *status) {
 		maestro_instrument_new(MAESTRO_NOTE_HALT, receiverd_handle_halt, status);
 
 	maestro_sheet_add_instrument(ret, halt_instrument);
+
+	maestro_instrument_t *test_fail_notif =
+		maestro_instrument_new(MAESTRO_NOTE_NOTIFY_FAIL, receiverd_handle_test_failed, status);
+
+	maestro_sheet_add_instrument(ret, test_fail_notif);
 
 	return ret;
 }
