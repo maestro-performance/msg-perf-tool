@@ -122,7 +122,9 @@ int main(int argc, char **argv) {
 			goto err_exit;
 		}
 
+#ifdef __linux__
 		fcloseall();
+#endif
 
 		options_destroy(&options);
 		return EXIT_SUCCESS;
