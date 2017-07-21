@@ -33,7 +33,7 @@ static void *senderd_handle_start(const maestro_note_t *request,
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
-	if (started == true || !worker_list_is_running()) {
+	if (started == true || worker_list_is_running()) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 	} else {
 		started = true;
@@ -229,7 +229,6 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 		worker.naming_options = NM_THROUGHPUT;
 		cloned = worker_manager_clone(&worker, naive_sender_start, &status);
 	}
-
 
 	if (!cloned && !gru_status_success(&status)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);

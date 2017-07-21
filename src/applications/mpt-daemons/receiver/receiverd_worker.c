@@ -36,7 +36,7 @@ static void *receiverd_handle_start(const maestro_note_t *request,
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Just received a start request");
-	if (started == true || !worker_list_is_running()) {
+	if (started == true || worker_list_is_running()) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 	} else {
 		started = true;
