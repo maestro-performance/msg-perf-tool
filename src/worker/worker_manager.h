@@ -50,7 +50,7 @@
 extern "C" {
 #endif
 
-#define MPT_MANAGER_SHUTDOWN_WAIT 10000
+#define MPT_MANAGER_SHUTDOWN_WAIT 100000
 
 
 typedef worker_ret_t (*worker_start_fn)(const worker_t *worker,

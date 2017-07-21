@@ -128,6 +128,8 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 					return false;
 				}
 			}
+
+			node = node->next;
 		} else {
 			if (WIFEXITED(wstatus)) {
 				logger(INFO,
@@ -145,7 +147,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 			}
 
 
-			node = worker_list_remove(node);
+			node = worker_list_remove_unlocked(node);
 			worker_info_destroy(&worker_info);
 		}
 	}
@@ -186,7 +188,7 @@ bool worker_manager_stop() {
 			continue;
 		}
 
-		uint16_t retry = 3;
+		uint16_t retry = 10;
 		pid_t pid = 0;
 
 		do {

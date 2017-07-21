@@ -60,11 +60,12 @@ bool worker_list_append(worker_info_t *winfo, gru_status_t *status);
 gru_node_t *worker_list_root();
 
 /**
- * Remove a worker from the list (stopping its work is the caller responsibility)
+ * Remove a worker from the list (stopping its work is the caller responsibility).
+ * It requires the caller to lock the list before calling it.
  * @param node the node containing the worker to remove
  * @return a pointer to the next worker
  */
-gru_node_t *worker_list_remove(gru_node_t *node);
+gru_node_t *worker_list_remove_unlocked(gru_node_t *node);
 
 /**
  * Gets the number of current workers
