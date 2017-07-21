@@ -127,3 +127,11 @@ uint32_t worker_list_count() {
 bool worker_list_is_running() {
 	return gwlist && gwlist->list ? true : false;
 }
+
+void worker_list_lock() {
+	pthread_mutex_lock(&mutex);
+}
+
+void worker_list_unlock() {
+	pthread_mutex_unlock(&mutex);
+}

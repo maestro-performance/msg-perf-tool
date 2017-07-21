@@ -78,6 +78,17 @@ uint32_t worker_list_count();
  */
 bool worker_list_is_running();
 
+
+/**
+ * Lock access to the list
+ */
+void worker_list_lock();
+
+/**
+ * Unlock access to the list
+ */
+void worker_list_unlock();
+
 #ifdef __cplusplus
 }
 #endif
