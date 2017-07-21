@@ -277,6 +277,8 @@ int senderd_worker_start(const options_t *options) {
 				} else {
 					logger(ERROR, "Unable to assign a VMSL for the URI: %s", uri);
 					gru_dealloc_string(&uri);
+
+					break;
 				}
 			} else {
 				parent = senderd_worker_execute(&vmsl);
