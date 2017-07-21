@@ -103,6 +103,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
+	worker_list_lock();
 	node = worker_list_root();
 
 	while (node) {
@@ -122,10 +123,11 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 			if (handler->flags & WRK_HANDLE_EVAL) {
 				if (!handler->eval(worker_info, status)) {
 					logger(DEBUG, "Worker handler eval failed: %s", status->message);
+
+					worker_list_unlock();
 					return false;
 				}
 			}
-
 		} else {
 			if (WIFEXITED(wstatus)) {
 				logger(INFO,
@@ -148,6 +150,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 		}
 	}
 
+	worker_list_unlock();
 	return true;
 }
 
@@ -170,6 +173,7 @@ bool worker_manager_stop() {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
+	worker_list_lock();
 	node = worker_list_root();
 
 	while (node) {
@@ -236,6 +240,7 @@ bool worker_manager_stop() {
 		node = node->next;
 	}
 
+	worker_list_unlock();
 	worker_list_clean();
 	return true;
 }
