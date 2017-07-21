@@ -113,13 +113,13 @@ static void maestro_cmd_print_responses(maestro_note_t *note) {
 	printf("Name: %-45s\tID: %-40s ", note->payload->response.name, note->payload->response.id);
 
 	switch (note->command) {
+	case MAESTRO_NOTE_OK: {
+		printf("Response: OK\n");
+		break;
+	}
 	case MAESTRO_NOTE_PING: {
 		printf("Time: %"PRIu64" ms\n",  note->payload->response.body.ping.elapsed);
 
-		break;
-	}
-	case MAESTRO_NOTE_PROTOCOL_ERROR: {
-		printf("Error: one of more of the commands did not complete successfully\n");
 		break;
 	}
 	case MAESTRO_NOTE_STATS: {
@@ -130,16 +130,20 @@ static void maestro_cmd_print_responses(maestro_note_t *note) {
 			   note->payload->response.body.stats.stats.perf.latency);
 		break;
 	}
+	case MAESTRO_NOTE_PROTOCOL_ERROR: {
+		printf("Error: one of more of the commands did not complete successfully\n");
+		break;
+	}
 	case MAESTRO_NOTE_ABNORMAL_DISCONNECT: {
 		printf("Response: remote peer disconnected abnormaly\n");
 		break;
 	}
-	case MAESTRO_NOTE_OK: {
-		printf("Response: OK\n");
+	case MAESTRO_NOTE_INTERNAL_ERROR: {
+		printf("Error: internal server error\n");
 		break;
 	}
 	default: {
-		printf("Error: unhandled response\n");
+		printf("Error: unhandled response: %d\n", note->command);
 		break;
 	}
 	}
