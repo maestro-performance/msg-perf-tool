@@ -16,6 +16,8 @@
 #ifndef MPT_MAESTRO_NOTIFY_H
 #define MPT_MAESTRO_NOTIFY_H
 
+#include <common/gru_status.h>
+
 #include "maestro_topics.h"
 #include "maestro_player_info.h"
 #include "maestro_note.h"
