@@ -15,6 +15,17 @@
 */
 #include "vmslh.h"
 
+static void vmslh_callback_cleanup(void **ptr) {
+	vmslh_callback_t *cb = *ptr;
+
+	if (!cb) {
+		return;
+	}
+
+	gru_dealloc((void **) &cb);
+}
+
+
 static vmslh_callback_t * vmslh_by_addr(gru_list_t *list, vmslh_callback_fn callback, gru_status_t *status) {
 	gru_node_t *node = list->root;
 
@@ -38,6 +49,8 @@ static vmslh_callback_t * vmslh_by_addr(gru_list_t *list, vmslh_callback_fn call
 	return ret;
 }
 
+
+
 bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_status_t *status) {
 	vmslh_callback_t *wrapper = NULL;
 
@@ -50,6 +63,25 @@ bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_
 	wrapper->payload = payload;
 
 	return true;
+}
+
+void vmslh_remove(gru_list_t *list, vmslh_callback_fn callback) {
+	gru_node_t *node = list->root;
+
+	while (node) {
+		vmslh_callback_t *vmslh_callback = (vmslh_callback_t *) node->data;
+		if (vmslh_callback && vmslh_callback->call == callback) {
+			gru_list_remove_node(list, node);
+
+			vmslh_callback_cleanup((void **) &vmslh_callback);
+			gru_node_destroy(&node);
+
+			break;
+		}
+
+		node = node->next;
+	}
+
 }
 
 void vmslh_run(gru_list_t *list, void *ctxt, void *msg) {
@@ -68,15 +100,6 @@ void vmslh_run(gru_list_t *list, void *ctxt, void *msg) {
 	}
 }
 
-static void vmslh_callback_cleanup(void **ptr) {
-	vmslh_callback_t *cb = *ptr;
-
-	if (!cb) {
-		return;
-	}
-
-	gru_dealloc((void **) &cb);
-}
 
 vmslh_handlers_t vmslh_new(gru_status_t *status) {
 	vmslh_handlers_t handlers = {0};
