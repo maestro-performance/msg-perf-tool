@@ -207,14 +207,6 @@ static maestro_sheet_t *receiverd_new_sheet(gru_status_t *status) {
 	return ret;
 }
 
-static bool receiverd_worker_eval_rate(worker_info_t *worker_info, gru_status_t *status) {
-	if (worker_info->snapshot.throughput.rate < worker_options.condition.rate) {
-		return false;
-	}
-
-	return true;
-}
-
 static bool receiverd_worker_eval_latency(worker_info_t *worker_info, gru_status_t *status) {
 	int64_t latency = gru_time_to_milli(&worker_info->snapshot.latency.elapsed);
 
