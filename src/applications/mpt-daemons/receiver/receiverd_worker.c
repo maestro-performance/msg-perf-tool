@@ -254,8 +254,10 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 		worker.naming_options = NM_RATE | NM_LATENCY;
 		cloned = worker_manager_clone(&worker, rate_receiver_start, &status);
 
-		worker_handler.flags = WRK_HANDLE_EVAL;
-		worker_handler.eval = receiverd_worker_eval_latency;
+		if (worker.options->condition.latency > 0) {
+			worker_handler.flags = WRK_HANDLE_EVAL;
+			worker_handler.eval = receiverd_worker_eval_latency;
+		}
 	}
 	else {
 		logger(INFO, "Launching naive workers for the test");
@@ -279,6 +281,9 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 		logger(ERROR, "Test failed: %s", status.message);
 
 		maestro_notify_test_failed(&status);
+	}
+	else {
+		maestro_notify_test_successfull(&status);
 	}
 
 	worker_manager_stop();

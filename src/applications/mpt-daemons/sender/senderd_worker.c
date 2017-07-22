@@ -243,6 +243,15 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 	worker_handler_t worker_handler = {0};
 
 	worker_manager_watchdog_loop(&worker_handler, &status);
+	if (!gru_status_success(&status)) {
+		logger(ERROR, "Test failed: %s", status.message);
+
+		maestro_notify_test_failed(&status);
+	}
+	else {
+		maestro_notify_test_successfull(&status);
+	}
+
 	worker_manager_stop();
 
 	return true;
