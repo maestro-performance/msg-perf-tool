@@ -117,8 +117,6 @@ void bmic_writer_java_mem(const mpt_java_mem_t *java_mem,
 
 	if (memory_model == BMIC_JAVA_MODERN) {
 		bmic_write_mem(&java_mem->metaperm);
-	} else {
-		bmic_write_mem(&java_mem->metaperm);
 	}
 }
 
