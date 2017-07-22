@@ -157,6 +157,10 @@ static void maestro_cmd_print_notifications(maestro_note_t *note) {
 		printf("%s\n", note->payload->notification.body.message);
 		break;
 	}
+	case MAESTRO_NOTE_NOTIFY_SUCCESS: {
+		printf("%s\n", note->payload->notification.body.message);
+		break;
+	}
 	default: {
 		printf("Error: unhandled notification\n");
 		break;
