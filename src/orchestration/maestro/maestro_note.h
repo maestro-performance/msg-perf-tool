@@ -64,6 +64,7 @@ typedef enum maestro_command_t_ {
 
   	/** Notifications */
   	MAESTRO_NOTE_NOTIFY_FAIL,
+  	MAESTRO_NOTE_NOTIFY_SUCCESS,
 } maestro_command_t;
 
 
