@@ -71,12 +71,13 @@ static void *receiverd_handle_stop(const maestro_note_t *request,
 static void *receiverd_handle_test_failed(const maestro_note_t *request,
 								   maestro_note_t *response,
 								   const maestro_player_info_t *pinfo) {
-	logger_t logger = gru_logger_get();
-
-	logger(INFO, "Stopping test execution because a peer reported a test failure");
 	started = false;
 
 	if (worker_list_is_running()) {
+		logger_t logger = gru_logger_get();
+
+		logger(INFO, "Stopping test execution because a peer reported a test failure");
+
 		if (!worker_manager_stop()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
