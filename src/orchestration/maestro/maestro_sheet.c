@@ -116,8 +116,7 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 
 	} else {
 		if (!maestro_sheet_do_play(sheet->instruments, pinfo, &request, &response)) {
-			maestro_note_set_cmd(&response, MAESTRO_NOTE_INTERNAL_ERROR);
-
+			// This note is valid, but not handled. Therefore, ignored
 			goto cleanup;
 		}
 	}
