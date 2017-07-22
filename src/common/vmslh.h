@@ -64,13 +64,6 @@ typedef struct vmslh_handlers_t_ {
 bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_status_t *status);
 
 /**
- * Removes a callback from the VMSL handlers list
- * @param list the list of VMSL handlers
- * @param callback the call back to remove
- */
-void vmslh_remove(gru_list_t *list, vmslh_callback_fn callback);
-
-/**
  * Runs a VMSL handlers list executing all the existent callbacks
  * @param list the list to add
  * @param ctxt the messaging context
