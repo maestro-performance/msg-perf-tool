@@ -66,7 +66,7 @@ void maestro_notify_test_failed(gru_status_t *status) {
 }
 
 
-void maestro_notify_test_successfull(gru_status_t *status) {
+void maestro_notify_test_successful(gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	logger(INFO, "Sending a test success notification");
 

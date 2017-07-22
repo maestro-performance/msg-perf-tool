@@ -249,7 +249,7 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 		maestro_notify_test_failed(&status);
 	}
 	else {
-		maestro_notify_test_successfull(&status);
+		maestro_notify_test_successful(&status);
 	}
 
 	worker_manager_stop();
