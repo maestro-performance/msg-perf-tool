@@ -30,6 +30,26 @@
 #include "mpt-debug.h"
 #include "paho-context.h"
 
+/**
+ * Default payload for keep alive handler
+ */
+#define PAHO_HANDLERS_DEFAULT_KEEP_ALIVE_PL NULL
+
+/**
+ * Default payload for clean session handler
+ */
+#define PAHO_HANDLERS_DEFAULT_CLEAN_SESSION_PL NULL
+
+/**
+ * Default payload for QOS mode handler
+ */
+#define PAHO_HANDLERS_DEFAULT_QOS_MODE_PL NULL
+
+/**
+ * Default payload for retained handler
+ */
+#define PAHO_HANDLERS_DEFAULT_RETAINED_PL NULL
+
 #ifdef __cplusplus
 extern "C" {
 #endif

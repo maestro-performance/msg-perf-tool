@@ -38,10 +38,14 @@ static void paho_set_parameter_by_name(vmslh_handlers_t *handlers, gru_keypair_t
 }
 
 void paho_set_default_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
-	vmslh_add(handlers->before_connect, paho_set_keep_alive_interval, NULL, status);
-	vmslh_add(handlers->before_connect, paho_set_clean_session, NULL, status);
-	vmslh_add(handlers->before_send, paho_set_qos_mode, NULL, status);
-	vmslh_add(handlers->before_send, paho_set_retained, NULL, status);
+	vmslh_add(handlers->before_connect, paho_set_keep_alive_interval,
+			  PAHO_HANDLERS_DEFAULT_KEEP_ALIVE_PL, status);
+	vmslh_add(handlers->before_connect, paho_set_clean_session,
+			  PAHO_HANDLERS_DEFAULT_CLEAN_SESSION_PL, status);
+	vmslh_add(handlers->before_send, paho_set_qos_mode,
+			  PAHO_HANDLERS_DEFAULT_QOS_MODE_PL, status);
+	vmslh_add(handlers->before_send, paho_set_retained,
+			  PAHO_HANDLERS_DEFAULT_RETAINED_PL, status);
 }
 
 void paho_set_user_parameters(vmslh_handlers_t *handlers, msg_opt_t opt, gru_status_t *status) {
