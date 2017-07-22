@@ -97,7 +97,7 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 
 		int64_t diff = gru_time_elapsed_milli(snapshot->now, snapshot->eta);
 		if (diff > 0) {
-			usleep(diff * 1000);
+			usleep((uint32_t ) diff * 1000);
 			mpt_trace("Sent message %d before the ETA: %d.%d / ATA: %d.%d (sleeping for %d microseconds)",
 				   snapshot->count,
 				   snapshot->eta.tv_sec, snapshot->eta.tv_usec,

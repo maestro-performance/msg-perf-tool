@@ -62,7 +62,7 @@ void maestro_abormal_disconnect_notice(void *ctxt, void *conn_opts, void *payloa
 
 	opts->will = &wopts;
 	opts->will->payload.data = wdata->data;
-	opts->will->payload.len = wdata->size;
+	opts->will->payload.len = (int) wdata->size;
 	opts->will->topicName = wtopic;
 	opts->will->qos = 1;
 	opts->will->retained = 0;

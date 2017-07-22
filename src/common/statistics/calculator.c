@@ -31,5 +31,5 @@ void calc_throughput(stat_throughput_t *out,
 	out->count = count;
 
 	uint64_t elapsed = gru_time_elapsed_secs(start, end);
-	out->rate = ((double) count / elapsed);
+	out->rate = ((double) count / (double) elapsed);
 }
