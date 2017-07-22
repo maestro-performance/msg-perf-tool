@@ -124,7 +124,7 @@ static bool maestro_deserialize_note_ping_request(const msg_content_data_t *in,
 		return false;
 	}
 
-	msgpack_unpack_next(msg, in->data, in->size, offset);
+	ret = msgpack_unpack_next(msg, in->data, in->size, offset);
 	if (ret != MSGPACK_UNPACK_SUCCESS) {
 		gru_status_set(status,
 					   GRU_FAILURE,
