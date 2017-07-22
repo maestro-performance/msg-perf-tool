@@ -90,7 +90,6 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 	gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	//logger(DEBUG, "Received maestro data: %s", (char *) req->data);
 	maestro_trace_proto(req->data, req->size);
 
 	maestro_note_t request = {0};
