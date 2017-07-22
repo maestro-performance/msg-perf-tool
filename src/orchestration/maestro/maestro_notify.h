@@ -17,11 +17,14 @@
 #define MPT_MAESTRO_NOTIFY_H
 
 #include <common/gru_status.h>
+#include <common/gru_variant.h>
 
 #include "maestro_topics.h"
 #include "maestro_player_info.h"
 #include "maestro_note.h"
 #include "maestro_player.h"
+
+#include "paho-handlers.h"
 
 #ifdef __cplusplus
 extern "C" {
