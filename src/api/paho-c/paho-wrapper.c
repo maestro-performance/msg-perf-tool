@@ -246,10 +246,10 @@ vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_sta
 
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Subscribing to %s", paho_ctxt->uri.path);
 
 	int rc = 0;
 	if (!mtopic) {
+		logger(DEBUG, "Subscribing to %s", (paho_ctxt->uri.path ? paho_ctxt->uri.path : "null"));
 		 rc = MQTTClient_subscribe(paho_ctxt->client, paho_ctxt->uri.path, QOS_AT_MOST_ONCE);
 	}
 	else {
