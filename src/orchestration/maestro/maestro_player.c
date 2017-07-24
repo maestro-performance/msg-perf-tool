@@ -112,6 +112,7 @@ static void *maestro_player_run(void *player) {
 
 	logger(INFO, "Maestro player is running");
 	while (!maestro_player->cancel) {
+		gru_status_reset(&status);
 		msg_content_data_reset(mdata);
 		vmsl_stat_t rstat =
 			maestro_player->mmsl.receive(maestro_player->ctxt, mdata, &status);
