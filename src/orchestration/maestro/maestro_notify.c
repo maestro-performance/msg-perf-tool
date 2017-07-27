@@ -113,5 +113,5 @@ void maestro_notify_test_successful(gru_status_t *status) {
 
 	msg_content_data_release(&data);
 	maestro_note_payload_cleanup(&note);
-	logger(INFO, "Sent a test succss notification");
+	logger(INFO, "Sent a test success notification");
 }
