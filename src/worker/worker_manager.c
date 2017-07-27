@@ -58,8 +58,10 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 			if (wret != WORKER_SUCCESS) {
 				logger(ERROR, "Unable to execute worker: %s", status->message);
 			}
+			else {
+				logger(INFO, "Test execution terminated");
+			}
 
-			logger(INFO, "Test execution terminated");
 			return wret | WORKER_CHILD;
 		} else {
 			worker_wait_setup();
