@@ -83,6 +83,12 @@ void worker_manager_watchdog_loop(worker_handler_t *handler, gru_status_t *statu
  */
 bool worker_manager_stop();
 
+/**
+ * Abort all workers in the workers list
+ * @return true unless the list of workers is NULL
+ */
+bool worker_manager_abort();
+
 
 #ifdef __cplusplus
 }

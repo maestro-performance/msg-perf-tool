@@ -72,8 +72,9 @@ static void *senderd_handle_test_failed(const maestro_note_t *request,
 	if (worker_list_is_running()) {
 		logger_t logger = gru_logger_get();
 
-		logger(INFO, "Stopping test execution because a peer reported a test failure");
-		if (!worker_manager_stop()) {
+		logger(INFO, "Stopping test execution because a peer reported a test failure: %s",
+			   request->payload->notification.body.message);
+		if (!worker_manager_abort()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
 			return NULL;

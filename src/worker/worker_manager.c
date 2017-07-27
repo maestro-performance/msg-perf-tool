@@ -15,9 +15,13 @@
  */
 #include "worker_manager.h"
 
+uint32_t errors = 0;
+
 worker_ret_t worker_manager_clone(worker_t *worker,
 								 worker_start_fn worker_start,
 								 gru_status_t *status) {
+	errors = 0;
+
 	if (!worker_list_init(status)) {
 		return false;
 	}
@@ -102,7 +106,7 @@ static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 	return ret;
 }
 
-static bool worker_manager_watchdog(worker_handler_t *handler, uint32_t *errors, gru_status_t *status) {
+static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *status) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
@@ -140,16 +144,20 @@ static bool worker_manager_watchdog(worker_handler_t *handler, uint32_t *errors,
 					   worker_info->child,
 					   WEXITSTATUS(wstatus));
 			} else if (WIFSIGNALED(wstatus)) {
-				(*errors)++;
-				logger(INFO,
-					   "Child %d received a signal %d",
-					   worker_info->child,
-					   WTERMSIG(wstatus));
+				int sig = WTERMSIG(wstatus);
+
+				if (sig != SIGINT) {
+					errors++;
+					logger(INFO,
+						   "Child %d received a signal %d",
+						   worker_info->child,
+						   WTERMSIG(wstatus));
+				}
 			} else if (WIFSTOPPED(wstatus)) {
 				int sig = WSTOPSIG(wstatus);
 
-				if (sig != SIGTERM) {
-					(*errors)++;
+				if (sig != SIGINT) {
+					errors++;
 
 					logger(
 						ERROR, "Child %d stopped %d", worker_info->child, sig);
@@ -170,11 +178,11 @@ void worker_manager_watchdog_loop(worker_handler_t *handler, gru_status_t *statu
 	const int wait_time = 250000;
 
 	uint32_t count = worker_list_count();
-	uint32_t errors;
+
 
 	while (worker_list_is_running() && count > 0) {
 		mpt_trace("There are still %d children running", count);
-		if (worker_manager_watchdog(handler, &errors, status)) {
+		if (worker_manager_watchdog(handler, status)) {
 			usleep(wait_time);
 			count = worker_list_count();
 		} else {
@@ -187,7 +195,7 @@ void worker_manager_watchdog_loop(worker_handler_t *handler, gru_status_t *statu
 	}
 }
 
-bool worker_manager_stop() {
+static bool worker_manager_do_stop(int signal) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
@@ -197,8 +205,8 @@ bool worker_manager_stop() {
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
 
-		logger(INFO, "Terminating child %d", worker_info->child);
-		if (kill(worker_info->child, SIGTERM) != 0) {
+		logger(INFO, "%s child %d", (signal == SIGTERM ? "Aborting" : "Stopping"), worker_info->child);
+		if (kill(worker_info->child, signal) != 0) {
 			logger(WARNING, "Unable to send signal to the child process");
 			node = node->next;
 			continue;
@@ -261,4 +269,16 @@ bool worker_manager_stop() {
 	worker_list_unlock();
 	worker_list_clean();
 	return true;
+}
+
+
+bool worker_manager_stop() {
+	// Use sigint for graceful shutdown
+	return worker_manager_do_stop(SIGINT);
+}
+
+
+bool worker_manager_abort() {
+	errors++;
+	return worker_manager_do_stop(SIGTERM);
 }

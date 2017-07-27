@@ -14,6 +14,7 @@
  *    limitations under the License.
  */
 #include <worker_options.h>
+#include <maestro/maestro_note.h>
 #include "receiverd_worker.h"
 
 bool started = false;
@@ -76,9 +77,10 @@ static void *receiverd_handle_test_failed(const maestro_note_t *request,
 	if (worker_list_is_running()) {
 		logger_t logger = gru_logger_get();
 
-		logger(INFO, "Stopping test execution because a peer reported a test failure");
+		logger(INFO, "Stopping test execution because a peer reported a test failure: %s",
+			request->payload->notification.body.message);
 
-		if (!worker_manager_stop()) {
+		if (!worker_manager_abort()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
 			return NULL;
