@@ -25,6 +25,8 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	maestro_payload_set_t body = request->payload->request.set;
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_BROKER) {
+		logger(INFO, "Set broker URL to %s", body.value);
+
 		worker_options->uri = gru_uri_parse(body.value, &status);
 		if (gru_status_error(&status)) {
 			logger(ERROR, "Unable to set broker setting: %s", status.message);
