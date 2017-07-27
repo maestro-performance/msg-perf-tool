@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 	}
 
 	set_options_object(options);
-	gru_logger_set(gru_logger_default_printer);
+	gru_logger_set(gru_logger_timed_printer);
 
 	while (1) {
 
