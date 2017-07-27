@@ -23,6 +23,12 @@ static size_t limit = 0;
 bool pl_variable_init(msg_content_data_t *data, size_t size, gru_status_t *status) {
 	initial_size = size;
 
+	if (size <= 0) {
+		gru_status_set(status, GRU_FAILURE, "The message size must be greater than 0");
+
+		return false;
+	}
+
 	if (size > 100) {
 		size_t bound = ((size / 100) * 5);
 

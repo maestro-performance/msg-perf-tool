@@ -18,6 +18,12 @@
 static size_t initial_size = 0;
 
 bool pl_fixed_init(msg_content_data_t *data, size_t size, gru_status_t *status) {
+	if (size <= 0) {
+		gru_status_set(status, GRU_FAILURE, "The message size must be greater than 0");
+
+		return false;
+	}
+
 	initial_size = size;
 	msg_content_data_init(data, size, status);
 
