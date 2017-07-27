@@ -100,7 +100,7 @@ static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 	return ret;
 }
 
-static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *status) {
+static bool worker_manager_watchdog(worker_handler_t *handler, uint32_t *errors, gru_status_t *status) {
 	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
@@ -138,13 +138,20 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 					   worker_info->child,
 					   WEXITSTATUS(wstatus));
 			} else if (WIFSIGNALED(wstatus)) {
+				(*errors)++;
 				logger(INFO,
 					   "Child %d received a signal %d",
 					   worker_info->child,
 					   WTERMSIG(wstatus));
 			} else if (WIFSTOPPED(wstatus)) {
-				logger(
-					ERROR, "Child %d stopped %d", worker_info->child, WSTOPSIG(wstatus));
+				int sig = WSTOPSIG(wstatus);
+
+				if (sig != SIGTERM) {
+					(*errors)++;
+
+					logger(
+						ERROR, "Child %d stopped %d", worker_info->child, sig);
+				}
 			}
 
 
@@ -161,14 +168,20 @@ void worker_manager_watchdog_loop(worker_handler_t *handler, gru_status_t *statu
 	const int wait_time = 250000;
 
 	uint32_t count = worker_list_count();
+	uint32_t errors;
+
 	while (worker_list_is_running() && count > 0) {
 		mpt_trace("There are still %d children running", count);
-		if (worker_manager_watchdog(handler, status)) {
+		if (worker_manager_watchdog(handler, &errors, status)) {
 			usleep(wait_time);
 			count = worker_list_count();
 		} else {
 			break;
 		}
+	}
+
+	if (errors > 0) {
+		gru_status_set(status,  GRU_FAILURE, "There were %"PRIu32" child process that ended with failure", errors);
 	}
 }
 
