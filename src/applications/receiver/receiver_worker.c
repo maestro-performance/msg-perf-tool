@@ -155,16 +155,16 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		worker.report_format = FORMAT_CSV;
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 
-		bool cloned = worker_manager_clone(&worker, naive_receiver_start, &status);
+		worker_ret_t ret = worker_manager_clone(&worker, naive_receiver_start, &status);
 
-		if (!cloned && !gru_status_success(&status)) {
+		if (worker_error(ret)) {
 			logger(ERROR, "Unable to initialize children: %s", status.message);
 
 			return 1;
-		} else {
-			if (!cloned) {
-				return 0;
-			}
+		}
+
+		if (ret & WORKER_CHILD) {
+			return 0;
 		}
 
 		worker_handler_t worker_handler = {0};

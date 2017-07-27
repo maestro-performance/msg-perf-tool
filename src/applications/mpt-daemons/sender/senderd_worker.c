@@ -198,7 +198,7 @@ static maestro_sheet_t *senderd_new_sheet(gru_status_t *status) {
 	return ret;
 }
 
-static bool senderd_worker_execute(const vmsl_t *vmsl) {
+static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
@@ -219,25 +219,25 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 
 	pl_strategy_assign(&worker.pl_strategy, worker.options->variable_size);
 
-	bool cloned;
+	worker_ret_t ret;
 
 	if (worker.options->rate > 0) {
 		worker.naming_options = NM_RATE;
-		cloned = worker_manager_clone(&worker, rate_sender_start, &status);
+		ret = worker_manager_clone(&worker, rate_sender_start, &status);
 	}
 	else {
 		worker.naming_options = NM_THROUGHPUT;
-		cloned = worker_manager_clone(&worker, naive_sender_start, &status);
+		ret = worker_manager_clone(&worker, naive_sender_start, &status);
 	}
 
-	if (!cloned && !gru_status_success(&status)) {
+	if (worker_error(ret)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);
 
-		return true;
-	} else {
-		if (!cloned) {
-			return false;
-		}
+		return ret;
+	}
+
+	if (ret & WORKER_CHILD) {
+		return ret;
 	}
 
 	worker_handler_t worker_handler = {0};
@@ -254,14 +254,14 @@ static bool senderd_worker_execute(const vmsl_t *vmsl) {
 
 	worker_manager_stop();
 
-	return true;
+	return ret;
 }
 
 int senderd_worker_start(const options_t *options) {
 	gru_status_t status = gru_status_new();
 	maestro_sheet_t *sheet = senderd_new_sheet(&status);
 	logger_t logger = gru_logger_get();
-	bool parent = true;
+	worker_ret_t ret;
 
 	if (!maestro_player_start(options, sheet, &status)) {
 		logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
@@ -289,9 +289,8 @@ int senderd_worker_start(const options_t *options) {
 					break;
 				}
 			} else {
-				parent = senderd_worker_execute(&vmsl);
-				if (!parent) {
-					// Child return
+				ret = senderd_worker_execute(&vmsl);
+				if (ret & WORKER_CHILD) {
 					break;
 				}
 
@@ -302,11 +301,18 @@ int senderd_worker_start(const options_t *options) {
 		fflush(NULL);
 	}
 
-	if (parent) {
-		maestro_player_stop(sheet, &status);
+	if (sheet) {
+		if (!(ret & WORKER_CHILD)) {
+			maestro_player_stop(sheet, &status);
+		}
+
+		maestro_sheet_destroy(&sheet);
 	}
 
-	maestro_sheet_destroy(&sheet);
 
-	return 0;
+	if (worker_success(ret)) {
+		return 0;
+	}
+
+	return 1;
 }

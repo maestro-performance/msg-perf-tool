@@ -15,7 +15,7 @@
  */
 #include "worker_manager.h"
 
-bool worker_manager_clone(worker_t *worker,
+worker_ret_t worker_manager_clone(worker_t *worker,
 								 worker_start_fn worker_start,
 								 gru_status_t *status) {
 	if (!worker_list_init(status)) {
@@ -50,7 +50,7 @@ bool worker_manager_clone(worker_t *worker,
 			if (!nmret) {
 				logger(ERROR, "Error initializing performance report writer: %s",
 					   status->message);
-				return false;
+				return WORKER_FAILURE;
 			}
 
 			install_interrupt_handler();
@@ -60,26 +60,27 @@ bool worker_manager_clone(worker_t *worker,
 			}
 
 			logger(INFO, "Test execution terminated");
-			return false;
+			return wret | WORKER_CHILD;
 		} else {
 			worker_wait_setup();
 
 			worker_info_t *worker_info = worker_info_new(worker, child, status);
 			if (!worker_info) {
 				logger(ERROR, "Unable to create worker info: %s", status->message);
-				break;
+
+				return WORKER_FAILURE;
 			}
 
 			if (!worker_list_append(worker_info, status)) {
 				kill(worker_info->child, SIGKILL);
 				worker_info_destroy(&worker_info);
 
-				break;
+				return WORKER_FAILURE;
 			}
 		}
 	}
 
-	return true;
+	return WORKER_SUCCESS;
 }
 
 static bool worker_manager_update_snapshot(worker_info_t *worker_info) {

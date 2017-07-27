@@ -65,7 +65,7 @@ typedef worker_ret_t (*worker_start_fn)(const worker_t *worker,
  * @param status Status container in case of error
  * @return true if successfully cloned the workers or false otherwise
  */
-bool worker_manager_clone(worker_t *worker,
+worker_ret_t worker_manager_clone(worker_t *worker,
 								 worker_start_fn worker_start,
 								 gru_status_t *status);
 

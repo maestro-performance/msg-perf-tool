@@ -38,8 +38,9 @@ extern "C" {
  * Common return type for the worker
  */
 typedef enum worker_ret_t_ {
-	WORKER_FAILURE,
-	WORKER_SUCCESS,
+	WORKER_FAILURE = 0,
+	WORKER_SUCCESS = 1,
+  	WORKER_CHILD = 2,
 } worker_ret_t;
 
 /**
@@ -88,6 +89,15 @@ typedef struct worker_info_t_ {
 	worker_snapshot_t snapshot;
 	volatile shr_data_buff_t *shr;
 } worker_info_t;
+
+
+static inline bool worker_success(worker_ret_t ret) {
+	return (ret & WORKER_SUCCESS) ? true : false;
+}
+
+static inline bool worker_error(worker_ret_t ret) {
+	return (ret & WORKER_SUCCESS) ? false : true;
+}
 
 #ifdef __cplusplus
 }

@@ -221,7 +221,7 @@ static bool receiverd_worker_eval_latency(worker_info_t *worker_info, gru_status
 	return true;
 }
 
-static bool receiverd_worker_execute(const vmsl_t *vmsl) {
+static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
@@ -239,12 +239,12 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	worker.report_format = FORMAT_CSV;
 
 	worker_handler_t worker_handler = {0};
-	bool cloned;
+	worker_ret_t ret;
 
 	if (worker.options->rate > 0) {
 		logger(INFO, "Launching rate-based workers for the test");
 		worker.naming_options = NM_RATE | NM_LATENCY;
-		cloned = worker_manager_clone(&worker, rate_receiver_start, &status);
+		ret = worker_manager_clone(&worker, rate_receiver_start, &status);
 
 		if (worker.options->condition.latency > 0) {
 			worker_handler.flags = WRK_HANDLE_EVAL;
@@ -254,18 +254,17 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	else {
 		logger(INFO, "Launching naive workers for the test");
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
-		cloned = worker_manager_clone(&worker, naive_receiver_start, &status);
+		ret = worker_manager_clone(&worker, naive_receiver_start, &status);
 	}
 
-	if (!cloned && !gru_status_success(&status)) {
+	if (worker_error(ret)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);
 
-		return true;
-	} else {
-		// Child return
-		if (!cloned) {
-			return false;
-		}
+		return ret;
+	}
+
+	if (ret & WORKER_CHILD) {
+		return ret;
 	}
 
 	worker_manager_watchdog_loop(&worker_handler, &status);
@@ -279,14 +278,14 @@ static bool receiverd_worker_execute(const vmsl_t *vmsl) {
 	}
 
 	worker_manager_stop();
-	return true;
+	return ret;
 }
 
 int receiverd_worker_start(const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
-	bool parent = true;
+	worker_ret_t ret = true;
 
 	maestro_sheet_t *sheet = NULL;
 	if (options->maestro_uri.host) {
@@ -319,8 +318,9 @@ int receiverd_worker_start(const options_t *options) {
 					break;
 				}
 			} else {
-				parent = receiverd_worker_execute(&vmsl);
-				if (!parent) {
+				ret = receiverd_worker_execute(&vmsl);
+				if (ret & WORKER_CHILD) {
+					// Child return
 					break;
 				}
 
@@ -333,12 +333,16 @@ int receiverd_worker_start(const options_t *options) {
 	}
 
 	if (sheet) {
-		if (parent) {
+		if (!(ret & WORKER_CHILD)) {
 			maestro_player_stop(sheet, &status);
 		}
 
 		maestro_sheet_destroy(&sheet);
 	}
 
-	return 0;
+	if (worker_success(ret)) {
+		return 0;
+	}
+
+	return 1;
 }
