@@ -151,11 +151,12 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 	msg_content_data_release(&content_storage);
 
 	if (msg_ctxt) {
-		worker->vmsl->destroy(msg_ctxt, status);
+		gru_status_t tmp_status = gru_status_new();
+
+		worker->vmsl->destroy(msg_ctxt, &tmp_status);
 	}
 	worker_msg_opt_cleanup(&opt);
 
-	gru_status_reset(status);
 	vmslh_cleanup(&handlers);
 	return WORKER_FAILURE;
 }

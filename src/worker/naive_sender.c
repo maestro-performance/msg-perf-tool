@@ -127,7 +127,9 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 	worker->pl_strategy.cleanup(&content_storage);
 
 	if (msg_ctxt) {
-		worker->vmsl->destroy(msg_ctxt, status);
+		gru_status_t tmp_status = gru_status_new();
+
+		worker->vmsl->destroy(msg_ctxt, &tmp_status);
 	}
 
 	shr_buff_detroy(&shr);
@@ -135,7 +137,6 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 	worker_msg_opt_cleanup(&opt);
 	vmslh_cleanup(&handlers);
 
-	gru_status_reset(status);
 	return WORKER_FAILURE;
 }
 
