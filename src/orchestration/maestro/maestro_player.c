@@ -118,7 +118,9 @@ static void *maestro_player_run(void *player) {
 			maestro_player->mmsl.receive(maestro_player->ctxt, mdata, &status);
 
 		if (unlikely(vmsl_stat_error(rstat))) {
-			logger(DEBUG, "Error receiving maestro data");
+			logger(ERROR, "Error receiving maestro data");
+
+			break;
 		} else {
 			if (!(rstat & VMSL_NO_DATA)) {
 				msg_content_data_t resp = {0};
