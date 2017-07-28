@@ -19,7 +19,7 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 								worker_snapshot_t *snapshot,
 								gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	const uint32_t sample_interval = 10;
+	const uint32_t sample_interval = 1;
 	uint64_t last_count = 0;
 	msg_content_data_t content_storage = {0};
 
@@ -73,10 +73,18 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 		snapshot->now = gru_time_now();
 		gru_time_add_microseconds(&snapshot->eta, interval);
 
-		uint64_t processed_count = snapshot->count - last_count;
+		int64_t elapsed = gru_time_elapsed_secs(last_sample_ts, snapshot->now);
+		if (elapsed >= sample_interval) {
+			uint64_t processed_count = snapshot->count - last_count;
 
-		calc_throughput(
-			&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
+			calc_throughput(
+				&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
+
+			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
+
+			last_sample_ts = snapshot->now;
+			last_count = snapshot->count;
+		}
 
 		if (unlikely(
 			!worker->writer->rate.write(&snapshot->throughput, &snapshot->eta, status))) {
@@ -84,15 +92,6 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 
 			gru_status_reset(status);
 			break;
-		}
-
-		last_count = snapshot->count;
-		last_sample_ts = snapshot->now;
-
-		if (gru_time_elapsed_secs(last_sample_ts, snapshot->now) >= sample_interval) {
-			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
-
-			fflush(NULL);
 		}
 
 		int64_t diff = gru_time_elapsed_milli(snapshot->now, snapshot->eta);
@@ -116,7 +115,7 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
 	logger(INFO,
-		   "Summary: sent %" PRIu64 " messages in %" PRIu64
+		   "Sent %" PRIu64 " messages in %" PRIu64
 			   " seconds (last measured rate: %.2f msgs/sec)",
 		   snapshot->count,
 		   elapsed,
