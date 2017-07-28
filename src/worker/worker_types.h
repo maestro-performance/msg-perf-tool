@@ -100,7 +100,7 @@ static inline bool worker_error(worker_ret_t ret) {
 }
 
 static inline bool worker_child(worker_ret_t ret) {
-	return (ret & WORKER_CHILD) ? false : true;
+	return (ret & WORKER_CHILD) ? true : false;
 }
 
 #ifdef __cplusplus
