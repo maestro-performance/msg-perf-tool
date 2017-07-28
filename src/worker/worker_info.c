@@ -32,7 +32,13 @@ worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t
 	logger(INFO, "Created child %s (pid %d) and waiting for the continue signal", cname,
 		child);
 
-	worker_wait();
+	if (!worker_wait()) {
+		gru_status_set(status, GRU_FAILURE, "Timed out waiting for the continue signal");
+
+		gru_dealloc_const_string(&cname);
+		kill(child, SIGABRT);
+		return NULL;
+	}
 
 	logger(DEBUG, "Child %d gave the ok signal", child);
 	fflush(NULL);

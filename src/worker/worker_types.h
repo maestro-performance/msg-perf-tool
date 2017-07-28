@@ -99,6 +99,10 @@ static inline bool worker_error(worker_ret_t ret) {
 	return (ret & WORKER_SUCCESS) ? false : true;
 }
 
+static inline bool worker_child(worker_ret_t ret) {
+	return (ret & WORKER_CHILD) ? false : true;
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -54,7 +54,7 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 			if (!nmret) {
 				logger(ERROR, "Error initializing performance report writer: %s",
 					   status->message);
-				return WORKER_FAILURE;
+				return WORKER_FAILURE | WORKER_CHILD;
 			}
 
 			install_interrupt_handler();

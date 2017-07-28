@@ -16,6 +16,9 @@
 #include "worker_wait.h"
 
 static bool locked = true;
+static const int32_t wait_time = 50;
+
+static int32_t limit;
 
 static void abstract_worker_sigusr2_handler(int signum) {
 	locked = false;
@@ -30,10 +33,19 @@ void worker_wait_setup() {
 	sa.sa_flags = SA_SIGINFO;
 	sigaction(SIGUSR2, &sa, NULL);
 	locked = true;
+	limit = 1000000 / wait_time;
 }
 
-void worker_wait() {
-	while (locked) {
+bool worker_wait() {
+	while (locked && limit > 0) {
 		usleep(50);
+		limit--;
+
+		if (limit == 0) {
+			locked = false;
+			return false;
+		}
 	}
+
+	return true;
 }

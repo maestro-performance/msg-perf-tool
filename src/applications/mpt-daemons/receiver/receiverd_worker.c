@@ -259,15 +259,23 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 		ret = worker_manager_clone(&worker, naive_receiver_start, &status);
 	}
 
-	if (worker_error(ret)) {
+	if (worker_error(ret) && worker_child(ret)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);
 
 		return ret;
 	}
+	else {
+		if (worker_error(ret)) {
+			logger(ERROR, "Unable to created worker clones: %s", status.message);
 
-	if (ret & WORKER_CHILD) {
-		return ret;
+			return ret;
+		}
+
+		if (worker_child(ret)) {
+			return ret;
+		}
 	}
+
 
 	worker_manager_watchdog_loop(&worker_handler, &status);
 	if (!gru_status_success(&status)) {

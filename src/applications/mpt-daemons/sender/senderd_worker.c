@@ -231,14 +231,21 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 		ret = worker_manager_clone(&worker, naive_sender_start, &status);
 	}
 
-	if (worker_error(ret)) {
+	if (worker_error(ret) && worker_child(ret)) {
 		logger(ERROR, "Unable to initialize children: %s", status.message);
 
 		return ret;
 	}
+	else {
+		if (worker_error(ret)) {
+			logger(ERROR, "Unable to created worker clones: %s", status.message);
 
-	if (ret & WORKER_CHILD) {
-		return ret;
+			return ret;
+		}
+
+		if (worker_child(ret)) {
+			return ret;
+		}
 	}
 
 	worker_handler_t worker_handler = {0};

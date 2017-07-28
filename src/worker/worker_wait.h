@@ -36,7 +36,7 @@ void worker_wait_setup();
 /**
  * Wait until the worker is ready
  */
-void worker_wait();
+bool worker_wait();
 
 #ifdef __cplusplus
 }
