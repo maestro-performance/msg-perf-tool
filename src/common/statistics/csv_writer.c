@@ -239,8 +239,7 @@ bool csv_tpr_writer_write_v1(const stat_throughput_t *tp, gru_timestamp_t *eta, 
 		return false;
 	}
 
-	gzprintf(tpr_file, "%s.%" PRId32 ";%s.%" PRIu32 ";%.2f\n", eta_str, eta->tv_usec, ata_str, tp->duration.end.tv_usec,
-			 tp->rate);
+	gzprintf(tpr_file, "%s.%" PRId32 ";%s.%" PRIu32 "\n", eta_str, eta->tv_usec, ata_str, tp->duration.end.tv_usec);
 
 	gru_dealloc_string(&eta_str);
 	gru_dealloc_string(&ata_str);
