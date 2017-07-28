@@ -198,7 +198,7 @@ bool csv_tp_writer_finalize(gru_status_t *status) {
 }
 
 static inline void csv_tpr_writer_initialize_v1() {
-	gzprintf(tpr_file, "eta;ata;rate\n");
+	gzprintf(tpr_file, "eta;ata\n");
 }
 
 bool csv_tpr_writer_initialize(const stat_io_info_t *io_info, gru_status_t *status) {
