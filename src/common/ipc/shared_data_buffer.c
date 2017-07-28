@@ -301,6 +301,9 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 bool shr_buff_write(volatile shr_data_buff_t *dest, void *src, size_t len) {
 	if (sem_trywait(dest->sem_read) != 0) {
 		if (errno == EAGAIN) {
+			logger_t logger = gru_logger_get();
+
+			logger(WARNING, "Failed to lock the semaphore: %s", strerror(errno));
 			return false;
 		}
 	}
