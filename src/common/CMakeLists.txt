@@ -9,6 +9,8 @@ add_library(
         statistics/csv_writer.c
         statistics/out_writer.c
         statistics/nop_writer.c
+        statistics/hdr_wrapper.c
+        statistics/hdr_writer.c
         statistics/naming_utils.c
         ipc/shared_data_buffer.c
         strategies/payload/pl_fixed_strategy.c

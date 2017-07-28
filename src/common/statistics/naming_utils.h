@@ -25,6 +25,7 @@
 #include "csv_writer.h"
 #include "nop_writer.h"
 #include "out_writer.h"
+#include "hdr_writer.h"
 
 #include "stats_writer.h"
 
@@ -36,6 +37,7 @@ typedef enum report_format_t_ {
 	FORMAT_CSV,
 	FORMAT_NOP,
 	FORMAT_OUT,
+	FORMAT_HDR,
 } report_format_t;
 
 typedef enum naming_opt_t_ {
