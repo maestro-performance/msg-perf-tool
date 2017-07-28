@@ -93,7 +93,7 @@ bool csv_tp_writer_finalize(gru_status_t *status);
 
 
 /**
- * Initialize the througput writer
+ * Initialize the throughput rate writer
  * @param io_info optional input/output information
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
@@ -110,14 +110,14 @@ bool csv_tpr_writer_initialize(const stat_io_info_t *io_info, gru_status_t *stat
 bool csv_tpr_writer_write(const stat_throughput_t *tp, gru_timestamp_t *eta, gru_status_t *status);
 
 /**
- * Flushes throughput data
+ * Flushes throughput rate data
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
  */
 bool csv_tpr_writer_flush(gru_status_t *status);
 
 /**
- * Finalizes writing latency data
+ * Finalizes writing throughput rate data
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
  */
