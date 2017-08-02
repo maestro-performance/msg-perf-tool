@@ -1,0 +1,13 @@
+[Unit]
+Description=MPT Data Server
+After=syslog.target network.target
+
+[Service]
+Type=forking
+EnvironmentFile=-/@CMAKE_INSTALL_SYSCONFIG_PATH@/mpt-data-server
+ExecStart=@CMAKE_INSTALL_PREFIX@/bin/mpt-data-server start $MPT_LOG_DIR
+ExecStop=@CMAKE_INSTALL_PREFIX@/bin/mpt-data-server stop
+PrivateTmp=false
+
+[Install]
+WantedBy=multi-user.target

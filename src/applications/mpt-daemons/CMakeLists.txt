@@ -3,7 +3,13 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	AddService(receiver/config mpt-receiver-daemon)
 	AddService(sender/config mpt-sender-daemon)
 	AddService(broker/config mpt-broker-inspector)
+	AddService(data-server/config mpt-data-server)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
+configure_file(data-server/mpt-data-server.sh.in
+	${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_BINDIR}/mpt-data-server
+	@ONLY
+)
 
 include_directories(common)
 

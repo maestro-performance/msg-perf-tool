@@ -1,0 +1,5 @@
+# The log directory
+MPT_LOG_DIR=/var/log/mpt
+
+# The log level
+MPT_LOG_LEVEL=info
