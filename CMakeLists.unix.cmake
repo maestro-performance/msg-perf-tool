@@ -93,6 +93,13 @@ find_library(MSGPACK_LIB NAMES msgpackc libmsgpackc)
 message(STATUS "MessagePack headers found on ${MSGPACK_INCLUDE_DIR}")
 message(STATUS "MessagePack library found at ${MSGPACK_LIB}")
 
+
+find_path(HDR_HISTOGRAM_C_INCLUDE_DIR hdr/hdr_histogram.h)
+find_library(HDR_HISTOGRAM_C_LIB NAMES hdr_histogram libhdr_histogram)
+
+message(STATUS "HDR Histogram C headers found on ${HDR_HISTOGRAM_C_INCLUDE_DIR}")
+message(STATUS "HDR Histogram C library found at ${HDR_HISTOGRAM_C_LIB}")
+
 # Installs service configuration files (ie.: for systemd daemons). For systemd daemons
 # It requires 2 files: a <service_name>.in file, containing the service startup
 # configuration and a <service_name.service.in, which is a systemd-compliant service

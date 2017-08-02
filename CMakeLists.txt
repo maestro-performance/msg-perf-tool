@@ -36,7 +36,8 @@ include_directories(${GRU_INCLUDE_DIR}
     ${BMIC_INCLUDE_DIR}
     ${URIPARSER_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}
-    ${MSGPACK_INCLUDE_DIR})
+    ${MSGPACK_INCLUDE_DIR}
+    ${HDR_HISTOGRAM_C_INCLUDE_DIR})
 
 link_libraries(${MATH_LIB}
     ${RT_LIB}
@@ -48,6 +49,7 @@ link_libraries(${MATH_LIB}
     ${UUID_LIB}
     ${ZLIB_LIB}
     ${MSGPACK_LIB}
+    ${HDR_HISTOGRAM_C_LIB}
 )
 
 include_directories(src/common)
