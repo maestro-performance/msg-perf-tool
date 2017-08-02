@@ -6,11 +6,6 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	AddService(data-server/config mpt-data-server)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
-configure_file(data-server/mpt-data-server.sh.in
-	${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_BINDIR}/mpt-data-server
-	@ONLY
-)
-
 include_directories(common)
 
 add_library(
@@ -79,3 +74,14 @@ install(TARGETS
 	mpt-broker-inspector
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+
+configure_file(data-server/mpt-data-server.sh.in
+	${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_BINDIR}/mpt-data-server
+	@ONLY
+)
+
+install(PROGRAMS ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_BINDIR}/mpt-data-server
+	DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
