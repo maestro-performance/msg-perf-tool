@@ -238,7 +238,7 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 	worker.worker_flags = WRK_RECEIVER | WRK_DAEMON | WRK_FORKED;
 	worker.can_continue = worker_check;
 
-	worker.report_format = FORMAT_CSV;
+	worker.report_format = FORMAT_HDR;
 
 	worker_handler_t worker_handler = {0};
 	worker_ret_t ret;
