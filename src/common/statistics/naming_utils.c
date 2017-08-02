@@ -15,7 +15,7 @@
  */
 #include "naming_utils.h"
 
-typedef  void (*naming_func_t)(naming_info_t *nm_info, const char *basename, char *out, size_t len);
+typedef void (*naming_func_t)(naming_info_t *nm_info, const char *basename, char *out, size_t len);
 
 /**
  * @param nm_info naming info
@@ -128,7 +128,7 @@ static bool naming_initialize_hdr_writer(stats_writer_t *writer,
 		hdr_writer_throughput_assign(&writer->throughput);
 
 		naming_ret = naming_initialize_throughput_writer(
-			&writer->throughput, (naming_info_t *) payload, naming_hdr_name, status);
+			&writer->throughput, (naming_info_t *) payload, naming_csv_name, status);
 
 		if (!naming_ret) {
 			return false;
@@ -139,7 +139,7 @@ static bool naming_initialize_hdr_writer(stats_writer_t *writer,
 		hdr_writer_tpr_assign(&writer->rate);
 
 		naming_ret = naming_initialize_tpr_writer(
-			&writer->rate, (naming_info_t *) payload, naming_hdr_name, status);
+			&writer->rate, (naming_info_t *) payload, naming_csv_name, status);
 
 		if (!naming_ret) {
 			return false;
