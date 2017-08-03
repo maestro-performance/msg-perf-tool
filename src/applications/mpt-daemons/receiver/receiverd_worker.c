@@ -243,6 +243,13 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 	worker_handler_t worker_handler = {0};
 	worker_ret_t ret;
 
+	char worker_log_dir[PATH_MAX] = {0};
+	if (!worker_log_init(worker_log_dir, &status)) {
+		return WORKER_FAILURE;
+	}
+	worker.log_dir = worker_log_dir;
+
+
 	if (worker.options->rate > 0) {
 		logger(INFO, "Launching rate-based workers for the test");
 		worker.naming_options = NM_RATE | NM_LATENCY;
@@ -276,16 +283,23 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 		}
 	}
 
+	const options_t *options = get_options_object();
 
 	worker_manager_watchdog_loop(&worker_handler, &status);
 	if (!gru_status_success(&status)) {
 		logger(ERROR, "Test failed: %s", status.message);
 
+		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
+
 		maestro_notify_test_failed(&status);
 	}
 	else {
+		worker_log_link_create(worker_log_dir, options->logdir, "lastSuccessful");
+
 		maestro_notify_test_successful(&status);
 	}
+
+	worker_log_link_create(worker_log_dir, options->logdir, "last");
 
 	worker_manager_stop();
 	return ret;

@@ -122,3 +122,13 @@ bool worker_log_init(char *worker_log_dir, gru_status_t *status) {
 
 	return true;
 }
+
+
+void worker_log_link_create(const char *target, const char *basedir, const char *name) {
+	char link_path[PATH_MAX] = {0};
+
+	snprintf(link_path, sizeof(link_path) - 1, "%s/%s", basedir, name);
+
+	unlink(link_path);
+	symlink(target, link_path);
+}

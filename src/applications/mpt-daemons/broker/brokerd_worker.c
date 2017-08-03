@@ -188,7 +188,14 @@ static bool brokerd_collect(gru_status_t *status) {
 	}
 
 	const options_t *options = get_options_object();
-	if (!bmic_writer_initialize(options->logdir, filename, status)) {
+
+	char worker_log_dir[PATH_MAX] = {0};
+	if (!worker_log_init(worker_log_dir, status)) {
+		return WORKER_FAILURE;
+	}
+
+
+	if (!bmic_writer_initialize(worker_log_dir, filename, status)) {
 		return false;
 	}
 
@@ -246,9 +253,13 @@ static bool brokerd_collect(gru_status_t *status) {
 		bmic_context_cleanup(&ctxt);
 		logger(INFO, "Broker inspector completed the inspection with errors");
 
+		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
+
 		return false;
 	}
 
+	worker_log_link_create(worker_log_dir, options->logdir, "last");
+	worker_log_link_create(worker_log_dir, options->logdir, "lastSuccessful");
 
 	bmic_writer_finalize(status);
 	bmic_context_cleanup(&ctxt);

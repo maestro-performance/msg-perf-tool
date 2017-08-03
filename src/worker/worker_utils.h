@@ -76,6 +76,15 @@ volatile shr_data_buff_t *worker_shared_buffer_new(const worker_t *worker,
  */
 bool worker_log_init(char *worker_log_dir, gru_status_t *status);
 
+
+/**
+ * Creates the post-execution link directories (ie.: /path/to/lastFailed, /path/to/lastSuccess, etc)
+ * @param target target directory containing the logs to be linked (ie.: /path/to/0)
+ * @param basedir base log directory (ie.: /path/to/)
+ * @param name link name (ie.: lastFailed, last, etc)
+ */
+void worker_log_link_create(const char *target, const char *basedir, const char *name);
+
 #ifdef __cplusplus
 }
 #endif

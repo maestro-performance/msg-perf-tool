@@ -74,6 +74,7 @@ typedef bool (*worker_iteration_check)(const worker_options_t *options,
  */
 typedef struct worker_t_ {
 	char *name;
+  	char *log_dir;
 	const vmsl_t *vmsl;
 	worker_options_t *options;
 	stats_writer_t *writer;

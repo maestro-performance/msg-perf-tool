@@ -209,14 +209,17 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 	worker.options = &worker_options;
 
 	stats_writer_t writer = {0};
-	worker.writer = &writer;
-	worker.name = "senderd";
 	worker.worker_flags = WRK_SENDER | WRK_DAEMON | WRK_FORKED;
-
 	worker.can_continue = worker_check;
-
 	worker.report_format = FORMAT_CSV;
 
+	worker.writer = &writer;
+	worker.name = "senderd";
+	char worker_log_dir[PATH_MAX] = {0};
+	if (!worker_log_init(worker_log_dir, &status)) {
+		return WORKER_FAILURE;
+	}
+	worker.log_dir = worker_log_dir;
 
 	pl_strategy_assign(&worker.pl_strategy, worker.options->variable_size);
 
@@ -247,6 +250,7 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 			return ret;
 		}
 	}
+	const options_t *options = get_options_object();
 
 	worker_handler_t worker_handler = {0};
 
@@ -254,11 +258,18 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 	if (!gru_status_success(&status)) {
 		logger(ERROR, "Test failed: %s", status.message);
 
+		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
+
 		maestro_notify_test_failed(&status);
 	}
 	else {
+		worker_log_link_create(worker_log_dir, options->logdir, "lastSuccessful");
+
 		maestro_notify_test_successful(&status);
 	}
+
+
+	worker_log_link_create(worker_log_dir, options->logdir, "last");
 
 	worker_manager_stop();
 

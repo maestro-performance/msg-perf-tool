@@ -119,7 +119,13 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	worker.options->log_level = options->log_level;
 	worker.options->message_size = options->message_size;
 	worker.options->throttle = options->throttle;
+
 	worker.name = "receiver";
+	char worker_log_dir[PATH_MAX] = {0};
+	if (!worker_log_init(worker_log_dir, &status)) {
+		return WORKER_FAILURE;
+	}
+	worker.log_dir = worker_log_dir;
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
