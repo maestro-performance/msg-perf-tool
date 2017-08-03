@@ -21,7 +21,7 @@ typedef void (*naming_func_t)(naming_info_t *nm_info, const char *basename, char
  * @param nm_info naming info
  * @param basename = "latency"
  * @param out out
- * @param len buffer lenght
+ * @param len buffer length
  */
 static void
 naming_hdr_name(naming_info_t *nm_info, const char *basename, char *out, size_t len) {
@@ -38,7 +38,7 @@ naming_hdr_name(naming_info_t *nm_info, const char *basename, char *out, size_t 
  * @param nm_info naming info
  * @param basename = "latency"
  * @param out out
- * @param len buffer lenght
+ * @param len buffer length
  */
 static void
 	naming_csv_name(naming_info_t *nm_info, const char *basename, char *out, size_t len) {

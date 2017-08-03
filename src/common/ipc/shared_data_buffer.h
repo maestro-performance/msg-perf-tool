@@ -52,7 +52,7 @@ typedef struct shr_data_buff_t_ {
 /**
  * Creates a new shared data buffer
  * @param perm Permission (read / write)
- * @param len lenght, in bytes
+ * @param len length, in bytes
  * @param name buffer name
  * @param status status structure in case of error
  * @return A pointer to a new shared data buffer or false otherwise
