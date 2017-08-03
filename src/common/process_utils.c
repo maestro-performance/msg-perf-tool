@@ -36,27 +36,6 @@ bool remap_log(const char *dir,
 	return gru_io_remap(dir, name, fd, status);
 }
 
-bool remap_log_with_prefix(const char *dir,
-	const char *base_name,
-	char *prefix,
-	pid_t parent,
-	pid_t pid,
-	FILE *fd,
-	gru_status_t *status) {
-	char name[64];
-
-	bzero(name, sizeof(name));
-
-	if (parent == 0) {
-		snprintf(name, sizeof(name) - 1, "%s-%s-%d.log", prefix, base_name, pid);
-	} else {
-		snprintf(
-			name, sizeof(name) - 1, "%s-%s-%d-%d.log", prefix, base_name, parent, pid);
-	}
-
-	return gru_io_remap(dir, name, fd, status);
-}
-
 /**
  * Initializes the controller process if in daemon mode
  * @param background (ie: daemon mode ...)
