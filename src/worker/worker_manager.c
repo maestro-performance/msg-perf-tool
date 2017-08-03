@@ -26,6 +26,12 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 		return false;
 	}
 
+	char worker_log_dir[PATH_MAX] = {0};
+	if (worker_log_init(worker_log_dir, status)) {
+		return WORKER_FAILURE;
+	}
+
+
 	logger_t logger = gru_logger_get();
 
 	logger(INFO, "Creating %d concurrent operations", worker->options->parallel_count);
@@ -35,14 +41,12 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 		if (child == 0) {
 			worker_snapshot_t snapshot = {0};
 
-			const options_t *options = get_options_object();
-
-			remap_log(options->logdir, worker->name, getppid(), getpid(), stderr, status);
+			remap_log(worker_log_dir, worker->name, getppid(), getpid(), stderr, status);
 
 			naming_info_t naming_info = {0};
 
 			naming_info.source = worker->name;
-			naming_info.location = options->logdir;
+			naming_info.location = worker_log_dir;
 			naming_info.pid = getpid();
 			naming_info.ppid = getppid();
 

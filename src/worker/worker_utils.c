@@ -85,3 +85,40 @@ volatile shr_data_buff_t *worker_shared_buffer_new(const worker_t *worker,
 
 	return shr;
 }
+
+
+static int32_t worker_log_fill_last_dir(char *path, size_t max_len, gru_status_t *status) {
+	int32_t ret = 0;
+	bool exists;
+	const options_t *options = get_options_object();
+
+	do {
+		snprintf(path, max_len, "%s/%"PRId32"", options->logdir, ret);
+
+		exists = gru_path_exists(path, status);
+		if (!exists) {
+			return ret;
+		}
+
+		if (gru_status_error(status)) {
+			return -1;
+		}
+
+		ret++;
+	} while (exists && ret < INT_MAX);
+
+	return -1;
+}
+
+bool worker_log_init(char *worker_log_dir, gru_status_t *status) {
+	int32_t last_log_dir = worker_log_fill_last_dir(worker_log_dir, PATH_MAX - 1, status);
+	if (last_log_dir < 0) {
+		return false;
+	}
+
+	if (!gru_path_mkdirs(worker_log_dir, status)) {
+		return false;
+	}
+
+	return true;
+}

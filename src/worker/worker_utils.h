@@ -67,6 +67,15 @@ const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *statu
 volatile shr_data_buff_t *worker_shared_buffer_new(const worker_t *worker,
 	gru_status_t *status);
 
+
+/**
+ * Initializes the worker log directory (ie.: /path/to/log/0, /path/to/log/1)
+ * @param worker_log_dir The worker log directory
+ * @param status a status structure containing error details in case of errors
+ * @return true if successful or false otherwise
+ */
+bool worker_log_init(char *worker_log_dir, gru_status_t *status);
+
 #ifdef __cplusplus
 }
 #endif
