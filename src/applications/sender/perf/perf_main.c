@@ -176,7 +176,7 @@ int perf_main(int argc, char **argv) {
 	}
 
 	if (options->logdir) {
-		remap_log(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
+		remap_log_with_link(options->logdir, "mpt-sender", 0, getpid(), stderr, &status);
 	} else {
 		if (options->parallel_count > 1) {
 			fprintf(stderr, "Multiple concurrent process require a log directory\n");

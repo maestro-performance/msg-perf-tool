@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -36,12 +37,41 @@
 extern "C" {
 #endif
 
+/**
+ * Remaps the standard IO FDs to a file for logging
+ * @param dir
+ * @param base_name
+ * @param parent
+ * @param pid
+ * @param fd
+ * @param status
+ * @return
+ */
 bool remap_log(const char *dir,
 	const char *base_name,
 	pid_t parent,
 	pid_t pid,
 	FILE *fd,
 	gru_status_t *status);
+
+
+/**
+ * Remaps the standard IO FDs to a file for logging and create a symlink
+ * @param dir
+ * @param base_name
+ * @param parent
+ * @param pid
+ * @param fd
+ * @param status
+ * @return
+ */
+bool remap_log_with_link(const char *dir,
+			   const char *base_name,
+			   pid_t parent,
+			   pid_t pid,
+			   FILE *fd,
+			   gru_status_t *status);
+
 int init_controller(const char *logdir, const char *controller_name);
 
 bool is_interrupted();

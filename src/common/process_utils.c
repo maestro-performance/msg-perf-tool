@@ -36,6 +36,41 @@ bool remap_log(const char *dir,
 	return gru_io_remap(dir, name, fd, status);
 }
 
+bool remap_log_with_link(const char *dir,
+			   const char *base_name,
+			   pid_t parent,
+			   pid_t pid,
+			   FILE *fd,
+			   gru_status_t *status) {
+	char name[64];
+
+	bzero(name, sizeof(name));
+
+	if (parent == 0) {
+		snprintf(name, sizeof(name) - 1, "%s-%d.log", base_name, pid);
+	} else {
+		snprintf(name, sizeof(name) - 1, "%s-%d-%d.log", base_name, parent, pid);
+	}
+
+	if (gru_io_remap(dir, name, fd, status)) {
+		char link_path[PATH_MAX] = {0};
+
+		snprintf(link_path, sizeof(link_path) - 1, "%s/%s-current.log", dir, base_name);
+
+		char link_target[PATH_MAX] = {0};
+		snprintf(link_target, sizeof(link_target) - 1, "%s/%s", dir, name);
+
+		unlink(link_path);
+		symlink(link_target, link_path);
+
+		return true;
+	}
+
+
+	return false;
+}
+
+
 /**
  * Initializes the controller process if in daemon mode
  * @param background (ie: daemon mode ...)
@@ -64,7 +99,7 @@ int init_controller(const char *logdir, const char *controller_name) {
 
 		gru_status_t status = {0};
 
-		bool ret = remap_log(logdir, controller_name, 0, getpid(), stderr, &status);
+		bool ret = remap_log_with_link(logdir, controller_name, 0, getpid(), stderr, &status);
 
 		if (!ret) {
 			fprintf(
