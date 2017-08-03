@@ -23,7 +23,7 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 	errors = 0;
 
 	if (!worker_list_init(status)) {
-		return false;
+		return WORKER_FAILURE;
 	}
 
 	char worker_log_dir[PATH_MAX] = {0};
