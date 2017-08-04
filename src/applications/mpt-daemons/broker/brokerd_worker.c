@@ -234,15 +234,19 @@ static bool brokerd_collect(gru_status_t *status) {
 	if (!gru_status_success(status)) {
 		bmic_writer_finalize(status);
 		bmic_context_cleanup(&ctxt);
-		logger(GRU_INFO, "Broker inspector completed the inspection with errors");
+		logger(GRU_INFO, "Broker inspector completed the inspection with errors: %s",
+			   status->message);
 
 		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
+		maestro_notify_test_failed(status);
 
 		return false;
 	}
 
 	worker_log_link_create(worker_log_dir, options->logdir, "last");
 	worker_log_link_create(worker_log_dir, options->logdir, "lastSuccessful");
+
+	maestro_notify_test_successful(status);
 
 	bmic_writer_finalize(status);
 	bmic_context_cleanup(&ctxt);
