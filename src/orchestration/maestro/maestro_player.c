@@ -100,6 +100,30 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 	return true;
 }
 
+static void maestro_player_handle_note(maestro_player_t *maestro_player, msg_content_data_t *mdata, gru_status_t *status) {
+	logger_t logger = gru_logger_get();
+
+	msg_content_data_t resp = {0};
+
+	maestro_sheet_play(maestro_player->sheet, &maestro_player->player_info, mdata, &resp, status);
+
+	if (!gru_status_success(status)) {
+		logger(GRU_WARNING, "Maestro request failed: %s", status->message);
+		return;
+	}
+
+	if (resp.data != NULL) {
+		gru_uri_set_path(&maestro_player->ctxt->msg_opts.uri, "/mpt/maestro");
+
+		vmsl_stat_t ret = maestro_player->mmsl.send(maestro_player->ctxt, &resp, status);
+		if (vmsl_stat_error(ret)) {
+			logger(GRU_ERROR, "Unable to write maestro reply: %s", status->message);
+		}
+
+		msg_content_data_release(&resp);
+	}
+}
+
 static void *maestro_player_run(void *player) {
 	gru_status_t status = gru_status_new();
 	maestro_player_t *maestro_player = (maestro_player_t *) player;
@@ -114,8 +138,10 @@ static void *maestro_player_run(void *player) {
 	while (!maestro_player->cancel) {
 		gru_status_reset(&status);
 		msg_content_data_reset(mdata);
-		vmsl_stat_t rstat =
-			maestro_player->mmsl.receive(maestro_player->ctxt, mdata, &status);
+
+		vmsl_stat_t rstat;
+
+		rstat = maestro_player->mmsl.receive(maestro_player->ctxt, mdata, &status);
 
 		if (unlikely(vmsl_stat_error(rstat))) {
 			logger(GRU_ERROR, "Error receiving maestro data");
@@ -123,27 +149,7 @@ static void *maestro_player_run(void *player) {
 			break;
 		} else {
 			if (vmsl_has_data(rstat)) {
-				msg_content_data_t resp = {0};
-				maestro_sheet_play(maestro_player->sheet,
-					&maestro_player->player_info,
-					mdata,
-					&resp,
-					&status);
-				if (!gru_status_success(&status)) {
-					logger(GRU_WARNING, "Maestro request failed: %s", status.message);
-				}
-
-				if (resp.data != NULL) {
-					gru_uri_set_path(&maestro_player->ctxt->msg_opts.uri, "/mpt/maestro");
-
-					vmsl_stat_t ret =
-						maestro_player->mmsl.send(maestro_player->ctxt, &resp, &status);
-					if (ret != VMSL_SUCCESS) {
-						logger(GRU_ERROR, "Unable to write maestro reply: %s", status.message);
-					}
-
-					msg_content_data_release(&resp);
-				}
+				maestro_player_handle_note(maestro_player, mdata, &status);
 			}
 		}
 
