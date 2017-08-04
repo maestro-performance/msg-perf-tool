@@ -69,6 +69,10 @@ static inline bool vmsl_stat_error(vmsl_stat_t stat) {
 	return (stat & VMSL_SUCCESS) ? false : true;
 }
 
+static inline bool vmsl_has_data(vmsl_stat_t stat) {
+	return (stat & VMSL_NO_DATA) ? false : true;
+}
+
 #ifdef __cplusplus
 }
 #endif

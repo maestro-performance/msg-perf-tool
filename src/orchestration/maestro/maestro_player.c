@@ -122,7 +122,7 @@ static void *maestro_player_run(void *player) {
 
 			break;
 		} else {
-			if (!(rstat & VMSL_NO_DATA)) {
+			if (vmsl_has_data(rstat)) {
 				msg_content_data_t resp = {0};
 				maestro_sheet_play(maestro_player->sheet,
 					&maestro_player->player_info,
