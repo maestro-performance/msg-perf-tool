@@ -116,12 +116,14 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 	} else {
 		if (!maestro_sheet_do_play(sheet->instruments, pinfo, &request, &response)) {
 			// This note is valid, but not handled. Therefore, ignored
-			goto cleanup;
+			goto ignore;
 		}
 	}
 
 	cleanup:
 	maestro_serialize_note(&response, resp);
+
+	ignore:
 	maestro_note_payload_cleanup(&response);
 	maestro_note_payload_cleanup(&request);
 }
