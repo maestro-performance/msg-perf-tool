@@ -27,7 +27,7 @@ extern "C" {
 #define mpt_trace(...)                                                                   \
 	{                                                                                    \
 		logger_t mptlogger = gru_logger_get();                                           \
-		mptlogger(TRACE, __VA_ARGS__);                                                   \
+		mptlogger(GRU_TRACE, __VA_ARGS__);                                                   \
 	}
 #else
 #define mpt_trace(...)

@@ -37,7 +37,7 @@ static inline proton_ctxt_t *proton_ctxt_cast(msg_ctxt_t *ctxt) {
 msg_ctxt_t *proton_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Initializing proton wrapper");
+	logger(GRU_DEBUG, "Initializing proton wrapper");
 
 	msg_ctxt_t *msg_ctxt = msg_ctxt_init(status);
 	if (!msg_ctxt) {
@@ -47,7 +47,7 @@ msg_ctxt_t *proton_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t 
 	proton_ctxt_t *proton_ctxt = proton_context_init(handlers);
 
 	if (!proton_ctxt) {
-		logger(FATAL, "Unable to initialize the proton context");
+		logger(GRU_FATAL, "Unable to initialize the proton context");
 
 		goto err_exit;
 	}
@@ -72,7 +72,7 @@ vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 
 	vmslh_run(proton_ctxt->handlers->before_connect, proton_ctxt, NULL);
 
-	logger(DEBUG, "Initializing the proton messenger");
+	logger(GRU_DEBUG, "Initializing the proton messenger");
 	int err = pn_messenger_start(proton_ctxt->messenger);
 	if (err) {
 		gru_status_set(status, GRU_FAILURE, "Unable to start the proton messenger");
@@ -110,7 +110,7 @@ void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 		if (!stopped) {
 			logger_t logger = gru_logger_get();
 
-			logger(WARNING, "Proton did not stop within the required wait time");
+			logger(GRU_WARNING, "Proton did not stop within the required wait time");
 		}
 	}
 }
@@ -203,7 +203,7 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_s
 	logger_t logger = gru_logger_get();
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-	logger(INFO, "Subscribing to endpoint address at %s", url);
+	logger(GRU_INFO, "Subscribing to endpoint address at %s", url);
 	pn_messenger_subscribe(proton_ctxt->messenger, url);
 	if (failed(proton_ctxt->messenger)) {
 		pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
@@ -253,7 +253,7 @@ static int proton_do_receive(pn_messenger_t *messenger,
 		pn_error_t *error = pn_messenger_error(messenger);
 
 		const char *protonErrorText = pn_error_text(error);
-		logger(ERROR, protonErrorText);
+		logger(GRU_ERROR, protonErrorText);
 
 		return 1;
 	}
@@ -267,7 +267,7 @@ static int proton_do_receive(pn_messenger_t *messenger,
 		pn_error_t *error = pn_messenger_error(messenger);
 
 		const char *protonErrorText = pn_error_text(error);
-		logger(ERROR, protonErrorText);
+		logger(GRU_ERROR, protonErrorText);
 
 		return 1;
 	}
@@ -320,7 +320,7 @@ vmsl_stat_t
 			content->created = gru_time_from_milli(proton_ts);
 		} else {
 			sleep(1);
-			logger(DEBUG, "Unable to collect creation timestamp: %" PRId64 " is invalid",
+			logger(GRU_DEBUG, "Unable to collect creation timestamp: %" PRId64 " is invalid",
 				proton_ts);
 			gru_status_set(status, GRU_FAILURE, "A timestamp was not set for a message");
 
@@ -374,7 +374,7 @@ err_exit:
 bool proton_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Initializing AMQP protocol");
+	logger(GRU_DEBUG, "Initializing AMQP protocol");
 
 	vmsl->init = proton_init;
 	vmsl->start = proton_start;

@@ -64,7 +64,7 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 		interval = 1000000 / worker->options->rate;
 	}
 
-	logger(DEBUG, "Initializing receiver loop");
+	logger(GRU_DEBUG, "Initializing receiver loop");
 	while (worker->can_continue(worker->options, snapshot)) {
 		vmsl_stat_t rstat = worker->vmsl->receive(msg_ctxt, &content_storage, status);
 		if (unlikely(vmsl_stat_error(rstat))) {
@@ -72,7 +72,7 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 				continue;
 			}
 
-			logger(ERROR, "Error receiving data: %s", status->message);
+			logger(GRU_ERROR, "Error receiving data: %s", status->message);
 
 			gru_status_reset(status);
 			break;
@@ -89,7 +89,7 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 
 		calc_latency(&snapshot->latency, content_storage.created, snapshot->now);
 		if (unlikely(!worker->writer->latency.write(&snapshot->latency, status))) {
-			logger(ERROR, "Unable to write latency data: %s", status->message);
+			logger(GRU_ERROR, "Unable to write latency data: %s", status->message);
 
 			gru_status_reset(status);
 			break;
@@ -101,7 +101,7 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 
 		if (unlikely(
 			!worker->writer->rate.write(&snapshot->throughput, &snapshot->eta, status))) {
-			logger(ERROR, "Unable to write throughput data: %s", status->message);
+			logger(GRU_ERROR, "Unable to write throughput data: %s", status->message);
 
 			gru_status_reset(status);
 			break;
@@ -118,7 +118,7 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 
 		gru_time_add_microseconds(&snapshot->eta, interval);
 	}
-	logger(DEBUG, "Finalizing sender loop");
+	logger(GRU_DEBUG, "Finalizing sender loop");
 
 	worker->vmsl->stop(msg_ctxt, status);
 	worker->vmsl->destroy(msg_ctxt, status);
@@ -131,7 +131,7 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
 
-	logger(INFO,
+	logger(GRU_INFO,
 		   "Summary: received %" PRIu64 " messages in %" PRIu64
 	" seconds (last measured rate: %.2f msgs/sec)",
 		snapshot->count,

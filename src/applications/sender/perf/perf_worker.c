@@ -47,7 +47,7 @@ static bool perf_print_partial(worker_info_t *worker_info) {
 	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
 		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-		logger(INFO,
+		logger(GRU_INFO,
 			"Partial summary: PID %d sent %" PRIu64 " messages in %" PRIu64
 			" seconds (rate: %.2f msgs/sec)",
 			worker_info->child,
@@ -93,7 +93,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	if (!perf_initialize_writer(worker.writer, options, &status)) {
-		logger(FATAL, "Error initializing performance report writer: %s", status.message);
+		logger(GRU_FATAL, "Error initializing performance report writer: %s", status.message);
 		return 1;
 	}
 	pl_strategy_assign(&worker.pl_strategy, options->variable_size);
@@ -109,14 +109,14 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		worker_wait_setup();
 		ret = naive_sender_start(&worker, &snapshot, &status);
 		if (ret != WORKER_SUCCESS) {
-			logger(ERROR, "Unable to execute worker: %s\n", status.message);
+			logger(GRU_ERROR, "Unable to execute worker: %s\n", status.message);
 
 			return 1;
 		}
 
 		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-		logger(INFO,
+		logger(GRU_INFO,
 			"Summary: sent %" PRIu64 " messages in %" PRIu64
 			" seconds (rate: %.2f msgs/sec)",
 			snapshot.count,
@@ -127,7 +127,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		worker_ret_t ret = worker_manager_clone(&worker, naive_sender_start, &status);
 
 		if (worker_error(ret)) {
-			logger(ERROR, "Unable to initialize children: %s", status.message);
+			logger(GRU_ERROR, "Unable to initialize children: %s", status.message);
 
 			return 1;
 		}

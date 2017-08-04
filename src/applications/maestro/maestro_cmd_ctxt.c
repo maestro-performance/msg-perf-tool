@@ -45,7 +45,7 @@ void maestro_cmd_ctxt_destroy(maestro_cmd_ctxt_t **ptr) {
 	maestro_cmd_ctxt_t *ctxt = *ptr;
 
 
-	logger(DEBUG, "Destroying context");
+	logger(GRU_DEBUG, "Destroying context");
 	if (!ctxt) {
 		return;
 	}
@@ -70,7 +70,7 @@ bool maestro_cmd_ctxt_start(maestro_cmd_ctxt_t *cmd_ctxt, msg_opt_t opt, gru_sta
 	cmd_ctxt->msg_ctxt = cmd_ctxt->vmsl.init(opt, &cmd_ctxt->handlers, status);
 
 	if (!cmd_ctxt->msg_ctxt) {
-		logger(ERROR, "Failed to initialize maestro connection: %s", status->message);
+		logger(GRU_ERROR, "Failed to initialize maestro connection: %s", status->message);
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool maestro_cmd_ctxt_start(maestro_cmd_ctxt_t *cmd_ctxt, msg_opt_t opt, gru_sta
 void maestro_cmd_ctxt_stop(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
 	logger_t  logger = gru_logger_get();
 
-	logger(DEBUG, "Stopping context");
+	logger(GRU_DEBUG, "Stopping context");
 	cmd_ctxt->vmsl.stop(cmd_ctxt->msg_ctxt, status);
 
 	gru_uri_cleanup(&cmd_ctxt->msg_ctxt->msg_opts.uri);
@@ -101,7 +101,7 @@ bool maestro_cmd_ctxt_forwarder(maestro_cmd_ctxt_t *cmd_ctxt, vmsl_mtopic_spec_t
 								gru_status_t *status) {
 	logger_t  logger = gru_logger_get();
 
-	logger(DEBUG, "Subscribing to the Maestro topic for command forwarding");
+	logger(GRU_DEBUG, "Subscribing to the Maestro topic for command forwarding");
 	vmsl_stat_t rstat = cmd_ctxt->vmsl.subscribe(cmd_ctxt->msg_ctxt, mtopic, status);
 	if (vmsl_stat_error(rstat)) {
 		gru_status_set(status, GRU_FAILURE, "Unable to subscribe to maestro broker");

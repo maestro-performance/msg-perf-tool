@@ -56,13 +56,13 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 		idle_usec = 1000000 / worker->options->throttle;
 	}
 
-	logger(DEBUG, "Initializing sender loop");
+	logger(GRU_DEBUG, "Initializing sender loop");
 	while (worker->can_continue(worker->options, snapshot)) {
 		worker->pl_strategy.load(&content_storage);
 
 		ret = worker->vmsl->send(msg_ctxt, &content_storage, status);
 		if (vmsl_stat_error(ret)) {
-			logger(ERROR, "Error sending data: %s", status->message);
+			logger(GRU_ERROR, "Error sending data: %s", status->message);
 
 			gru_status_reset(status);
 			break;
@@ -79,7 +79,7 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 
 			if (unlikely(
 				!worker->writer->throughput.write(&snapshot->throughput, status))) {
-				logger(ERROR, "Unable to write throughput data: %s", status->message);
+				logger(GRU_ERROR, "Unable to write throughput data: %s", status->message);
 
 				gru_status_reset(status);
 				break;
@@ -97,7 +97,7 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 			usleep(idle_usec);
 		}
 	}
-	logger(DEBUG, "Finalizing sender loop");
+	logger(GRU_DEBUG, "Finalizing sender loop");
 
 	worker->vmsl->stop(msg_ctxt, status);
 	worker->vmsl->destroy(msg_ctxt, status);
@@ -108,7 +108,7 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 		&snapshot->throughput, snapshot->start, snapshot->now, snapshot->count);
 
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
-	logger(INFO,
+	logger(GRU_INFO,
 		   "Summary: sent %" PRIu64 " messages in %" PRIu64
 			   " seconds (last measured rate: %.2f msgs/sec)",
 		   snapshot->count,

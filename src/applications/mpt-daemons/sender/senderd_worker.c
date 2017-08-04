@@ -32,7 +32,7 @@ static void *senderd_handle_start(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a start request");
+	logger(GRU_INFO, "Just received a start request");
 	if (started == true || worker_list_is_running()) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 	} else {
@@ -48,7 +48,7 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a stop request");
+	logger(GRU_INFO, "Just received a stop request");
 	started = false;
 
 	if (worker_list_is_running()) {
@@ -72,7 +72,7 @@ static void *senderd_handle_test_failed(const maestro_note_t *request,
 	if (worker_list_is_running()) {
 		logger_t logger = gru_logger_get();
 
-		logger(INFO, "Stopping test execution because a peer reported a test failure: %s",
+		logger(GRU_INFO, "Stopping test execution because a peer reported a test failure: %s",
 			   request->payload->notification.body.message);
 		if (!worker_manager_abort()) {
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
@@ -90,7 +90,7 @@ static void *senderd_handle_halt(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a halt request");
+	logger(GRU_INFO, "Just received a halt request");
 	senderd_handle_stop(request, response, pinfo);
 	halt = true;
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -103,7 +103,7 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a stats request: %s", pinfo->id);
+	logger(GRU_INFO, "Just received a stats request: %s", pinfo->id);
 
 	if (!worker_list_is_running()) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
@@ -128,7 +128,7 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 
 	uint32_t count_children = worker_list_count();
 	maestro_note_stats_set_child_count(response, count_children);
-	logger(INFO, "Number of children evaluated: %d", count_children);
+	logger(GRU_INFO, "Number of children evaluated: %d", count_children);
 
 	maestro_note_stats_set_role(response, "sender");
 	maestro_note_stats_set_roleinfo(response, "perf");
@@ -235,13 +235,13 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 	}
 
 	if (worker_error(ret) && worker_child(ret)) {
-		logger(ERROR, "Unable to initialize children: %s", status.message);
+		logger(GRU_ERROR, "Unable to initialize children: %s", status.message);
 
 		return ret;
 	}
 	else {
 		if (worker_error(ret)) {
-			logger(ERROR, "Unable to created worker clones: %s", status.message);
+			logger(GRU_ERROR, "Unable to created worker clones: %s", status.message);
 
 			return ret;
 		}
@@ -256,7 +256,7 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 
 	worker_manager_watchdog_loop(&worker_handler, &status);
 	if (!gru_status_success(&status)) {
-		logger(ERROR, "Test failed: %s", status.message);
+		logger(GRU_ERROR, "Test failed: %s", status.message);
 
 		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
 
@@ -283,7 +283,7 @@ int senderd_worker_start(const options_t *options) {
 	worker_ret_t ret;
 
 	if (!maestro_player_start(options, sheet, &status)) {
-		logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
+		logger(GRU_FATAL, "Unable to connect to maestro broker: %s", status.message);
 
 		maestro_player_stop(sheet, &status);
 		maestro_sheet_destroy(&sheet);
@@ -300,9 +300,9 @@ int senderd_worker_start(const options_t *options) {
 				char *uri = gru_uri_simple_format(&worker_options.uri, &status);
 
 				if (!uri) {
-					logger(ERROR, "Unable to assign a VMSL: %s", status.message);
+					logger(GRU_ERROR, "Unable to assign a VMSL: %s", status.message);
 				} else {
-					logger(ERROR, "Unable to assign a VMSL for the URI: %s", uri);
+					logger(GRU_ERROR, "Unable to assign a VMSL for the URI: %s", uri);
 					gru_dealloc_string(&uri);
 
 					break;

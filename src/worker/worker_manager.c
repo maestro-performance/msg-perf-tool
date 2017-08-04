@@ -28,7 +28,7 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Creating %d concurrent operations", worker->options->parallel_count);
+	logger(GRU_INFO, "Creating %d concurrent operations", worker->options->parallel_count);
 	for (uint16_t i = 0; i < worker->options->parallel_count; i++) {
 		pid_t child = fork();
 
@@ -50,7 +50,7 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 												  &naming_info,
 												  status);
 			if (!nmret) {
-				logger(ERROR, "Error initializing performance report writer: %s",
+				logger(GRU_ERROR, "Error initializing performance report writer: %s",
 					   status->message);
 				return WORKER_FAILURE | WORKER_CHILD;
 			}
@@ -58,10 +58,10 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 			install_interrupt_handler();
 			worker_ret_t wret = worker_start(worker, &snapshot, status);
 			if (wret != WORKER_SUCCESS) {
-				logger(ERROR, "Unable to execute worker: %s", status->message);
+				logger(GRU_ERROR, "Unable to execute worker: %s", status->message);
 			}
 			else {
-				logger(INFO, "Test execution terminated");
+				logger(GRU_INFO, "Test execution terminated");
 			}
 
 			return wret | WORKER_CHILD;
@@ -70,7 +70,7 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 
 			worker_info_t *worker_info = worker_info_new(worker, child, status);
 			if (!worker_info) {
-				logger(ERROR, "Unable to create worker info: %s", status->message);
+				logger(GRU_ERROR, "Unable to create worker info: %s", status->message);
 
 				return WORKER_FAILURE;
 			}
@@ -96,7 +96,7 @@ static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 	if (!ret) {
 		logger_t logger = gru_logger_get();
 
-		logger(WARNING,
+		logger(GRU_WARNING,
 			   "Unable to obtain performance snapshot from worker %d",
 			   worker_info->child);
 	}
@@ -127,7 +127,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 
 			if (handler->flags & WRK_HANDLE_EVAL) {
 				if (!handler->eval(worker_info, status)) {
-					logger(DEBUG, "Worker handler eval failed: %s", status->message);
+					logger(GRU_DEBUG, "Worker handler eval failed: %s", status->message);
 
 					worker_list_unlock();
 					return false;
@@ -137,7 +137,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 			node = node->next;
 		} else {
 			if (WIFEXITED(wstatus)) {
-				logger(INFO,
+				logger(GRU_INFO,
 					   "Child %d finished with status %d",
 					   worker_info->child,
 					   WEXITSTATUS(wstatus));
@@ -146,7 +146,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 
 				if (sig != SIGINT) {
 					errors++;
-					logger(INFO,
+					logger(GRU_INFO,
 						   "Child %d received a signal %d",
 						   worker_info->child,
 						   WTERMSIG(wstatus));
@@ -157,8 +157,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 				if (sig != SIGINT) {
 					errors++;
 
-					logger(
-						ERROR, "Child %d stopped %d", worker_info->child, sig);
+					logger(GRU_ERROR, "Child %d stopped %d", worker_info->child, sig);
 				}
 			}
 
@@ -203,9 +202,9 @@ static bool worker_manager_do_stop(int signal) {
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
 
-		logger(INFO, "%s child %d", (signal == SIGTERM ? "Aborting" : "Stopping"), worker_info->child);
+		logger(GRU_INFO, "%s child %d", (signal == SIGTERM ? "Aborting" : "Stopping"), worker_info->child);
 		if (kill(worker_info->child, signal) != 0) {
-			logger(WARNING, "Unable to send signal to the child process");
+			logger(GRU_WARNING, "Unable to send signal to the child process");
 			node = node->next;
 			continue;
 		}
@@ -222,17 +221,17 @@ static bool worker_manager_do_stop(int signal) {
 			// otherwise it returns the pid of the process
 			if (pid > 0) {
 				if (WIFEXITED(wstatus)) {
-					logger(INFO,
+					logger(GRU_INFO,
 						   "Child %d stopped successfully with status %d",
 						   worker_info->child,
 						   WEXITSTATUS(wstatus));
 				} else if (WIFSIGNALED(wstatus)) {
-					logger(INFO,
+					logger(GRU_INFO,
 						   "Child %d stopped successfully signal %d",
 						   worker_info->child,
 						   WTERMSIG(wstatus));
 				} else if (WIFSTOPPED(wstatus)) {
-					logger(WARNING,
+					logger(GRU_WARNING,
 						   "Child %d stopped abnormally %d",
 						   worker_info->child,
 						   WSTOPSIG(wstatus));
@@ -241,7 +240,7 @@ static bool worker_manager_do_stop(int signal) {
 				break;
 			} else {
 				if (pid == -1) {
-					logger(WARNING,
+					logger(GRU_WARNING,
 						   "Failed to stop child %d: %s",
 						   worker_info->child,
 						   strerror(errno));
@@ -252,7 +251,7 @@ static bool worker_manager_do_stop(int signal) {
 					retry--;
 
 					if (retry == 0) {
-						logger(WARNING,
+						logger(GRU_WARNING,
 							   "Killing child process %d because refuses to stop for good",
 							   worker_info->child);
 						kill(worker_info->child, SIGKILL);

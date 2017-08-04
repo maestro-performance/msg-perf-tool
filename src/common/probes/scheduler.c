@@ -27,16 +27,16 @@ static void *probe_scheduler_run(void *en) {
 	gru_status_t status = gru_status_new();
 
 	while (!entry->cancel) {
-		logger(DEBUG, "Running probe %s", entry->name());
+		logger(GRU_DEBUG, "Running probe %s", entry->name());
 		entry->collect(&status);
 		if (gru_status_error(&status)) {
-			logger(ERROR, "Probe %s error: %s", entry->name(), status.message);
+			logger(GRU_ERROR, "Probe %s error: %s", entry->name(), status.message);
 
 			break;
 		}
 	}
 
-	logger(DEBUG, "Finished running probe %s", entry->name());
+	logger(GRU_DEBUG, "Finished running probe %s", entry->name());
 	return NULL;
 }
 
@@ -48,19 +48,19 @@ static void probe_scheduler_launch_probe(const void *nodedata, void *payload) {
 	gru_status_t status = gru_status_new();
 	bool pret = entry->init(options, &status);
 	if (!pret) {
-		logger(ERROR, "Unable to initialize probe %s: %s", entry->name(), status.message);
+		logger(GRU_ERROR, "Unable to initialize probe %s: %s", entry->name(), status.message);
 
 		return;
 	}
 
 	int sys_ret = pthread_create(&entry->thread, NULL, probe_scheduler_run, entry);
 	if (sys_ret != 0) {
-		logger(ERROR, "Unable to create probe thread");
+		logger(GRU_ERROR, "Unable to create probe thread");
 
 		return;
 	}
 
-	logger(INFO, "Probe %s created", entry->name());
+	logger(GRU_INFO, "Probe %s created", entry->name());
 }
 
 static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *name) {
@@ -70,7 +70,7 @@ static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *na
 
 	handle = dlopen(lib, RTLD_NOW);
 	if (!handle) {
-		logger(ERROR, "Unable to open handle: %s\n", dlerror());
+		logger(GRU_ERROR, "Unable to open handle: %s\n", dlerror());
 
 		fflush(NULL);
 		return NULL;
@@ -84,7 +84,7 @@ static probe_entry_t *probe_scheduler_load_probe(const char *lib, const char *na
 	*(void **) (&new_entry) = dlsym(handle, name);
 	error = dlerror();
 	if (error) {
-		logger(ERROR, "Unable to open handle: %s\n", error);
+		logger(GRU_ERROR, "Unable to open handle: %s\n", error);
 
 		return NULL;
 	}
@@ -105,12 +105,12 @@ bool probe_scheduler_start(gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	if (!options->probing) {
-		logger(INFO, "Disabling probes");
+		logger(GRU_INFO, "Disabling probes");
 		return true;
 	}
 
 	if (!options->logdir) {
-		logger(ERROR, "Log directory is mandatory for probes");
+		logger(GRU_ERROR, "Log directory is mandatory for probes");
 		return false;
 	}
 
@@ -130,13 +130,13 @@ bool probe_scheduler_start(gru_status_t *status) {
 		snprintf(lib, sizeof(lib) - 1, "libmpt-probe-%s.so", mod_name);
 		snprintf(ename, sizeof(ename) - 1, "%s_entry", mod_name);
 
-		logger(DEBUG, "Loading symbol %s@%s", ename, lib);
+		logger(GRU_DEBUG, "Loading symbol %s@%s", ename, lib);
 
 		probe_entry_t *probe = probe_scheduler_load_probe(lib, ename);
 		if (probe) {
 			gru_list_append(list, probe);
 		} else {
-			logger(ERROR, "Unable load probe: probe-%s", mod_name);
+			logger(GRU_ERROR, "Unable load probe: probe-%s", mod_name);
 		}
 	}
 

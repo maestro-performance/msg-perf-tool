@@ -86,7 +86,7 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 	if (!player->ctxt) {
 		logger_t logger = gru_logger_get();
 
-		logger(ERROR, "Failed to initialize maestro connection: %s", status->message);
+		logger(GRU_ERROR, "Failed to initialize maestro connection: %s", status->message);
 		return false;
 	}
 
@@ -110,7 +110,7 @@ static void *maestro_player_run(void *player) {
 		return NULL;
 	}
 
-	logger(INFO, "Maestro player is running");
+	logger(GRU_INFO, "Maestro player is running");
 	while (!maestro_player->cancel) {
 		gru_status_reset(&status);
 		msg_content_data_reset(mdata);
@@ -118,7 +118,7 @@ static void *maestro_player_run(void *player) {
 			maestro_player->mmsl.receive(maestro_player->ctxt, mdata, &status);
 
 		if (unlikely(vmsl_stat_error(rstat))) {
-			logger(ERROR, "Error receiving maestro data");
+			logger(GRU_ERROR, "Error receiving maestro data");
 
 			break;
 		} else {
@@ -130,7 +130,7 @@ static void *maestro_player_run(void *player) {
 					&resp,
 					&status);
 				if (!gru_status_success(&status)) {
-					logger(WARNING, "Maestro request failed: %s", status.message);
+					logger(GRU_WARNING, "Maestro request failed: %s", status.message);
 				}
 
 				if (resp.data != NULL) {
@@ -139,8 +139,7 @@ static void *maestro_player_run(void *player) {
 					vmsl_stat_t ret =
 						maestro_player->mmsl.send(maestro_player->ctxt, &resp, &status);
 					if (ret != VMSL_SUCCESS) {
-						logger(
-							ERROR, "Unable to write maestro reply: %s", status.message);
+						logger(GRU_ERROR, "Unable to write maestro reply: %s", status.message);
 					}
 
 					msg_content_data_release(&resp);
@@ -151,7 +150,7 @@ static void *maestro_player_run(void *player) {
 		usleep(MPT_MAESTRO_IDLE_TIME);
 	}
 
-	logger(INFO, "Maestro player is terminating");
+	logger(GRU_INFO, "Maestro player is terminating");
 	msg_content_data_destroy(&mdata);
 
 
@@ -172,7 +171,7 @@ bool maestro_player_start(const options_t *options,
 	splayer = maestro_player_new();
 	splayer->sheet = sheet;
 
-	logger(INFO, "Connecting to maestro host %s", options->maestro_uri.host);
+	logger(GRU_INFO, "Connecting to maestro host %s", options->maestro_uri.host);
 	splayer->uri = gru_uri_clone(options->maestro_uri, status);
 	if (!gru_status_success(status)) {
 		return false;
@@ -188,13 +187,13 @@ bool maestro_player_start(const options_t *options,
 	splayer->player_info.name = options->name;
 	msg_conn_info_gen_id_char(&splayer->player_info.id);
 	if (!splayer->player_info.id) {
-		logger(ERROR, "Unable to generate a player ID");
+		logger(GRU_ERROR, "Unable to generate a player ID");
 
 		goto err_exit;
 	}
 
 	if (!maestro_player_connect(splayer, status)) {
-		logger(ERROR,
+		logger(GRU_ERROR,
 			"Unable to connect to maestro broker at %s: %s",
 			   splayer->uri.host,
 			status->message);
@@ -202,11 +201,11 @@ bool maestro_player_start(const options_t *options,
 		goto err_exit;
 	}
 
-	logger(DEBUG, "Creating maestro player thread");
+	logger(GRU_DEBUG, "Creating maestro player thread");
 	int ret =
 		pthread_create(&splayer->thread, NULL, maestro_player_run, splayer);
 	if (ret != 0) {
-		logger(ERROR, "Unable to create maestro player thread");
+		logger(GRU_ERROR, "Unable to create maestro player thread");
 
 		goto err_exit;
 	}
@@ -235,7 +234,7 @@ bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status) {
 	else {
 		logger_t logger = gru_logger_get();
 
-		logger(WARNING, "Invalid maestro player thread PID");
+		logger(GRU_WARNING, "Invalid maestro player thread PID");
 	}
 
 	maestro_player_destroy(&splayer, status);

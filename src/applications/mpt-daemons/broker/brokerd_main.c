@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 	if (cret == 0) {
 		if (brokerd_worker_start(options) != 0) {
 			logger_t logger = gru_logger_get();
-			logger(ERROR, "Unable to start the inspector daemon");
+			logger(GRU_ERROR, "Unable to start the inspector daemon");
 
 			goto err_exit;
 		}

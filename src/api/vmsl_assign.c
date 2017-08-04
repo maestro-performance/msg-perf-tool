@@ -44,7 +44,7 @@ bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
 	if (!uri->scheme) {
-		logger(ERROR, "A protocol scheme must be defined");
+		logger(GRU_ERROR, "A protocol scheme must be defined");
 
 		return false;
 	}
@@ -61,6 +61,6 @@ bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl) {
 		}
 	}
 
-	logger(ERROR, "Unsupported protocol or invalid URL");
+	logger(GRU_ERROR, "Unsupported protocol or invalid URL");
 	return false;
 }

@@ -25,11 +25,11 @@ static inline paho_ctxt_t *paho_ctxt_cast(msg_ctxt_t *ctxt) {
 msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Initializing Paho wrapper");
+	logger(GRU_DEBUG, "Initializing Paho wrapper");
 
 	msg_ctxt_t *msg_ctxt = msg_ctxt_init(status);
 	if (!msg_ctxt) {
-		logger(FATAL, "Unable to initialize the messaging context");
+		logger(GRU_FATAL, "Unable to initialize the messaging context");
 
 		return NULL;
 	}
@@ -37,7 +37,7 @@ msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *s
 	paho_ctxt_t *paho_ctxt = paho_context_init(handlers);
 
 	if (!paho_ctxt) {
-		logger(FATAL, "Unable to initialize the paho context");
+		logger(GRU_FATAL, "Unable to initialize the paho context");
 
 		goto err_exit;
 	}
@@ -45,7 +45,7 @@ msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *s
 	paho_ctxt->uri = gru_uri_clone(opt.uri, status);
 
 	if (!gru_uri_set_scheme(&paho_ctxt->uri, "tcp")) {
-		logger(FATAL, "Unable to adjust the connection URI");
+		logger(GRU_FATAL, "Unable to adjust the connection URI");
 
 		goto err_exit;
 	}
@@ -70,7 +70,7 @@ vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 
 	const char *connect_url = gru_uri_format(&paho_ctxt->uri, GRU_URI_FORMAT_PORT, status);
 
-	logger(DEBUG, "Creating a client to %s with path %s ", connect_url,
+	logger(GRU_DEBUG, "Creating a client to %s with path %s ", connect_url,
 		   paho_ctxt->uri.path);
 
 	int rc = MQTTClient_create(&paho_ctxt->client,
@@ -85,7 +85,7 @@ vmsl_stat_t paho_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 		return VMSL_ERROR;
 	}
 
-	logger(DEBUG, "Setting connection options");
+	logger(GRU_DEBUG, "Setting connection options");
 	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 	conn_opts.MQTTVersion = MQTTVERSION_3_1_1;
 
@@ -113,13 +113,13 @@ void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
 		case MQTTCLIENT_SUCCESS:
 			break;
 		case MQTTCLIENT_FAILURE:
-			logger(WARNING, "Unhandled failure while disconnecting from the server");
+			logger(GRU_WARNING, "Unhandled failure while disconnecting from the server");
 			break;
 		case MQTTCLIENT_DISCONNECTED:
-			logger(WARNING, "Already disconnected from the server");
+			logger(GRU_WARNING, "Already disconnected from the server");
 			break;
 		default: {
-			logger(WARNING, "Error disconnecting from the server: %d", rc);
+			logger(GRU_WARNING, "Error disconnecting from the server: %d", rc);
 			break;
 		}
 	}
@@ -182,7 +182,7 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 		pubmsg.payloadlen = pl.size;
 
 		logger_t logger = gru_logger_get();
-		logger(DEBUG,
+		logger(GRU_DEBUG,
 			"Sending message with latency information '%s' to %s",
 			data->data,
 			ctxt->msg_opts.uri.path);
@@ -249,7 +249,7 @@ vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_sta
 
 	int rc = 0;
 	if (!mtopic) {
-		logger(DEBUG, "Subscribing to %s", (paho_ctxt->uri.path ? paho_ctxt->uri.path : "null"));
+		logger(GRU_DEBUG, "Subscribing to %s", (paho_ctxt->uri.path ? paho_ctxt->uri.path : "null"));
 		 rc = MQTTClient_subscribe(paho_ctxt->client, paho_ctxt->uri.path, QOS_AT_MOST_ONCE);
 	}
 	else {
@@ -272,7 +272,7 @@ vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_sta
 		}
 	}
 
-	logger(DEBUG, "Subscribed to the topic");
+	logger(GRU_DEBUG, "Subscribed to the topic");
 	return VMSL_SUCCESS;
 }
 
@@ -302,7 +302,7 @@ vmsl_stat_t
 		case MQTTCLIENT_TOPICNAME_TRUNCATED: {
 			logger_t logger = gru_logger_get();
 
-			logger(WARNING, "Topic name truncated");
+			logger(GRU_WARNING, "Topic name truncated");
 			break;
 		}
 		default: {
@@ -333,7 +333,7 @@ vmsl_stat_t
 bool paho_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Initializing MQTT protocol");
+	logger(GRU_DEBUG, "Initializing MQTT protocol");
 
 	vmsl->init = paho_init;
 	vmsl->start = paho_start;

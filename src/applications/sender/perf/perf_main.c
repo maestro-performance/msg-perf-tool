@@ -203,8 +203,7 @@ int perf_main(int argc, char **argv) {
 #endif // LINUX_BUILD
 
 	if (perf_worker_start(&vmsl, options) == 0) {
-		logger(
-			INFO, "Test execution with process ID %d finished successfully\n", getpid());
+		logger(GRU_INFO, "Test execution with process ID %d finished successfully\n", getpid());
 
 #ifdef LINUX_BUILD
 		probe_scheduler_stop();
@@ -219,7 +218,7 @@ int perf_main(int argc, char **argv) {
 #endif // LINUX_BUILD
 
 err_exit:
-	logger(INFO, "Test execution with process ID %d finished with errors\n", getpid());
+	logger(GRU_INFO, "Test execution with process ID %d finished with errors\n", getpid());
 
 	options_destroy(&options);
 	return EXIT_FAILURE;

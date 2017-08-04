@@ -109,7 +109,7 @@ gru_node_t *worker_list_remove_unlocked(gru_node_t *node) {
 	if (!gru_list_remove_node(gwlist->list, node)) {
 		logger_t logger = gru_logger_get();
 
-		logger(ERROR, "Unable to remove an orphaned child");
+		logger(GRU_ERROR, "Unable to remove an orphaned child");
 	}
 
 	gru_node_destroy(&node);

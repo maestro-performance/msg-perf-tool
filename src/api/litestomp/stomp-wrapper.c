@@ -25,7 +25,7 @@ static inline stomp_ctxt_t *litestomp_ctxt_cast(msg_ctxt_t *ctxt) {
 msg_ctxt_t *litestomp_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Initializing stomp wrapper");
+	logger(GRU_DEBUG, "Initializing stomp wrapper");
 
 	msg_ctxt_t *msg_ctxt = msg_ctxt_init(status);
 	if (!msg_ctxt) {
@@ -35,7 +35,7 @@ msg_ctxt_t *litestomp_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status
 	stomp_ctxt_t *stomp_ctxt = litestomp_context_init(handlers);
 
 	if (!stomp_ctxt) {
-		logger(FATAL, "Unable to initialize the stomp context");
+		logger(GRU_FATAL, "Unable to initialize the stomp context");
 
 		goto err_exit1;
 	}
@@ -48,7 +48,7 @@ msg_ctxt_t *litestomp_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status
 	stomp_messenger_t *messenger = stomp_messenger_init();
 
 	if (!messenger) {
-		logger(FATAL, "Unable to initialize stomp messenger\n");
+		logger(GRU_FATAL, "Unable to initialize stomp messenger\n");
 		goto err_exit1;
 	}
 
@@ -122,14 +122,14 @@ vmsl_stat_t
 	stomp_ctxt_t *stomp_ctxt = litestomp_ctxt_cast(ctxt);
 	logger_t logger = gru_logger_get();
 
-	logger(TRACE, "Creating message object");
+	logger(GRU_TRACE, "Creating message object");
 
 	/*
 	* Creates a message to be sent
 	*/
 	stomp_message_t *message = stomp_message_create(&stomp_ctxt->messenger->status);
 	if (!message) {
-		logger(ERROR,
+		logger(GRU_ERROR,
 			"Unable to create a stomp message: %s",
 			stomp_ctxt->messenger->status.message);
 
@@ -142,7 +142,7 @@ vmsl_stat_t
 	stomp_status_code_t stat = stomp_exchange_util_ctime(
 		stomp_ctxt->messenger->exchange_properties, &stomp_ctxt->messenger->status);
 	if (stat != STOMP_SUCCESS) {
-		logger(ERROR,
+		logger(GRU_ERROR,
 			"Unable to set the message creation time: %s",
 			stomp_ctxt->messenger->status.message);
 
@@ -165,7 +165,7 @@ vmsl_stat_t
 	 */
 	stat = stomp_send(stomp_ctxt->messenger, &send_header, message);
 	if (stat != STOMP_SUCCESS) {
-		logger(ERROR,
+		logger(GRU_ERROR,
 			"Unable to send the message: %s",
 			stomp_ctxt->messenger->status.message);
 
@@ -193,7 +193,7 @@ vmsl_stat_t litestomp_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gr
 	if (stat != STOMP_SUCCESS) {
 		logger_t logger = gru_logger_get();
 
-		logger(ERROR,
+		logger(GRU_ERROR,
 			"Unable to subscribe to the endpoint: %s",
 			stomp_ctxt->messenger->status.message);
 		gru_status_set(status,
@@ -215,7 +215,7 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 	stomp_message_t *message = stomp_message_create(NULL);
 
 	if (!message) {
-		logger(ERROR,
+		logger(GRU_ERROR,
 			"Unable to create a stomp message: %s",
 			stomp_ctxt->messenger->status.message);
 
@@ -230,7 +230,7 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 	stomp_status_code_t stat =
 		stomp_receive(stomp_ctxt->messenger, &receive_header, message);
 	if (stomp_error(stat)) {
-		logger(ERROR,
+		logger(GRU_ERROR,
 			"Unable to receive messages from the endpoint: %s",
 			stomp_ctxt->messenger->status.message);
 
@@ -259,7 +259,7 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 bool litestomp_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Initializing STOMP protocol");
+	logger(GRU_DEBUG, "Initializing STOMP protocol");
 
 	vmsl->init = litestomp_init;
 	vmsl->start = litestomp_start;

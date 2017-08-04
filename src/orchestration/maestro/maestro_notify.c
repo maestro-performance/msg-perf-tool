@@ -17,7 +17,7 @@
 
 void maestro_notify_test_failed(gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	logger(INFO, "Sending a test failure notification");
+	logger(GRU_INFO, "Sending a test failure notification");
 
 	maestro_note_t note = {0};
 
@@ -53,8 +53,7 @@ void maestro_notify_test_failed(gru_status_t *status) {
 
 	vmsl_stat_t ret = player->mmsl.send(player->ctxt, &data, status);
 	if (ret != VMSL_SUCCESS) {
-		logger(
-			ERROR, "Unable to write maestro notification: %s", status->message);
+		logger(GRU_ERROR, "Unable to write maestro notification: %s", status->message);
 	}
 
 	vmslh_add(player->handlers.before_send, paho_set_retained,
@@ -62,13 +61,13 @@ void maestro_notify_test_failed(gru_status_t *status) {
 
 	msg_content_data_release(&data);
 	maestro_note_payload_cleanup(&note);
-	logger(INFO, "Sent a test failure notification");
+	logger(GRU_INFO, "Sent a test failure notification");
 }
 
 
 void maestro_notify_test_successful(gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	logger(INFO, "Sending a test success notification");
+	logger(GRU_INFO, "Sending a test success notification");
 
 	maestro_note_t note = {0};
 
@@ -104,8 +103,7 @@ void maestro_notify_test_successful(gru_status_t *status) {
 
 	vmsl_stat_t ret = player->mmsl.send(player->ctxt, &data, status);
 	if (ret != VMSL_SUCCESS) {
-		logger(
-			ERROR, "Unable to write maestro notification: %s", status->message);
+		logger(GRU_ERROR, "Unable to write maestro notification: %s", status->message);
 	}
 
 	vmslh_add(player->handlers.before_send, paho_set_retained,
@@ -113,5 +111,5 @@ void maestro_notify_test_successful(gru_status_t *status) {
 
 	msg_content_data_release(&data);
 	maestro_note_payload_cleanup(&note);
-	logger(INFO, "Sent a test success notification");
+	logger(GRU_INFO, "Sent a test success notification");
 }

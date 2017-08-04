@@ -116,7 +116,7 @@ int tune_main(int argc, char **argv) {
 
 	tune_worker_start(&vmsl, options);
 
-	logger(INFO, "Tune execution terminated successfully");
+	logger(GRU_INFO, "Tune execution terminated successfully");
 
 	options_destroy(&options);
 	return EXIT_SUCCESS;

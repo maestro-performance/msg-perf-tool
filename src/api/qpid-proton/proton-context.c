@@ -21,7 +21,7 @@ proton_ctxt_t *proton_context_init(vmslh_handlers_t *handlers) {
 	if (!ret) {
 		logger_t logger = gru_logger_get();
 
-		logger(FATAL, "Unable to initialize proton context");
+		logger(GRU_FATAL, "Unable to initialize proton context");
 		exit(1);
 	}
 

@@ -18,7 +18,7 @@
 bool mpt_init_bmic_ctxt(gru_uri_t uri, bmic_context_t *ctxt, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Resolved host to %s", uri.host);
+	logger(GRU_INFO, "Resolved host to %s", uri.host);
 
 	bool ret = bmic_context_init_simple(ctxt, uri.host, "admin", "admin", status);
 
@@ -28,15 +28,14 @@ bool mpt_init_bmic_ctxt(gru_uri_t uri, bmic_context_t *ctxt, gru_status_t *statu
 	}
 
 	// Load the capabilities just so that it is cached
-	logger(DEBUG, "Caching broker capabilities");
+	logger(GRU_DEBUG, "Caching broker capabilities");
 	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
 	if (!cap) {
 		bmic_context_cleanup(ctxt);
 		return false;
 	}
 
-	logger(
-		DEBUG, "BMIC context and broker management API handle initialized successfully");
+	logger(GRU_DEBUG, "BMIC context and broker management API handle initialized successfully");
 	return true;
 }
 
@@ -49,7 +48,7 @@ void mpt_get_queue_stats(const bmic_context_t *ctxt,
 	if (!cap) {
 		logger_t logger = gru_logger_get();
 
-		logger(INFO, "Unable to load capabilities");
+		logger(GRU_INFO, "Unable to load capabilities");
 		return;
 	}
 
@@ -57,7 +56,7 @@ void mpt_get_queue_stats(const bmic_context_t *ctxt,
 	if (gru_status_error(status)) {
 		logger_t logger = gru_logger_get();
 
-		logger(INFO, "Unable to read queue stats");
+		logger(GRU_INFO, "Unable to read queue stats");
 
 		return;
 	}

@@ -33,7 +33,7 @@ static bool options_set_defaults(options_t *ret, gru_status_t *status) {
 	ret->logdir = NULL;
 	ret->parallel_count = 1;
 	ret->count = 0;
-	ret->log_level = INFO;
+	ret->log_level = GRU_INFO;
 	ret->message_size = 32;
 	ret->variable_size = false;
 	ret->duration = gru_duration_new();

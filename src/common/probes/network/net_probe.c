@@ -110,7 +110,7 @@ bool net_init(const options_t *options, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	device = options->iface;
-	logger(INFO, "Reading device %s", device);
+	logger(GRU_INFO, "Reading device %s", device);
 
 	if (!net_files_exist(device, status)) {
 		gru_status_set(status,
@@ -151,13 +151,13 @@ int net_collect(gru_status_t *status) {
 		 */
 		FILE *tx_file = net_open_tx_file(device, status);
 		if (!tx_file) {
-			logger(ERROR, "Unable to open device TX file");
+			logger(GRU_ERROR, "Unable to open device TX file");
 			return 1;
 		}
 
 		FILE *rx_file = net_open_rx_file(device, status);
 		if (!rx_file) {
-			logger(ERROR, "Unable to open device RX file");
+			logger(GRU_ERROR, "Unable to open device RX file");
 			return 1;
 		}
 
@@ -188,7 +188,7 @@ int net_collect(gru_status_t *status) {
 		struct tm *creation_tm = localtime_r(&now.tv_sec, &result);
 
 		if (!creation_tm) {
-			logger(ERROR, "Unable to calculate current localtime");
+			logger(GRU_ERROR, "Unable to calculate current localtime");
 
 			return 1;
 		}

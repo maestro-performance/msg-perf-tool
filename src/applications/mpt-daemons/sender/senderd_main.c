@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 	if (cret == 0) {
 		if (senderd_worker_start(options) != 0) {
 			logger_t logger = gru_logger_get();
-			logger(ERROR, "Unable to start the sender worker");
+			logger(GRU_ERROR, "Unable to start the sender worker");
 
 			goto err_exit;
 		}

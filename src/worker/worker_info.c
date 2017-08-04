@@ -29,7 +29,7 @@ worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t
 		return NULL;
 	}
 
-	logger(INFO, "Created child %s (pid %d) and waiting for the continue signal", cname,
+	logger(GRU_INFO, "Created child %s (pid %d) and waiting for the continue signal", cname,
 		child);
 
 	if (!worker_wait()) {
@@ -40,7 +40,7 @@ worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t
 		return NULL;
 	}
 
-	logger(DEBUG, "Child %d gave the ok signal", child);
+	logger(GRU_DEBUG, "Child %d gave the ok signal", child);
 	fflush(NULL);
 
 	ret->shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);

@@ -145,17 +145,16 @@ int main(int argc, char **argv) {
 		goto err_exit;
 	}
 
-	logger(INFO, "Starting test");
+	logger(GRU_INFO, "Starting test");
 	if (receiver_start(&vmsl, options) == 0) {
-		logger(
-			INFO, "Test execution with process ID %d finished successfully\n", getpid());
+		logger(GRU_INFO, "Test execution with process ID %d finished successfully\n", getpid());
 
 		options_destroy(&options);
 		return EXIT_SUCCESS;
 	}
 
 err_exit:
-	logger(INFO, "Test execution with process ID %d finished with errors\n", getpid());
+	logger(GRU_INFO, "Test execution with process ID %d finished with errors\n", getpid());
 
 	options_destroy(&options);
 	return EXIT_FAILURE;

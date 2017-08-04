@@ -24,7 +24,7 @@ static void *receiver_handle_start(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a start request");
+	logger(GRU_INFO, "Just received a start request");
 	can_start = true;
 	return NULL;
 }
@@ -78,7 +78,7 @@ static bool receiver_print_partial(worker_info_t *worker_info) {
 	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
 		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-		logger(INFO,
+		logger(GRU_INFO,
 			"Partial summary: PID %d received %" PRIu64 " messages in %" PRIu64
 			" seconds (rate: %.2f msgs/sec)",
 			worker_info->child,
@@ -96,7 +96,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	maestro_sheet_t *sheet = receiver_new_sheet(&status);
 	if (!maestro_player_start(options, sheet, &status)) {
-		logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
+		logger(GRU_FATAL, "Unable to connect to maestro broker: %s", status.message);
 
 		maestro_player_stop(sheet, &status);
 		maestro_sheet_destroy(&sheet);
@@ -130,7 +130,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	if (!receiver_initialize_writer(worker.writer, options, &status)) {
-		logger(FATAL, "Error initializing performance report writer: %s", status.message);
+		logger(GRU_FATAL, "Error initializing performance report writer: %s", status.message);
 		return 1;
 	}
 
@@ -150,7 +150,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-		logger(INFO,
+		logger(GRU_INFO,
 			"Summary: received %" PRIu64 " messages in %" PRIu64
 			" seconds (rate: %.2f msgs/sec)",
 			snapshot.count,
@@ -164,7 +164,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 		worker_ret_t ret = worker_manager_clone(&worker, naive_receiver_start, &status);
 
 		if (worker_error(ret)) {
-			logger(ERROR, "Unable to initialize children: %s", status.message);
+			logger(GRU_ERROR, "Unable to initialize children: %s", status.message);
 
 			return 1;
 		}

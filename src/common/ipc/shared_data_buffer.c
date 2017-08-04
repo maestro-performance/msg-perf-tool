@@ -207,7 +207,7 @@ volatile shr_data_buff_t *shr_buff_new(shr_buff_perm_t perm,
 
 	if (pagesize == 0) {
 		pagesize = getpagesize();
-		logger(DEBUG, "System page size: %d. Requested size: %d", pagesize, len);
+		logger(GRU_DEBUG, "System page size: %d. Requested size: %d", pagesize, len);
 		if (len > pagesize) {
 			gru_status_set(
 				status, GRU_FAILURE, "The requested size is greater than the page size");
@@ -254,7 +254,7 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 
 			logger_t logger = gru_logger_get();
 
-			logger(WARNING, "Failed to lock the semaphore: %s", strerror(errno));
+			logger(GRU_WARNING, "Failed to lock the semaphore: %s", strerror(errno));
 
 			return false;
 		}
@@ -267,7 +267,7 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 
 			logger_t logger = gru_logger_get();
 
-			logger(WARNING, "Failed to lock the semaphore: %s", strerror(errno));
+			logger(GRU_WARNING, "Failed to lock the semaphore: %s", strerror(errno));
 
 			return false;
 		}
@@ -280,7 +280,7 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 
 		logger_t logger = gru_logger_get();
 
-		logger(WARNING, "Failed to lock the semaphore: %s", strerror(errno));
+		logger(GRU_WARNING, "Failed to lock the semaphore: %s", strerror(errno));
 
 		return false;
 	}
@@ -291,7 +291,7 @@ bool shr_buff_read(const volatile shr_data_buff_t *src, void *dest, size_t len) 
 	if (sem_post(src->sem_read) != 0) {
 		logger_t logger = gru_logger_get();
 
-		logger(WARNING, "Failed to unlock the semaphore: %s", strerror(errno));
+		logger(GRU_WARNING, "Failed to unlock the semaphore: %s", strerror(errno));
 
 		return false;
 	}
@@ -303,7 +303,7 @@ bool shr_buff_write(volatile shr_data_buff_t *dest, void *src, size_t len) {
 		if (errno == EAGAIN) {
 			logger_t logger = gru_logger_get();
 
-			logger(WARNING, "Failed to lock the semaphore: %s", strerror(errno));
+			logger(GRU_WARNING, "Failed to lock the semaphore: %s", strerror(errno));
 			return false;
 		}
 	}
@@ -312,7 +312,7 @@ bool shr_buff_write(volatile shr_data_buff_t *dest, void *src, size_t len) {
 	if (sem_post(dest->sem_read) != 0) {
 		logger_t logger = gru_logger_get();
 
-		logger(WARNING, "Failed to unlock the semaphore: %s", strerror(errno));
+		logger(GRU_WARNING, "Failed to unlock the semaphore: %s", strerror(errno));
 	}
 
 	return true;

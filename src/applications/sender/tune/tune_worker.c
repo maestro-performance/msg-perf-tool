@@ -65,7 +65,7 @@ static bool tune_exec_step(const options_t *options,
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
 	if (!tune_initialize_out_writer(worker.writer, options, &status)) {
-		logger(FATAL, "Error initializing performance report writer: %s", status.message);
+		logger(GRU_FATAL, "Error initializing performance report writer: %s", status.message);
 		return 1;
 	}
 	pl_strategy_assign(&worker.pl_strategy, options->variable_size);
@@ -83,7 +83,7 @@ static bool tune_exec_step(const options_t *options,
 
 	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
 
-	logger(INFO,
+	logger(GRU_INFO,
 		"Summary: received %" PRIu64 " messages in %" PRIu64
 		" seconds (rate: %.2f msgs/sec)",
 		snapshot->count,
@@ -110,7 +110,7 @@ int tune_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	gru_status_t status = gru_status_new();
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Initializing tune");
+	logger(GRU_INFO, "Initializing tune");
 	uint32_t steps = 5;
 	uint64_t duration[5] = {1, 2, 4, 8, 10};
 

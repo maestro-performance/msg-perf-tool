@@ -37,7 +37,7 @@ static void *brokerd_handle_flush(const maestro_note_t *request,
 	if (started) {
 		gru_status_t status = gru_status_new();
 		if (!bmic_writer_flush(&status)) {
-			logger(ERROR, "Unable to flush bmic data to disk");
+			logger(GRU_ERROR, "Unable to flush bmic data to disk");
 			maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 
 			return NULL;
@@ -55,7 +55,7 @@ static void *brokerd_handle_start(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a start request");
+	logger(GRU_INFO, "Just received a start request");
 	if (started == true) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 	} else {
@@ -72,7 +72,7 @@ static void *brokerd_handle_stop(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a stop request");
+	logger(GRU_INFO, "Just received a stop request");
 	started = false;
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -85,7 +85,7 @@ static void *brokerd_handle_halt(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a halt request");
+	logger(GRU_INFO, "Just received a halt request");
 	brokerd_handle_stop(request, response, pinfo);
 	halt = true;
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -199,12 +199,12 @@ static bool brokerd_collect(gru_status_t *status) {
 		return false;
 	}
 
-	logger(INFO, "Initializing BMIC context");
+	logger(GRU_INFO, "Initializing BMIC context");
 	if (!mpt_init_bmic_ctxt(worker_options.uri, &ctxt, status)) {
 		return false;
 	}
 
-	logger(INFO, "Purging the queue and reseting the counters");
+	logger(GRU_INFO, "Purging the queue and reseting the counters");
 	if (!mpt_purge_queue(&ctxt, &worker_options.uri.path[1], status)) {
 		return false;
 	}
@@ -214,7 +214,7 @@ static bool brokerd_collect(gru_status_t *status) {
 
 	while (started) {
 		if (!bmic_writer_current_time(status)) {
-			logger(ERROR, "Unable to write current time: %s", status->message);
+			logger(GRU_ERROR, "Unable to write current time: %s", status->message);
 
 			break;
 		}
@@ -225,7 +225,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		mpt_java_mem_t java_mem = {0};
 		mpt_get_mem_info(&ctxt, jinfo.memory_model, &java_mem, status);
 		if (gru_status_error(status)) {
-			logger(ERROR, "%s", status->message);
+			logger(GRU_ERROR, "%s", status->message);
 			break;
 		}
 
@@ -235,7 +235,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		mpt_get_queue_stats(&ctxt, &worker_options.uri.path[1], &qstats, status);
 
 		if (gru_status_error(status)) {
-			logger(ERROR, "%s", status->message);
+			logger(GRU_ERROR, "%s", status->message);
 			break;
 		}
 		bmic_writer_queue_stat(&qstats);
@@ -251,7 +251,7 @@ static bool brokerd_collect(gru_status_t *status) {
 	if (!gru_status_success(status)) {
 		bmic_writer_finalize(status);
 		bmic_context_cleanup(&ctxt);
-		logger(INFO, "Broker inspector completed the inspection with errors");
+		logger(GRU_INFO, "Broker inspector completed the inspection with errors");
 
 		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
 
@@ -263,7 +263,7 @@ static bool brokerd_collect(gru_status_t *status) {
 
 	bmic_writer_finalize(status);
 	bmic_context_cleanup(&ctxt);
-	logger(INFO, "Broker inspector completed the inspection");
+	logger(GRU_INFO, "Broker inspector completed the inspection");
 
 	return true;
 }
@@ -274,7 +274,7 @@ int brokerd_worker_start(const options_t *options) {
 	maestro_sheet_t *sheet = brokerd_new_sheet(&status);
 
 	if (!maestro_player_start(options, sheet, &status)) {
-		logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
+		logger(GRU_FATAL, "Unable to connect to maestro broker: %s", status.message);
 
 		maestro_player_stop(sheet, &status);
 		maestro_sheet_destroy(&sheet);
@@ -286,7 +286,7 @@ int brokerd_worker_start(const options_t *options) {
 
 		if (started) {
 			if (!brokerd_collect(&status)) {
-				logger(ERROR, "Unable to collect broker data: %s", status.message);
+				logger(GRU_ERROR, "Unable to collect broker data: %s", status.message);
 			}
 
 			started = false;

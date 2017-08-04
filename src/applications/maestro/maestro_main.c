@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 	} else {
 		if (child > 0) {
 			logger_t logger = gru_logger_get();
-			logger(DEBUG, "Forward daemon started");
+			logger(GRU_DEBUG, "Forward daemon started");
 			if (maestro_loop(&status) != 0) {
 				fprintf(stderr, "%s\n", status.message);
 				goto err_exit;

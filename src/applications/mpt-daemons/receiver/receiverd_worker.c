@@ -36,7 +36,7 @@ static void *receiverd_handle_start(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a start request");
+	logger(GRU_INFO, "Just received a start request");
 	if (started == true || worker_list_is_running()) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
 	} else {
@@ -53,7 +53,7 @@ static void *receiverd_handle_stop(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a stop request");
+	logger(GRU_INFO, "Just received a stop request");
 	started = false;
 
 	if (worker_list_is_running()) {
@@ -77,7 +77,7 @@ static void *receiverd_handle_test_failed(const maestro_note_t *request,
 	if (worker_list_is_running()) {
 		logger_t logger = gru_logger_get();
 
-		logger(INFO, "Stopping test execution because a peer reported a test failure: %s",
+		logger(GRU_INFO, "Stopping test execution because a peer reported a test failure: %s",
 			request->payload->notification.body.message);
 
 		if (!worker_manager_abort()) {
@@ -97,7 +97,7 @@ static void *receiverd_handle_halt(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a halt request");
+	logger(GRU_INFO, "Just received a halt request");
 	receiverd_handle_stop(request, response, pinfo);
 	halt = true;
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
@@ -110,7 +110,7 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(INFO, "Just received a stats request: %s", pinfo->id);
+	logger(GRU_INFO, "Just received a stats request: %s", pinfo->id);
 
 	if (!worker_list_is_running()) {
 		maestro_note_set_cmd(response, MAESTRO_NOTE_INTERNAL_ERROR);
@@ -138,7 +138,7 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 
 	uint32_t count_children = worker_list_count();
 	maestro_note_stats_set_child_count(response, count_children);
-	logger(INFO, "Number of childs evaluated: %d", count_children);
+	logger(GRU_INFO, "Number of childs evaluated: %d", count_children);
 
 	maestro_note_stats_set_role(response, "receiver");
 	maestro_note_stats_set_roleinfo(response, "perf");
@@ -251,7 +251,7 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 
 
 	if (worker.options->rate > 0) {
-		logger(INFO, "Launching rate-based workers for the test");
+		logger(GRU_INFO, "Launching rate-based workers for the test");
 		worker.naming_options = NM_RATE | NM_LATENCY;
 		ret = worker_manager_clone(&worker, rate_receiver_start, &status);
 
@@ -261,19 +261,19 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 		}
 	}
 	else {
-		logger(INFO, "Launching naive workers for the test");
+		logger(GRU_INFO, "Launching naive workers for the test");
 		worker.naming_options = NM_LATENCY | NM_THROUGHPUT;
 		ret = worker_manager_clone(&worker, naive_receiver_start, &status);
 	}
 
 	if (worker_error(ret) && worker_child(ret)) {
-		logger(ERROR, "Unable to initialize children: %s", status.message);
+		logger(GRU_ERROR, "Unable to initialize children: %s", status.message);
 
 		return ret;
 	}
 	else {
 		if (worker_error(ret)) {
-			logger(ERROR, "Unable to created worker clones: %s", status.message);
+			logger(GRU_ERROR, "Unable to created worker clones: %s", status.message);
 
 			return ret;
 		}
@@ -287,7 +287,7 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 
 	worker_manager_watchdog_loop(&worker_handler, &status);
 	if (!gru_status_success(&status)) {
-		logger(ERROR, "Test failed: %s", status.message);
+		logger(GRU_ERROR, "Test failed: %s", status.message);
 
 		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
 
@@ -315,7 +315,7 @@ int receiverd_worker_start(const options_t *options) {
 	if (options->maestro_uri.host) {
 		sheet = receiverd_new_sheet(&status);
 		if (!maestro_player_start(options, sheet, &status)) {
-			logger(FATAL, "Unable to connect to maestro broker: %s", status.message);
+			logger(GRU_FATAL, "Unable to connect to maestro broker: %s", status.message);
 
 			maestro_player_stop(sheet, &status);
 			maestro_sheet_destroy(&sheet);
@@ -334,9 +334,9 @@ int receiverd_worker_start(const options_t *options) {
 				char *uri = gru_uri_simple_format(&worker_options.uri, &status);
 
 				if (!uri) {
-					logger(ERROR, "Unable to assign a VMSL: %s", status.message);
+					logger(GRU_ERROR, "Unable to assign a VMSL: %s", status.message);
 				} else {
-					logger(ERROR, "Unable to assign a VMSL for the URI: %s", uri);
+					logger(GRU_ERROR, "Unable to assign a VMSL for the URI: %s", uri);
 					gru_dealloc_string(&uri);
 
 					break;

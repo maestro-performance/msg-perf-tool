@@ -25,7 +25,7 @@ static void maestro_loop_reply_run(maestro_cmd_ctxt_t *cmd_ctxt,
 	msg_content_data_t resp = {0};
 	msg_content_data_init(&resp, MAESTRO_NOTE_SIZE, status);
 
-	logger(DEBUG, "Forward loop running and waiting for data");
+	logger(GRU_DEBUG, "Forward loop running and waiting for data");
 	do {
 		vmsl_stat_t rstat = cmd_ctxt->vmsl.receive(cmd_ctxt->msg_ctxt, &resp, status);
 		if (!(rstat & VMSL_SUCCESS)) {
@@ -50,7 +50,7 @@ static void maestro_loop_reply_run(maestro_cmd_ctxt_t *cmd_ctxt,
 
 		msg_content_data_reset(&resp);
 	} while (true);
-	logger(DEBUG, "Finalizing loop");
+	logger(GRU_DEBUG, "Finalizing loop");
 }
 
 static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
@@ -60,20 +60,20 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 		return;
 	}
 
-	logger(DEBUG, "Initializing command context for: %s", options->maestro_uri.host);
+	logger(GRU_DEBUG, "Initializing command context for: %s", options->maestro_uri.host);
 
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_RECEIVER,
 		.statistics = MSG_STAT_NONE,
 	};
 
-	logger(DEBUG, "Generating unique ID");
+	logger(GRU_DEBUG, "Generating unique ID");
 	msg_conn_info_gen_id(&opt.conn_info);
 
 	gru_uri_set_path(&uri, MAESTRO_TOPIC);
 	opt.uri = uri;
 
-	logger(DEBUG, "Initializing command context for: %s", uri.host);
+	logger(GRU_DEBUG, "Initializing command context for: %s", uri.host);
 	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_ctxt_new(&uri, status);
 	if (!cmd_ctxt) {
 		gru_status_set(status, GRU_FAILURE, "Unable to initialize command context");
@@ -95,13 +95,13 @@ static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 		return;
 	}
 
-	logger(DEBUG, "Starting main forward loop");
+	logger(GRU_DEBUG, "Starting main forward loop");
 	maestro_loop_reply_run(cmd_ctxt, cmd_ctxt->queue, status);
 	if (!gru_status_success(status)) {
-		logger(ERROR, "Error while running the forward loop: %s", status->message);
+		logger(GRU_ERROR, "Error while running the forward loop: %s", status->message);
 	}
 
-	logger(DEBUG, "Finalizing forward daemon");
+	logger(GRU_DEBUG, "Finalizing forward daemon");
 	maestro_cmd_ctxt_destroy(&cmd_ctxt);
 }
 
@@ -109,10 +109,10 @@ int maestro_forward_daemon_run(const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
-	logger(DEBUG, "Initializing reply loop");
+	logger(GRU_DEBUG, "Initializing reply loop");
 	maestro_loop_reply(options, &status);
 	if (!gru_status_success(&status)) {
-		logger(ERROR, "Failed to initialize reply loop: %s", status.message);
+		logger(GRU_ERROR, "Failed to initialize reply loop: %s", status.message);
 		return 1;
 	}
 

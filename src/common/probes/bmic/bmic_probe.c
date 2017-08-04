@@ -35,7 +35,7 @@ probe_entry_t *bmic_entry(gru_status_t *status) {
 bool bmic_init(const options_t *options, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
-	logger(DEBUG, "Creating report file");
+	logger(GRU_DEBUG, "Creating report file");
 
 	if (!mpt_init_bmic_ctxt(options->uri, &ctxt, status)) {
 		return false;
@@ -93,7 +93,7 @@ void bmic_stop() {
 	if (!bmic_writer_finalize(&status)) {
 		logger_t logger = gru_logger_get();
 
-		logger(WARNING, "Failed to finalize BMIC writer: %s", status.message);
+		logger(GRU_WARNING, "Failed to finalize BMIC writer: %s", status.message);
 	}
 
 	bmic_context_cleanup(&ctxt);

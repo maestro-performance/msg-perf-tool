@@ -143,52 +143,52 @@ void proton_log_body_type(void *ctxt, void *msg, void *payload) {
 
 	switch (pn_data_type(body)) {
 	case PN_STRING:
-		logger(INFO, "Message body type is string");
+		logger(GRU_INFO, "Message body type is string");
 		break;
 	case PN_INT:
-		logger(INFO, "Message body type is int");
+		logger(GRU_INFO, "Message body type is int");
 		break;
 	case PN_MAP:
-		logger(INFO, "Message body type is map");
+		logger(GRU_INFO, "Message body type is map");
 		break;
 	case PN_LIST:
-		logger(INFO, "Message body type is list");
+		logger(GRU_INFO, "Message body type is list");
 		break;
 	case PN_ARRAY:
-		logger(INFO, "Message body type is array");
+		logger(GRU_INFO, "Message body type is array");
 		break;
 	case PN_NULL:
-		logger(INFO, "Message body type is null");
+		logger(GRU_INFO, "Message body type is null");
 		break;
 	case PN_BOOL:
-		logger(INFO, "Message body type is boolean");
+		logger(GRU_INFO, "Message body type is boolean");
 		break;
 	case PN_UBYTE:
-		logger(INFO, "Message body type is unsigned byte");
+		logger(GRU_INFO, "Message body type is unsigned byte");
 		break;
 	case PN_USHORT:
-		logger(INFO, "Message body type is unsigned short");
+		logger(GRU_INFO, "Message body type is unsigned short");
 		break;
 	case PN_UINT:
-		logger(INFO, "Message body type is unsigned int");
+		logger(GRU_INFO, "Message body type is unsigned int");
 		break;
 	case PN_ULONG:
-		logger(INFO, "Message body type is unsigned long");
+		logger(GRU_INFO, "Message body type is unsigned long");
 		break;
 	case PN_LONG:
-		logger(INFO, "Message body type is long");
+		logger(GRU_INFO, "Message body type is long");
 		break;
 	case PN_FLOAT:
-		logger(INFO, "Message body type is float");
+		logger(GRU_INFO, "Message body type is float");
 		break;
 	case PN_BINARY:
-		logger(INFO, "Message body type is binary");
+		logger(GRU_INFO, "Message body type is binary");
 		break;
 	case PN_SYMBOL:
-		logger(INFO, "Message body type is symbol");
+		logger(GRU_INFO, "Message body type is symbol");
 		break;
 	default:
-		logger(INFO, "Message body type is undefined");
+		logger(GRU_INFO, "Message body type is undefined");
 		break;
 	}
 }
@@ -267,7 +267,7 @@ void proton_set_qos_mode_send(void *ctxt, void *msg, void *payload) {
 
 		return;
 	} else {
-		logger(WARNING, "Using an unsupported QOS mode");
+		logger(GRU_WARNING, "Using an unsupported QOS mode");
 
 		pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
 		pn_messenger_set_snd_settle_mode(proton_ctxt->messenger, PN_SND_UNSETTLED);
@@ -280,7 +280,7 @@ void proton_set_qos_mode_send(void *ctxt, void *msg, void *payload) {
 		gru_status_t status = gru_status_new();
 		vmslh_add(proton_ctxt->handlers->after_send, proton_commit, NULL, &status);
 		if (gru_status_error(&status)) {
-			logger(ERROR, "Unable to add the commit handler for the given QOS mode");
+			logger(GRU_ERROR, "Unable to add the commit handler for the given QOS mode");
 		}
 	}
 }
@@ -297,7 +297,7 @@ void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload) {
 
 		vmslh_add(proton_ctxt->handlers->finalize_receive, proton_accept, NULL, &status);
 		if (gru_status_error(&status)) {
-			logger(ERROR, "Unable to add the commit handler for the given QOS mode");
+			logger(GRU_ERROR, "Unable to add the commit handler for the given QOS mode");
 		}
 	}
 
@@ -309,7 +309,7 @@ void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload) {
 		 * however the receiver may have already forgotten the delivery and so it could
 		 * interpret the resend as a new delivery, hence the "at least once" semantics ..."
 		 */
-		logger(INFO, "Setting QOS to At least once");
+		logger(GRU_INFO, "Setting QOS to At least once");
 		pn_messenger_set_rcv_settle_mode(proton_ctxt->messenger, PN_RCV_FIRST);
 
 		return;
@@ -322,7 +322,7 @@ void proton_set_qos_mode_recv(void *ctxt, void *msg, void *payload) {
 		 * option to retransmit, and the receiver has the option to recognize (and
 		 * discard) duplicates, allowing for exactly once semantics ..."
 		 */
-		logger(INFO, "Setting QOS to exactly once");
+		logger(GRU_INFO, "Setting QOS to exactly once");
 		pn_messenger_set_rcv_settle_mode(proton_ctxt->messenger, PN_RCV_SECOND);
 
 		return;
@@ -335,42 +335,42 @@ gru_attr_unused static void proton_check_status(pn_messenger_t *messenger,
 
 	pn_status_t status = pn_messenger_status(messenger, tracker);
 
-	logger(TRACE, "Checking message status");
+	logger(GRU_TRACE, "Checking message status");
 	switch (status) {
 	case PN_STATUS_UNKNOWN: {
-		logger(TRACE, "Message status unknown");
+		logger(GRU_TRACE, "Message status unknown");
 		break;
 	}
 	case PN_STATUS_PENDING: {
-		logger(TRACE, "Message status pending");
+		logger(GRU_TRACE, "Message status pending");
 		break;
 	}
 	case PN_STATUS_ACCEPTED: {
-		logger(TRACE, "Message status accepted");
+		logger(GRU_TRACE, "Message status accepted");
 		break;
 	}
 	case PN_STATUS_REJECTED: {
-		logger(TRACE, "Message status rejected");
+		logger(GRU_TRACE, "Message status rejected");
 		break;
 	}
 	case PN_STATUS_RELEASED: {
-		logger(TRACE, "Message status released");
+		logger(GRU_TRACE, "Message status released");
 		break;
 	}
 	case PN_STATUS_MODIFIED: {
-		logger(TRACE, "Message status modified");
+		logger(GRU_TRACE, "Message status modified");
 		break;
 	}
 	case PN_STATUS_ABORTED: {
-		logger(TRACE, "Message status aborted");
+		logger(GRU_TRACE, "Message status aborted");
 		break;
 	}
 	case PN_STATUS_SETTLED: {
-		logger(TRACE, "Message status settled");
+		logger(GRU_TRACE, "Message status settled");
 		break;
 	}
 	default: {
-		logger(TRACE, "Message status invalid");
+		logger(GRU_TRACE, "Message status invalid");
 		break;
 	}
 	}
