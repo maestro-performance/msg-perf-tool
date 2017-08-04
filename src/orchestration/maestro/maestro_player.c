@@ -113,7 +113,7 @@ static void maestro_player_handle_note(maestro_player_t *maestro_player, msg_con
 	}
 
 	if (resp.data != NULL) {
-		gru_uri_set_path(&maestro_player->ctxt->msg_opts.uri, "/mpt/maestro");
+		gru_uri_set_path(&maestro_player->ctxt->msg_opts.uri, MAESTRO_TOPIC);
 
 		vmsl_stat_t ret = maestro_player->mmsl.send(maestro_player->ctxt, &resp, status);
 		if (vmsl_stat_error(ret)) {
