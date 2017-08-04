@@ -54,8 +54,7 @@ static bool receiver_initialize_writer(stats_writer_t *writer,
 
 		naming_info.source = "receiver";
 
-		naming_info.pid = getpid();
-		naming_info.ppid = 0;
+		naming_info.child_num = 1;
 		naming_info.location = options->logdir;
 
 		return naming_initialize_writer(

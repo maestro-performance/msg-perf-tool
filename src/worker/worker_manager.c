@@ -41,8 +41,7 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 
 			naming_info.source = worker->name;
 			naming_info.location = worker->log_dir;
-			naming_info.pid = getpid();
-			naming_info.ppid = getppid();
+			naming_info.child_num = i;
 
 			bool nmret = naming_initialize_writer(worker->writer,
 												  worker->report_format,

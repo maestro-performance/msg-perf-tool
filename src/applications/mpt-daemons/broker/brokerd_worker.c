@@ -164,28 +164,11 @@ static bool brokerd_abort_check(bmic_queue_stat_t *qstats) {
 	return false;
 }
 
-static bool brokerd_gen_unique_name(char *filename, size_t size, gru_status_t *status) {
-	gru_timestamp_t now = gru_time_now();
-	char *curr_time_str = gru_time_write_format(&now, "%Y%m%d%H%M%S", status);
-	if (!curr_time_str) {
-		return false;
-	}
-
-	snprintf(
-		filename, size, "broker-jvm-inspector-%d-%s.csv.gz", getpid(), curr_time_str);
-	gru_dealloc_string(&curr_time_str);
-
-	return true;
-}
-
 static bool brokerd_collect(gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	bmic_context_t ctxt = {0};
 
-	char filename[64] = {0};
-	if (!brokerd_gen_unique_name(filename, sizeof(filename), status)) {
-		return false;
-	}
+	char filename[64] = "broker-jvm-inspector.csv.gz";
 
 	const options_t *options = get_options_object();
 
