@@ -71,21 +71,18 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 
 		snapshot->count++;
 		snapshot->now = gru_time_now();
-		gru_time_add_microseconds(&snapshot->eta, interval);
+
+		uint64_t processed_count = snapshot->count - last_count;
+
+		calc_throughput(
+			&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
 
 		int64_t elapsed = gru_time_elapsed_secs(last_sample_ts, snapshot->now);
 		if (elapsed >= sample_interval) {
-			uint64_t processed_count = snapshot->count - last_count;
-
-			calc_throughput(
-				&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
-
 			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
-
-			last_sample_ts = snapshot->now;
-			last_count = snapshot->count;
 		}
 
+		gru_time_add_microseconds(&snapshot->eta, interval);
 		if (unlikely(
 			!worker->writer->rate.write(&snapshot->throughput, &snapshot->eta, status))) {
 			logger(GRU_ERROR, "Unable to write throughput data: %s", status->message);
@@ -93,6 +90,9 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 			gru_status_reset(status);
 			break;
 		}
+
+		last_sample_ts = snapshot->now;
+		last_count = snapshot->count;
 
 		int64_t diff = gru_time_elapsed_milli(snapshot->now, snapshot->eta);
 		if (diff > 0) {
