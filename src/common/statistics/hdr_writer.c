@@ -22,7 +22,7 @@ bool hdr_lat_writer_initialize(const stat_io_info_t *io_info, gru_status_t *stat
 }
 
 bool hdr_lat_writer_write(const stat_latency_t *latency, gru_status_t *status) {
-	uint64_t milli_latency = gru_time_to_milli(&latency->elapsed);;
+	int64_t milli_latency = gru_time_to_milli(&latency->elapsed);;
 
 	hdr_interval_recorder_record_value(&lat_wrapper.recorder, milli_latency);
 	return true;
