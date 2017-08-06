@@ -52,7 +52,7 @@ bool hdr_wrapper_initialize(const stat_io_info_t *io_info, hdr_wrapper_t *wrappe
 		return false;
 	}
 
-	hdr_gettime(&wrapper->start_timestamp);
+	hdr_getnow(&wrapper->start_timestamp);
 
 	hdr_log_writer_init(&wrapper->writer);
 
