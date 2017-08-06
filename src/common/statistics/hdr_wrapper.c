@@ -57,6 +57,8 @@ bool hdr_wrapper_initialize(const stat_io_info_t *io_info, hdr_wrapper_t *wrappe
 	hdr_log_writer_init(&wrapper->writer);
 
 	struct timespec timestamp;
+	hdr_getnow(&timestamp);
+
 	hdr_log_write_header(&wrapper->writer, wrapper->file, "mpt", &timestamp);
 	return true;
 }
