@@ -4,6 +4,9 @@ add_library(
         worker_wait.c
         worker_info.c
 		worker_list.c
+        ipc/worker_vqueue.c
+		ipc/worker_pqueue.c
+		ipc/worker_queue.c
 		worker_manager.c
 		naive_receiver.c
 		naive_sender.c
