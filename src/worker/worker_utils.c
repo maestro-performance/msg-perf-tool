@@ -58,6 +58,21 @@ const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *statu
 	return cname;
 }
 
+worker_queue_opt_t worker_queue_new_opt(worker_flags_t worker_flags) {
+	worker_queue_opt_t queue_opt = {0};
+
+	if (worker_flags & WRK_RECEIVER) {
+		queue_opt.msg_size = sizeof(worker_snapshot_t);
+		queue_opt.proj_id = 0x32;
+	}
+	else {
+		queue_opt.msg_size = sizeof(worker_snapshot_t);
+		queue_opt.proj_id = 0x33;
+	}
+
+	return queue_opt;
+}
+
 
 worker_queue_t *worker_create_queue(const worker_t *worker, gru_status_t *status) {
 	const char *cname = worker_name(worker, getpid(), status);
@@ -66,7 +81,8 @@ worker_queue_t *worker_create_queue(const worker_t *worker, gru_status_t *status
 		return NULL;
 	}
 
-	worker_queue_t *queue = worker_queue_new(cname, PQUEUE_WRITE, sizeof(worker_snapshot_t), status);
+	worker_queue_opt_t queue_opt = worker_queue_new_opt(worker->worker_flags);
+	worker_queue_t *queue = worker_queue_new(cname, PQUEUE_WRITE, queue_opt, status);
 	gru_dealloc_const_string(&cname);
 
 	if (!queue) {

@@ -18,21 +18,14 @@
 #include "process_utils.h"
 
 struct worker_vqueue_t_ {
-  char *name;
   int queue;
 };
 
-worker_vqueue_t *worker_vqueue_new(const char *name, queue_perm_t perm, gru_status_t *status) {
+worker_vqueue_t *worker_vqueue_new(const char *name, queue_perm_t perm, int proj_id, gru_status_t *status) {
 	worker_vqueue_t *ret = gru_alloc(sizeof(worker_vqueue_t), status);
 	gru_alloc_check(ret, NULL);
 
-	if (asprintf(&ret->name, "/%s", name) == -1) {
-		gru_status_set(status, GRU_FAILURE, "Unable to format posix queue name");
-
-		return NULL;
-	}
-
-	key_t key = ftok("/tmp", 0x32);
+	key_t key = ftok("/tmp", proj_id);
 	ret->queue = create_queue(key, status);
 
 	if (ret->queue < 0) {
@@ -48,11 +41,6 @@ void worker_vqueue_destroy(worker_vqueue_t **ptr) {
 
 	if (!worker_pqueue) {
 		return;
-	}
-
-	gru_dealloc_string(&worker_pqueue->name);
-	if (worker_pqueue->queue != -1) {
-		//
 	}
 
 	gru_dealloc((void **) ptr);

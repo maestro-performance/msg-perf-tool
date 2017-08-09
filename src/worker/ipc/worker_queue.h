@@ -25,11 +25,15 @@
 extern "C" {
 #endif
 
+typedef struct worker_queue_opt_t_ {
+  long msg_size;
+  int proj_id;
+} worker_queue_opt_t;
 
 
 typedef struct worker_queue_t_ worker_queue_t;
 
-worker_queue_t *worker_queue_new(const char *name, queue_perm_t perm, long msg_size, gru_status_t *status);
+worker_queue_t *worker_queue_new(const char *name, queue_perm_t perm, worker_queue_opt_t opt, gru_status_t *status);
 void worker_queue_destroy(worker_queue_t **ptr);
 worker_queue_stat_t worker_queue_write(const worker_queue_t *const worker_queue, const void *data, size_t len, void *payload);
 worker_queue_stat_t worker_queue_read(const worker_queue_t *const worker_queue, void *dest, size_t len);

@@ -19,7 +19,6 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 								worker_snapshot_t *snapshot,
 								gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	const uint32_t sample_interval = 1;
 	uint64_t last_count = 0;
 	msg_content_data_t content_storage = {0};
 
@@ -77,10 +76,7 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 		calc_throughput(
 			&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
 
-		int64_t elapsed = gru_time_elapsed_secs(last_sample_ts, snapshot->now);
-		if (elapsed >= sample_interval) {
-			worker_queue_write(pqueue, snapshot, sizeof(worker_snapshot_t), NULL);
-		}
+		worker_queue_write(pqueue, snapshot, sizeof(worker_snapshot_t), NULL);
 
 		gru_time_add_microseconds(&snapshot->eta, interval);
 

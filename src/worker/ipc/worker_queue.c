@@ -29,7 +29,7 @@ struct worker_queue_t_ {
 };
 
 
-worker_queue_t *worker_queue_new(const char *name, queue_perm_t perm, long msg_size, gru_status_t *status) {
+worker_queue_t *worker_queue_new(const char *name, queue_perm_t perm, worker_queue_opt_t opt, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	worker_queue_t *ret = gru_alloc(sizeof(worker_queue_t), status);
 	gru_alloc_check(ret, NULL);
@@ -38,12 +38,12 @@ worker_queue_t *worker_queue_new(const char *name, queue_perm_t perm, long msg_s
 
 	if (use_pqueue) {
 		logger(GRU_INFO, "Using POSIX queues for IPC");
-		ret->via.pqueue = worker_pqueue_new(name, perm, msg_size, status);
+		ret->via.pqueue = worker_pqueue_new(name, perm, opt.msg_size, status);
 		ret->type = MPT_Q_POSIX;
 	}
 	else {
 		logger(GRU_INFO, "Using SysV queues for IPC");
-		ret->via.vqueue = worker_vqueue_new(name, perm, status);
+		ret->via.vqueue = worker_vqueue_new(name, perm, opt.proj_id, status);
 		ret->type = MPT_Q_SYSV;
 	}
 

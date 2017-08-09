@@ -32,7 +32,10 @@ worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t
 	logger(GRU_DEBUG, "Child %d gave the ok signal", child);
 	fflush(NULL);
 
-	ret->pqueue = worker_queue_new(cname, PQUEUE_READ, sizeof(worker_snapshot_t), status);
+
+	worker_queue_opt_t queue_opt = worker_queue_new_opt(worker->worker_flags);
+
+	ret->pqueue = worker_queue_new(cname, PQUEUE_READ, queue_opt, status);
 
 	gru_dealloc_const_string(&cname);
 

@@ -61,6 +61,11 @@ bool worker_check(const worker_options_t *options, const worker_snapshot_t *snap
 const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status);
 
 /**
+ * Get the appropriate queue options based on the worker type
+ */
+worker_queue_opt_t worker_queue_new_opt(worker_flags_t worker_flags);
+
+/**
  * Creates an IPC queue for child-to-parent data exchange
  */
 worker_queue_t *worker_create_queue(const worker_t *worker, gru_status_t *status);

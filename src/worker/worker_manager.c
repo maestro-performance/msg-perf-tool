@@ -102,20 +102,13 @@ static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 
 				logger(GRU_ERROR, "Unable to write latency data: %s", status.message);
 			}
+		}
 
-			if (unlikely(!worker_info->writer->rate.write(&worker_info->snapshot.throughput,
-														  &worker_info->snapshot.eta,
-														  &status))) {
-				logger(GRU_ERROR, "Unable to write throughput data: %s", status.message);
+		if (unlikely(!worker_info->writer->rate.write(&worker_info->snapshot.throughput,
+													  &worker_info->snapshot.eta,
+													  &status))) {
+			logger(GRU_ERROR, "Unable to write throughput data: %s", status.message);
 
-			}
-		} else {
-			if (unlikely(!worker_info->writer->rate.write(&worker_info->snapshot.throughput,
-														  &worker_info->snapshot.eta,
-														  &status))) {
-				logger(GRU_ERROR, "Unable to write throughput data: %s", status.message);
-
-			}
 		}
 
 		queue_stat = worker_queue_read(worker_info->pqueue, &worker_info->snapshot,

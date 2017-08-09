@@ -38,7 +38,7 @@ extern "C" {
 
 typedef struct worker_vqueue_t_ worker_vqueue_t;
 
-worker_vqueue_t *worker_vqueue_new(const char *name, queue_perm_t perm, gru_status_t *status);
+worker_vqueue_t *worker_vqueue_new(const char *name, queue_perm_t perm, int proj_id, gru_status_t *status);
 void worker_vqueue_destroy(worker_vqueue_t **ptr);
 worker_queue_stat_t worker_vqueue_write(const worker_vqueue_t *const worker_pqueue, const void *data, size_t len, void *payload);
 worker_queue_stat_t worker_vqueue_read(const worker_vqueue_t *const worker_pqueue, void *dest, size_t len);
