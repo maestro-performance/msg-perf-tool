@@ -17,17 +17,6 @@ link_libraries(${MATH_LIB}
 
 
 add_executable(
-	shr_data_test
-	common/ipc/shr_data_test.c
-)
-
-add_test(
-	NAME shr-data-test
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
-	COMMAND shr_data_test
-)
-
-add_executable(
 	maestro_serialize_test
 	common/maestro_serialize_test.c
 )

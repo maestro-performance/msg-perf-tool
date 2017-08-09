@@ -43,8 +43,9 @@ worker_ret_t naive_receiver_start(const worker_t *worker,
 		goto err_exit;
 	}
 
-	volatile shr_data_buff_t *shr = worker_shared_buffer_new(worker, status);
-	if (!shr) {
+	mpt_trace("Creating queue");
+	worker_queue_t *pqueue = worker_create_queue(worker, status);
+	if (!pqueue) {
 		goto err_exit;
 	}
 
@@ -102,7 +103,7 @@ worker_ret_t naive_receiver_start(const worker_t *worker,
 				break;
 			}
 
-			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
+			worker_queue_write(pqueue, snapshot, sizeof(worker_snapshot_t), NULL);
 
 			last_count = snapshot->count;
 			last_sample_ts = snapshot->now;
@@ -129,7 +130,7 @@ worker_ret_t naive_receiver_start(const worker_t *worker,
 		elapsed,
 		snapshot->throughput.rate);
 
-	shr_buff_detroy(&shr);
+	worker_queue_destroy(&pqueue);
 
 	msg_content_data_release(&content_storage);
 	worker_msg_opt_cleanup(&opt);
@@ -137,7 +138,7 @@ worker_ret_t naive_receiver_start(const worker_t *worker,
 	return WORKER_SUCCESS;
 
 	err_exit:
-	shr_buff_detroy(&shr);
+	worker_queue_destroy(&pqueue);
 
 	msg_content_data_release(&content_storage);
 

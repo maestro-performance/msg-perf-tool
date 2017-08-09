@@ -37,6 +37,27 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 
 			remap_log(worker->log_dir, worker->name, getppid(), getpid(), stderr, status);
 
+			install_interrupt_handler();
+			logger(GRU_TRACE, "Starting worker %d", i);
+			worker_ret_t wret = worker_start(worker, &snapshot, status);
+			if (wret != WORKER_SUCCESS) {
+				logger(GRU_ERROR, "Unable to execute worker: %s", status->message);
+			}
+			else {
+				logger(GRU_INFO, "Test execution terminated");
+			}
+
+			return wret | WORKER_CHILD;
+		} else {
+//			worker_wait_setup();
+
+			worker_info_t *worker_info = worker_info_new(worker, child, status);
+			if (!worker_info) {
+				logger(GRU_ERROR, "Unable to create worker info: %s", status->message);
+
+				return WORKER_FAILURE;
+			}
+
 			naming_info_t naming_info = {0};
 
 			naming_info.source = worker->name;
@@ -54,26 +75,6 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 				return WORKER_FAILURE | WORKER_CHILD;
 			}
 
-			install_interrupt_handler();
-			worker_ret_t wret = worker_start(worker, &snapshot, status);
-			if (wret != WORKER_SUCCESS) {
-				logger(GRU_ERROR, "Unable to execute worker: %s", status->message);
-			}
-			else {
-				logger(GRU_INFO, "Test execution terminated");
-			}
-
-			return wret | WORKER_CHILD;
-		} else {
-			worker_wait_setup();
-
-			worker_info_t *worker_info = worker_info_new(worker, child, status);
-			if (!worker_info) {
-				logger(GRU_ERROR, "Unable to create worker info: %s", status->message);
-
-				return WORKER_FAILURE;
-			}
-
 			if (!worker_list_append(worker_info, status)) {
 				kill(worker_info->child, SIGKILL);
 				worker_info_destroy(&worker_info);
@@ -87,20 +88,41 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 }
 
 static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
-	bool ret;
 
-	ret = shr_buff_read(worker_info->shr, &worker_info->snapshot,
-						sizeof(worker_snapshot_t));
 
-	if (!ret) {
-		logger_t logger = gru_logger_get();
+	gru_status_t status = gru_status_new();
+	logger_t logger = gru_logger_get();
 
-		logger(GRU_WARNING,
-			   "Unable to obtain performance snapshot from worker %d",
-			   worker_info->child);
-	}
+	worker_queue_stat_t queue_stat;
+	queue_stat = worker_queue_read(worker_info->pqueue, &worker_info->snapshot,
+								   sizeof(worker_snapshot_t));
+	while (wq_has_data(queue_stat)) {
+		if (worker_info->worker_flags & WRK_RECEIVER) {
+			if (unlikely(!worker_info->writer->latency.write(&worker_info->snapshot.latency, &status))) {
 
-	return ret;
+				logger(GRU_ERROR, "Unable to write latency data: %s", status.message);
+			}
+
+			if (unlikely(!worker_info->writer->rate.write(&worker_info->snapshot.throughput,
+														  &worker_info->snapshot.eta,
+														  &status))) {
+				logger(GRU_ERROR, "Unable to write throughput data: %s", status.message);
+
+			}
+		} else {
+			if (unlikely(!worker_info->writer->rate.write(&worker_info->snapshot.throughput,
+														  &worker_info->snapshot.eta,
+														  &status))) {
+				logger(GRU_ERROR, "Unable to write throughput data: %s", status.message);
+
+			}
+		}
+
+		queue_stat = worker_queue_read(worker_info->pqueue, &worker_info->snapshot,
+									   sizeof(worker_snapshot_t));
+	};
+
+	return true;
 }
 
 static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *status) {

@@ -12,7 +12,6 @@ add_library(
         statistics/hdr_wrapper.c
         statistics/hdr_writer.c
         statistics/naming_utils.c
-        ipc/shared_data_buffer.c
         strategies/payload/pl_fixed_strategy.c
         strategies/payload/pl_variable_strategy.c
         bmic/bmic_utils.c

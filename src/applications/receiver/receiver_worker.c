@@ -74,17 +74,15 @@ static bool receiver_print_partial(worker_info_t *worker_info) {
 	worker_snapshot_t snapshot = {0};
 	logger_t logger = gru_logger_get();
 
-	if (shr_buff_read(worker_info->shr, &snapshot, sizeof(worker_snapshot_t))) {
-		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+	uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
-		logger(GRU_INFO,
-			"Partial summary: PID %d received %" PRIu64 " messages in %" PRIu64
-			" seconds (rate: %.2f msgs/sec)",
-			worker_info->child,
-			snapshot.count,
-			elapsed,
-			snapshot.throughput.rate);
-	}
+	logger(GRU_INFO,
+		"Partial summary: PID %d received %" PRIu64 " messages in %" PRIu64
+		" seconds (rate: %.2f msgs/sec)",
+		worker_info->child,
+		snapshot.count,
+		elapsed,
+		snapshot.throughput.rate);
 
 	return true;
 }

@@ -26,9 +26,8 @@
 #include "strategies/payload/pl_strategy.h"
 #include "vmsl.h"
 
-#include "ipc/shared_data_buffer.h"
-
 #include "worker_options.h"
+#include "ipc/worker_queue.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,9 +85,13 @@ typedef struct worker_t_ {
 } worker_t;
 
 typedef struct worker_info_t_ {
+  	worker_flags_t worker_flags;
+  	stats_writer_t *writer;
+
 	pid_t child;
 	worker_snapshot_t snapshot;
-	volatile shr_data_buff_t *shr;
+
+	worker_queue_t *pqueue;
 } worker_info_t;
 
 

@@ -28,6 +28,7 @@
 #include "worker_utils.h"
 #include "worker_options.h"
 #include "worker_wait.h"
+#include "ipc/worker_queue.h"
 
 #ifdef __cplusplus
 extern "C" {

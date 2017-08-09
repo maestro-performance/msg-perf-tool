@@ -20,11 +20,10 @@
 #include <common/gru_alloc.h>
 
 #include "process_utils.h"
-#include "ipc/shared_data_buffer.h"
 
 #include "worker_options.h"
 #include "worker_types.h"
-
+#include "ipc/worker_queue.h"
 
 /**
  * Amount of time to idle when no data is available. After some measurements, it
@@ -62,10 +61,9 @@ bool worker_check(const worker_options_t *options, const worker_snapshot_t *snap
 const char *worker_name(const worker_t *worker, pid_t child, gru_status_t *status);
 
 /**
- * Creates a new shared buffer for child-to-parent data exchange
+ * Creates an IPC queue for child-to-parent data exchange
  */
-volatile shr_data_buff_t *worker_shared_buffer_new(const worker_t *worker,
-	gru_status_t *status);
+worker_queue_t *worker_create_queue(const worker_t *worker, gru_status_t *status);
 
 
 /**

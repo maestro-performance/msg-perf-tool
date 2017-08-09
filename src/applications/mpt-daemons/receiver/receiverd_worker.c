@@ -223,6 +223,7 @@ static bool receiverd_worker_eval_latency(worker_info_t *worker_info, gru_status
 	return true;
 }
 
+
 static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
@@ -300,6 +301,9 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 	}
 
 	worker_log_link_create(worker_log_dir, options->logdir, "last");
+
+	worker.writer->rate.finalize(&status);
+	worker.writer->latency.finalize(&status);
 
 	worker_manager_stop();
 	return ret;

@@ -37,8 +37,8 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 		goto err_exit;
 	}
 
-	volatile shr_data_buff_t *shr = worker_shared_buffer_new(worker, status);
-	if (!shr) {
+	worker_queue_t *pqueue = worker_create_queue(worker, status);
+	if (!pqueue) {
 		goto err_exit;
 	}
 
@@ -79,17 +79,10 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 
 		int64_t elapsed = gru_time_elapsed_secs(last_sample_ts, snapshot->now);
 		if (elapsed >= sample_interval) {
-			shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
+			worker_queue_write(pqueue, snapshot, sizeof(worker_snapshot_t), NULL);
 		}
 
 		gru_time_add_microseconds(&snapshot->eta, interval);
-		if (unlikely(
-			!worker->writer->rate.write(&snapshot->throughput, &snapshot->eta, status))) {
-			logger(GRU_ERROR, "Unable to write throughput data: %s", status->message);
-
-			gru_status_reset(status);
-			break;
-		}
 
 		last_sample_ts = snapshot->now;
 		last_count = snapshot->count;
@@ -108,8 +101,6 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 	worker->vmsl->stop(msg_ctxt, status);
 	worker->vmsl->destroy(msg_ctxt, status);
 
-	worker->writer->rate.finalize(status);
-
 	calc_throughput(
 		&snapshot->throughput, snapshot->start, snapshot->now, snapshot->count);
 
@@ -121,7 +112,8 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 		   elapsed,
 		   snapshot->throughput.rate);
 
-	shr_buff_detroy(&shr);
+
+	worker_queue_destroy(&pqueue);
 
 	worker->pl_strategy.cleanup(&content_storage);
 	worker_msg_opt_cleanup(&opt);
@@ -138,7 +130,7 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 		worker->vmsl->destroy(msg_ctxt, &tmp_status);
 	}
 
-	shr_buff_detroy(&shr);
+	worker_queue_destroy(&pqueue);
 
 	worker_msg_opt_cleanup(&opt);
 	vmslh_cleanup(&handlers);

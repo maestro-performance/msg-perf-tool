@@ -43,6 +43,7 @@
 #include "worker_types.h"
 #include "worker_utils.h"
 #include "worker_info.h"
+#include "ipc/worker_queue.h"
 
 #ifdef __cplusplus
 extern "C" {

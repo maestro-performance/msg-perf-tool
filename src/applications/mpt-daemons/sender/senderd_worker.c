@@ -268,8 +268,9 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 		maestro_notify_test_successful(&status);
 	}
 
-
 	worker_log_link_create(worker_log_dir, options->logdir, "last");
+
+	worker.writer->rate.finalize(&status);
 
 	worker_manager_stop();
 

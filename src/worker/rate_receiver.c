@@ -19,7 +19,6 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 								  worker_snapshot_t *snapshot,
 								  gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	const uint32_t sample_interval = 10;
 	uint64_t last_count = 0;
 	msg_content_data_t content_storage = {0};
 
@@ -28,32 +27,37 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 
 	vmslh_handlers_t handlers = vmslh_new(status);
 
+	mpt_trace("Initializing VMSL");
 	msg_ctxt_t *msg_ctxt = worker->vmsl->init(opt, &handlers, status);
 	if (!msg_ctxt) {
 		goto err_exit;
 	}
 
+	mpt_trace("Starting VMSL");
 	vmsl_stat_t ret = worker->vmsl->start(msg_ctxt, status);
 	if (vmsl_stat_error(ret)) {
 		goto err_exit;
 	}
 
+	mpt_trace("Subscribing VMSL");
 	ret = worker->vmsl->subscribe(msg_ctxt, NULL, status);
 	if (vmsl_stat_error(ret)) {
 		goto err_exit;
 	}
 
-	volatile shr_data_buff_t *shr = worker_shared_buffer_new(worker, status);
-	if (!shr) {
+	mpt_trace("Creating queue");
+	worker_queue_t *pqueue = worker_create_queue(worker, status);
+	if (!pqueue) {
 		goto err_exit;
 	}
 
-	// TODO: requires a content strategy
+	mpt_trace("Initializing content generator");
 	msg_content_data_init(&content_storage, worker->options->message_size, status);
 	if (!gru_status_success(status)) {
 		goto err_exit;
 	}
 
+	mpt_trace("Setting up initial time");
 	snapshot->start = gru_time_now();
 	snapshot->now = snapshot->start;
 	snapshot->eta = snapshot->start;
@@ -88,33 +92,15 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 		snapshot->count++;
 
 		calc_latency(&snapshot->latency, content_storage.created, snapshot->now);
-		if (unlikely(!worker->writer->latency.write(&snapshot->latency, status))) {
-			logger(GRU_ERROR, "Unable to write latency data: %s", status->message);
-
-			gru_status_reset(status);
-			break;
-		}
 
 		uint64_t processed_count = snapshot->count - last_count;
 
 		calc_throughput(&snapshot->throughput, last_sample_ts, snapshot->now, processed_count);
 
-		if (unlikely(
-			!worker->writer->rate.write(&snapshot->throughput, &snapshot->eta, status))) {
-			logger(GRU_ERROR, "Unable to write throughput data: %s", status->message);
-
-			gru_status_reset(status);
-			break;
-		}
-
-		shr_buff_write(shr, snapshot, sizeof(worker_snapshot_t));
+		worker_queue_write(pqueue, snapshot, sizeof(worker_snapshot_t), NULL);
 
 		last_count = snapshot->count;
 		last_sample_ts = snapshot->now;
-
-		if (gru_time_elapsed_secs(last_sample_ts, snapshot->now) >= sample_interval) {
-			fflush(NULL);
-		}
 
 		gru_time_add_microseconds(&snapshot->eta, interval);
 	}
@@ -122,9 +108,6 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 
 	worker->vmsl->stop(msg_ctxt, status);
 	worker->vmsl->destroy(msg_ctxt, status);
-
-	worker->writer->rate.finalize(status);
-	worker->writer->latency.finalize(status);
 
 	calc_throughput(
 		&snapshot->throughput, snapshot->start, snapshot->now, snapshot->count);
@@ -138,7 +121,7 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 		elapsed,
 		snapshot->throughput.rate);
 
-	shr_buff_detroy(&shr);
+	worker_queue_destroy(&pqueue);
 
 	msg_content_data_release(&content_storage);
 	worker_msg_opt_cleanup(&opt);
@@ -146,7 +129,8 @@ worker_ret_t rate_receiver_start(const worker_t *worker,
 	return WORKER_SUCCESS;
 
 	err_exit:
-	shr_buff_detroy(&shr);
+
+	worker_queue_destroy(&pqueue);
 
 	msg_content_data_release(&content_storage);
 

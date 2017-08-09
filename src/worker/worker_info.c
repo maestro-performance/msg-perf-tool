@@ -29,30 +29,23 @@ worker_info_t *worker_info_new(const worker_t *worker, pid_t child, gru_status_t
 		return NULL;
 	}
 
-	logger(GRU_INFO, "Created child %s (pid %d) and waiting for the continue signal", cname,
-		child);
-
-	if (!worker_wait()) {
-		gru_status_set(status, GRU_FAILURE, "Timed out waiting for the continue signal");
-
-		gru_dealloc_const_string(&cname);
-		kill(child, SIGABRT);
-		return NULL;
-	}
-
 	logger(GRU_DEBUG, "Child %d gave the ok signal", child);
 	fflush(NULL);
 
-	ret->shr = shr_buff_new(BUFF_WRITE, sizeof(worker_snapshot_t), cname, status);
+	ret->pqueue = worker_queue_new(cname, PQUEUE_READ, sizeof(worker_snapshot_t), status);
+
 	gru_dealloc_const_string(&cname);
 
-	if (!ret->shr) {
-		gru_status_set(status, GRU_FAILURE, "Unable to open a read buffer: %s",
-			status->message);
+	if (!ret->pqueue) {
+		gru_status_set(status, GRU_FAILURE, "Unable to create a posix queue: %s",
+					   status->message);
 
 		kill(child, SIGKILL);
 		return NULL;
 	}
+
+	ret->worker_flags = worker->worker_flags;
+	ret->writer = worker->writer;
 
 	return ret;
 }
@@ -66,6 +59,6 @@ void worker_info_destroy(worker_info_t **ptr) {
 		return;
 	}
 
-	shr_buff_detroy(&wi->shr);
+	worker_queue_destroy(&wi->pqueue);
 	gru_dealloc((void **) ptr);
 }
