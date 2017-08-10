@@ -28,6 +28,10 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 
 	logger_t logger = gru_logger_get();
 
+	if (worker_dump(worker->log_dir, worker->options, status)) {
+		return WORKER_FAILURE;
+	}
+
 	logger(GRU_INFO, "Creating %d concurrent operations", worker->options->parallel_count);
 	for (uint16_t i = 0; i < worker->options->parallel_count; i++) {
 		pid_t child = fork();

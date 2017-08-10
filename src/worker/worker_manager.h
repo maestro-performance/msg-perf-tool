@@ -45,6 +45,7 @@
 #include "worker_info.h"
 #include "worker_list.h"
 #include "worker_handler.h"
+#include "worker_data_dump.h"
 #include "ipc/worker_queue.h"
 
 #ifdef __cplusplus

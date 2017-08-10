@@ -3,6 +3,7 @@ add_library(
 		worker_utils.c
         worker_info.c
 		worker_list.c
+		worker_data_dump.c
         ipc/worker_vqueue.c
 		ipc/worker_pqueue.c
 		ipc/worker_queue.c
