@@ -1,7 +1,6 @@
 add_library(
 	mpt-worker SHARED
 		worker_utils.c
-        worker_wait.c
         worker_info.c
 		worker_list.c
         ipc/worker_vqueue.c

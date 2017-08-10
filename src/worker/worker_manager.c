@@ -49,7 +49,6 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 
 			return wret | WORKER_CHILD;
 		} else {
-//			worker_wait_setup();
 
 			worker_info_t *worker_info = worker_info_new(worker, child, status);
 			if (!worker_info) {

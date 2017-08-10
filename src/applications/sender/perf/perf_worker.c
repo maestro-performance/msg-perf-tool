@@ -103,7 +103,6 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		worker_ret_t ret = {0};
 		worker_snapshot_t snapshot = {0};
 
-		worker_wait_setup();
 		ret = naive_sender_start(&worker, &snapshot, &status);
 		if (ret != WORKER_SUCCESS) {
 			logger(GRU_ERROR, "Unable to execute worker: %s\n", status.message);
