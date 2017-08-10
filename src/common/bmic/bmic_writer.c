@@ -40,10 +40,10 @@ static gzFile
 
 static void bmic_writer_add_header_column(const char *name, bool more) {
 	if (more) {
-		gzprintf(report, "\"%s\",");
+		gzprintf(report, "\"%s\",", name);
 	}
 	else {
-		gzprintf(report, "\"%s\"\n");
+		gzprintf(report, "\"%s\"\n", name);
 	}
 }
 
