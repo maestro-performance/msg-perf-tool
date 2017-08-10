@@ -45,6 +45,7 @@
 #include "worker_options.h"
 #include "worker_types.h"
 #include "worker_utils.h"
+#include "worker_data_dump.h"
 
 #include "daemon_common.h"
 

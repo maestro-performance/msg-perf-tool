@@ -164,6 +164,55 @@ static bool brokerd_abort_check(bmic_queue_stat_t *qstats) {
 	return false;
 }
 
+struct bmic_wrapper_t {
+  bmic_java_info_t *java_info;
+  bmic_java_os_info_t *os_info;
+  bmic_product_info_t *product_info;
+};
+
+static void bmic_dump_data(FILE *file, void *data) {
+	struct bmic_wrapper_t *bmic_wrapper = (struct bmic_wrapper_t *) data;
+
+	gru_config_write_string("jvmName", file, bmic_wrapper->java_info->name);
+	gru_config_write_string("jvmVersion", file, bmic_wrapper->java_info->version);
+	gru_config_write_string("jvmPackageVersion", file, bmic_wrapper->java_info->jvm_package_version);
+	gru_config_write_string("operatingSystemName", file, bmic_wrapper->os_info->name);
+	gru_config_write_string("operatingSystemArch", file, bmic_wrapper->os_info->arch);
+	gru_config_write_string("operatingSystemVersion", file, bmic_wrapper->os_info->version);
+	gru_config_write_long("systemCpuCount", file, bmic_wrapper->os_info->cpus);
+	gru_config_write_long("systemMemory", file, bmic_wrapper->os_info->mem_total);
+	gru_config_write_long("systemSwap", file, bmic_wrapper->os_info->swap_total);
+
+	gru_config_write_string("productName", file, bmic_wrapper->product_info->name);
+	gru_config_write_string("productVersion", file, bmic_wrapper->product_info->version);
+
+	fflush(file);
+}
+
+
+bool brokerd_dump(const char *dir, struct bmic_wrapper_t *bmic_data, gru_status_t *status) {
+	gru_config_t *config = gru_config_new(dir, "broker.properties", status);
+	gru_alloc_check(config, false);
+
+	gru_payload_t *payload = gru_payload_init(NULL, bmic_dump_data, NULL, bmic_data, status);
+	if (!payload) {
+		gru_config_destroy(&config);
+		return false;
+	}
+
+	if (!gru_config_init_for_dump(config, payload, status)) {
+
+		gru_payload_destroy(&payload);
+		gru_config_destroy(&config);
+		return false;
+	}
+
+	gru_payload_destroy(&payload);
+	gru_config_destroy(&config);
+
+	return true;
+}
+
 static bool brokerd_collect(gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	bmic_context_t ctxt = {0};
@@ -192,8 +241,33 @@ static bool brokerd_collect(gru_status_t *status) {
 		return false;
 	}
 
+	logger(GRU_INFO, "Reading broker properties");
 	bmic_api_interface_t *api = ctxt.api;
+
+	const bmic_exchange_t *cap = api->capabilities_load(ctxt.handle, status);
+	if (!cap) {
+		bmic_context_cleanup(&ctxt);
+		return false;
+	}
+	bmic_product_info_t *info = api->product_info(ctxt.handle, cap, status);
+
 	bmic_java_info_t jinfo = api->java.java_info(ctxt.handle, status);
+	bmic_java_os_info_t osinfo = api->java.os_info(ctxt.handle, status);
+
+	logger(GRU_INFO, "Writing broker properties");
+	struct bmic_wrapper_t bmic_wrapper = {
+		.java_info = &jinfo,
+		.os_info = &osinfo,
+		.product_info = info};
+
+	if (!brokerd_dump(worker_log_dir, &bmic_wrapper, status)) {
+		goto err_exit;
+	}
+
+	if (!worker_dump(worker_log_dir, &worker_options, status)) {
+		goto err_exit;
+	}
+
 
 	while (started) {
 		if (!bmic_writer_current_time(status)) {
@@ -202,7 +276,7 @@ static bool brokerd_collect(gru_status_t *status) {
 			break;
 		}
 
-		bmic_java_os_info_t osinfo = api->java.os_info(ctxt.handle, status);
+		osinfo = api->java.os_info(ctxt.handle, status);
 		bmic_writer_osinfo(&osinfo);
 
 		mpt_java_mem_t java_mem = {0};
@@ -243,6 +317,9 @@ static bool brokerd_collect(gru_status_t *status) {
 		return false;
 	}
 
+	gru_dealloc((void **) &info);
+	bmic_java_info_cleanup(jinfo);
+
 	worker_log_link_create(worker_log_dir, options->logdir, "last");
 	worker_log_link_create(worker_log_dir, options->logdir, "lastSuccessful");
 
@@ -253,6 +330,20 @@ static bool brokerd_collect(gru_status_t *status) {
 	logger(GRU_INFO, "Broker inspector completed the inspection");
 
 	return true;
+
+	err_exit:
+	gru_dealloc((void **) &info);
+	bmic_java_info_cleanup(jinfo);
+
+	worker_log_link_create(worker_log_dir, options->logdir, "last");
+	worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
+
+	maestro_notify_test_failed(status);
+
+	bmic_writer_finalize(status);
+	bmic_context_cleanup(&ctxt);
+	logger(GRU_INFO, "Broker inspector completed the inspection with errors");
+	return false;
 }
 
 int brokerd_worker_start(const options_t *options) {
