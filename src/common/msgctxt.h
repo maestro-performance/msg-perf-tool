@@ -31,8 +31,6 @@
 extern "C" {
 #endif
 
-typedef void (*msg_content_loader)(msg_content_data_t *content_data);
-
 typedef enum msg_stat_opt_t_ {
 	MSG_STAT_NONE = 0, /** Disable statistics **/
 	MSG_STAT_LATENCY = 1, /** Enable latency statistics **/
