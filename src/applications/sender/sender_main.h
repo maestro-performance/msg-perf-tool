@@ -22,6 +22,5 @@
 #include <cli/gru_cli_opt.h>
 
 #include "perf/perf_main.h"
-#include "tune/tune_main.h"
 
 #endif /* SENDER_MAIN_H */

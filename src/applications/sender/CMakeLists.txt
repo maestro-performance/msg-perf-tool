@@ -3,8 +3,6 @@ add_executable(
     sender_main.c
     perf/perf_main.c
     perf/perf_worker.c
-    tune/tune_main.c
-    tune/tune_worker.c
 )
 
 target_link_libraries(
