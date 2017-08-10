@@ -117,32 +117,10 @@ int init_controller(const char *logdir, const char *controller_name) {
 	}
 }
 
-static void timer_handler(int signum) {
-	// NO-OP for now
-}
-
 static void interrupt_handler(int signum) {
 	interrupted = true;
 }
 
-void install_timer(time_t sec) {
-	struct sigaction sa;
-	struct itimerval timer;
-
-	memset(&sa, 0, sizeof(sa));
-
-	sa.sa_handler = &timer_handler;
-	sa.sa_flags = SA_SIGINFO;
-	sigaction(SIGALRM, &sa, NULL);
-
-	timer.it_value.tv_sec = sec;
-	timer.it_value.tv_usec = 0;
-
-	timer.it_interval.tv_sec = sec;
-	timer.it_interval.tv_usec = 0;
-
-	setitimer(ITIMER_REAL, &timer, NULL);
-}
 
 void install_interrupt_handler() {
 	struct sigaction sa;
