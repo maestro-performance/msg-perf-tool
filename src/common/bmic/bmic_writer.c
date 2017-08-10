@@ -38,6 +38,15 @@ static gzFile
 	return f;
 }
 
+static void bmic_writer_add_header_column(const char *name, bool more) {
+	if (more) {
+		gzprintf(report, "\"%s\",");
+	}
+	else {
+		gzprintf(report, "\"%s\"\n");
+	}
+}
+
 bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
@@ -48,13 +57,34 @@ bool bmic_writer_initialize(const char *dir, const char *name, gru_status_t *sta
 		return false;
 	}
 
-	gzprintf(
-		report, "timestamp;load;open fds;free fds;free mem;swap free;swap committed;");
-	gzprintf(report, "eden inital;eden committed;eden max;eden used;");
-	gzprintf(report, "survivor inital;survivor committed;survivor max;survivor used;");
-	gzprintf(report, "tenured inital;tenured committed;tenured max;tenured used;");
-	gzprintf(report, "pm inital;pm committed;pm max;pm used;");
-	gzprintf(report, "queue size;consumers;ack;exp;\n");
+	bmic_writer_add_header_column("timestamp", true);
+	bmic_writer_add_header_column("load", true);
+	bmic_writer_add_header_column("open fds", true);
+	bmic_writer_add_header_column("free fds", true);
+	bmic_writer_add_header_column("free mem", true);
+	bmic_writer_add_header_column("swap free", true);
+	bmic_writer_add_header_column("swap committed", true);
+	bmic_writer_add_header_column("eden initial", true);
+	bmic_writer_add_header_column("eden committed", true);
+	bmic_writer_add_header_column("eden max", true);
+	bmic_writer_add_header_column("eden used", true);
+	bmic_writer_add_header_column("survivor initial", true);
+	bmic_writer_add_header_column("survivor committed", true);
+	bmic_writer_add_header_column("survivor max", true);
+	bmic_writer_add_header_column("survivor used", true);
+	bmic_writer_add_header_column("tenured initial", true);
+	bmic_writer_add_header_column("tenured committed", true);
+	bmic_writer_add_header_column("tenured max", true);
+	bmic_writer_add_header_column("tenured used", true);
+	bmic_writer_add_header_column("pm initial", true);
+	bmic_writer_add_header_column("pm committed", true);
+	bmic_writer_add_header_column("pm max", true);
+	bmic_writer_add_header_column("pm used", true);
+	bmic_writer_add_header_column("queue size", true);
+	bmic_writer_add_header_column("consumers", true);
+	bmic_writer_add_header_column("ack", true);
+	bmic_writer_add_header_column("exp", false);
+
 
 	return true;
 }
@@ -77,7 +107,7 @@ bool bmic_writer_current_time(gru_status_t *status) {
 		return false;
 	}
 
-	gzprintf(report, "%s;", curr_time_str);
+	gzprintf(report, "\"%s\",", curr_time_str);
 	gru_dealloc_string(&curr_time_str);
 	return true;
 }
@@ -87,22 +117,22 @@ static inline uint64_t bmic_writer_osinfo_free_fd(const bmic_java_os_info_t *osi
 }
 
 void bmic_writer_osinfo(const bmic_java_os_info_t *osinfo) {
-	gzprintf(report, "%.1f;", osinfo->load_average);
+	gzprintf(report, "%.1f,", osinfo->load_average);
 	gzprintf(report,
-		"%" PRId64 ";%" PRId64 ";",
+		"%" PRId64 ",%" PRId64 ",",
 		osinfo->open_fd,
 		bmic_writer_osinfo_free_fd(osinfo));
 
-	gzprintf(report, "%" PRId64 ";", gru_unit_mb(osinfo->mem_free));
+	gzprintf(report, "%" PRId64 ",", gru_unit_mb(osinfo->mem_free));
 	gzprintf(report,
-		"%" PRId64 ";%" PRId64 ";",
+		"%" PRId64 ",%" PRId64 ",",
 		gru_unit_mb(osinfo->swap_free),
 		gru_unit_mb(osinfo->swap_committed));
 }
 
 static void bmic_write_mem(const bmic_java_mem_info_t *mem) {
 	gzprintf(report,
-		"%" PRId64 ";%" PRId64 ";%" PRId64 ";%" PRId64 ";",
+		"%" PRId64 ",%" PRId64 ",%" PRId64 ",%" PRId64 ",",
 		gru_unit_mb(mem->init),
 		gru_unit_mb(mem->committed),
 		gru_unit_mb(mem->max),
@@ -122,7 +152,7 @@ void bmic_writer_java_mem(const mpt_java_mem_t *java_mem,
 
 void bmic_writer_queue_stat(const bmic_queue_stat_t *stat) {
 	gzprintf(report,
-		"%" PRId64 ";%" PRId64 ";%" PRId64 ";%" PRId64 "\n",
+		"%" PRId64 ",%" PRId64 ",%" PRId64 ",%" PRId64 "\n",
 		stat->queue_size,
 		stat->consumer_count,
 		stat->msg_ack_count,
