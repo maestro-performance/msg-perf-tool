@@ -111,6 +111,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 	}
 
 	if (body.opt == MAESTRO_NOTE_OPT_FCL) {
+		worker_options->condition_type = MPT_COND_LATENCY;
 		worker_options->condition.latency = atoi(body.value);
 
 		logger(GRU_INFO, "Set fcl (fail-condition-latency) to %"PRId64"",
