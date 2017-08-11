@@ -189,7 +189,7 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 }
 
 void worker_manager_watchdog_loop(worker_handler_t *handler, gru_status_t *status) {
-	const int wait_time = 250000;
+	const int wait_time = 100000;
 
 	uint32_t count = worker_list_count();
 
