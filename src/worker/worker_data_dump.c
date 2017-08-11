@@ -14,6 +14,7 @@
  *    limitations under the License.
  */
 #include "worker_data_dump.h"
+#include "worker_options.h"
 
 static void worker_dump_data(FILE *file, void *data) {
 	worker_options_t *options = (worker_options_t *) data;
@@ -37,6 +38,10 @@ static void worker_dump_data(FILE *file, void *data) {
 	gru_config_write_ulong("messageSize", file, options->message_size);
 	gru_config_write_short("variableSize", file, options->variable_size ? 1 : 0);
 	gru_config_write_uint("rate", file, options->rate);
+
+	if (options->condition_type == MPT_COND_LATENCY) {
+		gru_config_write_long("fcl", file, options->condition.latency);
+	}
 
 	fflush(file);
 }
