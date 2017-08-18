@@ -60,8 +60,6 @@ bool options_set_broker_uri(options_t *obj, const char *url, gru_status_t *statu
 bool options_set_maestro_uri(options_t *obj, const char *url, gru_status_t *status);
 bool options_set_name(options_t *obj, const char *name);
 bool options_set_logdir(options_t *obj, const char *logdir);
-bool options_set_iface(options_t *obj, const char *iface);
-bool options_set_probes(options_t *obj, const char *probes, gru_status_t *status);
 bool options_set_file(options_t *obj, const char *file);
 
 #ifdef __cplusplus
