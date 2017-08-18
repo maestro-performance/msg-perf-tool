@@ -19,7 +19,7 @@ static void show_help(char **argv) {
 	gru_cli_program_usage("mpt-maestro", argv[0]);
 
 	gru_cli_option_help("help", "h", "show this help");
-	gru_cli_option_help("file", "f", "maestro script file to execute");
+	gru_cli_option_help("maestro_script", "f", "maestro script file to execute");
 	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
 	gru_cli_option_help("log-level", "l",
 						"runs in the given verbose (info, debug, trace, etc) level mode");

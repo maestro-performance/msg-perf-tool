@@ -199,8 +199,8 @@ int maestro_loop(gru_status_t *status) {
 	}
 
 	int ret = -1;
-	if (options->file) {
-		FILE *file = fopen(options->file, "r");
+	if (options->maestro_script) {
+		FILE *file = fopen(options->maestro_script, "r");
 		if (!file) {
 			gru_status_strerror(status, GRU_FAILURE, errno);
 		} else {

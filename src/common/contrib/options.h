@@ -47,7 +47,7 @@ typedef struct options_t_ {
 	gru_duration_t duration;
 	uint32_t throttle;
 	char *name;
-  	char *file;
+  	char *maestro_script;
 } options_t;
 
 options_t *options_new(gru_status_t *status);

@@ -38,7 +38,7 @@ static bool options_set_defaults(options_t *ret, gru_status_t *status) {
 	ret->variable_size = false;
 	ret->duration = gru_duration_new();
 	ret->throttle = 0;
-	ret->file = NULL;
+	ret->maestro_script = NULL;
 
 	char hostname[256] = {0};
 	if (gethostname(hostname, sizeof(hostname)) == 0) {
@@ -76,7 +76,7 @@ void options_destroy(options_t **obj) {
 
 	gru_dealloc_string(&opt->log_dir);
 	gru_dealloc_string(&opt->name);
-	gru_dealloc_string(&opt->file);
+	gru_dealloc_string(&opt->maestro_script);
 
 	gru_dealloc((void **) obj);
 }
@@ -135,9 +135,9 @@ bool options_set_logdir(options_t *obj, const char *logdir) {
 
 
 bool options_set_file(options_t *obj, const char *file) {
-	gru_dealloc_string(&obj->file);
-	obj->file = strdup(file);
-	if (!obj->file) {
+	gru_dealloc_string(&obj->maestro_script);
+	obj->maestro_script = strdup(file);
+	if (!obj->maestro_script) {
 		return false;
 	}
 
