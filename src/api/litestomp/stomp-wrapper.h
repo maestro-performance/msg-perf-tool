@@ -21,7 +21,6 @@
 
 #include <litestomp-0/stomp_messenger.h>
 
-#include "contrib/options.h"
 #include "msgctxt.h"
 #include "vmsl.h"
 #include "vmslh.h"
