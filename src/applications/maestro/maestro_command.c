@@ -45,9 +45,7 @@ static int maestro_cmd_connect(maestro_cmd_ctxt_t *cmd_ctxt,
 
 static int maestro_cmd_without_payload(maestro_cmd_ctxt_t *cmd_ctxt,
 									   const char *path, maestro_command_t cmd, gru_status_t *status) {
-	const options_t *options = get_options_object();
-
-	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
+	int ret = maestro_cmd_connect(cmd_ctxt, options_get_maestro_uri(), status);
 	if (ret != 0) {
 		return ret;
 	}
@@ -296,7 +294,6 @@ static int maestro_cmd_set_opt_by_name(msg_content_data_t *data,
 int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt,
 	gru_list_t *strings,
 	gru_status_t *status) {
-	const options_t *options = get_options_object();
 
 	const gru_node_t *node = gru_list_get(strings, 1);
 	if (!node) {
@@ -317,7 +314,7 @@ int maestro_cmd_set_opt(maestro_cmd_ctxt_t *cmd_ctxt,
 		return 1;
 	}
 
-	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
+	int ret = maestro_cmd_connect(cmd_ctxt, options_get_maestro_uri(), status);
 	if (ret != 0) {
 		return ret;
 	}
@@ -363,9 +360,7 @@ static void maestro_cmd_request_ping(msg_content_data_t *out, gru_status_t *stat
 }
 
 int maestro_cmd_ping(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
-	const options_t *options = get_options_object();
-
-	int ret = maestro_cmd_connect(cmd_ctxt, options->maestro_uri, status);
+	int ret = maestro_cmd_connect(cmd_ctxt, options_get_maestro_uri(), status);
 	if (ret != 0) {
 		return ret;
 	}

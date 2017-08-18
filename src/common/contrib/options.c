@@ -15,7 +15,24 @@
  */
 #include "options.h"
 
-static options_t *options = NULL;
+struct options_t_ {
+    gru_uri_t broker_uri;
+    gru_uri_t maestro_uri;
+    char *log_dir;
+    log_level_t log_level;
+
+    uint16_t parallel_count;
+    size_t message_size;
+    bool variable_size;
+
+    uint64_t count;
+    gru_duration_t duration;
+    uint32_t throttle;
+    char *name;
+    char *maestro_script;
+};
+
+static struct options_t_ *options = NULL;
 
 static bool options_set_defaults(options_t *ret, gru_status_t *status) {
 	ret->broker_uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", status);
@@ -87,10 +104,6 @@ void set_options_object(options_t *obj) {
 	}
 }
 
-const options_t *get_options_object(void) {
-	return options;
-}
-
 bool options_set_broker_uri(options_t *obj, const char *url, gru_status_t *status) {
 	gru_uri_cleanup(&obj->broker_uri);
 
@@ -113,6 +126,28 @@ bool options_set_maestro_uri(options_t *obj, const char *url, gru_status_t *stat
 	return true;
 }
 
+void options_set_throttle(options_t *obj, const char *value) {
+    options->throttle = atoi(value);
+}
+
+
+uint32_t options_get_throttle() {
+    return options->throttle;
+}
+
+
+const char *options_get_maestro_host() {
+    return options->maestro_uri.host;
+}
+
+const gru_uri_t options_get_maestro_uri() {
+    return options->maestro_uri;
+}
+
+const gru_uri_t options_get_broker_uri() {
+    return options->broker_uri;
+}
+
 bool options_set_name(options_t *obj, const char *name) {
 	gru_dealloc_string(&obj->name);
 	obj->name = strdup(name);
@@ -121,6 +156,14 @@ bool options_set_name(options_t *obj, const char *name) {
 	}
 
 	return true;
+}
+
+const char *options_get_name() {
+	return options->name;
+}
+
+const char *options_get_maestro_script() {
+    return options->maestro_script;
 }
 
 bool options_set_logdir(options_t *obj, const char *logdir) {
@@ -134,6 +177,16 @@ bool options_set_logdir(options_t *obj, const char *logdir) {
 }
 
 
+const char *options_get_log_dir() {
+	return options->log_dir;
+}
+
+void options_set_log_level(options_t *obj, const char *value) {
+    options->log_level = gru_logger_get_level(value);
+
+    gru_logger_set_mininum(options->log_level);
+}
+
 bool options_set_file(options_t *obj, const char *file) {
 	gru_dealloc_string(&obj->maestro_script);
 	obj->maestro_script = strdup(file);
@@ -142,4 +195,51 @@ bool options_set_file(options_t *obj, const char *file) {
 	}
 
 	return true;
+}
+
+bool options_set_duration(options_t *obj, const char *value) {
+	return gru_duration_parse(&options->duration, value);
+}
+
+void options_set_parallel_count(options_t *obj, const char *value) {
+	options->parallel_count = (uint16_t) atoi(value);
+}
+
+void options_set_message_count(options_t *obj, const char *value) {
+	options->count = strtol(value, NULL, 10);
+}
+
+
+void options_set_message_size(options_t *obj, const char *value) {
+    if (value[0] == '~') {
+        options->message_size = atoi(value + 1);
+
+        options->variable_size = true;
+    } else {
+        options->message_size = atoi(value);
+    }
+}
+
+size_t options_get_message_size() {
+    return options->message_size;
+}
+
+bool options_get_variable_size() {
+	return options->variable_size;
+}
+
+uint16_t options_get_parallel_count() {
+    return options->parallel_count;
+}
+
+uint64_t options_get_count() {
+	return options->count;
+}
+
+gru_duration_t options_get_duration() {
+    return options->duration;
+}
+
+log_level_t options_get_log_level() {
+    return options->log_level;
 }

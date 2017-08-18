@@ -49,7 +49,7 @@ typedef enum naming_opt_t_ {
 
 typedef struct naming_info_t_ {
 	char *source; /** "sender" || "receiver" || "bmic" */
-	char *location; /** Log path */
+	const char *location; /** Log path */
 	uint16_t child_num;
 } naming_info_t;
 

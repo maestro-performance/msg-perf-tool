@@ -19,18 +19,18 @@ static bool perf_initialize_writer(stats_writer_t *writer,
 	const options_t *options,
 	gru_status_t *status) {
 
-	if (options->log_dir) {
+	if (options_get_log_dir()) {
 		naming_info_t naming_info = {0};
 
 		naming_info.source = "sender";
 
 		naming_info.child_num = 1;
-		naming_info.location = options->log_dir;
+		naming_info.location = options_get_log_dir();
 
 		return naming_initialize_writer(
 			writer, FORMAT_CSV, NM_THROUGHPUT, &naming_info, status);
 	} else {
-		if (options->parallel_count > 1) {
+		if (options_get_parallel_count() > 1) {
 			return naming_initialize_writer(
 				writer, FORMAT_NOP, NM_THROUGHPUT, NULL, status);
 		}
@@ -66,18 +66,18 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 	worker_options_t wrk_opt = {0};
 	worker.options = &wrk_opt;
 
-	worker.options->uri = options->broker_uri;
-	if (options->count == 0) {
+	worker.options->uri = options_get_broker_uri();
+	if (options_get_count() == 0) {
 		worker.options->duration_type = TEST_TIME;
-		worker.options->duration.time = options->duration;
+		worker.options->duration.time = options_get_duration();
 	} else {
 		worker.options->duration_type = MESSAGE_COUNT;
-		worker.options->duration.count = options->count;
+		worker.options->duration.count = options_get_count();
 	}
-	worker.options->parallel_count = options->parallel_count;
-	worker.options->log_level = options->log_level;
-	worker.options->message_size = options->message_size;
-	worker.options->throttle = options->throttle;
+	worker.options->parallel_count = options_get_parallel_count();
+	worker.options->log_level = options_get_log_level();
+	worker.options->message_size = options_get_message_size();
+	worker.options->throttle = options_get_throttle();
 
 	worker.name = "sender";
 
@@ -93,11 +93,11 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 		logger(GRU_FATAL, "Error initializing performance report writer: %s", status.message);
 		return 1;
 	}
-	pl_strategy_assign(&worker.pl_strategy, options->variable_size);
+	pl_strategy_assign(&worker.pl_strategy, options_get_variable_size());
 
 	worker.can_continue = worker_check;
 
-	if (options->parallel_count == 1) {
+	if (options_get_parallel_count() == 1) {
 		worker.worker_flags = WRK_SENDER;
 
 		worker_ret_t ret = {0};

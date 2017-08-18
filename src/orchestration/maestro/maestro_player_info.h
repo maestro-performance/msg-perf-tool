@@ -22,7 +22,7 @@ extern "C" {
 
 typedef struct maestro_player_info_t_ {
 	char *id;
-	char *name;
+	const char *name;
 } maestro_player_info_t;
 
 #ifdef __cplusplus

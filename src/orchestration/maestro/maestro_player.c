@@ -177,8 +177,8 @@ bool maestro_player_start(const options_t *options,
 	splayer = maestro_player_new();
 	splayer->sheet = sheet;
 
-	logger(GRU_INFO, "Connecting to maestro host %s", options->maestro_uri.host);
-	splayer->uri = gru_uri_clone(options->maestro_uri, status);
+	logger(GRU_INFO, "Connecting to maestro host %s", options_get_maestro_host());
+	splayer->uri = gru_uri_clone(options_get_maestro_uri(), status);
 	if (!gru_status_success(status)) {
 		return false;
 	}
@@ -190,7 +190,7 @@ bool maestro_player_start(const options_t *options,
 		return false;
 	}
 
-	splayer->player_info.name = options->name;
+	splayer->player_info.name = options_get_name();
 	msg_conn_info_gen_id_char(&splayer->player_info.id);
 	if (!splayer->player_info.id) {
 		logger(GRU_ERROR, "Unable to generate a player ID");

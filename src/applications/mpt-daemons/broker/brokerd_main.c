@@ -63,8 +63,7 @@ int main(int argc, char **argv) {
 
 		switch (c) {
 			case 'l':
-				options->log_level = gru_logger_get_level(optarg);
-				gru_logger_set_mininum(options->log_level);
+				options_set_log_level(options, optarg);
 				break;
 			case 'L':
 				if (!options_set_logdir(options, optarg)) {
@@ -101,22 +100,22 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (!options->log_dir) {
+	if (!options_get_log_dir()) {
 		fprintf(stderr, "Log directory is mandatory for the receiver daemon\n");
 		goto err_exit;
 	}
 
-	if (!gru_path_mkdirs(options->log_dir, &status)) {
+	if (!gru_path_mkdirs(options_get_log_dir(), &status)) {
 		fprintf(stderr, "Unable to create log directory: %s\n", status.message);
 		goto err_exit;
 	}
 
-	if (!options->maestro_uri.host) {
+	if (!options_get_maestro_host()) {
 		fprintf(stderr, "Maestro host is mandatory for the receiver daemon\n");
 		goto err_exit;
 	}
 
-	int cret = init_controller(options->log_dir, "mpt-broker-inspector");
+	int cret = init_controller(options_get_log_dir(), "mpt-broker-inspector");
 	if (cret == 0) {
 		if (brokerd_worker_start(options) != 0) {
 			logger_t logger = gru_logger_get();

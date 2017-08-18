@@ -55,12 +55,12 @@ static void maestro_loop_reply_run(maestro_cmd_ctxt_t *cmd_ctxt,
 
 static void maestro_loop_reply(const options_t *options, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
-	gru_uri_t uri = gru_uri_clone(options->maestro_uri, status);
+	gru_uri_t uri = gru_uri_clone(options_get_maestro_uri(), status);
 	if (!gru_status_success(status)) {
 		return;
 	}
 
-	logger(GRU_DEBUG, "Initializing command context for: %s", options->maestro_uri.host);
+	logger(GRU_DEBUG, "Initializing command context for: %s", options_get_maestro_host());
 
 	msg_opt_t opt = {
 		.direction = MSG_DIRECTION_RECEIVER,

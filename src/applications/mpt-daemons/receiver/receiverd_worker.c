@@ -284,23 +284,21 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 		}
 	}
 
-	const options_t *options = get_options_object();
-
 	worker_manager_watchdog_loop(&worker_handler, &status);
 	if (!gru_status_success(&status)) {
 		logger(GRU_ERROR, "Test failed: %s", status.message);
 
-		worker_log_link_create(worker_log_dir, options->log_dir, "lastFailed");
+		worker_log_link_create(worker_log_dir, options_get_log_dir(), "lastFailed");
 
 		maestro_notify_test_failed(&status);
 	}
 	else {
-		worker_log_link_create(worker_log_dir, options->log_dir, "lastSuccessful");
+		worker_log_link_create(worker_log_dir, options_get_log_dir(), "lastSuccessful");
 
 		maestro_notify_test_successful(&status);
 	}
 
-	worker_log_link_create(worker_log_dir, options->log_dir, "last");
+	worker_log_link_create(worker_log_dir, options_get_log_dir(), "last");
 
 	worker.writer->rate.finalize(&status);
 	worker.writer->latency.finalize(&status);
@@ -316,7 +314,7 @@ int receiverd_worker_start(const options_t *options) {
 	worker_ret_t ret = true;
 
 	maestro_sheet_t *sheet = NULL;
-	if (options->maestro_uri.host) {
+	if (options_get_maestro_host()) {
 		sheet = receiverd_new_sheet(&status);
 		if (!maestro_player_start(options, sheet, &status)) {
 			logger(GRU_FATAL, "Unable to connect to maestro broker: %s", status.message);

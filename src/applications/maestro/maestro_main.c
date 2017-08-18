@@ -74,8 +74,7 @@ int main(int argc, char **argv) {
 				}
 				break;
 			case 'l':
-				options->log_level = gru_logger_get_level(optarg);
-				gru_logger_set_mininum(options->log_level);
+				options_set_log_level(options, optarg);
 				break;
 			case 'h':
 				show_help(argv);

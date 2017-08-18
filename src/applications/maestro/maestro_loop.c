@@ -189,9 +189,9 @@ static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_sta
 
 
 int maestro_loop(gru_status_t *status) {
-	const options_t *options = get_options_object();
+	const gru_uri_t maestro_uri = options_get_maestro_uri();
 
-	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_ctxt_new(&options->maestro_uri, status);
+	maestro_cmd_ctxt_t *cmd_ctxt = maestro_cmd_ctxt_new(&maestro_uri, status);
 	if (!cmd_ctxt) {
 		fprintf(stderr, "Unable to initialize command processor: %s\n", status->message);
 
@@ -199,8 +199,8 @@ int maestro_loop(gru_status_t *status) {
 	}
 
 	int ret = -1;
-	if (options->maestro_script) {
-		FILE *file = fopen(options->maestro_script, "r");
+	if (options_get_maestro_script()) {
+		FILE *file = fopen(options_get_maestro_script(), "r");
 		if (!file) {
 			gru_status_strerror(status, GRU_FAILURE, errno);
 		} else {

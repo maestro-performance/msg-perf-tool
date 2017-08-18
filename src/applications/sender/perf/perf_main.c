@@ -93,30 +93,23 @@ int perf_main(int argc, char **argv) {
 				}
 				break;
 			case 'c':
-				options->count = strtol(optarg, NULL, 10);
+				options_set_message_count(options, optarg);
 				break;
 			case 'l':
-				options->log_level = gru_logger_get_level(optarg);
-				gru_logger_set_mininum(options->log_level);
+                options_set_log_level(options, optarg);
 				break;
 			case 'p':
-				options->parallel_count = (uint16_t) atoi(optarg);
+				options_set_parallel_count(options, optarg);
 				break;
 			case 'd':
-				if (!gru_duration_parse(&options->duration, optarg)) {
+				if (!options_set_duration(options, optarg)) {
 					fprintf(stderr, "Invalid duration: %s\n", optarg);
 
 					goto err_exit;
 				}
 				break;
 			case 's':
-				if (optarg[0] == '~') {
-					options->message_size = atoi(optarg + 1);
-
-					options->variable_size = true;
-				} else {
-					options->message_size = atoi(optarg);
-				}
+                options_set_message_size(options, optarg);
 				break;
 			case 'L':
 				if (!options_set_logdir(options, optarg)) {
@@ -126,7 +119,7 @@ int perf_main(int argc, char **argv) {
 				}
 				break;
 			case 't':
-				options->throttle = atoi(optarg);
+				options_set_throttle(options, optarg);
 				break;
 			case 'h':
 				show_help(argv);
@@ -142,10 +135,10 @@ int perf_main(int argc, char **argv) {
 		}
 	}
 
-	if (options->log_dir) {
-		remap_log_with_link(options->log_dir, "mpt-sender", 0, getpid(), stderr, &status);
+	if (options_get_log_dir()) {
+		remap_log_with_link(options_get_log_dir(), "mpt-sender", 0, getpid(), stderr, &status);
 	} else {
-		if (options->parallel_count > 1) {
+		if (options_get_parallel_count() > 1) {
 			fprintf(stderr, "Multiple concurrent process require a log directory\n");
 
 			goto err_exit;
@@ -156,7 +149,9 @@ int perf_main(int argc, char **argv) {
 	logger_t logger = gru_logger_get();
 	vmsl_t vmsl = vmsl_init();
 
-	if (!vmsl_assign_by_url(&options->broker_uri, &vmsl)) {
+	const gru_uri_t broker_uri = options_get_broker_uri();
+
+	if (!vmsl_assign_by_url(&broker_uri, &vmsl)) {
 		goto err_exit;
 	}
 
