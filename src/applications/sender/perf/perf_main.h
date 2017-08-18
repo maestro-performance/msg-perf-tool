@@ -34,7 +34,6 @@
 #include <log/gru_logger.h>
 
 #include "perf_worker.h"
-#include "probes/scheduler.h"
 #include "process_utils.h"
 #include "vmsl.h"
 #include "vmsl_assign.h"

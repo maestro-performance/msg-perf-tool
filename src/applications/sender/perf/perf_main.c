@@ -26,7 +26,7 @@ static void show_help(char **argv) {
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("duration",
 		"d",
-		"runs for the specificied amount of time. It "
+		"runs for the specified amount of time. It "
 		"must be suffixed by 's', 'm', 'h' or 'd' (ie.: "
 		"1h15s, 10m)");
 	gru_cli_option_help("log-level",
@@ -34,7 +34,6 @@ static void show_help(char **argv) {
 		"runs in the given verbose (info, stat, debug, etc) level mode");
 	gru_cli_option_help(
 		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
-	gru_cli_option_help("no-probes", "N", "disable probes");
 	gru_cli_option_help("parallel-count",
 		"p",
 		"number of parallel connections to the broker (require a log directory for > 1)");
@@ -45,10 +44,6 @@ static void show_help(char **argv) {
 	gru_cli_option_help("throttle",
 		"t",
 		"sets a fixed rate of messages (in messages per second per connection)");
-	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
-	gru_cli_option_help("interface", "i", "network interface for the network probe");
-	gru_cli_option_help(
-		"probes", "P", "comma-separated list of probes to enable (default: net,bmic)");
 }
 
 int perf_main(int argc, char **argv) {
@@ -80,15 +75,12 @@ int perf_main(int argc, char **argv) {
 			{"size", required_argument, 0, 's'},
 			{"log-dir", required_argument, 0, 'L'},
 			{"throttle", required_argument, 0, 't'},
-			{"no-probes", no_argument, 0, 'N'},
-			{"interface", required_argument, 0, 'i'},
 			{"maestro-url", required_argument, 0, 'm'},
-			{"probes", required_argument, 0, 'P'},
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
 		int c = getopt_long(
-			argc, argv, "b:c:l:p:d:s:L:t:Ni:m:P:h", long_options, &option_index);
+			argc, argv, "b:c:l:p:d:s:L:t:m:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -137,30 +129,6 @@ int perf_main(int argc, char **argv) {
 			case 't':
 				options->throttle = atoi(optarg);
 				break;
-			case 'N':
-				options->probing = false;
-				break;
-			case 'i':
-				if (!options_set_iface(options, optarg)) {
-					fprintf(stderr, "Unable to allocate memory for setting the probing interface\n");
-
-					goto err_exit;
-				}
-				break;
-			case 'P':
-				if (!options_set_probes(options, optarg, &status)) {
-					fprintf(stderr, "Unable to set probes: %s\n", status.message);
-
-					goto err_exit;
-				}
-				break;
-			case 'm':
-				if (!options_set_maestro_uri(options, optarg, &status)) {
-					fprintf(stderr, "%s\n", status.message);
-
-					goto err_exit;
-				}
-				break;
 			case 'h':
 				show_help(argv);
 				options_destroy(&options);
@@ -184,11 +152,6 @@ int perf_main(int argc, char **argv) {
 			goto err_exit;
 		}
 
-		if (options->probing) {
-			fprintf(stderr, "Log directory is mandatory for running probes\n");
-
-			goto err_exit;
-		}
 	}
 
 	logger_t logger = gru_logger_get();
@@ -198,24 +161,14 @@ int perf_main(int argc, char **argv) {
 		goto err_exit;
 	}
 
-#ifdef LINUX_BUILD
-	probe_scheduler_start(&status);
-#endif // LINUX_BUILD
 
 	if (perf_worker_start(&vmsl, options) == 0) {
 		logger(GRU_INFO, "Test execution with process ID %d finished successfully\n", getpid());
 
-#ifdef LINUX_BUILD
-		probe_scheduler_stop();
-#endif // LINUX_BUILD
 
 		options_destroy(&options);
 		return EXIT_SUCCESS;
 	}
-
-#ifdef LINUX_BUILD
-	probe_scheduler_stop();
-#endif // LINUX_BUILD
 
 err_exit:
 	logger(GRU_INFO, "Test execution with process ID %d finished with errors\n", getpid());

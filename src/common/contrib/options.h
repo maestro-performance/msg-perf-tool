@@ -48,9 +48,6 @@ typedef struct options_t_ {
 	log_level_t log_level;
 	gru_duration_t duration;
 	uint32_t throttle;
-	bool probing;
-	gru_list_t *probes;
-	char *iface;
 	char *name;
   	char *file;
 } options_t;

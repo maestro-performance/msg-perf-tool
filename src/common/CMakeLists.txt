@@ -22,13 +22,7 @@ add_library(
         msgctxt.c
         process_utils.c
         msg_content_data.c
-        ${PROBES_FILES}
 )
-
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        add_subdirectory(probes/network objs/common/probes/network)
-        add_subdirectory(probes/bmic objs/common/probes/bmic)
-endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 install(TARGETS mpt-common
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
