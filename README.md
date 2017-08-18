@@ -92,6 +92,10 @@ via a [Java and Groovy-based](https://github.com/orpiske/maestro-java) test orch
 The maestro broker can be any MQTT-capable message broker. The daemons subscribe to different topics and, thus, receive 
 the test instructions via the maestro API.
 
+**Overview**
+
+![Maestro Overview](doc/maestro-overview.png)
+
 **Daemons Configuration**
 
 The daemons configuration is straight forward. Just edit the appropriate daemon file:
