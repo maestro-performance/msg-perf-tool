@@ -27,6 +27,8 @@ Runtime/Compilation:
 * zlib
 * libuuid
 * readline
+* msgpack-c
+* hdr-histogram-c
 
 Recommended:
 * iperf (as a good practice, for testing network performance prior to test execution)
