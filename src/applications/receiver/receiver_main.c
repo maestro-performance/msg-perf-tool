@@ -66,11 +66,10 @@ int main(int argc, char **argv) {
 			{"log-dir", required_argument, 0, 'L'},
 			{"parallel-count", required_argument, 0, 'p'},
 			{"message-size", required_argument, 0, 's'},
-			{"maestro-url", required_argument, 0, 'm'},
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
-		int c = getopt_long(argc, argv, "b:d:l:L:p:s:m:h", long_options, &option_index);
+		int c = getopt_long(argc, argv, "b:d:l:L:p:s:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}

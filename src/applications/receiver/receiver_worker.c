@@ -14,37 +14,6 @@
  limitations under the License.
  */
 #include "receiver_worker.h"
-#include "vmsl.h"
-
-bool can_start = false;
-static char *locations[] = MAESTRO_RECEIVER_DAEMON_SHEETS;
-
-static void *receiver_handle_start(const maestro_note_t *request,
-	maestro_note_t *response,
-	const maestro_player_info_t *pinfo) {
-	logger_t logger = gru_logger_get();
-
-	logger(GRU_INFO, "Just received a start request");
-	can_start = true;
-	return NULL;
-}
-
-static maestro_sheet_t *receiver_new_sheet(gru_status_t *status) {
-	maestro_sheet_t *ret = maestro_sheet_new(status);
-
-	if (!ret) {
-		return NULL;
-	}
-
-	maestro_sheet_set_location(ret, MAESTRO_DAEMON_SHEETS_COUNT, locations, MAESTRO_DEFAULT_QOS);
-
-	maestro_instrument_t *instrument =
-		maestro_instrument_new(MAESTRO_NOTE_START_RECEIVER, receiver_handle_start, status);
-
-	maestro_sheet_add_instrument(ret, instrument);
-
-	return ret;
-}
 
 static bool receiver_initialize_writer(stats_writer_t *writer,
 	const options_t *options,
@@ -90,16 +59,6 @@ static bool receiver_print_partial(worker_info_t *worker_info) {
 int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
-
-	maestro_sheet_t *sheet = receiver_new_sheet(&status);
-	if (!maestro_player_start(options, sheet, &status)) {
-		logger(GRU_FATAL, "Unable to connect to maestro broker: %s", status.message);
-
-		maestro_player_stop(sheet, &status);
-		maestro_sheet_destroy(&sheet);
-		fflush(NULL);
-		return 1;
-	}
 
 	worker_t worker = {0};
 

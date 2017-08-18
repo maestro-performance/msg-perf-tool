@@ -75,12 +75,11 @@ int perf_main(int argc, char **argv) {
 			{"size", required_argument, 0, 's'},
 			{"log-dir", required_argument, 0, 'L'},
 			{"throttle", required_argument, 0, 't'},
-			{"maestro-url", required_argument, 0, 'm'},
 			{"help", no_argument, 0, 'h'},
 			{0, 0, 0, 0}};
 
 		int c = getopt_long(
-			argc, argv, "b:c:l:p:d:s:L:t:m:h", long_options, &option_index);
+			argc, argv, "b:c:l:p:d:s:L:t:h", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
