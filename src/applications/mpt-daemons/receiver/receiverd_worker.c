@@ -290,17 +290,17 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 	if (!gru_status_success(&status)) {
 		logger(GRU_ERROR, "Test failed: %s", status.message);
 
-		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
+		worker_log_link_create(worker_log_dir, options->log_dir, "lastFailed");
 
 		maestro_notify_test_failed(&status);
 	}
 	else {
-		worker_log_link_create(worker_log_dir, options->logdir, "lastSuccessful");
+		worker_log_link_create(worker_log_dir, options->log_dir, "lastSuccessful");
 
 		maestro_notify_test_successful(&status);
 	}
 
-	worker_log_link_create(worker_log_dir, options->logdir, "last");
+	worker_log_link_create(worker_log_dir, options->log_dir, "last");
 
 	worker.writer->rate.finalize(&status);
 	worker.writer->latency.finalize(&status);

@@ -30,7 +30,7 @@ static bool options_set_defaults(options_t *ret, gru_status_t *status) {
 		return false;
 	}
 
-	ret->logdir = NULL;
+	ret->log_dir = NULL;
 	ret->parallel_count = 1;
 	ret->count = 0;
 	ret->log_level = GRU_INFO;
@@ -74,7 +74,7 @@ void options_destroy(options_t **obj) {
 	gru_uri_cleanup(&opt->maestro_uri);
 	gru_uri_cleanup(&opt->broker_uri);
 
-	gru_dealloc_string(&opt->logdir);
+	gru_dealloc_string(&opt->log_dir);
 	gru_dealloc_string(&opt->name);
 	gru_dealloc_string(&opt->file);
 
@@ -124,9 +124,9 @@ bool options_set_name(options_t *obj, const char *name) {
 }
 
 bool options_set_logdir(options_t *obj, const char *logdir) {
-	gru_dealloc_string(&obj->logdir);
-	obj->logdir = strdup(logdir);
-	if (!obj->logdir) {
+	gru_dealloc_string(&obj->log_dir);
+	obj->log_dir = strdup(logdir);
+	if (!obj->log_dir) {
 		return false;
 	}
 

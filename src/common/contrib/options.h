@@ -39,7 +39,7 @@ typedef struct options_t_ {
 	gru_uri_t broker_uri;
 	gru_uri_t maestro_uri;
 	uint64_t count;
-	char *logdir;
+	char *log_dir;
 	uint16_t parallel_count;
 	size_t message_size;
 	bool variable_size;

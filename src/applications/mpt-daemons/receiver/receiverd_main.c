@@ -101,12 +101,12 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (!options->logdir) {
+	if (!options->log_dir) {
 		fprintf(stderr, "Log directory is mandatory for the receiver daemon\n");
 		goto err_exit;
 	}
 
-	if (!gru_path_mkdirs(options->logdir, &status)) {
+	if (!gru_path_mkdirs(options->log_dir, &status)) {
 		fprintf(stderr, "Unable to create log directory: %s\n", status.message);
 		goto err_exit;
 	}
@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
 		goto err_exit;
 	}
 
-	int cret = init_controller(options->logdir, "mpt-receiver-daemon");
+	int cret = init_controller(options->log_dir, "mpt-receiver-daemon");
 	if (cret == 0) {
 		if (receiverd_worker_start(options) != 0) {
 			logger_t logger = gru_logger_get();

@@ -102,7 +102,7 @@ static int32_t worker_log_fill_last_dir(char *path, size_t max_len, gru_status_t
 	const options_t *options = get_options_object();
 
 	do {
-		snprintf(path, max_len, "%s/%"PRId32"", options->logdir, ret);
+		snprintf(path, max_len, "%s/%"PRId32"", options->log_dir, ret);
 
 		exists = gru_path_exists(path, status);
 		if (!exists) {

@@ -311,7 +311,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		logger(GRU_INFO, "Broker inspector completed the inspection with errors: %s",
 			   status->message);
 
-		worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
+		worker_log_link_create(worker_log_dir, options->log_dir, "lastFailed");
 		maestro_notify_test_failed(status);
 
 		return false;
@@ -320,8 +320,8 @@ static bool brokerd_collect(gru_status_t *status) {
 	gru_dealloc((void **) &info);
 	bmic_java_info_cleanup(jinfo);
 
-	worker_log_link_create(worker_log_dir, options->logdir, "last");
-	worker_log_link_create(worker_log_dir, options->logdir, "lastSuccessful");
+	worker_log_link_create(worker_log_dir, options->log_dir, "last");
+	worker_log_link_create(worker_log_dir, options->log_dir, "lastSuccessful");
 
 	maestro_notify_test_successful(status);
 
@@ -335,8 +335,8 @@ static bool brokerd_collect(gru_status_t *status) {
 	gru_dealloc((void **) &info);
 	bmic_java_info_cleanup(jinfo);
 
-	worker_log_link_create(worker_log_dir, options->logdir, "last");
-	worker_log_link_create(worker_log_dir, options->logdir, "lastFailed");
+	worker_log_link_create(worker_log_dir, options->log_dir, "last");
+	worker_log_link_create(worker_log_dir, options->log_dir, "lastFailed");
 
 	maestro_notify_test_failed(status);
 

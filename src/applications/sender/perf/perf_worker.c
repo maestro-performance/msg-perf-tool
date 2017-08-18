@@ -19,13 +19,13 @@ static bool perf_initialize_writer(stats_writer_t *writer,
 	const options_t *options,
 	gru_status_t *status) {
 
-	if (options->logdir) {
+	if (options->log_dir) {
 		naming_info_t naming_info = {0};
 
 		naming_info.source = "sender";
 
 		naming_info.child_num = 1;
-		naming_info.location = options->logdir;
+		naming_info.location = options->log_dir;
 
 		return naming_initialize_writer(
 			writer, FORMAT_CSV, NM_THROUGHPUT, &naming_info, status);
