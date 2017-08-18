@@ -18,7 +18,7 @@
 static options_t *options = NULL;
 
 static bool options_set_defaults(options_t *ret, gru_status_t *status) {
-	ret->uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", status);
+	ret->broker_uri = gru_uri_parse("amqp://localhost:5672/test.performance.queue", status);
 	if (gru_status_error(status)) {
 		fprintf(stderr, "%s", status->message);
 		return false;
@@ -72,7 +72,7 @@ void options_destroy(options_t **obj) {
 	}
 
 	gru_uri_cleanup(&opt->maestro_uri);
-	gru_uri_cleanup(&opt->uri);
+	gru_uri_cleanup(&opt->broker_uri);
 
 	gru_dealloc_string(&opt->logdir);
 	gru_dealloc_string(&opt->name);
@@ -92,9 +92,9 @@ const options_t *get_options_object(void) {
 }
 
 bool options_set_broker_uri(options_t *obj, const char *url, gru_status_t *status) {
-	gru_uri_cleanup(&obj->uri);
+	gru_uri_cleanup(&obj->broker_uri);
 
-	options->uri = gru_uri_parse(url, status);
+	options->broker_uri = gru_uri_parse(url, status);
 	if (gru_status_error(status)) {
 		return false;
 	}

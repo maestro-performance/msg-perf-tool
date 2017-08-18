@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 typedef struct options_t_ {
-	gru_uri_t uri;
+	gru_uri_t broker_uri;
 	gru_uri_t maestro_uri;
 	uint64_t count;
 	char *logdir;

@@ -156,7 +156,7 @@ int perf_main(int argc, char **argv) {
 	logger_t logger = gru_logger_get();
 	vmsl_t vmsl = vmsl_init();
 
-	if (!vmsl_assign_by_url(&options->uri, &vmsl)) {
+	if (!vmsl_assign_by_url(&options->broker_uri, &vmsl)) {
 		goto err_exit;
 	}
 

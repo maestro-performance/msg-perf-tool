@@ -66,7 +66,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	worker_options_t wrk_opt = {0};
 	worker.options = &wrk_opt;
 
-	worker.options->uri = options->uri;
+	worker.options->uri = options->broker_uri;
 	if (options->count == 0) {
 		worker.options->duration_type = TEST_TIME;
 		worker.options->duration.time = options->duration;
