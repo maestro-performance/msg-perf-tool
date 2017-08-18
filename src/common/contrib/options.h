@@ -16,8 +16,6 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-#include "defaults.h"
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
