@@ -23,9 +23,7 @@ bool remap_log(const char *dir,
 	pid_t pid,
 	FILE *fd,
 	gru_status_t *status) {
-	char name[NAME_MAX];
-
-	bzero(name, sizeof(name));
+	char name[NAME_MAX] = {0};
 
 	if (parent == 0) {
 		snprintf(name, sizeof(name) - 1, "%s-%d.log", base_name, pid);
