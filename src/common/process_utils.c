@@ -23,7 +23,7 @@ bool remap_log(const char *dir,
 	pid_t pid,
 	FILE *fd,
 	gru_status_t *status) {
-	char name[64];
+	char name[NAME_MAX];
 
 	bzero(name, sizeof(name));
 
