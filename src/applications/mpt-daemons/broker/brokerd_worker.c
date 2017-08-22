@@ -164,24 +164,20 @@ static bool brokerd_abort_check(bmic_queue_stat_t *qstats) {
 	return false;
 }
 
-struct bmic_wrapper_t {
-  bmic_java_info_t *java_info;
-  bmic_java_os_info_t *os_info;
-  bmic_product_info_t *product_info;
-};
+
 
 static void bmic_dump_data(FILE *file, void *data) {
-	struct bmic_wrapper_t *bmic_wrapper = (struct bmic_wrapper_t *) data;
+	bmic_stats_set_t *bmic_wrapper = (bmic_stats_set_t *) data;
 
-	gru_config_write_string("jvmName", file, bmic_wrapper->java_info->name);
-	gru_config_write_string("jvmVersion", file, bmic_wrapper->java_info->version);
-	gru_config_write_string("jvmPackageVersion", file, bmic_wrapper->java_info->jvm_package_version);
-	gru_config_write_string("operatingSystemName", file, bmic_wrapper->os_info->name);
-	gru_config_write_string("operatingSystemArch", file, bmic_wrapper->os_info->arch);
-	gru_config_write_string("operatingSystemVersion", file, bmic_wrapper->os_info->version);
-	gru_config_write_long("systemCpuCount", file, bmic_wrapper->os_info->cpus);
-	gru_config_write_long("systemMemory", file, bmic_wrapper->os_info->mem_total);
-	gru_config_write_long("systemSwap", file, bmic_wrapper->os_info->swap_total);
+	gru_config_write_string("jvmName", file, bmic_wrapper->java_info.name);
+	gru_config_write_string("jvmVersion", file, bmic_wrapper->java_info.version);
+	gru_config_write_string("jvmPackageVersion", file, bmic_wrapper->java_info.jvm_package_version);
+	gru_config_write_string("operatingSystemName", file, bmic_wrapper->os_info.name);
+	gru_config_write_string("operatingSystemArch", file, bmic_wrapper->os_info.arch);
+	gru_config_write_string("operatingSystemVersion", file, bmic_wrapper->os_info.version);
+	gru_config_write_long("systemCpuCount", file, bmic_wrapper->os_info.cpus);
+	gru_config_write_long("systemMemory", file, bmic_wrapper->os_info.mem_total);
+	gru_config_write_long("systemSwap", file, bmic_wrapper->os_info.swap_total);
 
 	gru_config_write_string("productName", file, bmic_wrapper->product_info->name);
 	gru_config_write_string("productVersion", file, bmic_wrapper->product_info->version);
@@ -190,7 +186,7 @@ static void bmic_dump_data(FILE *file, void *data) {
 }
 
 
-bool brokerd_dump(const char *dir, struct bmic_wrapper_t *bmic_data, gru_status_t *status) {
+static bool brokerd_dump(const char *dir, bmic_stats_set_t *bmic_data, gru_status_t *status) {
 	gru_config_t *config = gru_config_new(dir, "broker.properties", status);
 	gru_alloc_check(config, false);
 
@@ -213,9 +209,54 @@ bool brokerd_dump(const char *dir, struct bmic_wrapper_t *bmic_data, gru_status_
 	return true;
 }
 
+static bool brokerd_update(const bmic_context_t *ctxt, bmic_stats_set_t *stats, gru_status_t *status) {
+	logger_t logger = gru_logger_get();
+
+	bmic_api_interface_t *api = ctxt->api;
+
+	if (!bmic_writer_current_time(status)) {
+		logger(GRU_ERROR, "Unable to write current time: %s", status->message);
+
+		return false;
+	}
+
+	stats->os_info = api->java.os_info(ctxt->handle, status);
+
+	bmic_writer_osinfo(&stats->os_info);
+
+	mpt_get_mem_info(ctxt, stats->java_info.memory_model, &stats->java_mem, status);
+	if (gru_status_error(status)) {
+		logger(GRU_ERROR, "%s", status->message);
+		return false;
+	}
+
+	bmic_writer_java_mem(&stats->java_mem, stats->java_info.memory_model);
+
+
+	mpt_get_queue_stats(ctxt, &worker_options.uri.path[1], &stats->queue_stats, status);
+
+	if (gru_status_error(status)) {
+		logger(GRU_ERROR, "%s", status->message);
+		return false;
+	}
+	bmic_writer_queue_stat(&stats->queue_stats);
+
+	return true;
+}
+
+static void brokerd_clean_stats_set(bmic_stats_set_t *stats_set) {
+	if (!stats_set) {
+		return;
+	}
+
+	bmic_product_info_cleanup(&stats_set->product_info);
+	bmic_java_info_cleanup(stats_set->java_info);
+}
+
 static bool brokerd_collect(gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 	bmic_context_t ctxt = {0};
+	bmic_stats_set_t stats_set = {0};
 
 	char filename[64] = "broker-jvm-inspector.csv.gz";
 
@@ -224,19 +265,19 @@ static bool brokerd_collect(gru_status_t *status) {
 		return WORKER_FAILURE;
 	}
 
-
+	logger(GRU_INFO, "Initializing BMIC writer");
 	if (!bmic_writer_initialize(worker_log_dir, filename, status)) {
-		return false;
+		goto err_exit;
 	}
 
 	logger(GRU_INFO, "Initializing BMIC context");
 	if (!mpt_init_bmic_ctxt(worker_options.uri, &ctxt, status)) {
-		return false;
+		goto err_exit;
 	}
 
-	logger(GRU_INFO, "Purging the queue and reseting the counters");
+	logger(GRU_INFO, "Purging the queue and resetting the counters");
 	if (!mpt_purge_queue(&ctxt, &worker_options.uri.path[1], status)) {
-		return false;
+		goto err_exit;
 	}
 
 	logger(GRU_INFO, "Reading broker properties");
@@ -245,20 +286,15 @@ static bool brokerd_collect(gru_status_t *status) {
 	const bmic_exchange_t *cap = api->capabilities_load(ctxt.handle, status);
 	if (!cap) {
 		bmic_context_cleanup(&ctxt);
-		return false;
+		goto err_exit;
 	}
-	bmic_product_info_t *info = api->product_info(ctxt.handle, cap, status);
 
-	bmic_java_info_t jinfo = api->java.java_info(ctxt.handle, status);
-	bmic_java_os_info_t osinfo = api->java.os_info(ctxt.handle, status);
+	stats_set.product_info = api->product_info(ctxt.handle, cap, status);
+	stats_set.java_info = api->java.java_info(ctxt.handle, status);
+	stats_set.os_info = api->java.os_info(ctxt.handle, status);
 
 	logger(GRU_INFO, "Writing broker properties");
-	struct bmic_wrapper_t bmic_wrapper = {
-		.java_info = &jinfo,
-		.os_info = &osinfo,
-		.product_info = info};
-
-	if (!brokerd_dump(worker_log_dir, &bmic_wrapper, status)) {
+	if (!brokerd_dump(worker_log_dir, &stats_set, status)) {
 		goto err_exit;
 	}
 
@@ -266,36 +302,12 @@ static bool brokerd_collect(gru_status_t *status) {
 		goto err_exit;
 	}
 
-
 	while (started) {
-		if (!bmic_writer_current_time(status)) {
-			logger(GRU_ERROR, "Unable to write current time: %s", status->message);
-
+		if (!brokerd_update(&ctxt, &stats_set, status)) {
 			break;
 		}
 
-		osinfo = api->java.os_info(ctxt.handle, status);
-		bmic_writer_osinfo(&osinfo);
-
-		mpt_java_mem_t java_mem = {0};
-		mpt_get_mem_info(&ctxt, jinfo.memory_model, &java_mem, status);
-		if (gru_status_error(status)) {
-			logger(GRU_ERROR, "%s", status->message);
-			break;
-		}
-
-		bmic_writer_java_mem(&java_mem, jinfo.memory_model);
-
-		bmic_queue_stat_t qstats = {0};
-		mpt_get_queue_stats(&ctxt, &worker_options.uri.path[1], &qstats, status);
-
-		if (gru_status_error(status)) {
-			logger(GRU_ERROR, "%s", status->message);
-			break;
-		}
-		bmic_writer_queue_stat(&qstats);
-
-		if (brokerd_abort_check(&qstats)) {
+		if (brokerd_abort_check(&stats_set.queue_stats)) {
 			break;
 		}
 
@@ -315,8 +327,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		return false;
 	}
 
-	gru_dealloc((void **) &info);
-	bmic_java_info_cleanup(jinfo);
+	brokerd_clean_stats_set(&stats_set);
 
 	worker_log_link_create(worker_log_dir, options_get_log_dir(), "last");
 	worker_log_link_create(worker_log_dir, options_get_log_dir(), "lastSuccessful");
@@ -330,8 +341,7 @@ static bool brokerd_collect(gru_status_t *status) {
 	return true;
 
 	err_exit:
-	gru_dealloc((void **) &info);
-	bmic_java_info_cleanup(jinfo);
+	brokerd_clean_stats_set(&stats_set);
 
 	worker_log_link_create(worker_log_dir, options_get_log_dir(), "last");
 	worker_log_link_create(worker_log_dir, options_get_log_dir(), "lastFailed");

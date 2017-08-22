@@ -55,6 +55,14 @@
 extern "C" {
 #endif
 
+typedef struct bmic_stats_set_t_ {
+  bmic_java_info_t java_info;
+  bmic_java_os_info_t os_info;
+  bmic_product_info_t *product_info;
+  mpt_java_mem_t java_mem;
+  bmic_queue_stat_t queue_stats;
+} bmic_stats_set_t;
+
 int brokerd_worker_start(const options_t *options);
 
 #ifdef __cplusplus
