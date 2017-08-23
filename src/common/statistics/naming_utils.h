@@ -50,7 +50,6 @@ typedef enum naming_opt_t_ {
 typedef struct naming_info_t_ {
 	char *source; /** "sender" || "receiver" || "bmic" */
 	const char *location; /** Log path */
-	uint16_t child_num;
 } naming_info_t;
 
 bool naming_initialize_writer(stats_writer_t *writer,

@@ -29,8 +29,7 @@ naming_hdr_name(naming_info_t *nm_info, const char *basename, char *out, size_t 
 			 len - 1,
 			 "%s-%s-%d.hdr",
 			 nm_info->source,
-			 basename,
-			 nm_info->child_num);
+			 basename);
 }
 
 /**
@@ -43,10 +42,9 @@ static void
 	naming_csv_name(naming_info_t *nm_info, const char *basename, char *out, size_t len) {
 	snprintf(out,
 		len - 1,
-		"%s-%s-%d.csv.gz",
+		"%s-%s.csv.gz",
 		nm_info->source,
-		basename,
-		nm_info->child_num);
+		basename);
 }
 
 static bool naming_initialize_latency_writer(latency_writer_t *writer,

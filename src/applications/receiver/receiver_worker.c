@@ -23,7 +23,6 @@ static bool receiver_initialize_writer(stats_writer_t *writer,
 
 		naming_info.source = "receiver";
 
-		naming_info.child_num = 1;
 		naming_info.location = options_get_log_dir();
 
 		return naming_initialize_writer(

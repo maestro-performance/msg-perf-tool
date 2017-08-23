@@ -32,6 +32,19 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 		return WORKER_FAILURE;
 	}
 
+	naming_info_t naming_info = {0};
+
+	naming_info.source = worker->name;
+	naming_info.location = worker->log_dir;
+
+	bool nmret = naming_initialize_writer(worker->writer, worker->report_format,
+										  worker->naming_options, &naming_info, status);
+	if (!nmret) {
+		logger(GRU_ERROR, "Error initializing performance report writer: %s",
+			   status->message);
+		return WORKER_FAILURE;
+	}
+
 	logger(GRU_INFO, "Creating %d concurrent operations", worker->options->parallel_count);
 	for (uint16_t i = 0; i < worker->options->parallel_count; i++) {
 		pid_t child = fork();
@@ -59,23 +72,6 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 				logger(GRU_ERROR, "Unable to create worker info: %s", status->message);
 
 				return WORKER_FAILURE;
-			}
-
-			naming_info_t naming_info = {0};
-
-			naming_info.source = worker->name;
-			naming_info.location = worker->log_dir;
-			naming_info.child_num = i;
-
-			bool nmret = naming_initialize_writer(worker->writer,
-												  worker->report_format,
-												  worker->naming_options,
-												  &naming_info,
-												  status);
-			if (!nmret) {
-				logger(GRU_ERROR, "Error initializing performance report writer: %s",
-					   status->message);
-				return WORKER_FAILURE | WORKER_CHILD;
 			}
 
 			if (!worker_list_append(worker_info, status)) {
