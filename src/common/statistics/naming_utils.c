@@ -27,7 +27,7 @@ static void
 naming_hdr_name(naming_info_t *nm_info, const char *basename, char *out, size_t len) {
 	snprintf(out,
 			 len - 1,
-			 "%s-%s-%d.hdr",
+			 "%s-%s.hdr",
 			 nm_info->source,
 			 basename);
 }
