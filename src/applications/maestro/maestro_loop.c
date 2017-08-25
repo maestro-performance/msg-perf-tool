@@ -152,8 +152,8 @@ static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_sta
 		}
 
 		if (raw_line[0] == '#') {
-				continue;
-			}
+			continue;
+		}
 
 		char *line = gru_trim(raw_line, strlen(raw_line));
 		add_history(line);
