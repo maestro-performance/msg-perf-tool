@@ -75,7 +75,7 @@ void nop_writer_latency_assign(latency_writer_t *writer) {
 }
 
 /**
- * Throghput writer I/O assignment
+ * Throughput writer I/O assignment
  */
 void nop_writer_throughput_assign(throughput_writer_t *writer) {
 	writer->initialize = nop_tp_writer_initialize;
@@ -85,7 +85,7 @@ void nop_writer_throughput_assign(throughput_writer_t *writer) {
 }
 
 /**
- * Throghput rate writer I/O assignment
+ * Throughput rate writer I/O assignment
  */
 void nop_writer_tpr_assign(tpr_writer_t *writer) {
 	writer->initialize = nop_tpr_writer_initialize;

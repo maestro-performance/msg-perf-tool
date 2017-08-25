@@ -24,7 +24,7 @@ static void show_help(char **argv) {
 	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("duration",
 		"d",
-		"runs for the specificied amount of time. It "
+		"runs for the specified amount of time. It "
 		"must be suffixed by 's', 'm', 'h' or 'd' (ie.: "
 		"1h15s, 10m)");
 	gru_cli_option_help("log-level",

@@ -44,7 +44,7 @@ static msg_content_data_t *wdata;
 static char *wtopic = "/mpt/maestro";
 static MQTTClient_willOptions wopts = MQTTClient_willOptions_initializer;
 
-void maestro_abormal_disconnect_notice(void *ctxt, void *conn_opts, void *payload) {
+void maestro_abnormal_disconnect_notice(void *ctxt, void *conn_opts, void *payload) {
 	MQTTClient_connectOptions *opts = (MQTTClient_connectOptions *) conn_opts;
 
 	maestro_note_t note = {0};
@@ -79,7 +79,7 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 	opt.uri = player->uri;
 
 	player->handlers = vmslh_new(status);
-	vmslh_add(player->handlers.before_connect, maestro_abormal_disconnect_notice, NULL, status);
+	vmslh_add(player->handlers.before_connect, maestro_abnormal_disconnect_notice, NULL, status);
 
 	player->ctxt = player->mmsl.init(opt, &player->handlers, status);
 

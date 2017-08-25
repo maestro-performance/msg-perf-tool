@@ -37,7 +37,7 @@ typedef bool(*worker_eval)(worker_info_t *worker_info, gru_status_t *status);
 
 
 /**
- * A signrature for the print handler
+ * A signature for the print handler
  */
 typedef bool(*worker_print)(worker_info_t *worker_info);
 

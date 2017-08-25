@@ -81,7 +81,7 @@ typedef enum set_opts_t_ {
 	MAESTRO_NOTE_OPT_SET_PARALLEL_COUNT,
 	/** Set message size */
 	MAESTRO_NOTE_OPT_SET_MESSAGE_SIZE,
-	/** Set throtle */
+	/** Set throttle */
 	MAESTRO_NOTE_OPT_SET_THROTTLE,
   	/** Set rate */
 	MAESTRO_NOTE_OPT_SET_RATE,
@@ -157,7 +157,7 @@ typedef struct maestro_note_t_ {
 
 /**
  * Prepare a note for receiving a payload (ie.: allocate memory for the payload)
- * @return true if successfull of false otherwise
+ * @return true if successful of false otherwise
  */
 bool maestro_note_payload_prepare(maestro_note_t *note, gru_status_t *status);
 

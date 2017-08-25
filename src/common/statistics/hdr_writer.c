@@ -49,7 +49,7 @@ void hdr_writer_latency_assign(latency_writer_t *writer) {
 }
 
 /**
- * Throghput writer I/O assignment
+ * Throughput writer I/O assignment
  */
 void hdr_writer_throughput_assign(throughput_writer_t *writer) {
 	writer->initialize = csv_tp_writer_initialize;
@@ -59,7 +59,7 @@ void hdr_writer_throughput_assign(throughput_writer_t *writer) {
 }
 
 /**
- * Throghput rate writer I/O assignment
+ * Throughput rate writer I/O assignment
  */
 void hdr_writer_tpr_assign(tpr_writer_t *writer) {
 	writer->initialize = csv_tpr_writer_initialize;

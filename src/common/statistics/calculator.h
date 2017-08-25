@@ -37,7 +37,7 @@ void calc_latency(stat_latency_t *out, gru_timestamp_t start, gru_timestamp_t en
  * @param out output throughput data
  * @param start time
  * @param end time
- * @param count an arbitrary amount of something (data/messages/events/etc) that ocurred
+ * @param count an arbitrary amount of something (data/messages/events/etc) that occurred
  * in the interval between start and end
  */
 void calc_throughput(stat_throughput_t *out,

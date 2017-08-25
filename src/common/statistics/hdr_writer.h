@@ -73,7 +73,7 @@ bool hdr_lat_writer_finalize(gru_status_t *status);
 void hdr_writer_latency_assign(latency_writer_t *writer);
 
 /**
- * Throghput writer I/O assignment
+ * Throughput writer I/O assignment
  */
 void hdr_writer_throughput_assign(throughput_writer_t *writer);
 

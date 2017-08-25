@@ -60,7 +60,7 @@ bool nop_lat_writer_flush(gru_status_t *status);
 bool nop_lat_writer_finalize(gru_status_t *status);
 
 /**
- * Initialize the througput writer
+ * Initialize the throughput writer
  * @param io_info optional input/output information
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
@@ -90,7 +90,7 @@ bool nop_tp_writer_flush(gru_status_t *status);
 bool nop_tp_writer_finalize(gru_status_t *status);
 
 /**
- * Initialize the througput rate writer
+ * Initialize the throughput rate writer
  * @param io_info optional input/output information
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
@@ -126,7 +126,7 @@ bool nop_tpr_writer_finalize(gru_status_t *status);
 void nop_writer_latency_assign(latency_writer_t *writer);
 
 /**
- * Throghput writer I/O assignment
+ * Throughput writer I/O assignment
  */
 void nop_writer_throughput_assign(throughput_writer_t *writer);
 

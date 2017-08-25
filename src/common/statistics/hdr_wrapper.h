@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 /**
- * A wrapper struct around HDR Histogram C types
+ * A wrapper structure around HDR Histogram C types
  */
 typedef struct hdr_wrapper_t_ {
   struct hdr_interval_recorder recorder;

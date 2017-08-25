@@ -60,7 +60,7 @@ bool out_lat_writer_flush(gru_status_t *status);
 bool out_lat_writer_finalize(gru_status_t *status);
 
 /**
- * Initialize the througput writer
+ * Initialize the throughput writer
  * @param io_info optional input/output information
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
@@ -91,7 +91,7 @@ bool out_tp_writer_finalize(gru_status_t *status);
 
 
 /**
- * Initialize the througput writer
+ * Initialize the throughput writer
  * @param io_info optional input/output information
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)

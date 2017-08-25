@@ -72,7 +72,7 @@ bool remap_log_with_link(const char *dir,
 			   FILE *fd,
 			   gru_status_t *status);
 
-int init_controller(const char *logdir, const char *controller_name);
+int init_controller(const char *log_dir, const char *controller_name);
 
 bool is_interrupted();
 

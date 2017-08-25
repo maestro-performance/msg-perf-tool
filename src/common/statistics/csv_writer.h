@@ -62,7 +62,7 @@ bool csv_lat_writer_flush(gru_status_t *status);
 bool csv_lat_writer_finalize(gru_status_t *status);
 
 /**
- * Initialize the througput writer
+ * Initialize the throughput writer
  * @param io_info optional input/output information
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
@@ -103,7 +103,7 @@ bool csv_tpr_writer_initialize(const stat_io_info_t *io_info, gru_status_t *stat
 /**
  * Write throughput rate data with ETA resolution
  * @param tp throughput data to write
- * @param eta estimated time of action (arrival or depature)
+ * @param eta estimated time of action (arrival or departure)
  * @param status status response in case of error
  * @return true if success or false otherwise (in this case, check status for details)
  */
