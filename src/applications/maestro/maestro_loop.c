@@ -174,7 +174,8 @@ static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_sta
 		if (ret == -1) {
 			fprintf(stderr, "Unknown command: %s\n", command);
 			break;
-		} else if (ret == -2) {
+		}
+		if (ret == -2) {
 			break;
 		} else {
 			fprintf(stderr, "%s\n", status->message);

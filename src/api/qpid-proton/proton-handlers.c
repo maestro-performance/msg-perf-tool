@@ -203,23 +203,24 @@ void proton_set_qos_mode_send(void *ctxt, void *msg, void *payload) {
 		pn_messenger_set_snd_settle_mode(proton_ctxt->messenger, PN_SND_SETTLED);
 
 		return;
-	} else {
-		logger(GRU_WARNING, "Using an unsupported QOS mode");
-
-		pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
-		pn_messenger_set_snd_settle_mode(proton_ctxt->messenger, PN_SND_UNSETTLED);
-
-		/**
-		 * If we have something else, then we need to ensure we settle the delivery
-		 * after it has been sent. Because this is done, here, before the connection
-		 * occurs, there should be no noticeable impact on the delivery performance
-		 */
-		gru_status_t status = gru_status_new();
-		vmslh_add(proton_ctxt->handlers->after_send, proton_commit, NULL, &status);
-		if (gru_status_error(&status)) {
-			logger(GRU_ERROR, "Unable to add the commit handler for the given QOS mode");
-		}
 	}
+
+	logger(GRU_WARNING, "Using an unsupported QOS mode");
+
+	pn_messenger_set_outgoing_window(proton_ctxt->messenger, 1);
+	pn_messenger_set_snd_settle_mode(proton_ctxt->messenger, PN_SND_UNSETTLED);
+
+	/**
+	 * If we have something else, then we need to ensure we settle the delivery
+	 * after it has been sent. Because this is done, here, before the connection
+	 * occurs, there should be no noticeable impact on the delivery performance
+	 */
+	gru_status_t status = gru_status_new();
+	vmslh_add(proton_ctxt->handlers->after_send, proton_commit, NULL, &status);
+	if (gru_status_error(&status)) {
+		logger(GRU_ERROR, "Unable to add the commit handler for the given QOS mode");
+	}
+
 }
 
 

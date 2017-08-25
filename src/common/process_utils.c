@@ -124,7 +124,8 @@ int init_controller(const char *logdir, const char *controller_name) {
 		}
 
 		return 0;
-	} else if (controller > 0) {
+	}
+	if (controller > 0) {
 		printf("%d\n", controller);
 		return controller;
 	} else {

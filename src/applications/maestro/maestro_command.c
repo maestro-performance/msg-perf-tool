@@ -197,28 +197,29 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 
 			return 1;
 
-		} else {
-			maestro_note_t note = {0};
-			msg_content_data_t msg = {0};
-
-			msg_content_data_copy(&msg, &buf, ret);
-
-			maestro_trace_proto(buf, ret);
-
-			if (!maestro_deserialize_note(&msg, &note, status)) {
-				fprintf(stderr, "Unknown protocol data\n");
-			} else {
-				if (note.type == MAESTRO_TYPE_RESPONSE) {
-					maestro_cmd_print_responses(&note);
-				}
-				else {
-					maestro_cmd_print_notifications(&note);
-				}
-			}
-
-			maestro_note_payload_cleanup(&note);
-			msg_content_data_release(&msg);
 		}
+
+		maestro_note_t note = {0};
+		msg_content_data_t msg = {0};
+
+		msg_content_data_copy(&msg, &buf, ret);
+
+		maestro_trace_proto(buf, ret);
+
+		if (!maestro_deserialize_note(&msg, &note, status)) {
+			fprintf(stderr, "Unknown protocol data\n");
+		} else {
+			if (note.type == MAESTRO_TYPE_RESPONSE) {
+				maestro_cmd_print_responses(&note);
+			}
+			else {
+				maestro_cmd_print_notifications(&note);
+			}
+		}
+
+		maestro_note_payload_cleanup(&note);
+		msg_content_data_release(&msg);
+
 	}
 
 	return 0;
