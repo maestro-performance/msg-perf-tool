@@ -113,7 +113,7 @@ static int32_t worker_log_fill_last_dir(char *path, size_t max_len, gru_status_t
 		}
 
 		ret++;
-	} while (exists && ret < INT_MAX);
+	} while (ret < INT_MAX);
 
 	return -1;
 }
