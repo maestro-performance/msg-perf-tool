@@ -52,9 +52,7 @@ static vmslh_callback_t * vmslh_by_addr(gru_list_t *list, vmslh_callback_fn call
 
 
 bool vmslh_add(gru_list_t *list, vmslh_callback_fn callback, void *payload, gru_status_t *status) {
-	vmslh_callback_t *wrapper = NULL;
-
-	wrapper = vmslh_by_addr(list, callback, status);
+	vmslh_callback_t *wrapper = vmslh_by_addr(list, callback, status);
 	if (!wrapper) {
 		return false;
 	}

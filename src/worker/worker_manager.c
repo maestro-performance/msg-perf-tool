@@ -118,11 +118,10 @@ static bool worker_manager_update_snapshot(worker_info_t *worker_info) {
 }
 
 static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *status) {
-	gru_node_t *node = NULL;
 	logger_t logger = gru_logger_get();
 
 	worker_list_lock();
-	node = worker_list_root();
+	gru_node_t *node = worker_list_root();
 
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
@@ -206,11 +205,11 @@ void worker_manager_watchdog_loop(worker_handler_t *handler, gru_status_t *statu
 }
 
 static bool worker_manager_do_stop(int signal) {
-	gru_node_t *node = NULL;
+
 	logger_t logger = gru_logger_get();
 
 	worker_list_lock();
-	node = worker_list_root();
+	gru_node_t *node = worker_list_root();
 
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);

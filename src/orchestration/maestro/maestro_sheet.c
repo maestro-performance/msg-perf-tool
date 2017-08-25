@@ -57,11 +57,10 @@ static bool maestro_sheet_do_play(const gru_list_t *list,
 	const maestro_player_info_t *pinfo,
 	const maestro_note_t *request,
 	maestro_note_t *response) {
-	bool ret = false;
 	gru_node_t *node = NULL;
 
 	if (list == NULL) {
-		return ret;
+		return false;
 	}
 
 	node = list->root;

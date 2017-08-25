@@ -25,7 +25,6 @@ extern "C" {
 #endif
 
 void maestro_easy_request(msg_content_data_t *out, maestro_command_t cmd);
-void maestro_easy_response(msg_content_data_t *out,maestro_command_t cmd);
 
 #ifdef __cplusplus
 }

@@ -45,10 +45,7 @@ void msg_content_data_destroy(msg_content_data_t **data);
 void msg_content_data_fill(msg_content_data_t *data, char v);
 void msg_content_data_rfill(msg_content_data_t *content);
 
-bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_list ap);
 bool msg_content_data_copy(msg_content_data_t *cont, const void *data, size_t size);
-
-bool msg_content_data_serialize(msg_content_data_t *cont, const char *fmt, ...);
 
 #ifdef __cplusplus
 }

@@ -141,13 +141,18 @@ static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_sta
 		char raw_line[1024] = {0};
 
 
-		fgets(raw_line, sizeof(raw_line), script);
+		fgets(raw_line, sizeof(raw_line) -1, script);
 		if (raw_line == NULL) {
 			break;
 		}
 
-		if (strlen(raw_line) == 0 || raw_line[0] == '#') {
+		if (strnlen(raw_line, 1024) == 0) {
 			continue;
+		}
+		else {
+			if (raw_line[0] == '#') {
+				continue;
+			}
 		}
 
 		char *line = gru_trim(raw_line, strlen(raw_line));

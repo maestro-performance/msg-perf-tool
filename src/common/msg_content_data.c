@@ -103,17 +103,6 @@ void msg_content_data_rfill(msg_content_data_t *content) {
 	content->size = content->capacity;
 }
 
-bool msg_content_data_vserialize(msg_content_data_t *cont, const char *fmt, va_list ap) {
-	cont->size = vasprintf((char **) &cont->data, fmt, ap);
-
-	if (cont->size == -1) {
-		return false;
-	}
-	cont->capacity = cont->size;
-
-	return true;
-}
-
 bool msg_content_data_copy(msg_content_data_t *cont, const void *data, size_t size) {
 	msg_content_data_release(cont);
 
@@ -129,14 +118,3 @@ bool msg_content_data_copy(msg_content_data_t *cont, const void *data, size_t si
 
 	return true;
 }
-
-bool msg_content_data_serialize(msg_content_data_t *cont, const char *fmt, ...) {
-	va_list ap;
-
-	va_start(ap, fmt);
-	bool ret = msg_content_data_vserialize(cont, fmt, ap);
-	va_end(ap);
-
-	return ret;
-}
-

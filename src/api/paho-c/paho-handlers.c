@@ -69,11 +69,12 @@ void paho_set_keep_alive_interval(void *ctxt, void *conn_opts, void *payload) {
 	gru_variant_t *variant = (gru_variant_t *) payload;
 	MQTTClient_connectOptions *opts = (MQTTClient_connectOptions *) conn_opts;
 
-	if (!payload || variant->type != GRU_INTEGER) {
-		opts->keepAliveInterval = 20;
+	if (variant && (variant->type != GRU_INTEGER)) {
+		opts->keepAliveInterval = (int) variant->variant.inumber;
 	}
 	else {
-		opts->keepAliveInterval = (int) variant->variant.inumber;
+		opts->keepAliveInterval = 20;
+
 	}
 }
 
@@ -81,16 +82,17 @@ void paho_set_clean_session(void *ctxt, void *conn_opts, void *payload) {
 	gru_variant_t *variant = (gru_variant_t *) payload;
 	MQTTClient_connectOptions *opts = (MQTTClient_connectOptions *) conn_opts;
 
-	if (!payload || variant->type != GRU_BOOLEAN) {
+	if (!variant) {
+		opts->cleansession = 1;
+
+		return;
+	}
+
+	if (variant->type == GRU_BOOLEAN && variant->variant.flag) {
 		opts->cleansession = 1;
 	}
 	else {
-		if (variant->type == GRU_BOOLEAN && variant->variant.flag) {
-			opts->cleansession = 1;
-		}
-		else {
-			opts->cleansession = 0;
-		}
+		opts->cleansession = 0;
 	}
 }
 

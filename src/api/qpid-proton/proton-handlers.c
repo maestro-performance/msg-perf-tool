@@ -130,69 +130,6 @@ void proton_set_properties(void *ctxt, void *msg, void *payload) {
 	pn_data_exit(msg_properties);
 }
 
-// Probably only for debugging
-void proton_log_body_type(void *ctxt, void *msg, void *payload) {
-	pn_message_t *message = (pn_message_t *) msg;
-	pn_data_t *body = pn_message_body(message);
-
-	if (!body) {
-		return;
-	}
-
-	logger_t logger = gru_logger_get();
-
-	switch (pn_data_type(body)) {
-	case PN_STRING:
-		logger(GRU_INFO, "Message body type is string");
-		break;
-	case PN_INT:
-		logger(GRU_INFO, "Message body type is int");
-		break;
-	case PN_MAP:
-		logger(GRU_INFO, "Message body type is map");
-		break;
-	case PN_LIST:
-		logger(GRU_INFO, "Message body type is list");
-		break;
-	case PN_ARRAY:
-		logger(GRU_INFO, "Message body type is array");
-		break;
-	case PN_NULL:
-		logger(GRU_INFO, "Message body type is null");
-		break;
-	case PN_BOOL:
-		logger(GRU_INFO, "Message body type is boolean");
-		break;
-	case PN_UBYTE:
-		logger(GRU_INFO, "Message body type is unsigned byte");
-		break;
-	case PN_USHORT:
-		logger(GRU_INFO, "Message body type is unsigned short");
-		break;
-	case PN_UINT:
-		logger(GRU_INFO, "Message body type is unsigned int");
-		break;
-	case PN_ULONG:
-		logger(GRU_INFO, "Message body type is unsigned long");
-		break;
-	case PN_LONG:
-		logger(GRU_INFO, "Message body type is long");
-		break;
-	case PN_FLOAT:
-		logger(GRU_INFO, "Message body type is float");
-		break;
-	case PN_BINARY:
-		logger(GRU_INFO, "Message body type is binary");
-		break;
-	case PN_SYMBOL:
-		logger(GRU_INFO, "Message body type is symbol");
-		break;
-	default:
-		logger(GRU_INFO, "Message body type is undefined");
-		break;
-	}
-}
-
 void proton_set_content_type(void *ctxt, void *msg, void *payload) {
 	pn_message_t *message = (pn_message_t *) msg;
 

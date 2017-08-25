@@ -17,21 +17,40 @@
 
 static bool interrupted = false;
 
+static char *remap_get_name(const char *base_name, pid_t parent, pid_t pid) {
+	char *name;
+	int ret = 0;
+
+	if (parent == 0) {
+		ret = asprintf(&name, "%s-%d.log", base_name, pid);
+	} else {
+		ret = asprintf(&name, "%s-%d-%d.log", base_name, parent, pid);
+	}
+
+	if (ret == -1) {
+		return NULL;
+	}
+
+	return name;
+}
+
 bool remap_log(const char *dir,
 	const char *base_name,
 	pid_t parent,
 	pid_t pid,
 	FILE *fd,
 	gru_status_t *status) {
-	char name[NAME_MAX] = {0};
 
-	if (parent == 0) {
-		snprintf(name, sizeof(name) - 1, "%s-%d.log", base_name, pid);
-	} else {
-		snprintf(name, sizeof(name) - 1, "%s-%d-%d.log", base_name, parent, pid);
+	char *name = remap_get_name(base_name, parent, pid);
+	if (!name) {
+		gru_status_set(status, GRU_FAILURE, "Not enough memory to format the name");
+
+		return false;
 	}
 
-	return gru_io_remap(dir, name, fd, status);
+	bool ret = gru_io_remap(dir, name, fd, status);
+	free(name);
+	return ret;
 }
 
 bool remap_log_with_link(const char *dir,
@@ -40,14 +59,12 @@ bool remap_log_with_link(const char *dir,
 			   pid_t pid,
 			   FILE *fd,
 			   gru_status_t *status) {
-	char name[64];
 
-	bzero(name, sizeof(name));
+	char *name = remap_get_name(base_name, parent, pid);
+	if (!name) {
+		gru_status_set(status, GRU_FAILURE, "Not enough memory to format the name");
 
-	if (parent == 0) {
-		snprintf(name, sizeof(name) - 1, "%s-%d.log", base_name, pid);
-	} else {
-		snprintf(name, sizeof(name) - 1, "%s-%d-%d.log", base_name, parent, pid);
+		return false;
 	}
 
 	if (gru_io_remap(dir, name, fd, status)) {
@@ -61,10 +78,11 @@ bool remap_log_with_link(const char *dir,
 		unlink(link_path);
 		symlink(link_target, link_path);
 
+		free(name);
 		return true;
 	}
 
-
+	free(name);
 	return false;
 }
 

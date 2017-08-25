@@ -170,12 +170,10 @@ static vmsl_stat_t proton_do_send(pn_messenger_t *messenger,
 
 vmsl_stat_t
 	proton_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status) {
-	vmsl_stat_t ret = {0};
 
 	mpt_trace("Creating message object");
 	pn_message_t *message = pn_message();
 
-	// proton_set_message_properties(ctxt, message, status);
 	mpt_trace("Setting message address to %s", url);
 	pn_message_set_address(message, url);
 
@@ -187,7 +185,7 @@ vmsl_stat_t
 	vmslh_run(proton_ctxt->handlers->before_send, proton_ctxt, message);
 
 	pn_message_set_creation_time(message, proton_now(status));
-	ret = proton_do_send(proton_ctxt->messenger, message, status);
+	vmsl_stat_t ret = proton_do_send(proton_ctxt->messenger, message, status);
 	if (vmsl_stat_error(ret)) {
 		pn_message_free(message);
 		return ret;
@@ -222,7 +220,6 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_s
 static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t *status) {
 	const int limit = 1024;
 
-	// mpt_trace("Receiving at most %i messages", limit);
 	int ret = pn_messenger_recv(messenger, limit);
 	if (ret != 0) {
 		if (failed(messenger)) {
@@ -234,7 +231,6 @@ static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t 
 			gru_status_set(status, GRU_FAILURE, protonErrorText);
 			return VMSL_ERROR;
 		} else {
-			// mpt_trace("No messages to receive");
 			return VMSL_SUCCESS | VMSL_NO_DATA;
 		}
 	}

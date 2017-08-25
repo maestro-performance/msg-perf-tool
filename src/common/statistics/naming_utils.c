@@ -51,7 +51,7 @@ static bool naming_initialize_latency_writer(latency_writer_t *writer,
 											 naming_info_t *nm_info, naming_func_t naming_func,
 											 gru_status_t *status) {
 
-	char lat_fname[64] = {0};
+	char lat_fname[FILENAME_MAX] = {0};
 
 	naming_func(nm_info, "latency", lat_fname, sizeof(lat_fname));
 
@@ -70,7 +70,7 @@ static bool naming_initialize_throughput_writer(throughput_writer_t *writer,
 												naming_info_t *nm_info, naming_func_t naming_func,
 												gru_status_t *status) {
 
-	char tp_fname[64] = {0};
+	char tp_fname[FILENAME_MAX] = {0};
 	naming_func(nm_info, "throughput", tp_fname, sizeof(tp_fname));
 
 	stat_io_info_t tp_io_info = {0};
@@ -87,7 +87,7 @@ static bool naming_initialize_throughput_writer(throughput_writer_t *writer,
 static bool naming_initialize_tpr_writer(tpr_writer_t *writer,
 										 naming_info_t *nm_info, naming_func_t naming_func,
 										 gru_status_t *status) {
-	char tp_fname[64] = {0};
+	char tp_fname[FILENAME_MAX] = {0};
 	naming_func(nm_info, "rate", tp_fname, sizeof(tp_fname));
 
 	stat_io_info_t tp_io_info = {0};

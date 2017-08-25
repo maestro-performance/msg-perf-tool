@@ -258,7 +258,7 @@ static bool brokerd_collect(gru_status_t *status) {
 	bmic_context_t ctxt = {0};
 	bmic_stats_set_t stats_set = {0};
 
-	char filename[64] = "broker-jvm-inspector.csv.gz";
+	const char filename[64] = "broker-jvm-inspector.csv.gz";
 
 	char worker_log_dir[PATH_MAX] = {0};
 	if (!worker_log_init(worker_log_dir, status)) {

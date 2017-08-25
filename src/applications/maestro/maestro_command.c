@@ -182,11 +182,10 @@ static const char *maestro_cmd_get_string(const gru_list_t *strings, uint32_t po
 static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
 	gru_status_t *status)
 {
-	ssize_t ret = 0;
 	while (true) {
 		char buf[MAESTRO_NOTE_SIZE] = {0};
 
-		ret = msgrcv(cmd_ctxt->queue, &buf, sizeof(buf), 0, IPC_NOWAIT);
+		ssize_t ret = msgrcv(cmd_ctxt->queue, &buf, sizeof(buf), 0, IPC_NOWAIT);
 		if (ret < 0) {
 			if (errno == ENOMSG) {
 				break;
