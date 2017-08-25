@@ -141,11 +141,7 @@ static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_sta
 	do {
 		char raw_line[1024] = {0};
 
-
 		fgets(raw_line, sizeof(raw_line) -1, script);
-		if (raw_line == NULL) {
-			break;
-		}
 
 		if (strnlen(raw_line, 1024) == 0) {
 			continue;
