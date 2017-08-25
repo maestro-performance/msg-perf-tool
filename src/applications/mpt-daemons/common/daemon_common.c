@@ -59,7 +59,7 @@ void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response
 
 	if (body.opt == MAESTRO_NOTE_OPT_SET_LOG_LEVEL) {
 		worker_options->log_level = gru_logger_get_level(body.value);
-		gru_logger_set_mininum(worker_options->log_level);
+		gru_logger_set_minimum(worker_options->log_level);
 		logger(GRU_INFO, "Set log-level to %s", body.value);
 
 		maestro_note_set_cmd(response, MAESTRO_NOTE_OK);

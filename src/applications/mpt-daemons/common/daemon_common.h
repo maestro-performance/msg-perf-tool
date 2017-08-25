@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 #include <common/gru_status.h>
+#include <log/gru_logger.h>
 
 #include "contrib/options.h"
 #include "maestro/maestro_player.h"

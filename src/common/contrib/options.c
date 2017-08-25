@@ -184,7 +184,7 @@ const char *options_get_log_dir() {
 void options_set_log_level(options_t *obj, const char *value) {
     options->log_level = gru_logger_get_level(value);
 
-    gru_logger_set_mininum(options->log_level);
+	gru_logger_set_minimum(options->log_level);
 }
 
 bool options_set_file(options_t *obj, const char *file) {
