@@ -14,7 +14,6 @@
  *    limitations under the License.
  */
 #include "worker_data_dump.h"
-#include "worker_options.h"
 
 static void worker_dump_data(FILE *file, void *data) {
 	worker_options_t *options = (worker_options_t *) data;

@@ -14,7 +14,6 @@
  limitations under the License.
  */
 #include "stomp-wrapper.h"
-#include "vmsl.h"
 
 const char *url = NULL;
 
