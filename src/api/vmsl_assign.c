@@ -51,14 +51,14 @@ bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl) {
 
 	if (strncmp(uri->scheme, "amqp", 4) == 0) {
 		return proton_vmsl_assign(vmsl);
-	} else {
-		if (strncmp(uri->scheme, "stomp", 5) == 0) {
-			return litestomp_vmsl_assign(vmsl);
-		} else {
-			if (strncmp(uri->scheme, "mqtt", 4) == 0) {
-				return paho_vmsl_assign(vmsl);
-			}
-		}
+	}
+
+	if (strncmp(uri->scheme, "stomp", 5) == 0) {
+		return litestomp_vmsl_assign(vmsl);
+	}
+
+	if (strncmp(uri->scheme, "mqtt", 4) == 0) {
+		return paho_vmsl_assign(vmsl);
 	}
 
 	logger(GRU_ERROR, "Unsupported protocol or invalid URL");
