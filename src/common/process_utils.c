@@ -90,12 +90,12 @@ bool remap_log_with_link(const char *dir,
 /**
  * Initializes the controller process if in daemon mode
  * @param background (ie: daemon mode ...)
- * @param logdir
+ * @param log_dir log directory
  * @param controller_name
  * @return The controller PID if the parent, 0 if the child of the controller of -1 in
  * case of error.
  */
-int init_controller(const char *logdir, const char *controller_name) {
+int init_controller(const char *log_dir, const char *controller_name) {
 	int controller = fork();
 
 	if (controller == 0) {
@@ -115,7 +115,7 @@ int init_controller(const char *logdir, const char *controller_name) {
 
 		gru_status_t status = {0};
 
-		bool ret = remap_log_with_link(logdir, controller_name, 0, getpid(), stderr, &status);
+		bool ret = remap_log_with_link(log_dir, controller_name, 0, getpid(), stderr, &status);
 
 		if (!ret) {
 			fprintf(
