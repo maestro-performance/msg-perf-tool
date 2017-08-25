@@ -230,9 +230,10 @@ static vmsl_stat_t proton_receive_local(pn_messenger_t *messenger, gru_status_t 
 
 			gru_status_set(status, GRU_FAILURE, protonErrorText);
 			return VMSL_ERROR;
-		} else {
-			return VMSL_SUCCESS | VMSL_NO_DATA;
 		}
+
+		return VMSL_SUCCESS | VMSL_NO_DATA;
+
 	}
 
 	return VMSL_SUCCESS;
@@ -287,10 +288,10 @@ vmsl_stat_t
 		vmsl_stat_t local_ret = proton_receive_local(proton_ctxt->messenger, status);
 		if (local_ret == VMSL_ERROR) {
 			return local_ret;
-		} else {
-			if (local_ret & VMSL_NO_DATA) {
-				return local_ret;
-			}
+		}
+
+		if (local_ret & VMSL_NO_DATA) {
+			return local_ret;
 		}
 
 		nmsgs = pn_messenger_incoming(proton_ctxt->messenger);

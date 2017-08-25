@@ -189,13 +189,14 @@ static int maestro_cmd_do_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *stri
 		if (ret < 0) {
 			if (errno == ENOMSG) {
 				break;
-			} else {
-				int err = errno;
-				fprintf(stdout, "Failed to read %"PRIu64" bytes from the local forward queue: %s\n",
-					sizeof(buf), strerror(err));
-
-				return 1;
 			}
+
+			int err = errno;
+			fprintf(stdout, "Failed to read %"PRIu64" bytes from the local forward queue: %s\n",
+				sizeof(buf), strerror(err));
+
+			return 1;
+
 		} else {
 			maestro_note_t note = {0};
 			msg_content_data_t msg = {0};
@@ -243,9 +244,9 @@ int maestro_cmd_collect(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
 
 		return 0;
 	}
-	else {
-		return maestro_cmd_do_collect(cmd_ctxt, strings, status);
-	}
+
+	return maestro_cmd_do_collect(cmd_ctxt, strings, status);
+
 }
 
 int maestro_cmd_flush(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) {
@@ -414,9 +415,9 @@ int maestro_cmd_stats(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,
 
 		return 0;
 	}
-	else {
-		return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_ALL_DAEMONS, MAESTRO_NOTE_STATS, status);
-	}
+
+	return maestro_cmd_without_payload(cmd_ctxt, MAESTRO_ALL_DAEMONS, MAESTRO_NOTE_STATS, status);
+
 }
 
 int maestro_cmd_halt(maestro_cmd_ctxt_t *cmd_ctxt, gru_list_t *strings,

@@ -272,16 +272,15 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 
 		return ret;
 	}
-	else {
-		if (worker_error(ret)) {
-			logger(GRU_ERROR, "Unable to created worker clones: %s", status.message);
 
-			return ret;
-		}
+	if (worker_error(ret)) {
+		logger(GRU_ERROR, "Unable to created worker clones: %s", status.message);
 
-		if (worker_child(ret)) {
-			return ret;
-		}
+		return ret;
+	}
+
+	if (worker_child(ret)) {
+		return ret;
 	}
 
 	worker_manager_watchdog_loop(&worker_handler, &status);

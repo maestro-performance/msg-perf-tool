@@ -74,9 +74,10 @@ static bool maestro_sheet_do_play(const gru_list_t *list,
 			instrument->play(request, response, pinfo);
 
 			return true;
-		} else {
-			node = node->next;
 		}
+
+		node = node->next;
+
 	}
 
 	return false;

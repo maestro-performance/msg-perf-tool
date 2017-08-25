@@ -65,21 +65,20 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 			}
 
 			return wret | WORKER_CHILD;
-		} else {
+		}
 
-			worker_info_t *worker_info = worker_info_new(worker, child, status);
-			if (!worker_info) {
-				logger(GRU_ERROR, "Unable to create worker info: %s", status->message);
+		worker_info_t *worker_info = worker_info_new(worker, child, status);
+		if (!worker_info) {
+			logger(GRU_ERROR, "Unable to create worker info: %s", status->message);
 
-				return WORKER_FAILURE;
-			}
+			return WORKER_FAILURE;
+		}
 
-			if (!worker_list_append(worker_info, status)) {
-				kill(worker_info->child, SIGKILL);
-				worker_info_destroy(&worker_info);
+		if (!worker_list_append(worker_info, status)) {
+			kill(worker_info->child, SIGKILL);
+			worker_info_destroy(&worker_info);
 
-				return WORKER_FAILURE;
-			}
+			return WORKER_FAILURE;
 		}
 	}
 
@@ -250,26 +249,27 @@ static bool worker_manager_do_stop(int signal) {
 				}
 
 				break;
-			} else {
-				if (pid == -1) {
-					logger(GRU_WARNING,
-						   "Failed to stop child %d: %s",
-						   worker_info->child,
-						   strerror(errno));
-
-					break;
-				} else {
-					usleep(MPT_MANAGER_SHUTDOWN_WAIT);
-					retry--;
-
-					if (retry == 0) {
-						logger(GRU_WARNING,
-							   "Killing child process %d because refuses to stop for good",
-							   worker_info->child);
-						kill(worker_info->child, SIGKILL);
-					}
-				}
 			}
+
+			if (pid == -1) {
+				logger(GRU_WARNING,
+					   "Failed to stop child %d: %s",
+					   worker_info->child,
+					   strerror(errno));
+
+				break;
+			}
+
+			usleep(MPT_MANAGER_SHUTDOWN_WAIT);
+			retry--;
+
+			if (retry == 0) {
+				logger(GRU_WARNING,
+					   "Killing child process %d because refuses to stop for good",
+					   worker_info->child);
+				kill(worker_info->child, SIGKILL);
+			}
+
 		} while (pid == 0 && retry > 0);
 
 		node = node->next;

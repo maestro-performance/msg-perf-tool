@@ -147,10 +147,10 @@ static void *maestro_player_run(void *player) {
 			logger(GRU_ERROR, "Error receiving maestro data");
 
 			break;
-		} else {
-			if (vmsl_has_data(rstat)) {
-				maestro_player_handle_note(maestro_player, mdata, &status);
-			}
+		}
+
+		if (vmsl_has_data(rstat)) {
+			maestro_player_handle_note(maestro_player, mdata, &status);
 		}
 
 		usleep(MPT_MAESTRO_IDLE_TIME);

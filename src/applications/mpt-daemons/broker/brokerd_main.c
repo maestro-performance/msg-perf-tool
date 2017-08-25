@@ -130,7 +130,9 @@ int main(int argc, char **argv) {
 
 		options_destroy(&options);
 		return EXIT_SUCCESS;
-	} else if (cret > 0) {
+	}
+
+	if (cret > 0) {
 		options_destroy(&options);
 		return EXIT_SUCCESS;
 	}

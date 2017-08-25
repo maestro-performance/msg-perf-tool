@@ -28,11 +28,11 @@ static bool perf_initialize_writer(stats_writer_t *writer,
 
 		return naming_initialize_writer(
 			writer, FORMAT_CSV, NM_THROUGHPUT, &naming_info, status);
-	} else {
-		if (options_get_parallel_count() > 1) {
-			return naming_initialize_writer(
-				writer, FORMAT_NOP, NM_THROUGHPUT, NULL, status);
-		}
+	}
+
+	if (options_get_parallel_count() > 1) {
+		return naming_initialize_writer(
+			writer, FORMAT_NOP, NM_THROUGHPUT, NULL, status);
 	}
 
 	return naming_initialize_writer(writer, FORMAT_OUT, NM_THROUGHPUT, NULL, status);

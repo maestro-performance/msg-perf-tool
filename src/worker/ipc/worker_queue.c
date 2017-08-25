@@ -70,16 +70,15 @@ worker_queue_stat_t worker_queue_write(const worker_queue_t *const worker_queue,
 	if (worker_queue->type == MPT_Q_SYSV) {
 		return worker_vqueue_write(worker_queue->via.vqueue, data, len, payload);
 	}
-	else {
-		return worker_pqueue_write(worker_queue->via.pqueue, data, len, payload);
-	}
+
+	return worker_pqueue_write(worker_queue->via.pqueue, data, len, payload);
 
 }
 worker_queue_stat_t worker_queue_read(const worker_queue_t *const worker_queue, void *dest, size_t len) {
 	if (worker_queue->type == MPT_Q_SYSV) {
 		return worker_vqueue_read(worker_queue->via.vqueue, dest, len);
 	}
-	else {
-		return worker_pqueue_read(worker_queue->via.pqueue, dest, len);
-	}
+
+	return worker_pqueue_read(worker_queue->via.pqueue, dest, len);
+
 }

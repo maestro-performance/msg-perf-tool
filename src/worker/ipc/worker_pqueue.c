@@ -86,10 +86,9 @@ worker_queue_stat_t worker_pqueue_read(const worker_pqueue_t * const worker_pque
 	if (ret >= 0) {
 		return MPT_WQ_SUCCESS;
 	}
-	else {
-		if (errno == EAGAIN) {
-			return MPT_WQ_SUCCESS | MPT_WQ_NO_DATA;
-		}
+
+	if (errno == EAGAIN) {
+		return MPT_WQ_SUCCESS | MPT_WQ_NO_DATA;
 	}
 
 	logger_t  logger = gru_logger_get();

@@ -116,7 +116,8 @@ static int maestro_loop_cli(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) 
 
 		if (ret == 0) {
 			continue;
-		} else if (ret == -1) {
+		}
+		if (ret == -1) {
 			fprintf(stderr, "Unknown command: %s\n", command);
 		} else if (ret == -2) {
 			ret = 0;
@@ -149,11 +150,10 @@ static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_sta
 		if (strnlen(raw_line, 1024) == 0) {
 			continue;
 		}
-		else {
-			if (raw_line[0] == '#') {
+
+		if (raw_line[0] == '#') {
 				continue;
 			}
-		}
 
 		char *line = gru_trim(raw_line, strlen(raw_line));
 		add_history(line);
@@ -174,7 +174,8 @@ static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_sta
 
 		if (ret == 0) {
 			continue;
-		} else if (ret == -1) {
+		}
+		if (ret == -1) {
 			fprintf(stderr, "Unknown command: %s\n", command);
 			break;
 		} else if (ret == -2) {

@@ -236,7 +236,8 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 
 		stomp_message_destroy(&message);
 		return VMSL_ERROR;
-	} else if (stat & STOMP_NO_DATA) {
+	}
+	if (stat & STOMP_NO_DATA) {
 		stomp_message_destroy(&message);
 		return VMSL_SUCCESS | VMSL_NO_DATA;
 	}
