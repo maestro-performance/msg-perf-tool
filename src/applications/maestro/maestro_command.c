@@ -133,7 +133,7 @@ static void maestro_cmd_print_responses(maestro_note_t *note) {
 		break;
 	}
 	case MAESTRO_NOTE_ABNORMAL_DISCONNECT: {
-		printf("Response: remote peer disconnected abnormaly\n");
+		printf("Response: remote peer disconnected abnormally\n");
 		break;
 	}
 	case MAESTRO_NOTE_INTERNAL_ERROR: {
