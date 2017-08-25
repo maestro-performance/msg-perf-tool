@@ -310,7 +310,7 @@ int receiverd_worker_start(const options_t *options) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
-	worker_ret_t ret = true;
+	worker_ret_t ret = WORKER_SUCCESS;
 
 	maestro_sheet_t *sheet = NULL;
 	if (options_get_maestro_host()) {

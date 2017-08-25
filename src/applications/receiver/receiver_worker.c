@@ -42,7 +42,7 @@ static bool receiver_print_partial(worker_info_t *worker_info) {
 	worker_snapshot_t snapshot = {0};
 	logger_t logger = gru_logger_get();
 
-	uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+	int64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
 	logger(GRU_INFO,
 		"Partial summary: PID %d received %" PRIu64 " messages in %" PRIu64
@@ -103,7 +103,7 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 			return 1;
 		}
 
-		uint64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
+		int64_t elapsed = gru_time_elapsed_secs(snapshot.start, snapshot.now);
 
 		logger(GRU_INFO,
 			"Summary: received %" PRIu64 " messages in %" PRIu64

@@ -107,7 +107,7 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 	calc_throughput(
 		&snapshot->throughput, snapshot->start, snapshot->now, snapshot->count);
 
-	uint64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
+	int64_t elapsed = gru_time_elapsed_secs(snapshot->start, snapshot->now);
 	logger(GRU_INFO,
 		   "Summary: sent %" PRIu64 " messages in %" PRIu64
 			   " seconds (last measured rate: %.2f msgs/sec)",

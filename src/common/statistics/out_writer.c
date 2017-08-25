@@ -52,7 +52,7 @@ bool out_tp_writer_write(const stat_throughput_t *tp, gru_status_t *status) {
 		return false;
 	}
 
-	uint64_t milli_latency = gru_time_to_milli(&last_latency_duration);
+	int64_t milli_latency = gru_time_to_milli(&last_latency_duration);
 
 	printf("%s\rSampling time: %s - Count: %" PRIu64
 		   " msgs - Rate: %.2f msg/s - Last lat: %" PRIu64 "ms \r",

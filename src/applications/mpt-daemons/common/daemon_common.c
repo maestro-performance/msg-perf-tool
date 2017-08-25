@@ -153,7 +153,7 @@ void *commond_handle_ping(const maestro_note_t *request, maestro_note_t *respons
 	logger(GRU_DEBUG, "Creation seconds.nano: %"PRIu64".%"PRIu64"",
 		   created.tv_sec, created.tv_usec);
 
-	uint64_t diff = gru_time_elapsed_milli(created, now);
+	int64_t diff = gru_time_elapsed_milli(created, now);
 
 	maestro_note_set_cmd(response, MAESTRO_NOTE_PING);
 	maestro_note_ping_set_elapsed(response, diff);

@@ -112,7 +112,7 @@ static bool csv_lat_writer_write_v1(const stat_latency_t *latency, gru_status_t 
 		return false;
 	}
 
-	uint64_t milli_latency = gru_time_to_milli(&latency->elapsed);
+	int64_t milli_latency = gru_time_to_milli(&latency->elapsed);
 	uint32_t milli = (uint32_t) latency->duration.start.tv_usec / 1000;
 
 	gzprintf(lat_file, "\"%s.%03" PRId32 "\",%" PRIu64 "\n", str, milli, milli_latency);
