@@ -18,7 +18,9 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <mqueue.h>
+#ifdef HAVE_MQUEUE_H
+ #include <mqueue.h>
+#endif
 
 #include <common/gru_status.h>
 #include <common/gru_alloc.h>

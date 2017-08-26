@@ -59,7 +59,6 @@ if (UNIX)
 	FailIfNotSet(HAVE_SYS_MMAN_H sys/mman.h)
 
 	CHECK_INCLUDE_FILES(mqueue.h HAVE_MQUEUE_H)
-	FailIfNotSet(HAVE_MQUEUE_H mqueue.h)
 endif (UNIX)
 
 macro (DefineIfSet VARIABLE)
