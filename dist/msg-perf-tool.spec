@@ -1,12 +1,8 @@
-%global _enable_debug_package 0
-%global debug_package %{nil}
-
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.2.0
 Release:            0%{?dist}
 License:            Apache v2
-Group:              Development/Tools
 Source:             msg-perf-tool-%{version}.tar.gz
 URL:                https://github.com/orpiske/msg-perf-tool.git
 BuildRequires:      cmake
@@ -25,14 +21,16 @@ BuildRequires:      paho-c
 BuildRequires:      paho-c-devel
 BuildRequires:      bmic
 BuildRequires:      bmic-devel
-Requires:           qpid-proton-c
-Requires:           python
-Requires:           python-requests
-Requires:           litestomp
-Requires:           paho-c
-Requires:           apr
-Requires:           apr-util
-Requires:           bmic
+BuildRequires:      hdr-histogram
+BuildRequires:      hdr-histogram-c
+BuildRequires:      msgpack
+BuildRequires:      msgpack-devel
+BuildRequires:      readline
+BuildRequires:      readline-devel
+BuildRequires:      libuuid
+BuildRequires:      libuuid-devel
+BuildRequires:      zlib
+BuildRequires:      zlib-devel
 
 
 %description
@@ -43,21 +41,28 @@ A tool for measuring messaging system performance for AMQP, STOMP and MQTT messa
 
 %build
 mkdir build && cd build
-cmake -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DMQTT_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr ..
-make
+%cmake -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DMQTT_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE ..
+%make_build
 
 %install
 cd build
-make install
+%make_install
 
 %files
-%doc README.md LICENSE
+%doc README.md
+%license LICENSE
 %{_bindir}/*
 %{_libdir}/*
 %{_datadir}/*
 
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
 
 %changelog
+* Sat Aug 26 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0
+- Adjusted to match fedora packaging guidelines
+
 * Mon Feb 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 20170227
 - Version 0.2.0 release
 - Fixed a bug in the AMPQ setling mode
