@@ -20,16 +20,18 @@ script:
 addons:
   apt:
     packages:
+      - zlib1g-dev
       - libapr1-dev
       - libaprutil1-dev
       - liburiparser-dev
       - libjson0-dev
       - libcurl4-openssl-dev
-      - libmsgpack-dev
       - libreadline6
       - libreadline6-dev
       - uuid-dev
       - doxygen
+      - build-essential
+      - libssl-dev
   coverity_scan:
     project:
       name: "orpiske/msg-perf-tool"
