@@ -12,11 +12,11 @@ sudo: true
 language:
   - c
 before_install:
-  - ./travis-buider.sh before_install
+  - ./travis-builder.sh before_install
 before_script:
-  - ./travis-buider.sh before_script
+  - ./travis-builder.sh before_script
 script:
-  - ./travis-buider.sh build
+  - ./travis-builder.sh build
 addons:
   apt:
     packages:
