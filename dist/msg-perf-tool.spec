@@ -40,14 +40,10 @@ A tool for measuring messaging system performance for AMQP, STOMP and MQTT messa
 %autosetup -n msg-perf-tool-%{version}
 
 %build
-%if 0%{?rhel_version} < 700 || 0%{?centos_version} < 700
-    echo "This project does not support Centos 6 or RHEL 6"
-    exit 1
-%else
-    mkdir build && cd build
-    %cmake -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DMQTT_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE ..
-    %make_build
-%endif
+mkdir build && cd build
+%cmake -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DMQTT_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE ..
+%make_build
+
 
 %install
 cd build
