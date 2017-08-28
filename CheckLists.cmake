@@ -5,6 +5,15 @@ macro (FailIfNotSet VARIABLE name)
 	endif (NOT ${VARIABLE})
 endmacro (FailIfNotSet)
 
+macro (DefineIfSet VARIABLE)
+	if (${VARIABLE})
+		set(MSG "Adding definition " ${VARIABLE} "")
+		message(STATUS ${MSG})
+
+		add_definitions(-D${VARIABLE})
+	endif (${VARIABLE})
+endmacro(DefineIfSet)
+
 include (CheckIncludeFiles)
 if (UNIX)
 	CHECK_INCLUDE_FILES(stdlib.h HAVE_STDLIB_H)
@@ -59,16 +68,8 @@ if (UNIX)
 	FailIfNotSet(HAVE_SYS_MMAN_H sys/mman.h)
 
 	CHECK_INCLUDE_FILES(mqueue.h HAVE_MQUEUE_H)
+	DefineIfSet(HAVE_MQUEUE_H)
 endif (UNIX)
-
-macro (DefineIfSet VARIABLE)
-	if (${VARIABLE})
-		set(MSG "Adding definition " ${VARIABLE} "")
-		message(STATUS ${MSG})
-
-		add_definitions(-D${VARIABLE})
-	endif (${VARIABLE})
-endmacro(DefineIfSet)
 
 include(CheckFunctionExists)
 check_function_exists(strlcpy HAVE_STRLCPY)
