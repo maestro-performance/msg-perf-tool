@@ -56,15 +56,18 @@ function before_script() {
     mkdir hdr-histogram-c && tar -xvf hdr-histogram-c-head.tar.gz -C hdr-histogram-c --strip-components=1
     pushd hdr-histogram-c && mkdir build && cd build && cmake -DCMAKE_USER_C_FLAGS="-fPIC" .. && make && sudo make install ; popd
 
-    # The version of msgpack on TravisCI is ancient and won't work with this project
-    echo "Installing MsgPack C"
-    wget https://github.com/msgpack/msgpack-c/tarball/master -O msgpack-c-head.tar.gz
-    mkdir msgpack-c && tar -xvf msgpack-c-head.tar.gz -C msgpack-c --strip-components=1
-    pushd msgpack-c && mkdir build && cd build
-    cmake -DCMAKE_USER_C_FLAGS="-fPIC" .. || travis_abort msgpack
-    make || travis_abort msgpack
-    sudo make install || travis_abort msgpack
-    popd
+
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        # The version of msgpack on TravisCI is ancient and won't work with this project
+        echo "Installing MsgPack C"
+        wget https://github.com/msgpack/msgpack-c/tarball/master -O msgpack-c-head.tar.gz
+        mkdir msgpack-c && tar -xvf msgpack-c-head.tar.gz -C msgpack-c --strip-components=1
+        pushd msgpack-c && mkdir build && cd build
+        cmake -DCMAKE_USER_C_FLAGS="-fPIC" .. || travis_abort msgpack
+        make || travis_abort msgpack
+        sudo make install || travis_abort msgpack
+        popd
+    fi
 }
 
 function build() {
