@@ -17,7 +17,10 @@
 #define MPT_WORKER_QUEUE_H
 
 #include "worker_vqueue.h"
+
+#ifndef __OSX__
 #include "worker_pqueue.h"
+#endif // __OSX__
 #include "worker_queue_perm.h"
 #include "worker_queue_stat.h"
 

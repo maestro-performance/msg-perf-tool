@@ -1,3 +1,10 @@
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	message(STATUS "Adding Linux-specific IPC files")
+	set(OS_SPECIFIC_IPC_FILES
+			ipc/worker_pqueue.c
+	)
+endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
 add_library(
 	mpt-worker SHARED
 		worker_utils.c
@@ -5,7 +12,7 @@ add_library(
 		worker_list.c
 		worker_data_dump.c
         ipc/worker_vqueue.c
-		ipc/worker_pqueue.c
+		${OS_SPECIFIC_IPC_FILES}
 		ipc/worker_queue.c
 		worker_manager.c
 		naive_receiver.c
