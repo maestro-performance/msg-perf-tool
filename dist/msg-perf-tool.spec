@@ -21,8 +21,8 @@ BuildRequires:      paho-c
 BuildRequires:      paho-c-devel
 BuildRequires:      bmic
 BuildRequires:      bmic-devel
-BuildRequires:      hdr-histogram
 BuildRequires:      hdr-histogram-c
+BuildRequires:      hdr-histogram-c-devel
 BuildRequires:      msgpack
 BuildRequires:      msgpack-devel
 BuildRequires:      readline
