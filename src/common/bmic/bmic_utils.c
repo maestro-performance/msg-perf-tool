@@ -80,22 +80,22 @@ void mpt_get_mem_info(const bmic_context_t *ctxt,
 }
 
 bool mpt_purge_queue(const bmic_context_t *ctxt, const char *name, gru_status_t *status) {
+	logger_t logger = gru_logger_get();
+
 	const bmic_exchange_t *cap = ctxt->api->capabilities_load(ctxt->handle, status);
 	if (!cap) {
-		fprintf(stderr, "Unable to load capabilities\n");
+		logger(GRU_ERROR, "Unable to load capabilities: %s", status->message);
 		return false;
 	}
 
-	bool ret = false;
-
-	ret = ctxt->api->queue_purge(ctxt->handle, cap, name, status);
-	if (gru_status_error(status)) {
-		fprintf(stderr, "Unable to purge queue\n");
+	bool ret = ctxt->api->queue_purge(ctxt->handle, cap, name, status);
+	if (!ret && gru_status_error(status)) {
+		logger(GRU_ERROR, "Unable to purge queue: %s", status->message);
 	}
 
 	ret = ctxt->api->queue_reset(ctxt->handle, cap, name, status);
-	if (gru_status_error(status)) {
-		fprintf(stderr, "Unable to reset queue counters\n");
+	if (!ret && gru_status_error(status)) {
+		logger(GRU_ERROR, "Unable to reset queue counters: %s", status->message);
 	}
 
 	return ret;
