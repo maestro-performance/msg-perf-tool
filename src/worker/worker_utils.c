@@ -98,12 +98,12 @@ worker_queue_t *worker_create_queue(const worker_t *worker, gru_status_t *status
 
 static int32_t worker_log_fill_last_dir(char *path, size_t max_len, gru_status_t *status) {
 	int32_t ret = 0;
-	bool exists;
 
 	do {
+
 		snprintf(path, max_len, "%s/%"PRId32"", options_get_log_dir(), ret);
 
-		exists = gru_path_exists(path, status);
+		bool exists = gru_path_exists(path, status);
 		if (!exists) {
 			return ret;
 		}
