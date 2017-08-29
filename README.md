@@ -6,6 +6,9 @@ Build Status
 
 Linux Build Status: [![Linux Build Status](https://travis-ci.org/orpiske/msg-perf-tool.svg?branch=master)](https://travis-ci.org/orpiske/msg-perf-tool)
 
+Coverity Scan: [![Coverity Scan Build Status](https://scan.coverity.com/projects/10842/badge.svg)](https://scan.coverity.com/projects/orpiske-msg-perf-tool)
+
+Codacy Report: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8f9ec374a526436d8640df9c915aab9c)](https://www.codacy.com/app/orpiske/msg-perf-tool?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=orpiske/msg-perf-tool&amp;utm_campaign=Badge_Grade)
 
 Packaging Status
 ----
