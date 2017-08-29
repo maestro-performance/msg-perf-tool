@@ -6,7 +6,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 	SET(SYSTEMD_SUPPORT ON CACHE BOOL "Enable systemd support")
 	# Fixed directory for service files
-	set(SERVICE_INSTALL_PREFIX "/" CACHE STRING "Install prefix for service files (for packaging only)")
+	set(SERVICE_INSTALL_PREFIX "" CACHE STRING "Install prefix for service files (for packaging only)")
 
 	set(CMAKE_INSTALL_SYSTEMD_UNIT_PATH ${SERVICE_INSTALL_PREFIX}/usr/lib/systemd/system)
 	set(CMAKE_BUILD_SYSTEMD_UNIT_PATH ${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_SYSTEMD_UNIT_PATH})
