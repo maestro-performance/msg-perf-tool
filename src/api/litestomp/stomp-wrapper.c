@@ -31,7 +31,7 @@ msg_ctxt_t *litestomp_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status
 		return NULL;
 	}
 
-	stomp_ctxt_t *stomp_ctxt = litestomp_context_init(handlers);
+	stomp_ctxt_t *stomp_ctxt = litestomp_context_init(handlers, status);
 
 	if (!stomp_ctxt) {
 		logger(GRU_FATAL, "Unable to initialize the stomp context");

@@ -15,15 +15,9 @@
  */
 #include "stomp-context.h"
 
-stomp_ctxt_t *litestomp_context_init(vmslh_handlers_t *handlers) {
-	stomp_ctxt_t *ret = malloc(sizeof(stomp_ctxt_t));
-
-	if (!ret) {
-		logger_t logger = gru_logger_get();
-
-		logger(GRU_FATAL, "Unable to initialize stomp context");
-		exit(1);
-	}
+stomp_ctxt_t *litestomp_context_init(vmslh_handlers_t *handlers, gru_status_t *status) {
+	stomp_ctxt_t *ret = gru_alloc(sizeof(stomp_ctxt_t), status);
+	gru_alloc_check(ret, NULL);
 
 	ret->handlers = handlers;
 

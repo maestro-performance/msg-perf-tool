@@ -15,12 +15,9 @@
  */
 #include "paho-context.h"
 
-paho_ctxt_t *paho_context_init(vmslh_handlers_t *handlers) {
-	paho_ctxt_t *ret = malloc(sizeof(paho_ctxt_t));
-
-	if (!ret) {
-		return NULL;
-	}
+paho_ctxt_t *paho_context_init(vmslh_handlers_t *handlers, gru_status_t *status) {
+	paho_ctxt_t *ret = gru_alloc(sizeof(paho_ctxt_t), status);
+	gru_alloc_check(ret, NULL);
 
 	ret->handlers = handlers;
 

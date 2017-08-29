@@ -15,15 +15,9 @@
  */
 #include "proton-context.h"
 
-proton_ctxt_t *proton_context_init(vmslh_handlers_t *handlers) {
-	proton_ctxt_t *ret = malloc(sizeof(proton_ctxt_t));
-
-	if (!ret) {
-		logger_t logger = gru_logger_get();
-
-		logger(GRU_FATAL, "Unable to initialize proton context");
-		exit(1);
-	}
+proton_ctxt_t *proton_context_init(vmslh_handlers_t *handlers, gru_status_t *status) {
+	proton_ctxt_t *ret = gru_alloc(sizeof(proton_ctxt_t), status);
+	gru_alloc_check(ret, NULL);
 
 	ret->handlers = handlers;
 
@@ -31,6 +25,6 @@ proton_ctxt_t *proton_context_init(vmslh_handlers_t *handlers) {
 }
 
 void proton_context_destroy(proton_ctxt_t **ctxt) {
-	free(*ctxt);
-	*ctxt = NULL;
+	gru_dealloc((void **) ctxt);
+
 }

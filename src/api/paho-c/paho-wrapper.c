@@ -34,7 +34,7 @@ msg_ctxt_t *paho_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *s
 		return NULL;
 	}
 
-	paho_ctxt_t *paho_ctxt = paho_context_init(handlers);
+	paho_ctxt_t *paho_ctxt = paho_context_init(handlers, status);
 
 	if (!paho_ctxt) {
 		logger(GRU_FATAL, "Unable to initialize the paho context");

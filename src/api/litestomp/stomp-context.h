@@ -31,7 +31,7 @@ typedef struct stomp_ctxt_t_ {
 	vmslh_handlers_t *handlers;
 } stomp_ctxt_t;
 
-stomp_ctxt_t *litestomp_context_init(vmslh_handlers_t *handlers);
+stomp_ctxt_t *litestomp_context_init(vmslh_handlers_t *handlers, gru_status_t *status);
 void litestomp_context_destroy(stomp_ctxt_t **ctxt);
 
 #ifdef __cplusplus

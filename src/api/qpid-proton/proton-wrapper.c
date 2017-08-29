@@ -44,7 +44,7 @@ msg_ctxt_t *proton_init(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t 
 		return NULL;
 	}
 
-	proton_ctxt_t *proton_ctxt = proton_context_init(handlers);
+	proton_ctxt_t *proton_ctxt = proton_context_init(handlers, status);
 
 	if (!proton_ctxt) {
 		logger(GRU_FATAL, "Unable to initialize the proton context");

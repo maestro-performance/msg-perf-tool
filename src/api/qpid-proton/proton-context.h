@@ -31,7 +31,7 @@ typedef struct proton_ctxt_t_ {
 	vmslh_handlers_t *handlers;
 } proton_ctxt_t;
 
-proton_ctxt_t *proton_context_init(vmslh_handlers_t *handlers);
+proton_ctxt_t *proton_context_init(vmslh_handlers_t *handlers, gru_status_t *status);
 void proton_context_destroy(proton_ctxt_t **ctxt);
 
 #ifdef __cplusplus

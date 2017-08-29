@@ -33,7 +33,7 @@ typedef struct paho_ctxt_t_ {
   vmslh_handlers_t *handlers;
 } paho_ctxt_t;
 
-paho_ctxt_t *paho_context_init(vmslh_handlers_t *handlers);
+paho_ctxt_t *paho_context_init(vmslh_handlers_t *handlers, gru_status_t *status);
 void paho_context_destroy(paho_ctxt_t **ctxt);
 
 #ifdef __cplusplus
