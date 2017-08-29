@@ -85,9 +85,8 @@ static int maestro_loop_cli(maestro_cmd_ctxt_t *cmd_ctxt, gru_status_t *status) 
 	int ret = -1;
 	gru_list_t *strings = NULL;
 	do {
-		char *raw_line = NULL;
+		char *raw_line = readline(RED "maestro" LIGHT_WHITE "> " RESET);
 
-		raw_line = readline(RED "maestro" LIGHT_WHITE "> " RESET);
 		if (raw_line == NULL) {
 			break;
 		}

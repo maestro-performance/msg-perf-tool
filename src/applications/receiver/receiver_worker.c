@@ -93,10 +93,10 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	if (options_get_parallel_count() == 1) {
 		worker.worker_flags = WRK_RECEIVER;
-		worker_ret_t ret = {0};
+
 		worker_snapshot_t snapshot = {0};
 
-		ret = naive_receiver_start(&worker, &snapshot, &status);
+		worker_ret_t ret = naive_receiver_start(&worker, &snapshot, &status);
 		if (ret != WORKER_SUCCESS) {
 			fprintf(stderr, "Unable to execute worker: %s\n", status.message);
 
