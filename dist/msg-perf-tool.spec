@@ -31,6 +31,8 @@ BuildRequires:      libuuid
 BuildRequires:      libuuid-devel
 BuildRequires:      zlib
 BuildRequires:      zlib-devel
+BuildRequires:      uriparser
+BuildRequires:      uriparser-devel
 
 
 %description

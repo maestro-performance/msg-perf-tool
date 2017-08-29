@@ -29,6 +29,7 @@ Runtime/Compilation:
 * readline
 * msgpack-c
 * hdr-histogram-c
+* uriparser
 
 Recommended:
 * iperf (as a good practice, for testing network performance prior to test execution)
