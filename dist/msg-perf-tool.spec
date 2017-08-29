@@ -56,7 +56,6 @@ cd build
 %license LICENSE
 %{_bindir}/*
 %{_libdir}/*
-%{_datadir}/*
 
 %post -p /sbin/ldconfig
 
