@@ -56,6 +56,8 @@ cd build
 %license LICENSE
 %{_bindir}/*
 %{_libdir}/*
+%{_sysconfdir}/*
+%{_prefix}/lib/systemd/*
 
 %post -p /sbin/ldconfig
 
