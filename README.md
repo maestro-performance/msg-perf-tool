@@ -3,7 +3,17 @@ MPT: messaging performance tool
 
 Build Status
 ----
+
 Linux Build Status: [![Linux Build Status](https://travis-ci.org/orpiske/msg-perf-tool.svg?branch=master)](https://travis-ci.org/orpiske/msg-perf-tool)
+
+
+Packaging Status
+----
+
+Fedora/RHEL/CentOS (GRU Testing): [![Fedora COPR (Testing Repo) Status](https://copr.fedorainfracloud.org/coprs/orpiske/orp-tools-testing/package/msg-perf-tool/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/orpiske/orp-tools-testing/package/msg-perf-tool/)
+
+Fedora/RHEL/CentOS (GRU Stable): [![Fedora COPR (Stable Repo) Status](https://copr.fedorainfracloud.org/coprs/orpiske/orp-tools-stable/package/msg-perf-tool/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/orpiske/orp-tools-stable/package/msg-perf-tool/)
+
 
 Introduction:
 ----
@@ -12,12 +22,39 @@ MPT is a tool for running performance tests on messaging systems. Current develo
 version supports AMQP, STOMP and MQTT messaging protocols. Support for OpenWire and others
 is planned for the future. The test data is saved in a compressed CSV format.
 
+Installation:
+----
+
+The code can be installed via Fedora COPR. Packages are available for CentOS 6, 7, Fedora 25 
+or greater and RHEL 6 and 7. For CentOS 6 and RHEL 6, please use the legacy repos (check the notes below). 
+
+**Testing**
+
+1. Enable my testing COPR.
+
+```dnf copr enable orpiske/orp-tools-testing```
+
+2. Install the runtime only:
+```dnf install -y msg-perf-tool```
+
+**Note**: the testing packages are the **recommended** packages for this project.
+
+**Stable**
+
+1. Enable my testing COPR.
+
+```dnf copr enable orpiske/orpiske/orp-tools-stable ```
+
+2. Install the runtime only:
+```dnf install -y msg-perf-tool```
+
 Dependencies:
 ----
 
-Runtime/Compilation:
+For building the project, the following dependencies are required:  
+
 * cmake
-* gcc or clang
+* gcc >= 4.8.0 or clang
 * qpid-proton-c-devel
 * [litestomp](https://github.com/orpiske/litestomp) (optional/experimental) for STOMP support
 * [paho-c](https://www.eclipse.org/paho/) (optional/experimental) for MQTT support
@@ -31,9 +68,11 @@ Runtime/Compilation:
 * hdr-histogram-c
 * uriparser
 
-Recommended:
-* iperf (as a good practice, for testing network performance prior to test execution)
-
+To compile the project:
+```
+mkdir build && build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DMQTT_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_USER_C_FLAGS="-fPIC" ..
+```
 
 Requirements
 ----
@@ -45,7 +84,7 @@ several thousand messages per second (the exact number may vary according to mes
 network bandwidth and broker setup).
 
 Operating Systems:
-* Linux: x86 and x86_64
+* Linux: x86 (experimental)and x86_64 (recommended)
 * OS X: x86
 
 
@@ -157,13 +196,6 @@ halt
 
 **Note**: the purpose of the CLI is to serve as a way to run ad-hoc commands on the test cluster. For test 
 orchestration, the Java or the Groovy API must be used. 
-
-
-Binaries
-----
-
-Binaries for this tool, for Fedora, CentOS and RHEL, can be found on my COPR at
-https://copr.fedorainfracloud.org/coprs/orpiske/msg-perf-tool/
 
 
 Tips
