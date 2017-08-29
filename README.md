@@ -109,16 +109,20 @@ For example:
 Usage - Performance Tool CLI
 ----
 
-Here's an example of how to run a 10 minute load test, with 4 concurrent senders,
-4 concurrent receivers, sending 256 bytes of data per message. Each command has to be run on a separate shell:
+Here's an example of how to run a 10 minute and 30 seconds load test sending 256 bytes of data 
+per message. Each command has to be run on a separate shell:
 
 ```
-mpt-sender -d 1m30s -l debug -s 256 -b amqp://<hostname>/<queue name>
+mpt-sender -d 10m30s -l debug -s 256 -b amqp://<hostname>/<queue name>
 ```
 
 ```
-mpt-receiver -d 1m30s -l debug -s 256 -b amqp://<hostname>/<queue name>
+mpt-receiver -d 10m30s -l debug -s 256 -b amqp://<hostname>/<queue name>
 ```
+
+**Note**: the CLI tool should be used for simple testing, smoke testing and other small scale verifications. It 
+does not provide any mechanism for test orchestration or management. 
+
 
 Usage - Performance Tool Maestro
 ----
@@ -198,6 +202,39 @@ halt
 orchestration, the Java or the Groovy API must be used. 
 
 
+Usage - Runtime Parameters and Message Customization 
+----
+
+It is possible to customize protocol-specific parameters so that the tests closely match real world conditions. 
+These parameters are usually configured by adjusting the broker URL. For example: ```amqp://host/queue?opt=value```.
+
+The following parameters can be set for AMQP:
+
+| Parameter Name    | Default Value       | Description          |
+|-------------------|---------------------|----------------------|
+| `content-type` | `text/plain` | Message content type |
+| `application-properties` | null | Whether to skip instance creation process |
+| `ttl` | 5000 | Time to live. |
+| `durable` | true | Durable flag for the message |
+| `priority` | null | Message priority (use 'variable' for random)  |
+| `qos-mode` | `at-most-once`, `at-least-once`, `exactly-once` | Default QOS mode |
+
+
+The following parameters can be set for MQTT:
+ 
+| Parameter Name    | Default Value       | Description          |
+|-------------------|---------------------|----------------------|
+| `keep-alive` | `text/plain` | Keep-alive interval |
+| `clean-session` | null | MQTT clean session flag |
+| `retained` | null | MQTT retained flag |
+| `qos-mode` | `at-most-once`, `at-least-once`, `exactly-once` | Default QOS mode |
+
+ 
+ **Note**: STOMP does not yet support parameters.
+ 
+ **Note**: always check the protocol specification for the exact meaning of the semantics of the flags.
+ 
+ 
 Tips
 ----
 
