@@ -372,23 +372,23 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	if (strncmp(argv[1], "ok", 4) == 0) {
+	if (strncmp(argv[1], "ok", 2) == 0) {
 		if (!maestro_serialize_cmd_ok_test()) {
 			return EXIT_FAILURE;
 		}
-	} else if (strncmp(argv[1], "set-opt", 4) == 0) {
+	} else if (strncmp(argv[1], "set-opt", 7) == 0) {
 		if (!maestro_serialize_cmd_set_opt_test()) {
 			return EXIT_FAILURE;
 		}
-	} else if (strncmp(argv[1], "ping-request", 6) == 0) {
+	} else if (strncmp(argv[1], "ping-request", 12) == 0) {
 		if (!maestro_serialize_cmd_ping_request_test()) {
 			return EXIT_FAILURE;
 		}
-	} else if (strncmp(argv[1], "ping-response", 6) == 0) {
+	} else if (strncmp(argv[1], "ping-response", 13) == 0) {
 		if (!maestro_serialize_cmd_ping_response_test()) {
 			return EXIT_FAILURE;
 		}
-	} else if (strncmp(argv[1], "stats-response", 6) == 0) {
+	} else if (strncmp(argv[1], "stats-response", 14) == 0) {
 		if (!maestro_serialize_cmd_stats_response_test()) {
 			return EXIT_FAILURE;
 		}
