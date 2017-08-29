@@ -43,7 +43,7 @@ A tool for measuring messaging system performance for AMQP, STOMP and MQTT messa
 
 %build
 mkdir build && cd build
-%cmake -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DMQTT_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE ..
+%cmake -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DMQTT_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_USER_C_FLAGS="-fPIC" ..
 %make_build
 
 
