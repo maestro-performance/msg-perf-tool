@@ -1,7 +1,7 @@
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.2.0
-Release:            0%{?dist}
+Release:            1%{?dist}
 License:            Apache v2
 Source:             msg-perf-tool-%{version}.tar.gz
 URL:                https://github.com/orpiske/msg-perf-tool.git
@@ -52,7 +52,10 @@ cd build
 %postun -p /sbin/ldconfig
 
 %changelog
-* Sat Aug 26 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0
+* Wed Aug 30 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-1
+- Bump rpm build number
+
+* Sat Aug 26 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-0
 - Adjusted to match fedora packaging guidelines
 
 * Mon Feb 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 20170227
