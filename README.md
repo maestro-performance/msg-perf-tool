@@ -33,9 +33,11 @@ or greater and RHEL 6 and 7. For CentOS 6 and RHEL 6, please use the legacy repo
 
 **Testing**
 
-1. Enable my testing COPR.
+1. Enable my testing COPRs.
 
 ```dnf copr enable orpiske/orp-tools-testing```
+```dnf copr enable orpiske/third-party-tools-testing```
+```dnf copr enable orpiske/paho-testing```
 
 2. Install the runtime only:
 ```dnf install -y msg-perf-tool```
@@ -47,6 +49,8 @@ or greater and RHEL 6 and 7. For CentOS 6 and RHEL 6, please use the legacy repo
 1. Enable my testing COPR.
 
 ```dnf copr enable orpiske/orpiske/orp-tools-stable ```
+```dnf copr enable orpiske/third-party-tools-stable```
+```dnf copr enable orpiske/paho-stable```
 
 2. Install the runtime only:
 ```dnf install -y msg-perf-tool```
