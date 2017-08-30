@@ -1,8 +1,8 @@
-env:
+nv:
   global:
-    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-    #   via the "travis encrypt" command using the project repo's public key
-    - secure: "JaQw0vm0WIswdPRgoNYMpxGP17xcylvEnOxmqiGUckU75Ky767wRpufJ5ZipBd2W4oRVPuZVaDBXiJ7WA7A1uLeW0/VHcKmmag6EcrHkHM6Sg8lMlo2A336PtfbFyUCiOqYMHZPpFRK0bq+oM/q1+iZJywDjnziMRLoSBcY/Rxd19fFAKgfT2iO7EaTqBh1QfOyXJGbvjicfEp5kcLE6BkaRmuYqu717R6i2vmyd3Rg6ICoHL80NGDX5jMb7aFzzWR78ywWfqvDY2nWkwALDMu9nqrU5QWW6BkCId6Q8GZJyM/t0DC5BViCc8ZnTRDm/HrZ4kI+dz/zH+8VbQ6TprV/zL69dyX1GJogLZ6bCGNNhDV4GeERfaOeNGwCzRkaiAmqCPpgIUhIcuNuVSexLFq5hcHhhkMKGugVMVNg5AUT0K4fg1XwRio3y6CQDbQx3oE4xFryc8XuSIsBmJU0CBD8O1sl+SXqG8rWO5lDExTeeR2lfDr4+xnSIV21UFbFG8gcRz6bx0Uzemj85ah+koGBvnUpKo8K5lNtlDk/5MYchqQEWvhDX7zbJ7gJJ13aOx8lymM0e3/Too0FWGkumDHifhUo/LxL5Rk11T2igRRfTq6IEE7Iy0adf03Z4r0GagRVLj2iC7OmHfO61RyvNFKdL+xP4qotmjDcfSf0Fegg="
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "UG9bN27ka6l8QOQ7sATB/l8DuNFx22Sat6w45kmHlbQXKdH6FPqLbsV5XXTzpKvoUSGH/oGHHWfna/SnzI+6BTUQQTPNKXDV3JGU3PAMZIw4Va/1WOb7S3Bu1djzQpofG/0iJKb2maGQIRzogg33YiD8VLYwiXyayWvm6hQgr4r6NsckmJRJuqy5xotHI8L7CuUX2PT7JLRZTDR1X2yE4yv39Uvj1FZFNRD7WYa+Qp92ewWv/le9qP64heCh5gMSqOM9CozIjb4RtBnpJ6qBUVuQq2WdmmeO0YjkvXChT3gb1syr/hrhANK/W9sB08+La3OeP9loNZMwhutoCu8uTY4cgtbLxs2DI0xKCCzOqoJamf21M/BlQh8SK+5OqIRHM6h2/o4+wazuYT0sWeAbIFtBuJVG1Smaqtxqf03K6EnpjCGUt+5F/FHrSAE4AmsFiqmk9ItyrgZ4gcKPH7T61berjRrFGsrzC7hUK+ZHsqxvrMq00rfZEH9WT71yd1RFLI7Oz9VzeVqC860L6BiFH+Z+YLaTahDWURNF2BAv4JtLrJropR1ITweLNnpEolCSHr0Wa+TkTmKsYvu2vLyjC7dvDxnXVpYdCnTN+DfMls9vRLgNlEBJ6iWPKcGWgzSc1VSkOy2XDwB4y2xcNpRAyXvZakdJnRB2PRZCY6AMkdQ="
 
 os:
   - linux
@@ -37,6 +37,6 @@ addons:
       name: "orpiske/msg-perf-tool"
       description: "Messaging performance test tool"
     notification_email: angusyoung@gmail.com
-    build_command_prepend: "mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=RELEASE -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=OFF .."
+    build_command_prepend: "mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=RELEASE -DMQTT_SUPPORT=ON -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=OFF .."
     build_command: "make all"
     branch_pattern: coverity_scan
