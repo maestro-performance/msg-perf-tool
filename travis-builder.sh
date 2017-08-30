@@ -9,10 +9,10 @@ function before_install() {
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         brew update
         brew install uriparser json-c ossp-uuid msgpack
-    fi
-
-    if [[ "$COVERITY_SCAN_BRANCH" != 1 ]]; then
-        echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+    else
+        if [[ "$COVERITY_SCAN_BRANCH" != 1 ]]; then
+            echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+        fi
     fi
 }
 
