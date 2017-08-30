@@ -9,31 +9,19 @@ BuildRequires:      cmake
 BuildRequires:      make
 BuildRequires:      gcc >= 4.8.0
 BuildRequires:      gcc-c++
-BuildRequires:      qpid-proton-c
 BuildRequires:      qpid-proton-c-devel
-BuildRequires:      apr
 BuildRequires:      apr-devel
-BuildRequires:      apr-util
 BuildRequires:      apr-util-devel
-BuildRequires:      litestomp
 BuildRequires:      litestomp-devel
-BuildRequires:      paho-c
 BuildRequires:      paho-c-devel
-BuildRequires:      bmic
 BuildRequires:      bmic-devel
-BuildRequires:      hdr-histogram-c
 BuildRequires:      hdr-histogram-c-devel
-BuildRequires:      msgpack
 BuildRequires:      msgpack-devel
-BuildRequires:      readline
 BuildRequires:      readline-devel
-BuildRequires:      libuuid
 BuildRequires:      libuuid-devel
-BuildRequires:      zlib
 BuildRequires:      zlib-devel
-BuildRequires:      uriparser
 BuildRequires:      uriparser-devel
-
+Requires:           python
 
 %description
 A tool for measuring messaging system performance for AMQP, STOMP and MQTT messaging protocols
