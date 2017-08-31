@@ -146,9 +146,16 @@ static struct paho_perf_pl paho_serialize_latency_info(msg_content_data_t *msg_c
 
 	char *formatted_ts = gru_time_write_str(&ts);
 
-	asprintf(&ret.data, "%18s%s", formatted_ts, (char *) msg_content->data);
-	ret.size = TS_SIZE + (int) msg_content->size;
-	gru_dealloc_string(&formatted_ts);
+	if (unlikely(asprintf(&ret.data, "%18s%s", formatted_ts, (char *) msg_content->data) == -1)) {
+		logger_t logger = gru_logger_get();
+
+		logger(GRU_ERROR, "Not enough memory to format the current date/time");
+	}
+	else {
+		ret.size = TS_SIZE + (int) msg_content->size;
+		gru_dealloc_string(&formatted_ts);
+	}
+
 	return ret;
 }
 
