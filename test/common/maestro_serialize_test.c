@@ -343,13 +343,13 @@ static bool maestro_serialize_cmd_stats_response_test() {
 	}
 
 	if (deserialized.payload->response.body.stats.stats.perf.rate != (535 / 6)) {
-		fprintf(stderr, "Unexpected stat child cound: %f != %f\n",
+		fprintf(stderr, "Unexpected stat child count: %f != %f\n",
 				deserialized.payload->response.body.stats.stats.perf.rate, (double) (535 / 6));
 		goto err_exit;
 	}
 
 	if (deserialized.payload->response.body.stats.stats.perf.latency != 45.6) {
-		fprintf(stderr, "Unexpected stat child cound: %f != %f\n",
+		fprintf(stderr, "Unexpected stat child count: %f != %f\n",
 				deserialized.payload->response.body.stats.stats.perf.latency, 45.6);
 		goto err_exit;
 	}
