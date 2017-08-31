@@ -141,7 +141,13 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 	gru_dealloc_string(&formatted_ts);
 
 	maestro_note_stats_set_perf_count(response, total_msg);
-	maestro_note_stats_set_perf_rate(response, (total_rate / count_children));
+	if (count_children > 0) {
+		maestro_note_stats_set_perf_rate(response, (total_rate / count_children));
+	}
+	else {
+		logger(GRU_WARNING, "Invalid number of children when calculating the stats: 0");
+		maestro_note_stats_set_perf_rate(response, 0);
+	}
 	maestro_note_stats_set_perf_latency(response, 0);
 
 	return NULL;
