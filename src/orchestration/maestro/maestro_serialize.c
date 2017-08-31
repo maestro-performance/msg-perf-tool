@@ -71,6 +71,13 @@ static bool maestro_note_set_request(const maestro_note_t *note,
 	msgpack_pack_int8(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
 
+	if (!note->payload) {
+		logger_t logger = gru_logger_get();
+
+		logger(GRU_ERROR, "Invalid set request: null payload");
+		return false;
+	}
+
 	msgpack_pack_int64(&pk, note->payload->request.set.opt);
 
 	maestro_serialize_str_field(&pk, note->payload->request.set.value);
