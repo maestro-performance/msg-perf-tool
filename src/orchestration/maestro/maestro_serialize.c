@@ -99,6 +99,13 @@ static bool maestro_serialize_ping_request(const maestro_note_t *note, msg_conte
 	msgpack_pack_int8(&pk, note->type);
 	msgpack_pack_int64(&pk, note->command);
 
+	if (!note->payload) {
+		logger_t logger = gru_logger_get();
+
+		logger(GRU_ERROR, "Invalid ping request: null payload");
+		return false;
+	}
+
 	msgpack_pack_uint64(&pk, note->payload->request.ping.sec);
 	msgpack_pack_uint64(&pk, note->payload->request.ping.usec);
 
