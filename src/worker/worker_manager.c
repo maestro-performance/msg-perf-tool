@@ -133,10 +133,24 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 			worker_manager_update_snapshot(worker_info);
 
 			if (handler->flags & WRK_HANDLE_PRINT) {
+				if (!handler->print) {
+					gru_status_set(status, GRU_FAILURE,
+								   "Worker handler print flag is set but no print function given");
+
+					return false;
+				}
+
 				handler->print(worker_info);
 			}
 
 			if (handler->flags & WRK_HANDLE_EVAL) {
+				if (!handler->eval) {
+					gru_status_set(status, GRU_FAILURE,
+								   "Worker handler eval flag is set but no eval function given");
+
+					return false;
+				}
+
 				if (!handler->eval(worker_info, status)) {
 					logger(GRU_DEBUG, "Worker handler eval failed: %s", status->message);
 
