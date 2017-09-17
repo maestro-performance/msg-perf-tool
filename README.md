@@ -81,6 +81,15 @@ mkdir build && build
 cmake -DCMAKE_INSTALL_PREFIX=/usr -DSTOMP_SUPPORT=ON -DAMQP_SUPPORT=ON -DMQTT_SUPPORT=ON -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_USER_C_FLAGS="-fPIC" ..
 ```
 
+**Note**: development builds install files on ```/usr/local``` by default. Therefore, you need to adjust the 
+```LD_LIBRARY_PATH``` in the appropriate startup configuration files to point to ```/usr/local/lib64``` (or any other 
+directory set as the install prefix). 
+The files that need to be set are: 
+
+* Sender startup configuration: ```/etc/sysconfig/mpt-sender-daemon```
+* Receiver startup configuration: ```/etc/sysconfig/mpt-receiver-daemon```
+* Inspector startup configuration: ```/etc/sysconfig/mpt-broker-inspector```
+
 Requirements
 ----
 Disk Space:
