@@ -28,8 +28,8 @@ is planned for the future. The test data is saved in a compressed CSV format.
 Installation:
 ----
 
-The code can be installed via Fedora COPR. Packages are available for CentOS 6, 7, Fedora 25 
-or greater and RHEL 6 and 7. For CentOS 6 and RHEL 6, please use the legacy repos (check the notes below). 
+The code can be installed via Fedora COPR. Packages are available for CentOS 7, Fedora 25 
+or greater and RHEL 7. 
 
 **Testing**
 
