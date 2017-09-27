@@ -216,10 +216,10 @@ halt
 
 **CLI Usage Examples**:
 
-* [Ping command](master/doc/maestro/cli/ping-example.mpt)
-* [Burst test](master/doc/maestro/cli/burst-test.mpt)
-* [Rate test](master/doc/maestro/cli/rate-test.mpt)
-* [Rate test (with fail condition)](master/doc/maestro/cli/rate-test-with-fail-condition.mpt)
+* [Ping command](doc/maestro/cli/examples/ping-example.mpt)
+* [Burst test](doc/maestro/cli/examples/burst-test.mpt)
+* [Rate test](doc/maestro/cli/examples/rate-test.mpt)
+* [Rate test (with fail condition)](doc/maestro/cli/examples/rate-test-with-fail-condition.mpt)
 
 **Note**: the purpose of the CLI is to serve as a way to run ad-hoc commands on the test cluster. For test 
 orchestration, the Java or the Groovy API must be used. 
