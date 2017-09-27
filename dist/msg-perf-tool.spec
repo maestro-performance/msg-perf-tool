@@ -54,6 +54,8 @@ cd build
 %changelog
 * Wed Sep 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-5
 - Performance tunning: adjust the size of the IPC buffer
+- Link to the last execution even if failed
+- Flush all buffers prior to test start (brokerd)
 
 * Wed Sep 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-4
 - Use a dynamic wait time if using more than 10 children
