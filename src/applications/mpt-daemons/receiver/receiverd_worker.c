@@ -210,21 +210,21 @@ static maestro_sheet_t *receiverd_new_sheet(gru_status_t *status) {
 }
 
 static bool receiverd_worker_eval_latency(worker_info_t *worker_info, gru_status_t *status) {
-	const int64_t warm_up_secs = 90;
-
-	int64_t elapsed = gru_time_elapsed_secs(worker_info->snapshot.start, worker_info->snapshot.now);
-	if (elapsed < warm_up_secs) {
-		logger_t logger = gru_logger_get();
-
-		logger(GRU_WARNING, "Current latency (%"PRIi64") exceeds the maximum (%"PRIi64") while still in warm up period");
-
-		return true;
-	}
-
-
 	int64_t latency = gru_time_to_milli(&worker_info->snapshot.latency.elapsed);
 
 	if (latency > worker_options.condition.latency) {
+		const int64_t warm_up_secs = 90;
+
+		int64_t elapsed = gru_time_elapsed_secs(worker_info->snapshot.start, worker_info->snapshot.now);
+		if (elapsed < warm_up_secs) {
+			logger_t logger = gru_logger_get();
+
+			logger(GRU_WARNING, "Current latency (%"PRIi64") exceeds the maximum (%"PRIi64") while still in warm up period",
+				latency, worker_options.condition.latency);
+
+			return true;
+		}
+
 		gru_status_set(status, GRU_FAILURE,
 					   "Current latency %"PRIi64" exceeds the maximum value %" PRIi64"",
 					   latency, worker_options.condition.latency);
