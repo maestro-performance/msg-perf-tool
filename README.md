@@ -250,6 +250,17 @@ The following parameters can be set for MQTT:
  
  **Note**: always check the protocol specification for the exact meaning of the semantics of the flags.
  
+Performance Tunning
+----
+
+Running with a large number of parallel connections require some tunning. In particular, the maximum 
+unique queue size must be set to a larger value. On Linux, the default value is 16384. Ideally it should
+be increased to 65534. To do so run: 
+
+`sysctl -w kernel.msgmnb=65536`
+
+This parameter can be made permanent by editing the file `/etc/sysctl.conf`.
+ 
  
 Tips
 ----
