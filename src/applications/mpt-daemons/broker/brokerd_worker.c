@@ -322,6 +322,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		logger(GRU_INFO, "Broker inspector completed the inspection with errors: %s",
 			   status->message);
 
+		worker_log_link_create(worker_log_dir, options_get_log_dir(), "last");
 		worker_log_link_create(worker_log_dir, options_get_log_dir(), "lastFailed");
 		maestro_notify_test_failed(status);
 
