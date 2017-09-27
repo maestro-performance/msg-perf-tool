@@ -1,0 +1,5 @@
+# Ping peer nodes
+ping
+
+# Collect responses
+collect

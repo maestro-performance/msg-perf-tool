@@ -1,0 +1,29 @@
+# Set the broker URL
+set broker amqp://hostname/test.performance.queue?priority=variable
+
+# Sets the rate to 100 messages per second. This enables "rate-based" testing
+set rate 100
+
+# Use only one parallel instance
+set parallel-count 1
+
+# Use a variable message size of 256 bytes
+set message-size ~256
+
+# Runs a very short test: 180 seconds
+set duration 180s
+
+# Collect peer responses
+collect
+
+# Start the receiver
+start-receiver
+collect
+
+# Start the inspector
+start-inspector
+collect
+
+# Start the sender
+start-sender
+collect

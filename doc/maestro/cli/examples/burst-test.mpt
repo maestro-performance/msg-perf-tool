@@ -1,0 +1,30 @@
+# Set the broker URL
+set broker amqp://hostname/test.performance.queue?priority=variable
+
+# Use burst testing throttling the messages to 30 per second
+set throttle 30
+
+# Use 10 parallel instances
+set parallel-count 10
+
+# Use a variable message size of 256 bytes
+set message-size ~256
+
+# Runs for 15 minutes
+set duration 15m
+
+# Collect peer responses
+collect
+
+# Start the receiver
+start-receiver
+collect
+
+# Start the inspector
+start-inspector
+collect
+
+# Start the sender
+start-sender
+collect
+
