@@ -301,6 +301,7 @@ static bool brokerd_collect(gru_status_t *status) {
 	if (!worker_dump(worker_log_dir, &worker_options, status)) {
 		goto err_exit;
 	}
+	fflush(NULL);
 
 	while (started) {
 		if (!brokerd_update(&ctxt, &stats_set, status)) {
