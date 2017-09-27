@@ -1,7 +1,7 @@
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.2.0
-Release:            4%{?dist}
+Release:            5%{?dist}
 License:            Apache v2
 Source:             msg-perf-tool-%{version}.tar.gz
 URL:                https://github.com/orpiske/msg-perf-tool.git
@@ -52,6 +52,18 @@ cd build
 %postun -p /sbin/ldconfig
 
 %changelog
+* Wed Sep 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-5
+- Performance tunning: adjust the size of the IPC buffer
+
+* Wed Sep 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-4
+- Use a dynamic wait time if using more than 10 children
+
+* Wed Sep 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-3
+- Incorrect evaluation of latency within the warm up period
+
+* Mon Sep 25 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-2
+- Prevent the test from failing if within the warm up period
+
 * Wed Aug 30 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-1
 - Bump rpm build number
 

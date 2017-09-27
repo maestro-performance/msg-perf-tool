@@ -48,7 +48,7 @@ void worker_vqueue_destroy(worker_vqueue_t **ptr) {
 
 struct worker_ipc_buff_t {
 	long mtype;
-	char mtext[256];
+	char mtext[sizeof(worker_snapshot_t)];
 };
 
 worker_queue_stat_t worker_vqueue_write(const worker_vqueue_t *const worker_pqueue, const void *data, size_t len, void *payload) {
