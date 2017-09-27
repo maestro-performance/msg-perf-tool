@@ -136,13 +136,6 @@ mpt-sender -d 10m30s -l debug -s 256 -b amqp://<hostname>/<queue name>
 mpt-receiver -d 10m30s -l debug -s 256 -b amqp://<hostname>/<queue name>
 ```
 
-CLI Usage Examples: 
-
-* [Ping command](master/doc/maestro/cli/ping-example.mpt)
-* [Burst test](master/doc/maestro/cli/burst-test.mpt)
-* [Rate test](master/doc/maestro/cli/rate-test.mpt)
-* [Rate test (with fail condition)](master/doc/maestro/cli/rate-test-with-fail-condition.mpt)
-
 **Note**: the CLI tool should be used for simple testing, smoke testing and other small scale verifications. It 
 does not provide any mechanism for test orchestration or management. 
 
@@ -220,6 +213,13 @@ ping
 stats
 halt
 ```
+
+**CLI Usage Examples**:
+
+* [Ping command](master/doc/maestro/cli/ping-example.mpt)
+* [Burst test](master/doc/maestro/cli/burst-test.mpt)
+* [Rate test](master/doc/maestro/cli/rate-test.mpt)
+* [Rate test (with fail condition)](master/doc/maestro/cli/rate-test-with-fail-condition.mpt)
 
 **Note**: the purpose of the CLI is to serve as a way to run ad-hoc commands on the test cluster. For test 
 orchestration, the Java or the Groovy API must be used. 
