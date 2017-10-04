@@ -52,7 +52,7 @@ worker_ret_t naive_receiver_start(const worker_t *worker,
 	// TODO: requires a content strategy
 	msg_content_data_init(&content_storage, worker->options->message_size, status);
 	if (!gru_status_success(status)) {
-		goto err_exit;
+		goto err_exit_1;
 	}
 
 	snapshot->start = gru_time_now();
@@ -137,9 +137,10 @@ worker_ret_t naive_receiver_start(const worker_t *worker,
 	vmslh_cleanup(&handlers);
 	return WORKER_SUCCESS;
 
-	err_exit:
+	err_exit_1:
 	worker_queue_destroy(&pqueue);
 
+	err_exit:
 	msg_content_data_release(&content_storage);
 
 	if (msg_ctxt) {

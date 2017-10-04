@@ -43,7 +43,7 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 
 	if (!worker->pl_strategy.init(
 		&content_storage, worker->options->message_size, status)) {
-		goto err_exit;
+		goto err_exit_1;
 	}
 
 	snapshot->start = gru_time_now();
@@ -117,6 +117,9 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 
 	return WORKER_SUCCESS;
 
+	err_exit_1:
+	worker_queue_destroy(&pqueue);
+
 	err_exit:
 	worker->pl_strategy.cleanup(&content_storage);
 
@@ -126,7 +129,7 @@ worker_ret_t rate_sender_start(const worker_t *worker,
 		worker->vmsl->destroy(msg_ctxt, &tmp_status);
 	}
 
-	worker_queue_destroy(&pqueue);
+
 
 	worker_msg_opt_cleanup(&opt);
 	vmslh_cleanup(&handlers);

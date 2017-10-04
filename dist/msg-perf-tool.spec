@@ -1,7 +1,7 @@
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.2.0
-Release:            5%{?dist}
+Release:            6%{?dist}
 License:            Apache v2
 Source:             msg-perf-tool-%{version}.tar.gz
 URL:                https://github.com/orpiske/msg-perf-tool.git
@@ -52,6 +52,9 @@ cd build
 %postun -p /sbin/ldconfig
 
 %changelog
+* Wed Oct 04 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-6
+- Fixes incorrect error cleanup in the workers
+
 * Wed Sep 27 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-5
 - Performance tunning: adjust the size of the IPC buffer
 - Link to the last execution even if failed
