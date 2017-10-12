@@ -125,13 +125,13 @@ static bool worker_manager_watchdog(worker_handler_t *handler, gru_status_t *sta
 	while (node) {
 		worker_info_t *worker_info = gru_node_get_data_ptr(worker_info_t, node);
 
+		worker_manager_update_snapshot(worker_info);
+
 		int wstatus = 0;
 		pid_t pid = waitpid(worker_info->child, &wstatus, WNOHANG);
 
 		// waitpid returns 0 if WNOHANG and there's no change of state for the process
 		if (pid == 0) {
-			worker_manager_update_snapshot(worker_info);
-
 			if (handler->flags & WRK_HANDLE_PRINT) {
 				if (!handler->print) {
 					gru_status_set(status, GRU_FAILURE,
@@ -289,6 +289,11 @@ static bool worker_manager_do_stop(int signal) {
 			}
 
 		} while (pid == 0 && retry > 0);
+
+		/**
+		 * Update the snapshot in order to clean the IPC queue
+		 */
+		worker_manager_update_snapshot(worker_info);
 
 		node = node->next;
 	}
