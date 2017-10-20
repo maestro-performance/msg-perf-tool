@@ -202,16 +202,7 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_s
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 	logger(GRU_INFO, "Subscribing to endpoint address at %s", url);
-	pn_subscription_t *sub = pn_messenger_subscribe(proton_ctxt->messenger, url);
-	if (!sub) {
-		logger(GRU_ERROR, "Unable to subscribe to the endpoint at %s", url);
-		pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
-
-		const char *protonErrorText = pn_error_text(error);
-		gru_status_set(status, GRU_FAILURE, protonErrorText);
-		return VMSL_ERROR;
-	}
-
+	pn_messenger_subscribe(proton_ctxt->messenger, url);
 	if (failed(proton_ctxt->messenger)) {
 		pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
 
@@ -221,8 +212,24 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_s
 		return VMSL_ERROR;
 	}
 
-	pn_messenger_set_incoming_window(proton_ctxt->messenger, window);
 	pn_messenger_set_blocking(proton_ctxt->messenger, false);
+	pn_messenger_set_incoming_window(proton_ctxt->messenger, window);
+
+	int ret = pn_messenger_recv(proton_ctxt->messenger, 1);
+	if (ret != 0) {
+		if (failed(proton_ctxt->messenger)) {
+			logger(GRU_ERROR, "Unable to prefetch initial delivery");
+
+			pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
+
+			const char *protonErrorText = pn_error_text(error);
+			gru_status_set(status, GRU_FAILURE, protonErrorText);
+			return VMSL_ERROR;
+		}
+	}
+	int nmsgs = pn_messenger_incoming(proton_ctxt->messenger);
+	logger(GRU_INFO, "%d messages initially available", nmsgs);
+
 	return VMSL_SUCCESS;
 }
 
