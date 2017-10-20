@@ -36,7 +36,6 @@ static void show_help(char **argv) {
 		"number of parallel connections to the broker (require a log directory for > 1)");
 
 	gru_cli_option_help("size", "s", "message size (in bytes)");
-	gru_cli_option_help("maestro-url", "m", "maestro URL to connect to");
 }
 
 int main(int argc, char **argv) {
@@ -100,13 +99,6 @@ int main(int argc, char **argv) {
 			case 'L':
 				if (!options_set_logdir(options, optarg)) {
 					fprintf(stderr, "Unable to allocate memory for setting the log directory\n");
-
-					goto err_exit_0;
-				}
-				break;
-			case 'm':
-				if (!options_set_maestro_uri(options, optarg, &status)) {
-					fprintf(stderr, "%s\n", status.message);
 
 					goto err_exit_0;
 				}
