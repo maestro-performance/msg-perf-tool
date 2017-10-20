@@ -84,15 +84,16 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
-	if (!receiver_initialize_writer(worker.writer, options, &status)) {
-		logger(GRU_FATAL, "Error initializing performance report writer: %s", status.message);
-		return 1;
-	}
 
 	worker.can_continue = worker_check;
 
 	if (options_get_parallel_count() == 1) {
 		worker.worker_flags = WRK_RECEIVER;
+
+		if (!receiver_initialize_writer(worker.writer, options, &status)) {
+			logger(GRU_FATAL, "Error initializing performance report writer: %s", status.message);
+			return 1;
+		}
 
 		worker_snapshot_t snapshot = {0};
 
