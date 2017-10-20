@@ -91,25 +91,26 @@ vmsl_stat_t proton_start(msg_ctxt_t *ctxt, gru_status_t *status) {
 }
 
 void proton_stop(msg_ctxt_t *ctxt, gru_status_t *status) {
+	logger_t logger = gru_logger_get();
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
-
 	int ret = pn_messenger_stop(proton_ctxt->messenger);
+
 	if (ret == PN_INPROGRESS) {
 		bool stopped = false;
-		const int wait_time = 100000;
+		const int wait_time = 50000;
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 20; i++) {
 			if (!pn_messenger_stopped(proton_ctxt->messenger)) {
+				mpt_trace("Waiting for Proton %d", i);
 				usleep(wait_time);
 			} else {
 				stopped = true;
+				break;
 			}
 		}
 
 		if (!stopped) {
-			logger_t logger = gru_logger_get();
-
 			logger(GRU_WARNING, "Proton did not stop within the required wait time");
 		}
 	}
