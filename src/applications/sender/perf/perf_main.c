@@ -89,7 +89,7 @@ int perf_main(int argc, char **argv) {
 				if (!options_set_broker_uri(options, optarg, &status)) {
 					fprintf(stderr, "%s\n", status.message);
 
-					goto err_exit;
+					goto err_exit_0;
 				}
 				break;
 			case 'c':
@@ -105,7 +105,7 @@ int perf_main(int argc, char **argv) {
 				if (!options_set_duration(options, optarg)) {
 					fprintf(stderr, "Invalid duration: %s\n", optarg);
 
-					goto err_exit;
+					goto err_exit_0;
 				}
 				break;
 			case 's':
@@ -115,7 +115,7 @@ int perf_main(int argc, char **argv) {
 				if (!options_set_logdir(options, optarg)) {
 					fprintf(stderr, "Unable to allocate memory for setting the log directory\n");
 
-					goto err_exit;
+					goto err_exit_0;
 				}
 				break;
 			case 't':
@@ -141,7 +141,7 @@ int perf_main(int argc, char **argv) {
 		if (options_get_parallel_count() > 1) {
 			fprintf(stderr, "Multiple concurrent process require a log directory\n");
 
-			goto err_exit;
+			goto err_exit_0;
 		}
 
 	}
@@ -152,7 +152,7 @@ int perf_main(int argc, char **argv) {
 	const gru_uri_t broker_uri = options_get_broker_uri();
 
 	if (!vmsl_assign_by_url(&broker_uri, &vmsl)) {
-		goto err_exit;
+		goto err_exit_1;
 	}
 
 
@@ -164,9 +164,10 @@ int perf_main(int argc, char **argv) {
 		return EXIT_SUCCESS;
 	}
 
-err_exit:
+err_exit_1:
 	logger(GRU_INFO, "Test execution with process ID %d finished with errors\n", getpid());
 
+err_exit_0:
 	options_destroy(&options);
 	return EXIT_FAILURE;
 }
