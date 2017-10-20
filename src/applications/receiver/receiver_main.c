@@ -21,7 +21,6 @@ static void show_help(char **argv) {
 	gru_cli_option_help("help", "h", "show this help");
 
 	gru_cli_option_help("broker-url", "b", "broker URL to connect to");
-	gru_cli_option_help("count", "c", "sends a fixed number of messages");
 	gru_cli_option_help("duration",
 		"d",
 		"runs for the specified amount of time. It "

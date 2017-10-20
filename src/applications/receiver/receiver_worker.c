@@ -66,10 +66,8 @@ int receiver_start(const vmsl_t *vmsl, const options_t *options) {
 	worker.options = &wrk_opt;
 
 	worker.options->uri = options_get_broker_uri();
-	if (options_get_count() == 0) {
-		worker.options->duration_type = TEST_TIME;
-		worker.options->duration.time = options_get_duration();
-	}
+	worker.options->duration_type = TEST_TIME;
+	worker.options->duration.time = options_get_duration();
 	worker.options->parallel_count = options_get_parallel_count();
 	worker.options->log_level = options_get_log_level();
 	worker.options->message_size = options_get_message_size();
