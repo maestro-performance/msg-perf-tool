@@ -30,7 +30,7 @@ static void show_help(char **argv) {
 		"l",
 		"runs in the given verbose (info, stat, debug, etc) level mode");
 	gru_cli_option_help(
-		"log-dir", "L", "a directory to save the logs (mandatory for --daemon)");
+		"log-dir", "L", "a directory to save the logs");
 	gru_cli_option_help("parallel-count",
 		"p",
 		"number of parallel connections to the broker (require a log directory for > 1)");
