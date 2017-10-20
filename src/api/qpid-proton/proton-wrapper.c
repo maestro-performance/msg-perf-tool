@@ -202,7 +202,16 @@ vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_s
 	proton_ctxt_t *proton_ctxt = proton_ctxt_cast(ctxt);
 
 	logger(GRU_INFO, "Subscribing to endpoint address at %s", url);
-	pn_messenger_subscribe(proton_ctxt->messenger, url);
+	pn_subscription_t *sub = pn_messenger_subscribe(proton_ctxt->messenger, url);
+	if (!sub) {
+		logger(GRU_ERROR, "Unable to subscribe to the endpoint at %s", url);
+		pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
+
+		const char *protonErrorText = pn_error_text(error);
+		gru_status_set(status, GRU_FAILURE, protonErrorText);
+		return VMSL_ERROR;
+	}
+
 	if (failed(proton_ctxt->messenger)) {
 		pn_error_t *error = pn_messenger_error(proton_ctxt->messenger);
 
