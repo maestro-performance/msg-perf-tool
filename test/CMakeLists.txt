@@ -50,3 +50,20 @@ add_test(
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
 	COMMAND maestro_serialize_test "stats-response"
 )
+
+add_executable(
+		latencies_store_test
+		common/latencies_store_test.c
+)
+
+add_test(
+		NAME latencies_store_test_simple
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
+		COMMAND latencies_store_test "simple"
+)
+
+add_test(
+		NAME latencies_store_test_long
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/target/tests/bin
+		COMMAND latencies_store_test "long-test"
+)

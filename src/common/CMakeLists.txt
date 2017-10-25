@@ -11,6 +11,7 @@ add_library(
         statistics/nop_writer.c
         statistics/hdr_wrapper.c
         statistics/hdr_writer.c
+		statistics/latency_store.c
         statistics/naming_utils.c
         strategies/payload/pl_fixed_strategy.c
         strategies/payload/pl_variable_strategy.c

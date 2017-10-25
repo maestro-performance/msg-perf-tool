@@ -236,6 +236,24 @@ static bool receiverd_worker_eval_latency(worker_info_t *worker_info, gru_status
 }
 
 
+static bool receiverd_worker_eval_latency_per(worker_info_t *worker_info, gru_status_t *status) {
+	int64_t latency = gru_time_to_milli(&worker_info->snapshot.latency.elapsed);
+
+	const int64_t warm_up_secs = 90;
+
+	int64_t elapsed = gru_time_elapsed_secs(worker_info->snapshot.start, worker_info->snapshot.now);
+	if (elapsed < warm_up_secs) {
+		logger_t logger = gru_logger_get();
+
+		logger(GRU_DEBUG, "Ignoring latency (%"PRIi64") because the test is still in warm up period",
+			   latency);
+
+		return true;
+	}
+
+	return true;
+}
+
 static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
