@@ -71,8 +71,8 @@ For building the project, the following dependencies are required:
 * zlib
 * libuuid
 * readline
-* msgpack-c
-* hdr-histogram-c
+* [msgpack-c](https://github.com/msgpack/msgpack-c)
+* [hdr-histogram-c](https://github.com/HdrHistogram/HdrHistogram_c)
 * uriparser
 
 To compile the project:
