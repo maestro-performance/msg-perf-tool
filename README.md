@@ -156,6 +156,8 @@ the test instructions via the maestro API.
 
 ![Maestro Overview](doc/maestro-overview.png)
 
+The protocol is documented in details [here](doc/maestro/protocol/)
+
 **Daemons Configuration**
 
 The daemons configuration is straight forward. Just edit the appropriate daemon file:

@@ -356,3 +356,54 @@ This note is issued by any node when the test completed successfully.
  
  * Message: the success message (if any).
 
+Maestro Data Server:
+----
+
+A simple HTTP server that provides access to the logs of the nodes. It must run on port 8000 
+on the testing node.
+
+Must provide the following content:
+
+* A directory or link named `last`, containing the data from the last test.
+* A directory or link named `lastSuccessful`, containing the data from the last successful test
+* A directory or link namedf `lastFailed`, containing the data from the last failed test. 
+
+
+**Sender Content:**
+
+A sender node must provide: 
+* A file named ```senderd-rate.csv.gz``` with the compressed CSV data for the sender.
+* A file named ```test.properties``` with the testing properties
+
+Sample content for the `test.properties`:
+
+```
+brokerUri=amqp://performance.testing.node.com:15000/test.performance.queue
+durationType=time
+duration=300
+parallelCount=16
+messageSize=25
+variableSize=1
+rate=3500
+fcl=500
+```
+
+
+**Receiver Content:**
+
+A receiver node must provide: 
+* A file named ```receiverd-rate.csv.gz``` with the compressed CSV data for the sender.
+* A file named ```test.properties``` with the testing properties
+
+Sample content for the `test.properties`:
+
+```
+brokerUri=amqp://performance.testing.node.com:15000/test.performance.queue
+durationType=time
+duration=300
+parallelCount=16
+messageSize=25
+variableSize=1
+rate=3500
+fcl=500
+```
