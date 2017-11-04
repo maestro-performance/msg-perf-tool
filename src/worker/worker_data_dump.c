@@ -15,41 +15,56 @@
  */
 #include "worker_data_dump.h"
 
+struct worker_dump_wrapper_t {
+  worker_options_t *options;
+  vmsl_info_t *info;
+};
+
 static void worker_dump_data(FILE *file, void *data) {
-	worker_options_t *options = (worker_options_t *) data;
+	struct worker_dump_wrapper_t *wrapper = (struct worker_dump_wrapper_t *) data;
 
 	gru_status_t status = gru_status_new();
-	char *uri_str = gru_uri_simple_format(&options->uri, &status);
+	char *uri_str = gru_uri_simple_format(&wrapper->options->uri, &status);
 	gru_config_write_string("brokerUri", file, uri_str);
 	gru_dealloc_string(&uri_str);
 
-	if (options->duration_type == MESSAGE_COUNT) {
+	if (wrapper->options->duration_type == MESSAGE_COUNT) {
 		gru_config_write_string("durationType", file, "count");
-		gru_config_write_ulong("duration", file, options->duration.count);
+		gru_config_write_ulong("duration", file, wrapper->options->duration.count);
 	}
 	else {
-		uint64_t duration = gru_duration_seconds(options->duration.time);
+		uint64_t duration = gru_duration_seconds(wrapper->options->duration.time);
 		gru_config_write_string("durationType", file, "time");
 		gru_config_write_ulong("duration", file, duration);
 	}
 
-	gru_config_write_short("parallelCount", file, options->parallel_count);
-	gru_config_write_ulong("messageSize", file, options->message_size);
-	gru_config_write_short("variableSize", file, options->variable_size ? 1 : 0);
-	gru_config_write_uint("rate", file, options->rate);
+	gru_config_write_short("parallelCount", file, wrapper->options->parallel_count);
+	gru_config_write_ulong("messageSize", file, wrapper->options->message_size);
+	gru_config_write_short("variableSize", file, wrapper->options->variable_size ? 1 : 0);
+	gru_config_write_uint("rate", file, wrapper->options->rate);
 
-	if (options->condition_type == MPT_COND_LATENCY) {
-		gru_config_write_long("fcl", file, options->condition.latency);
+	if (wrapper->options->condition_type == MPT_COND_LATENCY) {
+		gru_config_write_long("fcl", file, wrapper->options->condition.latency);
+	}
+
+	if (wrapper->info) {
+		gru_config_write_string("apiName", file, wrapper->info->api_name);
+		gru_config_write_string("apiVersion", file, wrapper->info->api_version);
 	}
 
 	fflush(file);
 }
 
-bool worker_dump(const char *dir, worker_options_t *options, gru_status_t *status) {
+bool worker_dump(const char *dir, worker_options_t *options, vmsl_info_t *info, gru_status_t *status) {
 	gru_config_t *config = gru_config_new(dir, "test.properties", status);
 	gru_alloc_check(config, false);
 
-	gru_payload_t *payload = gru_payload_init(NULL, worker_dump_data, NULL, options, status);
+	struct worker_dump_wrapper_t wrapper = {
+		.options = options,
+		.info = info,
+	};
+
+	gru_payload_t *payload = gru_payload_init(NULL, worker_dump_data, NULL, &wrapper, status);
 	if (!payload) {
 		gru_config_destroy(&config);
 		return false;

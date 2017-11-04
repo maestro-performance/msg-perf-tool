@@ -46,6 +46,7 @@ void paho_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status);
 vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_status_t *status);
 vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+vmsl_info_t paho_info();
 
 bool paho_vmsl_assign(vmsl_t *vmsl);
 

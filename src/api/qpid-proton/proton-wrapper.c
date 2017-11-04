@@ -385,6 +385,16 @@ err_exit:
 	return VMSL_ERROR;
 }
 
+vmsl_info_t proton_info() {
+	vmsl_info_t ret = {
+		.api_name = "Qpid Proton C - Messenger API",
+		.api_version = MPT_PROTON_VERSION,
+	};
+
+
+	return ret;
+}
+
 bool proton_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
@@ -397,6 +407,8 @@ bool proton_vmsl_assign(vmsl_t *vmsl) {
 	vmsl->send = proton_send;
 	vmsl->stop = proton_stop;
 	vmsl->destroy = proton_destroy;
+	vmsl->info = proton_info;
 
 	return true;
 }
+

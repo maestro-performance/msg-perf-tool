@@ -22,6 +22,9 @@
 #include "msgctxt.h"
 #include "vmslh.h"
 
+#define MPT_STR_HELPER(x) #x
+#define MPT_STR(x) MPT_STR_HELPER(x)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,6 +42,11 @@ typedef struct vmsl_mtopic_spec_t_ {
   	char **topics;
 } vmsl_mtopic_spec_t;
 
+typedef struct vmsl_info_t_ {
+  const char *api_name;
+  const char *api_version;
+} vmsl_info_t;
+
 typedef msg_ctxt_t *(*msg_init)(msg_opt_t opt, vmslh_handlers_t *handlers, gru_status_t *status);
 typedef vmsl_stat_t (*msg_start)(msg_ctxt_t *ctxt, gru_status_t *status);
 typedef vmsl_stat_t (
@@ -48,6 +56,9 @@ typedef vmsl_stat_t (
 	*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 typedef void (*msg_stop)(msg_ctxt_t *ctxt, gru_status_t *status);
 typedef void (*msg_destroy)(msg_ctxt_t *, gru_status_t *status);
+typedef vmsl_info_t (*msg_info)(void);
+
+
 
 typedef struct vmsl_t_ {
 	msg_init init;
@@ -57,6 +68,7 @@ typedef struct vmsl_t_ {
 	msg_receive receive;
 	msg_stop stop;
 	msg_destroy destroy;
+	msg_info info;
 } vmsl_t;
 
 vmsl_t vmsl_init();

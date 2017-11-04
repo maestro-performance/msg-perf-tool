@@ -337,6 +337,17 @@ vmsl_stat_t
 	return VMSL_SUCCESS;
 }
 
+vmsl_info_t paho_info() {
+	MQTTClient_nameValue *info = MQTTClient_getVersionInfo();
+
+	vmsl_info_t ret = {
+		.api_name = info->name,
+		.api_version = info->value
+	};
+
+	return ret;
+}
+
 bool paho_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
@@ -349,6 +360,7 @@ bool paho_vmsl_assign(vmsl_t *vmsl) {
 	vmsl->send = paho_send;
 	vmsl->stop = paho_stop;
 	vmsl->destroy = paho_destroy;
+	vmsl->info = paho_info;
 
 	return true;
 }

@@ -298,7 +298,7 @@ static bool brokerd_collect(gru_status_t *status) {
 		goto err_exit;
 	}
 
-	if (!worker_dump(worker_log_dir, &worker_options, status)) {
+	if (!worker_dump(worker_log_dir, &worker_options, NULL, status)) {
 		goto err_exit;
 	}
 	fflush(NULL);

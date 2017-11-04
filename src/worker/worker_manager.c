@@ -28,7 +28,9 @@ worker_ret_t worker_manager_clone(worker_t *worker,
 
 	logger_t logger = gru_logger_get();
 
-	if (!worker_dump(worker->log_dir, worker->options, status)) {
+	vmsl_info_t info = worker->vmsl->info();
+
+	if (!worker_dump(worker->log_dir, worker->options, &info, status)) {
 		return WORKER_FAILURE;
 	}
 

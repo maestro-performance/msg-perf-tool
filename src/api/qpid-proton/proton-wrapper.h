@@ -22,6 +22,7 @@
 
 #include <proton/message.h>
 #include <proton/messenger.h>
+#include <proton/version.h>
 
 #include <common/gru_portable.h>
 
@@ -31,6 +32,8 @@
 #include "proton-handlers.h"
 #include "vmsl.h"
 #include "vmslh.h"
+
+#define MPT_PROTON_VERSION "" MPT_STR(PN_VERSION_MAJOR) "." MPT_STR(PN_VERSION_MINOR) "." MPT_STR(PN_VERSION_POINT) ""
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +48,8 @@ vmsl_stat_t proton_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t
 vmsl_stat_t proton_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_status_t *status);
 vmsl_stat_t
 	proton_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
+
+vmsl_info_t proton_info();
 
 bool proton_vmsl_assign(vmsl_t *vmsl);
 

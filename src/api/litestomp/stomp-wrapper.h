@@ -43,6 +43,8 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 	msg_content_data_t *content,
 	gru_status_t *status);
 
+vmsl_info_t litestomp_info();
+
 bool litestomp_vmsl_assign(vmsl_t *vmsl);
 
 #ifdef __cplusplus

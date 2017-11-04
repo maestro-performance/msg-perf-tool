@@ -256,6 +256,17 @@ vmsl_stat_t litestomp_receive(msg_ctxt_t *ctxt,
 	return VMSL_SUCCESS;
 }
 
+vmsl_info_t litestomp_info() {
+
+	vmsl_info_t ret = {
+		.api_name = "LiteStomp",
+		.api_version = "undefined"
+	};
+
+	return ret;
+}
+
+
 bool litestomp_vmsl_assign(vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 
@@ -268,6 +279,7 @@ bool litestomp_vmsl_assign(vmsl_t *vmsl) {
 	vmsl->send = litestomp_send;
 	vmsl->stop = litestomp_stop;
 	vmsl->destroy = litestomp_destroy;
+	vmsl->info = litestomp_info;
 
 	return true;
 }

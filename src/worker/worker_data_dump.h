@@ -23,6 +23,7 @@
 
 #include <config/gru_config.h>
 
+#include "vmsl.h"
 #include "worker_options.h"
 
 #ifdef __cplusplus
@@ -33,10 +34,11 @@ extern "C" {
  * Dump the worker options so it can be processed later
  * @param dir
  * @param options
+ * @param info
  * @param status
  * @return
  */
-bool worker_dump(const char *dir, worker_options_t *options, gru_status_t *status);
+bool worker_dump(const char *dir, worker_options_t *options, vmsl_info_t *info, gru_status_t *status);
 
 #ifdef __cplusplus
 }
