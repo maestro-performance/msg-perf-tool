@@ -271,15 +271,6 @@ This note is issued by any node when it is unable to comply with a request.
 * Value: 13
 * Payload: no.
 
-**Response: MAESTRO_NOTE_ABNORMAL_DISCONNECT**
-
-This note is issued by any node as a last-will message.
-
-* Value: 14
-* Payload: no.
-
-Note: this note is incorrectly mapped as response but will be changed to notification in the future.
-
 
 **Response: MAESTRO_NOTE_OK**
 
@@ -329,6 +320,14 @@ This note is sent by the peers as a response to a ```MAESTRO_NOTE_PING``` reques
 |---------|
 
 * Elapsed: the elapsed time, in milliseconds, between the request and receiving it on the peer. 
+
+
+**Response: MAESTRO_NOTE_ABNORMAL_DISCONNECT**
+
+This note is issued by any node as a last-will message.
+
+* Value: 14
+* Payload: no.
 
 
 **Notify: MAESTRO_NOTE_NOTIFY_FAIL**

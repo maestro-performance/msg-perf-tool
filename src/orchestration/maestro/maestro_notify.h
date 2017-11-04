@@ -32,6 +32,7 @@ extern "C" {
 
 void maestro_notify_test_failed(gru_status_t *status);
 void maestro_notify_test_successful(gru_status_t *status);
+void maestro_notify_abnormal_disconnect(void *ctxt, void *conn_opts, void *payload);
 
 #ifdef __cplusplus
 }

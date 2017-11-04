@@ -1,7 +1,7 @@
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
-Version:            0.2.0
-Release:            8%{?dist}
+Version:            0.2.1
+Release:            0%{?dist}
 License:            Apache v2
 Source:             msg-perf-tool-%{version}.tar.gz
 URL:                https://github.com/orpiske/msg-perf-tool.git
@@ -52,6 +52,10 @@ cd build
 %postun -p /sbin/ldconfig
 
 %changelog
+* Thu Oct 12 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.1-0
+- Fixed incorrect computation of throughput
+- Abnormal disconnect message is now sent as a notification message
+
 * Thu Oct 12 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-7
 - Update snapshot upon stop to prevent old data from remaining in the queue
 

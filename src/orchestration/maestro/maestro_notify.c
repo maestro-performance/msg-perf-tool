@@ -113,3 +113,34 @@ void maestro_notify_test_successful(gru_status_t *status) {
 	maestro_note_payload_cleanup(&note);
 	logger(GRU_INFO, "Sent a test success notification");
 }
+
+
+static msg_content_data_t *wdata;
+static char *wtopic = MAESTRO_NOTIFICATIONS;
+static MQTTClient_willOptions wopts = MQTTClient_willOptions_initializer;
+
+void maestro_notify_abnormal_disconnect(void *ctxt, void *conn_opts, void *payload) {
+	MQTTClient_connectOptions *opts = (MQTTClient_connectOptions *) conn_opts;
+	maestro_player_info_t *player_info = (maestro_player_info_t *) payload;
+
+	maestro_note_t note = {0};
+
+	maestro_note_payload_prepare(&note, NULL);
+
+	maestro_note_set_type(&note, MAESTRO_TYPE_NOTIFICATION);
+
+	maestro_note_set_cmd(&note, MAESTRO_NOTE_ABNORMAL_DISCONNECT);
+	maestro_note_response_set_id(&note, player_info->id);
+	maestro_note_response_set_name(&note, player_info->name);
+	maestro_note_notification_set_message(&note, "The client disconnected abnormally");
+
+	wdata = msg_content_data_new(MAESTRO_NOTE_SIZE, NULL);
+	maestro_serialize_note(&note, wdata);
+
+	opts->will = &wopts;
+	opts->will->payload.data = wdata->data;
+	opts->will->payload.len = (int) wdata->size;
+	opts->will->topicName = wtopic;
+	opts->will->qos = 1;
+	opts->will->retained = 0;
+}

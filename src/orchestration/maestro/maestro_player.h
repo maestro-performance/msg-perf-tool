@@ -32,6 +32,7 @@
 #include "maestro_player_info.h"
 #include "maestro_sheet.h"
 #include "maestro_topics.h"
+#include "maestro_notify.h"
 
 
 #define MPT_MAESTRO_IDLE_TIME 10000

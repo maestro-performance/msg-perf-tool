@@ -132,10 +132,6 @@ static void maestro_cmd_print_responses(maestro_note_t *note) {
 		printf("Error: one of more of the commands did not complete successfully\n");
 		break;
 	}
-	case MAESTRO_NOTE_ABNORMAL_DISCONNECT: {
-		printf("Response: remote peer disconnected abnormally\n");
-		break;
-	}
 	case MAESTRO_NOTE_INTERNAL_ERROR: {
 		printf("Error: internal server error\n");
 		break;
@@ -151,10 +147,8 @@ static void maestro_cmd_print_notifications(maestro_note_t *note) {
 	printf("Notification from: %-45s\tID: %-40s Message: ", note->payload->response.name, note->payload->response.id);
 
 	switch (note->command) {
-	case MAESTRO_NOTE_NOTIFY_FAIL: {
-		printf("%s\n", note->payload->notification.body.message);
-		break;
-	}
+	case MAESTRO_NOTE_ABNORMAL_DISCONNECT:
+	case MAESTRO_NOTE_NOTIFY_FAIL:
 	case MAESTRO_NOTE_NOTIFY_SUCCESS: {
 		printf("%s\n", note->payload->notification.body.message);
 		break;
