@@ -354,6 +354,19 @@ This note is issued by any node when the test completed successfully.
  |---------|
  
  * Message: the success message (if any).
+ 
+Maestro Topics
+----
+
+The following topics are used for message and notification exchanges:
+
+* /mpt/daemon: the topic used to publish messages for all daemons.
+* /mpt/notifications: the topic used to publish notification messages.
+* /mpt/maestro: the topic where responses are published.
+* /mpt/daemon/sender: the topic used to publish messages for all sender daemons.
+* /mpt/daemon/receiver: the topic used to publish messages for all receiver daemons.
+* /mpt/daemon/brokerd: the topic used to publish messages for all broker inspector daemons.
+
 
 Maestro Data Server:
 ----
