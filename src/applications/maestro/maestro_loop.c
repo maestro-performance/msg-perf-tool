@@ -146,7 +146,7 @@ static int maestro_loop_file(maestro_cmd_ctxt_t *cmd_ctxt, FILE *script, gru_sta
 			continue;
 		}
 
-		if (raw_line[0] == '#') {
+		if (raw_line[0] == '#' || isspace(raw_line[0])) {
 			continue;
 		}
 
