@@ -151,7 +151,7 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 	gru_dealloc_string(&formatted_ts);
 
 	maestro_note_stats_set_perf_count(response, total_msg);
-	maestro_note_stats_set_perf_rate(response, (total_rate / count_children));
+	maestro_note_stats_set_perf_rate(response, total_rate);
 	maestro_note_stats_set_perf_latency(response, ((double) total_lat / count_children));
 
 	return NULL;

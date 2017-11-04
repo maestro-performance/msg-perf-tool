@@ -313,7 +313,7 @@ Perf Data Format:
 
 * Timestamp: epoch seconds.microseconds
 * Count: number of messages exchanged 
-* Rate: current rate
+* Rate: the combined current rate for all connections
 * Latency: latency (when applicable)
 
 Note: unstable interface which may change in the future.
