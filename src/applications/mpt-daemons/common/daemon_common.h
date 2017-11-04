@@ -39,6 +39,8 @@ extern "C" {
 #endif
 
 #define MPT_WORKER_IDLE_TIME 500000
+#define MPT_CLIENT_ROLE_INFO "msg-perf-tool C test client"
+
 
 void *commond_handle_set(const maestro_note_t *request, maestro_note_t *response,
 	worker_options_t *worker_options);

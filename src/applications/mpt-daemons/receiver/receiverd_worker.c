@@ -141,7 +141,7 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 	logger(GRU_INFO, "Number of children evaluated: %d", count_children);
 
 	maestro_note_stats_set_role(response, "receiver");
-	maestro_note_stats_set_roleinfo(response, "perf");
+	maestro_note_stats_set_roleinfo(response, MPT_CLIENT_ROLE_INFO);
 	maestro_note_stats_set_stat_type(response, MAESTRO_STAT_PERF);
 
 	gru_timestamp_t now = gru_time_now();

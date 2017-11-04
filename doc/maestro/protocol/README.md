@@ -292,6 +292,7 @@ This note is sent by a node as a response to a ```MAESTRO_NOTE_STATS``` request.
 
 * Child Count: number of connections
 * Role (sender, receiver, inspector)
+* Role Info: additional information about the peer (ie.: "msg-perf-tool C test client")
 * Stats type (unused)
 * Perf data (structure, see below)
 
