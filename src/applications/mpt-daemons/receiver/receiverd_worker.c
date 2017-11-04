@@ -138,7 +138,7 @@ static void *receiverd_handle_stats(const maestro_note_t *request,
 
 	uint32_t count_children = worker_list_count();
 	maestro_note_stats_set_child_count(response, count_children);
-	logger(GRU_INFO, "Number of childs evaluated: %d", count_children);
+	logger(GRU_INFO, "Number of children evaluated: %d", count_children);
 
 	maestro_note_stats_set_role(response, "receiver");
 	maestro_note_stats_set_roleinfo(response, "perf");
