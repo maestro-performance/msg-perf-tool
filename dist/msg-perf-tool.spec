@@ -55,6 +55,9 @@ cd build
 * Thu Oct 12 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.1-0
 - Fixed incorrect computation of throughput
 - Abnormal disconnect message is now sent as a notification message
+- Dump messaging API information in test.properties file
+- Provide more relevant role information
+- Fix Maestro CLI to avoid errors due to empy lines
 
 * Thu Oct 12 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.0-7
 - Update snapshot upon stop to prevent old data from remaining in the queue
