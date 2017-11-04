@@ -60,8 +60,6 @@ bool maestro_player_start(const options_t *options,
 	gru_status_t *status);
 bool maestro_player_stop(maestro_sheet_t *sheet, gru_status_t *status);
 
-void maestro_player_send_notification(maestro_note_t *note, gru_status_t *status);
-
 const maestro_player_t *maestro_player();
 
 #ifdef __cplusplus
