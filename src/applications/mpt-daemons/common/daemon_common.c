@@ -142,7 +142,7 @@ void *commond_handle_ping(const maestro_note_t *request, maestro_note_t *respons
 	const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
-	logger(GRU_INFO, "Ping request: %s / %s", pinfo->id, pinfo->name);
+	logger(GRU_DEBUG, "Ping request: %s / %s", pinfo->id, pinfo->name);
 
 	gru_timestamp_t now = gru_time_now();
 
