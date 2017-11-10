@@ -107,7 +107,7 @@ void set_options_object(options_t *obj) {
 bool options_set_broker_uri(options_t *obj, const char *url, gru_status_t *status) {
 	gru_uri_cleanup(&obj->broker_uri);
 
-	options->broker_uri = gru_uri_parse(url, status);
+	obj->broker_uri = gru_uri_parse(url, status);
 	if (gru_status_error(status)) {
 		return false;
 	}
@@ -118,7 +118,7 @@ bool options_set_broker_uri(options_t *obj, const char *url, gru_status_t *statu
 bool options_set_maestro_uri(options_t *obj, const char *url, gru_status_t *status) {
 	gru_uri_cleanup(&obj->maestro_uri);
 
-	options->maestro_uri = gru_uri_parse(url, status);
+	obj->maestro_uri = gru_uri_parse(url, status);
 	if (gru_status_error(status)) {
 		return false;
 	}
@@ -127,7 +127,7 @@ bool options_set_maestro_uri(options_t *obj, const char *url, gru_status_t *stat
 }
 
 void options_set_throttle(options_t *obj, const char *value) {
-    options->throttle = atoi(value);
+    obj->throttle = atoi(value);
 }
 
 
@@ -182,7 +182,7 @@ const char *options_get_log_dir() {
 }
 
 void options_set_log_level(options_t *obj, const char *value) {
-    options->log_level = gru_logger_get_level(value);
+    obj->log_level = gru_logger_get_level(value);
 
 	gru_logger_set_minimum(options->log_level);
 }
@@ -198,25 +198,25 @@ bool options_set_file(options_t *obj, const char *file) {
 }
 
 bool options_set_duration(options_t *obj, const char *value) {
-	return gru_duration_parse(&options->duration, value);
+	return gru_duration_parse(&obj->duration, value);
 }
 
 void options_set_parallel_count(options_t *obj, const char *value) {
-	options->parallel_count = (uint16_t) atoi(value);
+	obj->parallel_count = (uint16_t) atoi(value);
 }
 
 void options_set_message_count(options_t *obj, const char *value) {
-	options->count = strtol(value, NULL, 10);
+	obj->count = strtol(value, NULL, 10);
 }
 
 
 void options_set_message_size(options_t *obj, const char *value) {
     if (value[0] == '~') {
-        options->message_size = atoi(value + 1);
+		obj->message_size = atoi(value + 1);
 
         options->variable_size = true;
     } else {
-        options->message_size = atoi(value);
+		obj->message_size = atoi(value);
     }
 }
 
