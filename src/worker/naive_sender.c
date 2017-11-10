@@ -51,16 +51,14 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 	snapshot->now = snapshot->start;
 	gru_timestamp_t last_sample_ts = snapshot->start; // Last sampling timestamp
 
-	useconds_t idle_usec = 0;
 	if (worker->options->throttle > 0) {
-		idle_usec = 1000000 / worker->options->throttle;
-
 		logger(GRU_INFO, "Initializing sender loop with throttling at %"PRIu32" msgs/sec", worker->options->throttle);
 	}
 	else {
 		logger(GRU_INFO, "Initializing sender loop without throttling %d", worker->options->throttle);
 	}
 
+	register uint64_t round = 0;
 
 	while (worker->can_continue(worker->options, snapshot)) {
 		worker->pl_strategy.load(&content_storage);
@@ -99,7 +97,12 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 		}
 
 		if (worker->options->throttle > 0) {
-			usleep(idle_usec);
+			round++;
+			if (round == worker->options->throttle) {
+				uint32_t wait = 1000000 - snapshot->now.tv_usec;
+				usleep(wait);
+				round = 0;
+			}
 		}
 	}
 	logger(GRU_DEBUG, "Finalizing sender loop");
