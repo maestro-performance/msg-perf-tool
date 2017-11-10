@@ -141,6 +141,6 @@ void maestro_notify_abnormal_disconnect(void *ctxt, void *conn_opts, void *paylo
 	opts->will->payload.data = wdata->data;
 	opts->will->payload.len = (int) wdata->size;
 	opts->will->topicName = wtopic;
-	opts->will->qos = 1;
+	opts->will->qos = 0;
 	opts->will->retained = 0;
 }
