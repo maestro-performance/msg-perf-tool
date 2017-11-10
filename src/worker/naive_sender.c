@@ -52,11 +52,16 @@ worker_ret_t naive_sender_start(const worker_t *worker,
 	gru_timestamp_t last_sample_ts = snapshot->start; // Last sampling timestamp
 
 	useconds_t idle_usec = 0;
-	if (worker->options->throttle) {
+	if (worker->options->throttle > 0) {
 		idle_usec = 1000000 / worker->options->throttle;
+
+		logger(GRU_INFO, "Initializing sender loop with throttling at %"PRIu32" msgs/sec", worker->options->throttle);
+	}
+	else {
+		logger(GRU_INFO, "Initializing sender loop without throttling %d", worker->options->throttle);
 	}
 
-	logger(GRU_DEBUG, "Initializing sender loop");
+
 	while (worker->can_continue(worker->options, snapshot)) {
 		worker->pl_strategy.load(&content_storage);
 
