@@ -15,9 +15,7 @@
  */
 #include "perf_worker.h"
 
-static bool perf_initialize_writer(stats_writer_t *writer,
-	const options_t *options,
-	gru_status_t *status) {
+static bool perf_initialize_writer(stats_writer_t *writer, gru_status_t *status) {
 
 	if (options_get_log_dir()) {
 		naming_info_t naming_info = {0};
@@ -55,7 +53,7 @@ static bool perf_print_partial(worker_info_t *worker_info) {
 	return true;
 }
 
-int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
+int perf_worker_start(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
@@ -88,7 +86,7 @@ int perf_worker_start(const vmsl_t *vmsl, const options_t *options) {
 
 	stats_writer_t writer = {0};
 	worker.writer = &writer;
-	if (!perf_initialize_writer(worker.writer, options, &status)) {
+	if (!perf_initialize_writer(worker.writer, &status)) {
 		logger(GRU_FATAL, "Error initializing performance report writer: %s", status.message);
 		return 1;
 	}

@@ -63,7 +63,7 @@ typedef struct bmic_stats_set_t_ {
   bmic_queue_stat_t queue_stats;
 } bmic_stats_set_t;
 
-int brokerd_worker_start(const options_t *options);
+int brokerd_worker_start();
 
 #ifdef __cplusplus
 }

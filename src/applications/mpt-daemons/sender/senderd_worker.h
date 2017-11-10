@@ -54,7 +54,7 @@
 extern "C" {
 #endif
 
-int senderd_worker_start(const options_t *options);
+int senderd_worker_start();
 
 #ifdef __cplusplus
 }

@@ -135,9 +135,7 @@ static void *maestro_player_run(void *player) {
 	return NULL;
 }
 
-bool maestro_player_start(const options_t *options,
-	maestro_sheet_t *sheet,
-	gru_status_t *status) {
+bool maestro_player_start(maestro_sheet_t *sheet, gru_status_t *status) {
 	logger_t logger = gru_logger_get();
 
 	if (splayer) {

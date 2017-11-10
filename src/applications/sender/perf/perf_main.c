@@ -67,7 +67,8 @@ int perf_main(int argc, char **argv) {
 
 	while (1) {
 
-		static struct option long_options[] = {{"broker-url", required_argument, 0, 'b'},
+		static struct option long_options[] = {
+			{"broker-url", required_argument, 0, 'b'},
 			{"count", required_argument, 0, 'c'},
 			{"log-level", required_argument, 0, 'l'},
 			{"parallel-count", required_argument, 0, 'p'},
@@ -76,7 +77,8 @@ int perf_main(int argc, char **argv) {
 			{"log-dir", required_argument, 0, 'L'},
 			{"throttle", required_argument, 0, 't'},
 			{"help", no_argument, 0, 'h'},
-			{0, 0, 0, 0}};
+			{0, 0, 0, 0}
+		};
 
 		int c = getopt_long(
 			argc, argv, "b:c:l:p:d:s:L:t:h", long_options, &option_index);
@@ -156,7 +158,7 @@ int perf_main(int argc, char **argv) {
 	}
 
 
-	if (perf_worker_start(&vmsl, options) == 0) {
+	if (perf_worker_start(&vmsl) == 0) {
 		logger(GRU_INFO, "Test execution with process ID %d finished successfully\n", getpid());
 
 

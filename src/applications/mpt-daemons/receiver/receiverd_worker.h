@@ -53,7 +53,7 @@
 extern "C" {
 #endif
 
-int receiverd_worker_start(const options_t *options);
+int receiverd_worker_start();
 
 #ifdef __cplusplus
 }

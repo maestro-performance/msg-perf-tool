@@ -275,13 +275,13 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 	return ret;
 }
 
-int senderd_worker_start(const options_t *options) {
+int senderd_worker_start() {
 	gru_status_t status = gru_status_new();
 	maestro_sheet_t *sheet = senderd_new_sheet(&status);
 	logger_t logger = gru_logger_get();
 	worker_ret_t ret;
 
-	if (!maestro_player_start(options, sheet, &status)) {
+	if (!maestro_player_start(sheet, &status)) {
 		logger(GRU_FATAL, "Unable to connect to maestro broker: %s", status.message);
 
 		maestro_player_stop(sheet, &status);

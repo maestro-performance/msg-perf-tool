@@ -318,7 +318,7 @@ static worker_ret_t receiverd_worker_execute(const vmsl_t *vmsl) {
 	return ret;
 }
 
-int receiverd_worker_start(const options_t *options) {
+int receiverd_worker_start() {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
@@ -327,7 +327,7 @@ int receiverd_worker_start(const options_t *options) {
 	maestro_sheet_t *sheet = NULL;
 	if (options_get_maestro_host()) {
 		sheet = receiverd_new_sheet(&status);
-		if (!maestro_player_start(options, sheet, &status)) {
+		if (!maestro_player_start(sheet, &status)) {
 			logger(GRU_FATAL, "Unable to connect to maestro broker: %s", status.message);
 
 			maestro_player_stop(sheet, &status);

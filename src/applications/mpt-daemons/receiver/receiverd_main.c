@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 
 	int cret = init_controller(options_get_log_dir(), "mpt-receiver-daemon");
 	if (cret == 0) {
-		if (receiverd_worker_start(options) != 0) {
+		if (receiverd_worker_start() != 0) {
 			logger_t logger = gru_logger_get();
 			logger(GRU_ERROR, "Unable to start the receiver worker");
 

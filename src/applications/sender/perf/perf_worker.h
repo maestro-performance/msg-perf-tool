@@ -47,7 +47,7 @@
 extern "C" {
 #endif
 
-int perf_worker_start(const vmsl_t *vmsl, const options_t *options);
+int perf_worker_start(const vmsl_t *vmsl);
 
 #ifdef __cplusplus
 }
