@@ -1,7 +1,7 @@
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.2.1
-Release:            0%{?dist}
+Release:            1%{?dist}
 License:            Apache v2
 Source:             msg-perf-tool-%{version}.tar.gz
 URL:                https://github.com/orpiske/msg-perf-tool.git
@@ -52,6 +52,13 @@ cd build
 %postun -p /sbin/ldconfig
 
 %changelog
+* Fri Nov 10 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.1-1
+- Display throttling information on the CLI
+- Fix incorrectly calculation of throttling
+- Cleanup unused parameters
+- Fix incorrect QOS for Maestro's LWT message
+- Reduce logging of PING maestro message
+
 * Thu Oct 12 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.1-0
 - Fixed incorrect computation of throughput
 - Abnormal disconnect message is now sent as a notification message
