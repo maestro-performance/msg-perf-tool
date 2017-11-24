@@ -3,7 +3,7 @@
 PID_DIR=/var/run/mpt/
 
 usage() {
-    echo "Usage: mpt-data-server <directory> [port]"
+    echo $"Usage: $0 {start|stop|restart}"
 }
 
 start() {
@@ -51,6 +51,6 @@ case "$1" in
 		restart
 		;;
 	*)
-		echo $"Usage: $0 {start|stop|restart}"
+		usage
 		RETVAL=2
 esac
