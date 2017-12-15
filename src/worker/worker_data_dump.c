@@ -13,6 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+#include <common/gru_variant.h>
 #include "worker_data_dump.h"
 
 struct worker_dump_wrapper_t {
@@ -47,10 +48,40 @@ static void worker_dump_data(FILE *file, void *data) {
 		gru_config_write_long("fcl", file, wrapper->options->condition.latency);
 	}
 
-	if (wrapper->info) {
-		gru_config_write_string("apiName", file, wrapper->info->api_name);
-		gru_config_write_string("apiVersion", file, wrapper->info->api_version);
+	// if TCP, then it's probably using the java backend and the test is
+	// using JMS. In this case, the protocol comes as part of the URL
+	if (strcmp(wrapper->options->uri.scheme, "tcp")) {
+		gru_uri_t uri = wrapper->options->uri;
+
+		if (!uri.query) {
+			return;
+		}
+
+		gru_node_t *node = uri.query->root;
+
+		while (node) {
+			gru_keypair_t *kp = (gru_keypair_t *) node->data;
+			if (gru_keypair_key_equals(kp, "protocol")) {
+				gru_config_write_string("protocol", file, kp->pair->variant.string);
+				break;
+			}
+
+			node = node->next;
+		}
+
+		gru_config_write_string("apiName", file, "JMS");
+		gru_config_write_string("apiVersion", file, "1.1 (best guess)");
+
 	}
+	else {
+		gru_config_write_string("protocol", file, wrapper->options->uri.scheme);
+
+		if (wrapper->info) {
+			gru_config_write_string("apiName", file, wrapper->info->api_name);
+			gru_config_write_string("apiVersion", file, wrapper->info->api_version);
+		}
+	}
+
 
 	fflush(file);
 }

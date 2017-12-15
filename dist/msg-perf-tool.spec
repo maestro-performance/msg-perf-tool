@@ -1,7 +1,7 @@
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.2.1
-Release:            2%{?dist}
+Release:            3%{?dist}
 License:            Apache v2
 Source:             msg-perf-tool-%{version}.tar.gz
 URL:                https://github.com/orpiske/msg-perf-tool.git
@@ -52,6 +52,9 @@ cd build
 %postun -p /sbin/ldconfig
 
 %changelog
+* Fri Dec 15 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.1-3
+- Fixed saving the protocol information on the test properties
+
 * Fri Nov 24 2017 Otavio R. Piske <angusyoung@gmail.com> - 0.2.1-2
 - Incorrect help message for the data server
 
