@@ -22,6 +22,7 @@ BuildRequires:      libuuid-devel
 BuildRequires:      zlib-devel
 BuildRequires:      uriparser-devel
 Requires:           python
+Requires:           qpid-proton
 
 %description
 A tool for measuring messaging system performance for AMQP, STOMP and MQTT messaging protocols
