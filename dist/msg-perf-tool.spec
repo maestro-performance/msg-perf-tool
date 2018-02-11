@@ -1,3 +1,7 @@
+# Debug info package generation currently breaks the RPM build
+%global _enable_debug_package 0
+%global debug_package %{nil}
+
 Summary:            Messaging Performance Tool
 Name:               msg-perf-tool
 Version:            0.2.1
@@ -22,7 +26,6 @@ BuildRequires:      libuuid-devel
 BuildRequires:      zlib-devel
 BuildRequires:      uriparser-devel
 Requires:           python
-Requires:           qpid-proton
 
 %description
 A tool for measuring messaging system performance for AMQP, STOMP and MQTT messaging protocols
