@@ -26,6 +26,11 @@ target_link_libraries(
 	mpt-worker
 )
 
+configure_file(maestro-worker/maestro-stop.sh
+		${CMAKE_BINARY_DIR}/target/${CMAKE_INSTALL_BINDIR}/maestro-stop
+		@ONLY
+		)
+
 install(TARGETS
 	mpt-worker-daemon
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
