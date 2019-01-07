@@ -65,8 +65,6 @@ add_subdirectory(src/orchestration objs/orchestration)
 add_subdirectory(src/worker objs/worker)
 include_directories(src/worker)
 
-add_subdirectory(src/applications/receiver objs/applications/receiver)
-add_subdirectory(src/applications/sender objs/applications/sender)
 add_subdirectory(src/applications/maestro objs/applications/maestro)
 add_subdirectory(src/applications/mpt-daemons objs/applications/mpt-daemons)
 
