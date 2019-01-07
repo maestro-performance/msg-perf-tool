@@ -54,7 +54,7 @@
 extern "C" {
 #endif
 
-int senderd_worker_start();
+int worker_daemon_start();
 
 #ifdef __cplusplus
 }

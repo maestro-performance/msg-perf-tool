@@ -13,23 +13,23 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "senderd_worker.h"
+#include "worker_daemon.h"
 
 bool started = false;
 bool halt = false;
 worker_options_t worker_options = {0};
 static char *locations[] = MAESTRO_SENDER_DAEMON_SHEETS;
 
-static void *senderd_handle_set(const maestro_note_t *request,
-	maestro_note_t *response,
-	const maestro_player_info_t *pinfo)
+static void *worker_daemon_handle_set(const maestro_note_t *request,
+									  maestro_note_t *response,
+									  const maestro_player_info_t *pinfo)
 {
 	return commond_handle_set(request, response, &worker_options);
 }
 
-static void *senderd_handle_start(const maestro_note_t *request,
-	maestro_note_t *response,
-	const maestro_player_info_t *pinfo) {
+static void *worker_daemon_handle_start(const maestro_note_t *request,
+										maestro_note_t *response,
+										const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(GRU_INFO, "Just received a start request");
@@ -43,9 +43,9 @@ static void *senderd_handle_start(const maestro_note_t *request,
 	return NULL;
 }
 
-static void *senderd_handle_stop(const maestro_note_t *request,
-	maestro_note_t *response,
-	const maestro_player_info_t *pinfo) {
+static void *worker_daemon_handle_stop(const maestro_note_t *request,
+									   maestro_note_t *response,
+									   const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(GRU_INFO, "Just received a stop request");
@@ -64,9 +64,9 @@ static void *senderd_handle_stop(const maestro_note_t *request,
 }
 
 
-static void *senderd_handle_test_failed(const maestro_note_t *request,
-								 maestro_note_t *response,
-								 const maestro_player_info_t *pinfo) {
+static void *worker_daemon_handle_test_failed(const maestro_note_t *request,
+											  maestro_note_t *response,
+											  const maestro_player_info_t *pinfo) {
 	started = false;
 
 	if (worker_list_is_running()) {
@@ -85,22 +85,22 @@ static void *senderd_handle_test_failed(const maestro_note_t *request,
 	return NULL;
 }
 
-static void *senderd_handle_halt(const maestro_note_t *request,
-	maestro_note_t *response,
-	const maestro_player_info_t *pinfo) {
+static void *worker_daemon_handle_halt(const maestro_note_t *request,
+									   maestro_note_t *response,
+									   const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(GRU_INFO, "Just received a halt request");
-	senderd_handle_stop(request, response, pinfo);
+	worker_daemon_handle_stop(request, response, pinfo);
 	halt = true;
 	maestro_note_set_cmd(response, MAESTRO_NOTE_OK);
 
 	return NULL;
 }
 
-static void *senderd_handle_stats(const maestro_note_t *request,
-	maestro_note_t *response,
-	const maestro_player_info_t *pinfo) {
+static void *worker_daemon_handle_stats(const maestro_note_t *request,
+										maestro_note_t *response,
+										const maestro_player_info_t *pinfo) {
 	logger_t logger = gru_logger_get();
 
 	logger(GRU_INFO, "Just received a stats request: %s", pinfo->id);
@@ -147,7 +147,7 @@ static void *senderd_handle_stats(const maestro_note_t *request,
 	return NULL;
 }
 
-static maestro_sheet_t *senderd_new_sheet(gru_status_t *status) {
+static maestro_sheet_t *worker_daemon_new_sheet(gru_status_t *status) {
 	maestro_sheet_t *ret = maestro_sheet_new(status);
 
 	if (!ret) {
@@ -157,12 +157,12 @@ static maestro_sheet_t *senderd_new_sheet(gru_status_t *status) {
 	maestro_sheet_set_location(ret, MAESTRO_DAEMON_SHEETS_COUNT, locations, MAESTRO_DEFAULT_QOS);
 
 	maestro_instrument_t *start_instrument =
-		maestro_instrument_new(MAESTRO_NOTE_START_SENDER, senderd_handle_start, status);
+		maestro_instrument_new(MAESTRO_NOTE_START_SENDER, worker_daemon_handle_start, status);
 
 	maestro_sheet_add_instrument(ret, start_instrument);
 
 	maestro_instrument_t *stop_instrument =
-		maestro_instrument_new(MAESTRO_NOTE_STOP_SENDER, senderd_handle_stop, status);
+		maestro_instrument_new(MAESTRO_NOTE_STOP_SENDER, worker_daemon_handle_stop, status);
 
 	maestro_sheet_add_instrument(ret, stop_instrument);
 
@@ -172,7 +172,7 @@ static maestro_sheet_t *senderd_new_sheet(gru_status_t *status) {
 	maestro_sheet_add_instrument(ret, flush_instrument);
 
 	maestro_instrument_t *set_instrument =
-		maestro_instrument_new(MAESTRO_NOTE_SET, senderd_handle_set, status);
+		maestro_instrument_new(MAESTRO_NOTE_SET, worker_daemon_handle_set, status);
 
 	maestro_sheet_add_instrument(ret, set_instrument);
 
@@ -182,24 +182,24 @@ static maestro_sheet_t *senderd_new_sheet(gru_status_t *status) {
 	maestro_sheet_add_instrument(ret, ping_instrument);
 
 	maestro_instrument_t *stats_instrument =
-		maestro_instrument_new(MAESTRO_NOTE_STATS, senderd_handle_stats, status);
+		maestro_instrument_new(MAESTRO_NOTE_STATS, worker_daemon_handle_stats, status);
 
 	maestro_sheet_add_instrument(ret, stats_instrument);
 
 	maestro_instrument_t *halt_instrument =
-		maestro_instrument_new(MAESTRO_NOTE_HALT, senderd_handle_halt, status);
+		maestro_instrument_new(MAESTRO_NOTE_HALT, worker_daemon_handle_halt, status);
 
 	maestro_sheet_add_instrument(ret, halt_instrument);
 
 	maestro_instrument_t *notify_instrument =
-		maestro_instrument_new(MAESTRO_NOTE_NOTIFY_FAIL, senderd_handle_test_failed, status);
+		maestro_instrument_new(MAESTRO_NOTE_NOTIFY_FAIL, worker_daemon_handle_test_failed, status);
 
 	maestro_sheet_add_instrument(ret, notify_instrument);
 
 	return ret;
 }
 
-static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
+static worker_ret_t worker_daemon_execute(const vmsl_t *vmsl) {
 	logger_t logger = gru_logger_get();
 	gru_status_t status = gru_status_new();
 
@@ -275,9 +275,9 @@ static worker_ret_t senderd_worker_execute(const vmsl_t *vmsl) {
 	return ret;
 }
 
-int senderd_worker_start() {
+int worker_daemon_start() {
 	gru_status_t status = gru_status_new();
-	maestro_sheet_t *sheet = senderd_new_sheet(&status);
+	maestro_sheet_t *sheet = worker_daemon_new_sheet(&status);
 	logger_t logger = gru_logger_get();
 	worker_ret_t ret;
 
@@ -307,7 +307,7 @@ int senderd_worker_start() {
 					break;
 				}
 			} else {
-				ret = senderd_worker_execute(&vmsl);
+				ret = worker_daemon_execute(&vmsl);
 				if (ret & WORKER_CHILD) {
 					break;
 				}

@@ -29,7 +29,7 @@
 #include "contrib/options.h"
 #include "process_utils.h"
 
-#include "senderd_worker.h"
+#include "worker_daemon.h"
 
 #include "process_utils.h"
 

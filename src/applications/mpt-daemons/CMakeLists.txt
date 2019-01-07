@@ -1,6 +1,6 @@
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	# Receiver files
-	AddService(sender/config mpt-sender-daemon)
+	AddService(maestro-worker/config mpt-worker-daemon)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 include_directories(common)
@@ -12,13 +12,13 @@ add_library(
 
 
 add_executable(
-	mpt-sender-daemon
-	sender/senderd_main.c
-	sender/senderd_worker.c
+	mpt-worker-daemon
+		maestro-worker/worker_main.c
+		maestro-worker/worker_daemon.c
 )
 
 target_link_libraries(
-	mpt-sender-daemon
+	mpt-worker-daemon
 	mpt-daemon-common
 	mpt-common
 	mpt-api-common
@@ -27,6 +27,6 @@ target_link_libraries(
 )
 
 install(TARGETS
-	mpt-sender-daemon
+	mpt-worker-daemon
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

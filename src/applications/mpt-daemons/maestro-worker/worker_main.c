@@ -13,10 +13,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-#include "senderd_main.h"
+#include "worker_main.h"
 
 static void show_help(char **argv) {
-	gru_cli_program_usage("mpt-sender-daemon", argv[0]);
+	gru_cli_program_usage("mpt-worker-daemon", argv[0]);
 
 	gru_cli_option_help("help", "h", "show this help");
 	gru_cli_option_help("log-level",
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
 
 	int cret = init_controller(options_get_log_dir(), "mpt-sender-daemon");
 	if (cret == 0) {
-		if (senderd_worker_start(options) != 0) {
+		if (worker_daemon_start(options) != 0) {
 			logger_t logger = gru_logger_get();
 			logger(GRU_ERROR, "Unable to start the sender worker");
 
