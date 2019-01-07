@@ -14,8 +14,6 @@ add_library(
         statistics/naming_utils.c
         strategies/payload/pl_fixed_strategy.c
         strategies/payload/pl_variable_strategy.c
-        bmic/bmic_utils.c
-        bmic/bmic_writer.c
         vmsl.c
         vmslh.c
         msg_conn_info.c

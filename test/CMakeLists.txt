@@ -4,9 +4,6 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/target/tests/${CMAKE_INSTALL_BIND
 
 link_libraries(${MATH_LIB}
     ${GRU_LIB}
-    ${BMIC_BASE_LIB}
-    ${BMIC_MANAGEMENT_LIB}
-    ${BMIC_PRODUCT_LIB}
     ${URIPARSER_LIB}
     ${UUID_LIB}
     ${ZLIB_LIB}

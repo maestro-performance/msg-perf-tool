@@ -22,22 +22,11 @@
  * protocols.
  */
 
-#ifdef __AMQP_SUPPORT__
-extern bool proton_vmsl_assign(vmsl_t *vmsl);
-#else
-vmsl_assign_none(proton_vmsl_assign, "AMQP")
-#endif
 
 #ifdef __MQTT_SUPPORT__
 extern bool paho_vmsl_assign(vmsl_t *vmsl);
 #else
 vmsl_assign_none(paho_vmsl_assign, "MQTT")
-#endif
-
-#ifdef __STOMP_SUPPORT__
-extern bool litestomp_vmsl_assign(vmsl_t *vmsl);
-#else
-	vmsl_assign_none(litestomp_vmsl_assign, "STOMP")
 #endif
 
 bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl) {
@@ -47,14 +36,6 @@ bool vmsl_assign_by_url(const gru_uri_t *uri, vmsl_t *vmsl) {
 		logger(GRU_ERROR, "A protocol scheme must be defined");
 
 		return false;
-	}
-
-	if (strncmp(uri->scheme, "amqp", 4) == 0) {
-		return proton_vmsl_assign(vmsl);
-	}
-
-	if (strncmp(uri->scheme, "stomp", 5) == 0) {
-		return litestomp_vmsl_assign(vmsl);
 	}
 
 	if (strncmp(uri->scheme, "mqtt", 4) == 0) {

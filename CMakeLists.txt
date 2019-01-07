@@ -11,7 +11,6 @@ set(MPT_VERSION_MINOR 1)
 set(MPT_VERSION_PATCH 1)
 
 set(GRU_DIR "/usr" CACHE STRING "GRU directory")
-set(BMIC_DIR "/usr" CACHE STRING "BMIC directory")
 set(BUILD_WITH_EXTRA_DEBUG OFF CACHE BOOL "Build extra debug information")
 set(BUILD_WITH_UNIT_TESTS ON CACHE BOOL "Build unit tests")
 
@@ -27,13 +26,9 @@ else (UNIX)
 	endif (WIN32)
 endif(UNIX)
 
-set(AMQP_SUPPORT ON CACHE BOOL "Enable AMQP 1.0 support")
-set(STOMP_SUPPORT ON CACHE BOOL "Enable STOMP 1.2 support")
 set(MQTT_SUPPORT ON CACHE BOOL "Enable MQTT 3.x support")
 
 include_directories(${GRU_INCLUDE_DIR}
-    ${JSON_INCLUDE_DIR}
-    ${BMIC_INCLUDE_DIR}
     ${URIPARSER_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIR}
     ${MSGPACK_INCLUDE_DIR}
@@ -42,9 +37,6 @@ include_directories(${GRU_INCLUDE_DIR}
 link_libraries(${MATH_LIB}
     ${RT_LIB}
     ${GRU_LIB}
-    ${BMIC_BASE_LIB}
-    ${BMIC_MANAGEMENT_LIB}
-    ${BMIC_PRODUCT_LIB}
     ${URIPARSER_LIB}
     ${UUID_LIB}
     ${ZLIB_LIB}
@@ -55,29 +47,6 @@ link_libraries(${MATH_LIB}
 include_directories(src/common)
 add_subdirectory(src/common objs/common)
 
-#### PROTON STUFF
-
-if (${AMQP_SUPPORT})
-    message(STATUS "AMQP support is enabled")
-    add_definitions(-D__AMQP_SUPPORT__)
-
-    include_directories(src/api/qpid-proton)
-    add_subdirectory(src/api/qpid-proton objs/api/qpid-proton)
-endif(${AMQP_SUPPORT})
-
-
-#### LITESTOMP STUFF
-
-if (${STOMP_SUPPORT})
-    message(STATUS "Stomp support is enabled")
-    add_definitions(-D__STOMP_SUPPORT__)
-
-    include_directories(src/api/litestomp)
-    add_subdirectory(src/api/litestomp objs/api/litestomp)
-endif(${STOMP_SUPPORT})
-
-
-#### PROTON STUFF
 
 if (${MQTT_SUPPORT})
     message(STATUS "MQTT support is enabled")
