@@ -20,6 +20,8 @@
 #include <limits.h>
 
 #include <network/gru_uri.h>
+#include <collection/gru_list.h>
+#include <collection/gru_node.h>
 
 #include <MQTTClient.h>
 
@@ -30,7 +32,6 @@
 #include "vmslh.h"
 #include "paho-handlers.h"
 
-#define QOS_AT_MOST_ONCE 1
 #define TIMEOUT 10000L
 
 #ifdef __cplusplus
@@ -44,7 +45,7 @@ void paho_stop(msg_ctxt_t *ctxt, gru_status_t *status);
 void paho_destroy(msg_ctxt_t *ctxt, gru_status_t *status);
 
 vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status);
-vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_status_t *status);
+vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, gru_list_t *topics, gru_status_t *status);
 vmsl_stat_t paho_receive(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 vmsl_info_t paho_info();
 

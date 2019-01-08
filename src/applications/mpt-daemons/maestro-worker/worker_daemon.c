@@ -18,7 +18,7 @@
 bool started = false;
 bool halt = false;
 worker_options_t worker_options = {0};
-static char *locations[] = MAESTRO_SENDER_DAEMON_SHEETS;
+static char *locations[] = MAESTRO_WORKER_TOPICS;
 
 static void *worker_daemon_handle_set(const maestro_note_t *request,
 									  maestro_note_t *response,
@@ -153,8 +153,6 @@ static maestro_sheet_t *worker_daemon_new_sheet(gru_status_t *status) {
 	if (!ret) {
 		return NULL;
 	}
-
-	maestro_sheet_set_location(ret, MAESTRO_DAEMON_SHEETS_COUNT, locations, MAESTRO_DEFAULT_QOS);
 
 	maestro_instrument_t *start_instrument =
 		maestro_instrument_new(MAESTRO_NOTE_START_SENDER, worker_daemon_handle_start, status);

@@ -36,14 +36,14 @@ extern "C" {
 #endif
 
 typedef struct maestro_sheet_t_ {
-  	vmsl_mtopic_spec_t location;
+  	gru_list_t *topics; /** The topics to subscribe to */
 	gru_list_t *instruments; /** A list of instruments */
 } maestro_sheet_t;
 
 maestro_sheet_t *maestro_sheet_new(gru_status_t *status);
 void maestro_sheet_destroy(maestro_sheet_t **ptr);
 
-void maestro_sheet_set_location(maestro_sheet_t *sheet, int count, char **topics, int qos);
+bool maestro_sheet_add_location(maestro_sheet_t *sheet, int qos, char *topic);
 
 void maestro_sheet_add_instrument(maestro_sheet_t *sheet,
 	maestro_instrument_t *instrument);

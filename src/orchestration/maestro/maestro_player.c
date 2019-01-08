@@ -40,6 +40,41 @@ static void maestro_player_destroy(maestro_player_t **ptr, gru_status_t *status)
 	gru_dealloc((void **) ptr);
 }
 
+static bool maestro_player_sub_name_topic(maestro_player_t *player, gru_status_t *status) {
+	char *peer_name_topic = NULL;
+
+	asprintf(&peer_name_topic, "%s/by-name/%s", MAESTRO_PEER_TOPIC, player->player_info.name);
+
+	if (peer_name_topic == NULL) {
+		gru_status_set(status, GRU_FAILURE, "Not enough memory to format the peer name topic");
+		gru_dealloc_string(&peer_name_topic);
+
+		return false;
+	}
+
+	maestro_sheet_add_location(player->sheet, QOS_AT_LEAST_ONCE, peer_name_topic);
+	gru_dealloc_string(&peer_name_topic);
+
+	return true;
+}
+
+static bool maestro_player_sub_id_topic(maestro_player_t *player, gru_status_t *status) {
+	char *peer_id_topic = NULL;
+
+	asprintf(&peer_id_topic, "%s/by-id/%s", MAESTRO_PEER_TOPIC, player->player_info.id);
+
+	if (peer_id_topic == NULL) {
+		gru_status_set(status, GRU_FAILURE, "Not enough memory to format the peer ID topic");
+		gru_dealloc_string(&peer_id_topic);
+
+		return false;
+	}
+
+	maestro_sheet_add_location(player->sheet, QOS_AT_LEAST_ONCE, peer_id_topic);
+	gru_dealloc_string(&peer_id_topic);
+
+	return true;
+}
 
 static bool maestro_player_connect(maestro_player_t *player, gru_status_t *status) {
 	msg_opt_t opt = {
@@ -67,7 +102,17 @@ static bool maestro_player_connect(maestro_player_t *player, gru_status_t *statu
 		return false;
 	}
 
-	player->mmsl.subscribe(player->ctxt, &player->sheet->location, status);
+	maestro_sheet_add_location(player->sheet, QOS_AT_LEAST_ONCE, MAESTRO_PEER_TOPIC);
+
+	if (!maestro_player_sub_id_topic(player, status)) {
+		return false;
+	}
+
+	if (!maestro_player_sub_name_topic(player, status)) {
+		return false;
+	}
+
+	player->mmsl.subscribe(player->ctxt, player->sheet->topics, status);
 
 	return true;
 }

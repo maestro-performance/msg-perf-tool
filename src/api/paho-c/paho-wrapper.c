@@ -247,38 +247,50 @@ vmsl_stat_t paho_send(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *
 	return VMSL_SUCCESS;
 }
 
-vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_status_t *status) {
-	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
+struct paho_subscribe_pl {
+  paho_ctxt_t *paho_ctxt;
+  gru_status_t *status;
+};
 
+static void paho_do_subscribe(const void *nodedata, void *data) {
+	struct paho_subscribe_pl *payload = (struct paho_subscribe_pl *) data;
 	logger_t logger = gru_logger_get();
 
+	if (gru_status_error(payload->status)) {
+		logger(GRU_WARNING, "Skipping subscription because a previous subscbription request failed");
 
-	int rc = 0;
-	if (!mtopic) {
-		logger(GRU_DEBUG, "Subscribing to %s", (paho_ctxt->uri.path ? paho_ctxt->uri.path : "null"));
-		 rc = MQTTClient_subscribe(paho_ctxt->client, paho_ctxt->uri.path, QOS_AT_MOST_ONCE);
+		return;
 	}
-	else {
-		int qos[mtopic->count];
 
-		for (int i = 0; i < mtopic->count; i++) {
-			qos[i] = mtopic->qos;
-		}
 
-		rc = MQTTClient_subscribeMany(paho_ctxt->client, mtopic->count, mtopic->topics, qos);
-	}
+	paho_ctxt_t *paho_ctxt = payload->paho_ctxt;
+	vmsl_topic_spec_t *topic = (vmsl_topic_spec_t *) nodedata;
+
+
+	logger(GRU_DEBUG, "Subscribing to topic %s with QOS %d", topic->topic, topic->qos);
+	int rc = MQTTClient_subscribe(paho_ctxt->client, topic->topic, topic->qos);
 
 	switch (rc) {
 		case MQTTCLIENT_SUCCESS:
 			break;
 		default: {
-			gru_status_set(status, GRU_FAILURE, "Unable to subscribe: error %d", rc);
-
-			return VMSL_ERROR;
+			gru_status_set(payload->status, GRU_FAILURE, "Unable to subscribe: error %d", rc);
+			break;
 		}
 	}
 
-	logger(GRU_DEBUG, "Subscribed to the topic");
+}
+
+vmsl_stat_t paho_subscribe(msg_ctxt_t *ctxt, gru_list_t *topics, gru_status_t *status) {
+	paho_ctxt_t *paho_ctxt = paho_ctxt_cast(ctxt);
+
+	struct paho_subscribe_pl payload = {
+		.paho_ctxt = paho_ctxt,
+		.status = status,
+	};
+
+	gru_list_for_each(topics, paho_do_subscribe, &payload);
+
 	return VMSL_SUCCESS;
 }
 

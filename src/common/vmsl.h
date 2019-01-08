@@ -36,11 +36,10 @@ typedef enum vmsl_stat_t_ {
 	VMSL_NO_TIMESTAMP = 4,
 } vmsl_stat_t;
 
-typedef struct vmsl_mtopic_spec_t_ {
-	int count;
-  	int qos;
-  	char **topics;
-} vmsl_mtopic_spec_t;
+typedef struct vmsl_topic_spec_t_ {
+  int qos;
+  char *topic;
+} vmsl_topic_spec_t;
 
 typedef struct vmsl_info_t_ {
   const char *api_name;
@@ -51,7 +50,10 @@ typedef msg_ctxt_t *(*msg_init)(msg_opt_t opt, vmslh_handlers_t *handlers, gru_s
 typedef vmsl_stat_t (*msg_start)(msg_ctxt_t *ctxt, gru_status_t *status);
 typedef vmsl_stat_t (
 	*msg_send)(msg_ctxt_t *ctxt, msg_content_data_t *data, gru_status_t *status);
-typedef vmsl_stat_t (*msg_subscribe)(msg_ctxt_t *ctxt, vmsl_mtopic_spec_t *mtopic, gru_status_t *status);
+
+typedef vmsl_stat_t (*msg_subscribe)(msg_ctxt_t *ctxt, gru_list_t *topics, gru_status_t *status);
+
+
 typedef vmsl_stat_t (
 	*msg_receive)(msg_ctxt_t *ctxt, msg_content_data_t *content, gru_status_t *status);
 typedef void (*msg_stop)(msg_ctxt_t *ctxt, gru_status_t *status);

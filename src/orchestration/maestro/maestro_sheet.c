@@ -28,6 +28,14 @@ maestro_sheet_t *maestro_sheet_new(gru_status_t *status) {
 		return NULL;
 	}
 
+	ret->topics = gru_list_new(status);
+	if (!ret->topics) {
+		gru_list_destroy(&ret->instruments);
+
+		gru_dealloc((void **) &ret);
+		return  NULL;
+	}
+
 	return ret;
 }
 
@@ -42,10 +50,20 @@ void maestro_sheet_destroy(maestro_sheet_t **ptr) {
 	gru_list_clean(sheet->instruments, maestro_instrument_destroy_wrapper);
 }
 
-void maestro_sheet_set_location(maestro_sheet_t *sheet, int count, char **topics, int qos) {
-	sheet->location.count = count;
-	sheet->location.topics = topics;
-	sheet->location.qos = qos;
+bool maestro_sheet_add_location(maestro_sheet_t *sheet, int qos, char *topic) {
+	vmsl_topic_spec_t *topic_spec = malloc(sizeof(vmsl_topic_spec_t));
+	if (!topic_spec) {
+		return false;
+	}
+
+	topic_spec->qos = qos;
+	topic_spec->topic = strdup(topic);
+
+	if (!gru_list_append(sheet->topics, topic_spec)) {
+		return false;
+	}
+
+	return true;
 }
 
 void maestro_sheet_add_instrument(maestro_sheet_t *sheet,
@@ -115,6 +133,7 @@ void maestro_sheet_play(const maestro_sheet_t *sheet,
 
 	} else {
 		if (!maestro_sheet_do_play(sheet->instruments, pinfo, &request, &response)) {
+//			logger(GRU_ERROR, "Ignored note");
 			// This note is valid, but not handled. Therefore, ignored
 			goto ignore;
 		}

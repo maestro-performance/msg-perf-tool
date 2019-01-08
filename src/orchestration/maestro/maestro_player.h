@@ -34,6 +34,10 @@
 #include "maestro_topics.h"
 #include "maestro_notify.h"
 
+#define QOS_AT_MOST_ONCE 0
+#define QOS_AT_LEAST_ONCE 1
+#define QOS_EXACTLY_ONCE 2
+
 
 #define MPT_MAESTRO_IDLE_TIME 10000
 
